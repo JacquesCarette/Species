@@ -1,0 +1,91 @@
+\documentclass[9pt]{sigplanconf}
+
+%\usepackage{latex8}
+%\usepackage{times}
+\usepackage{amsmath}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{proof}
+\usepackage{comment}
+\usepackage{url}
+\usepackage{xspace}
+
+\pdfpagewidth=8.5in
+\pdfpageheight=11in
+
+\newcommand{\lam}[2]{\lambda #1 . #2}
+
+\newcommand{\rase}[1]{\ulcorner #1 \urcorner}
+\newcommand{\lowr}[1]{\llcorner #1 \lrcorner}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+\newtheorem{lemma}{Lemma}
+
+\begin{document}
+
+\title{Towards Typing for Small-Step Direct Reflection}
+
+\authorinfo{Jacques Carette}
+{Dept. of Computing and Software\\ McMaster University\\
+Hamilton, Ontario, Canada}
+{carette@mcmaster.ca}
+
+\authorinfo{Brent Yorgey}
+{Dept. of Computer and Information Sciences\\ The University of Pennsylvania\\
+Philadelphia, Pennsylvania, USA}
+{byorgey@cis.upenn.edu}
+
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\category{D.3.2}{Programming Languages}{Applicative (functional) languages}
+\category{F.3.1}{Logics and Meanings of Programs}{Specifying and Verifying and Reasoning about Programs}
+
+\terms
+Languages, Types
+
+\section{Introduction}\label{sec:intro}
+
+\section{Species as semantics}\label{sec:specsem}
+\begin{itemize}
+\item brief recap of definition of species, categorically
+\item short intro to operators on species
+\item implicit species theorem
+\end{itemize}
+
+\section{A language of type constructors based on species}\label{sec:language}
+\begin{itemize}
+\item need declaration language, based on above
+\end{itemize}
+
+\section{Programming with species, part I}\label{sec:prog1}
+\begin{itemize}
+\item basic term language (introduction, elimination forms)
+\item semantics, and usual theorems
+\end{itemize}
+
+\section{Programming with species, part II}\label{sec:prog2}
+\begin{itemize}
+\item polytypic/generic programming (includes map, fold, unfold, etc.)
+\end{itemize}
+
+\section{Species and Haskell}\label{sec:haskell}
+\begin{itemize}
+\item why the implicit species theorem's assumptions are always satisfied in Haskell (but not in traditional type theories)
+\end{itemize}
+
+\section{Related Work}\label{sec:related}
+\begin{itemize}
+\item containers, naturally 
+\end{itemize}
+
+\section{Conclusion}\label{sec:conclusion}
+
+%\bibliographystyle{plainnat}
+%\bibliography{paper}
+
+\end{document}
