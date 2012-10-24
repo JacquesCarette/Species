@@ -1,5 +1,7 @@
 \documentclass[9pt]{sigplanconf}
 
+\usepackage{../species}
+
 %\usepackage{latex8}
 %\usepackage{times}
 \usepackage{amsmath}
@@ -9,6 +11,7 @@
 \usepackage{comment}
 \usepackage{url}
 \usepackage{xspace}
+\usepackage{xcolor}
 
 \pdfpagewidth=8.5in
 \pdfpageheight=11in
@@ -22,6 +25,46 @@
 \newtheorem{proposition}{Proposition}
 \newtheorem{definition}{Definition}
 \newtheorem{lemma}{Lemma}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Prettyref
+
+\usepackage{prettyref}
+
+\newrefformat{fig}{Figure~\ref{#1}}
+\newrefformat{sec}{section~\ref{#1}}
+\newrefformat{eq}{equation~\eqref{#1}}
+\newrefformat{prob}{Problem~\ref{#1}}
+\newrefformat{tab}{Table~\ref{#1}}
+\newrefformat{thm}{Theorem~\ref{#1}}
+\newrefformat{lem}{Lemma~\ref{#1}}
+\newrefformat{prop}{Proposition~\ref{#1}}
+\newrefformat{defn}{Definition~\ref{#1}}
+\newrefformat{cor}{Corollary~\ref{#1}}
+\newcommand{\pref}[1]{\prettyref{#1}}
+
+% \Pref is just like \pref but it uppercases the first letter; for use
+% at the beginning of a sentence.
+\newcommand{\Pref}[1]{%
+  \expandafter\ifx\csname r@#1\endcsname\relax {\scriptsize[ref]}
+    \else
+    \edef\reftext{\prettyref{#1}}\expandafter\MakeUppercase\reftext
+    \fi
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Comments
+
+\specialcomment{bay}{\begingroup[\color{blue}}{ --- BAY\endgroup]}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Misc
+
+\newcommand{\eg}{\emph{e.g.}\xspace}
+\newcommand{\ie}{\emph{i.e.}\xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
 
@@ -62,6 +105,50 @@ Languages, Types
 \item need declaration language, based on above
 \end{itemize}
 
+We begin with a simple universe of \emph{species expressions}, defined
+as in~\pref{fig:universe}.  Starting with \emph{syntax} in this way is
+certainly uncontroversial in a computer science context, but
+represents something of a departure from the standard literature on
+species.
+
+\begin{figure}
+  \centering
+  \begin{align*}
+    S & ::= \Zero \\
+    & \mid \X^n/\H_n & n \in \N, \H_n \subseteq \S_n \\
+    & \mid S \usum S \\
+    & \mid S \uprod S \\
+    & \mid S \ucomp S
+  \end{align*}
+  \caption{The universe of species expressions}
+  \label{fig:universe}
+\end{figure}
+
+\begin{itemize}
+\item $\Zero$ represents the usual zero species.
+
+\item $\X^n/\H_n$ represents a molecular species, in particular the
+  species whose structures are equivalence classes of linear orderings
+  of $n$ labels under the action of the permutation group $\H_n$.
+
+\item $S_1 \uplus S_2$ denotes the usual species sum (\ie tagged
+  union), $S_1 \uprod S_2$ denotes the usual (partitional) product of
+  species, and $S_1 \ucomp S_2$ the usual (partitional) composition of
+  species.
+\end{itemize}
+
+For convenience, we also use some abbreviations:
+\begin{itemize}
+\item $\One$ denotes $\X^0 / \I_0$, the usual unit species (where
+  $\I_n$ denotes the trivial group of permutations on $n$ elements).
+\item $\X$ denotes $\X^1 / \I_1$, the usual identity species.
+\end{itemize}
+
+\begin{bay}
+  I guess we also need to include special cases for things like \E\
+  and \C\ in the universe?
+\end{bay}
+
 \section{Programming with species, part I}\label{sec:prog1}
 \begin{itemize}
 \item basic term language (introduction, elimination forms)
@@ -80,7 +167,7 @@ Languages, Types
 
 \section{Related Work}\label{sec:related}
 \begin{itemize}
-\item containers, naturally 
+\item containers, naturally
 \end{itemize}
 
 \section{Conclusion}\label{sec:conclusion}
