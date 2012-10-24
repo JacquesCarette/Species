@@ -1,4 +1,6 @@
-/papers/*.aux
-/papers/*.log
-/papers/*.pdf
 *~
+/papers/*.pdf
+*.aux
+*.log
+*.cut
+*.log
