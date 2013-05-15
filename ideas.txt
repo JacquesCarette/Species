@@ -1,0 +1,24 @@
+Ideas for stuff to think about:
+
+- combinatorial interpretation of integration by parts?
+
+- type-theoretical interpretation of vector calculus, e.g. tangent
+  spaces, differential categories, etc.
+
+- finite maps, arrays, vectors, etc. as labelled structures
+
+- using labelled structures to think about pointers/low-level memory
+  management etc.
+
+- functions as species (BLL p.112 ex. 1)
+
+- prove the image of Haskell data types as species types all satisfy
+  implicit species thm.
+
+- use PE to compile away overhead of species representation
+
+- relation of labelled structures to Functor, Applicative, Monad,
+  Foldable, Traversable.  zippy vs substituty Monad instances.
+
+- prove something formal w/ generalization of species to codomain
+  other than Set (e.g. Hask or something suitably similar)
