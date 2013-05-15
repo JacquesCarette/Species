@@ -1,9 +1,7 @@
-\documentclass[9pt]{sigplanconf}
+\documentclass[9pt,preprint]{sigplanconf}
 
 \usepackage{../species}
 
-%\usepackage{latex8}
-%\usepackage{times}
 \usepackage{amsmath}
 \usepackage{latexsym}
 \usepackage{amssymb}
@@ -55,7 +53,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Comments
 
-\specialcomment{bay}{\begingroup[\color{blue}}{ --- BAY\endgroup]}
+\specialcomment{bay}{\begingroup\color{blue}[}{ --- BAY]\endgroup}
+\specialcomment{todo}{\begingroup\color{red}TODO: }{\endgroup}
+
+% \excludecomment{bay}
+% \excludecomment{todo}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Misc
@@ -68,109 +70,94 @@
 
 \begin{document}
 
-\title{Towards Typing for Small-Step Direct Reflection}
-
-\authorinfo{Jacques Carette}
-{Dept. of Computing and Software\\ McMaster University\\
-Hamilton, Ontario, Canada}
-{carette@mcmaster.ca}
+\title{Species Constructors}
 
 \authorinfo{Brent A. Yorgey}
 {Dept. of Computer and Information Science\\ The University of Pennsylvania\\
 Philadelphia, Pennsylvania, USA}
 {byorgey@cis.upenn.edu}
 
+\authorinfo{Jacques Carette}
+{Dept. of Computing and Software\\ McMaster University\\
+Hamilton, Ontario, Canada}
+{carette@mcmaster.ca}
+
 \maketitle
 
 \begin{abstract}
+
+\begin{todo}
+Abstract goes here.
+\end{todo}
+
 \end{abstract}
 
 \category{D.3.2}{Programming Languages}{Applicative (functional) languages}
-\category{F.3.1}{Logics and Meanings of Programs}{Specifying and Verifying and Reasoning about Programs}
 
 \terms
 Languages, Types
 
-\section{Introduction}\label{sec:intro}
+\section{Introduction}
+\label{sec:intro}
 
-\section{Species as semantics}\label{sec:specsem}
-\begin{itemize}
-\item brief recap of definition of species, categorically
-\item short intro to operators on species
-\item implicit species theorem
-\end{itemize}
+\begin{todo}
+  Motivation.  ``An answer looking for a question.''  Note symmetries
+  were original motivation, but drawn to labels instead.
 
-\section{A language of type constructors based on species}\label{sec:language}
-\begin{itemize}
-\item need declaration language, based on above
-\end{itemize}
+  Take-home points:
+  \begin{itemize}
+  \item Labelled structures capture a wide range of data structures.
+  \item Combinators! ($\times 2!$ --- type level and value level)
+  \end{itemize}
 
-We begin with a simple universe of \emph{species expressions}, defined
-as in~\pref{fig:universe}.  Starting with \emph{syntax} in this way is
-certainly uncontroversial in a computer science context, but
-represents something of a departure from the standard literature on
-species.
+  Other interesting but not take-home points:
+  \begin{itemize}
+  \item fun with isos
+  \item labels as abstract model of memory
+  \item labels make sharing easy
+  \end{itemize}
+\end{todo}
 
-\begin{figure}
-  \centering
-  \begin{align*}
-    S & ::= \Zero \\
-    & \mid \X^n/\H_n & n \in \N, \H_n \subseteq \S_n \\
-    & \mid S \usum S \\
-    & \mid S \uprod S \\
-    & \mid S \ucomp S
-  \end{align*}
-  \caption{The universe of species expressions}
-  \label{fig:universe}
-\end{figure}
+\section{Labelled Structures}
+\label{sec:labelled}
 
-\begin{itemize}
-\item $\Zero$ represents the usual zero species.
+\begin{todo}
+  Pedagogical, fun examples. (Map, vector, tree, edges/triangulations)
+  Enough background just-in-time.
+\end{todo}
 
-\item $\X^n/\H_n$ represents a molecular species, in particular the
-  species whose structures are equivalence classes of linear orderings
-  of $n$ labels under the action of the permutation group $\H_n$.
+\section{Combinatorial Species}
+\label{sec:species}
 
-\item $S_1 \uplus S_2$ denotes the usual species sum (\ie tagged
-  union), $S_1 \uprod S_2$ denotes the usual (partitional) product of
-  species, and $S_1 \ucomp S_2$ the usual (partitional) composition of
-  species.
-\end{itemize}
+\begin{todo}
+  Theory.
+\end{todo}
 
-For convenience, we also use some abbreviations:
-\begin{itemize}
-\item $\One$ denotes $\X^0 / \I_0$, the usual unit species (where
-  $\I_n$ denotes the trivial group of permutations on $n$ elements).
-\item $\X$ denotes $\X^1 / \I_1$, the usual identity species.
-\end{itemize}
+\section{Labelled Structures in Haskell}
+\label{sec:haskell}
 
-\begin{bay}
-  I guess we also need to include special cases for things like \E\
-  and \C\ in the universe?
-\end{bay}
+\begin{todo}
+  Describe our implementation.  Note that actually compiling such
+  things to efficient runtime code is future work.
+\end{todo}
 
-\section{Programming with species, part I}\label{sec:prog1}
-\begin{itemize}
-\item basic term language (introduction, elimination forms)
-\item semantics, and usual theorems
-\end{itemize}
+\section{Programming with Labelled Structures}
+\label{sec:programming}
 
-\section{Programming with species, part II}\label{sec:prog2}
-\begin{itemize}
-\item polytypic/generic programming (includes map, fold, unfold, etc.)
-\end{itemize}
+\begin{todo}
+  Give some examples of using our implementation.
+\end{todo}
 
-\section{Species and Haskell}\label{sec:haskell}
-\begin{itemize}
-\item why the implicit species theorem's assumptions are always satisfied in Haskell (but not in traditional type theories)
-\end{itemize}
+\section{Related Work}
+\label{sec:related}
 
-\section{Related Work}\label{sec:related}
 \begin{itemize}
 \item containers, naturally
 \end{itemize}
 
-\section{Conclusion}\label{sec:conclusion}
+\section{Conclusion}
+\label{sec:conclusion}
+
 
 %\bibliographystyle{plainnat}
 %\bibliography{paper}
