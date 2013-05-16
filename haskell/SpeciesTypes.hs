@@ -184,13 +184,13 @@ inr (Struct sz shp elts) = Struct sz (InR shp id) elts
   = Struct
       (sz1+sz2)
       (Prod shp1 shp2 id)
-      (⊥) -- XXX FIXME (either elts1 elts2)
+      un -- XXX FIXME (either elts1 elts2)
 
 pr :: Sp (X * X) Bool Int
-pr = there (relabel onePlusOne) $ x 3 *~ x 4
+pr = there (relabel onePlusOneBool) $ x 3 *~ x 4
 
-onePlusOne :: Either () () <-> Bool
-onePlusOne = Iso (either (const False) (const True)) (\b -> (if b then Right else Left) ())
+onePlusOneBool :: Either () () <-> Bool
+onePlusOneBool = Iso (either (const False) (const True)) (\b -> (if b then Right else Left) ())
 
 -- XXX existentially quantify over label types at some point?  should
 -- all still work I think.
@@ -222,28 +222,31 @@ instance Viewable I where
 ------------------------------------------------------------
 -- Recursion!
 
-data Mu :: ([*] -> * -> *) -> [[*] -> * -> *] -> [*] -> * -> * where
-  Mu :: f ys l1 -> Mappings fs fs ys ys ls -> (Either l1 (???) <-> l) -> Mu f fs ys l
+data Mu :: (* -> * -> *) -> * -> * where
+  Mu :: f y l' -> SNat n -> (y <-> Fin n) -> Substructures f n ls -> (Either l' (Sum ls) <-> l) -> Mu f l
 
--- XXX need to do the dot product of ys and ls.  Ahhh, but wait, ls
--- should actually be indexed by ys somehow.  Not all the recursive
--- occurrences of a given shape need to have the same number of
--- labels.
---
--- Require an iso to Nat and use that for indexing.
+type family Sum (xs :: [*]) :: *
+type instance Sum '[]     = Void
+type instance Sum (x ': xs) = Either x (Sum xs)
 
-type family Mappings (fs :: [[*] -> * -> *]) (fs' :: [[*] -> * -> *]) (ys :: [*]) (ys' :: [*]) (ls :: [*]) :: *
-type instance Mappings '[] fs' '[] ys' ls = ()
-type instance Mappings (f ': fs) fs' (y ': ys) ys' (l ': ls)
-  = (y -> Mu f fs' ys' l, Mappings fs fs' ys ys' ls)
+-- for now, ls :: '[*], though it should really have kind 'Vec n * .
+-- But for that we need to be able to promote GADTs.
 
-type family Dot (ys :: [*]) (ls :: [*])
-type instance Sum '[]       = Void
-type instance Sum (l ': ls) = Either l (Sum ls)
+type family Substructures (f :: * -> * -> *) (n :: Nat) (ls :: [*]) :: *
+type instance Substructures f Z '[] = ()
+type instance Substructures f (S n) (l ': ls) = (Mu f l, Substructures f n ls)
 
 data Ref y l = Ref y
 
 data Nat = Z | S Nat
+
+data SNat :: Nat -> * where
+  SZ :: SNat Z
+  SS :: SNat n -> SNat (S n)
+
+data Fin :: Nat -> * where
+  FZ :: Fin (S n)
+  FS :: Fin n -> Fin (S n)
 
 type family (!!) (xs :: [k]) (n :: Nat) :: k
 type instance (x ': xs) !! Z = x
@@ -255,19 +258,32 @@ type One = Succ Void
 type Two = Succ One
 type Three = Succ Two
 
-(⊥) = undefined
+un = undefined
 
--- data family T (ys :: [*]) :: * -> *
--- data instance T '[t] l = T ((X + (Ref t * Ref t)) l)
+data T :: * -> * -> * where
+  T :: (X + (Ref t * Ref t)) l -> T Two l
 
-data T :: [*] -> * -> * where
-  T :: (X + (Ref t * Ref t)) l -> T '[t] l
-
-type Tree = Mu T '[T] '[Bool]
+type Tree = Mu T
 
 tree :: Sp Tree Two Char
-tree = Struct 2 (Mu (T (InR (Prod (⊥) (⊥) (⊥)) id)) (⊥) zeroPlus)
+tree = Struct
+  2
+  (Mu
+    (T un {-(InR un un)-})
+    (SS (SS SZ))
+    pf2
+    ((un,(un,())) :: Substructures T (S (S Z)) '[One,One])  -- argh, can't instantiate ls
+    (zeroPlus >>> onePlusOne)
+  )
   (M.toMap [(Left (), 'x'), (Right (Left ()), 'y')])
+
+pf2 :: Two <-> Fin (S (S Z))
+pf2 = Iso pfR pfL
+  where
+    pfR (Left ())         = FZ
+    pfR (Right (Left ())) = FS FZ
+    pfL FZ                = Left ()
+    pfL (FS FZ)           = Right (Left ())
 
 {-
 data family T1 (ys :: [*]) :: * -> *
@@ -284,8 +300,8 @@ foo = Struct 3 (Mu (T1 (Prod (X () id) (Ref ()) id)) () assoc)
   (M.toMap [(Left (), 16), (Right (Left ()), 99), (Right (Right (Left ())), 4)])
 -}
 
-assoc :: Either (Either a b) c <-> Either a (Either b c)
-assoc = Iso assocR assocL
+plusAssoc :: Either (Either a b) c <-> Either a (Either b c)
+plusAssoc = Iso assocR assocL
   where
     assocR (Left (Left a))   = Left a
     assocR (Left (Right b))  = Right (Left b)
@@ -294,9 +310,31 @@ assoc = Iso assocR assocL
     assocL (Right (Left b))  = Left (Right b)
     assocL (Right (Right c)) = Right c
 
+plusCommute :: Either a b <-> Either b a
+plusCommute = Iso commuteR commuteL
+  where
+    commuteR (Left a)  = Right a
+    commuteR (Right b) = Left b
+    commuteL (Left b)  = Right b
+    commuteL (Right a) = Left a
+
 zeroPlus :: Either Void a <-> a
 zeroPlus = Iso zeroPlusL zeroPlusR
   where
     zeroPlusL (Left v)  = absurd v
     zeroPlusL (Right a) = a
     zeroPlusR a         = Right a
+
+plusZero :: Either a Void <-> a
+plusZero = plusCommute >>> zeroPlus
+
+onePlusOne :: Sum '[One, One] <-> Two
+onePlusOne = plusAssoc >>> plusR (zeroPlus >>> plusZero)
+
+plusR :: (b <-> c) -> (Either a b <-> Either a c)
+plusR iso = Iso plusRL plusRR
+  where
+    plusRL (Left a)  = Left a
+    plusRL (Right b) = Right (there iso b)
+    plusRR (Left a)  = Left a
+    plusRR (Right c) = Right (back iso c)
