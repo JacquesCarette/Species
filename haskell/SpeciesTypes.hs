@@ -17,8 +17,10 @@ import           Data.Functor ((<$>))
 import           Data.Functor.Constant
 import           Data.Functor.Coproduct
 import           Data.Functor.Identity
+import           Data.Functor.Product
+import           Iso
 -- import           Control.Lens
-import qualified Map as M
+import qualified TMap as M
 import           Data.Void
 
 import qualified Set as S
@@ -36,25 +38,10 @@ instance Functor (Sp f l) where
 data Sh f l where
   Shape :: Int -> f l -> Sh f l
 
-data l1 <-> l2 = Iso { there :: l1 -> l2, back :: l2 -> l1 }
-
-instance Category (<->) where
-  id = Iso id id
-  (Iso f f') . (Iso g g') = Iso (f . g) (g' . f')
-
-inv :: (a <-> b) -> (b <-> a)
-inv (Iso f g) = Iso g f
-
-class BFunctor f where
-  bmap :: (a <-> b) -> (f a <-> f b)
-
-  default bmap :: Functor f => (a <-> b) -> (f a <-> f b)
-  bmap iso = Iso (there iso <$>) (back iso <$>)
-
 relabel :: BFunctor f => (l1 <-> l2) -> (Sp f l1 a <-> Sp f l2 a)
 relabel s = Iso
-  { there = \(Struct sz shp elts) -> Struct sz (there (bmap s) shp) (M.mapLabels (there s) elts)
-  , back  = \(Struct sz shp elts) -> Struct sz (back (bmap s) shp)  (M.mapLabels (back s) elts)
+  { there = \(Struct sz shp elts) -> Struct sz (there (bmap s) shp) (M.mapLabels s elts)
+  , back  = \(Struct sz shp elts) -> Struct sz (back (bmap s) shp)  (M.mapLabels (inv s) elts)
   }
   -- XXX the above would be much nicer with some... lenses =)
 
@@ -164,7 +151,7 @@ one :: Sp I Void a
 one = Struct 0 (I id) M.empty
 
 x :: a -> Sp X () a
-x a = Struct 1 (X () id) (M.singleton () a)
+x a = Struct 1 (X () id) (M.singleton a)
 
 {-
 
@@ -197,9 +184,9 @@ onePlusOneBool = Iso (either (const False) (const True)) (\b -> (if b then Right
 
 class Viewable f where
   type View f :: * -> *
-  view' :: f l -> M.Map l a -> View f a
+  view' :: Eq l => f l -> M.Map l a -> View f a
 
-view :: Viewable f => Sp f l a -> View f a
+view :: (Eq l, Viewable f) => Sp f l a -> View f a
 view (Struct _ s elts) = view' s elts
 
 instance Viewable O where
@@ -210,23 +197,53 @@ instance Viewable I where
   type View I = Constant ()
   view' _ _ = Constant ()
 
--- XXX FIXME
--- instance Viewable X where
---   type View X = Identity
---   view' (X _ lU) elts = Identity ((there lU ()))
+instance Viewable X where
+  type View X = Identity
+  view' (X _ lU) elts = Identity (M.lookup (there lU ()) elts)
 
--- instance (Viewable f, Viewable g) => Viewable (f + g) where
---   type View (f+g) = Coproduct (View f) (View g)
---   view' (InL x pf) elts = Coproduct (Left (view' x elts))
+instance (Viewable f, Viewable g) => Viewable (f + g) where
+  type View (f+g) = Coproduct (View f) (View g)
+  view' (InL x pf) elts = Coproduct (Left (view' x (M.mapLabels (inv pf) elts)))
+  view' (InR x pf) elts = Coproduct (Right (view' x (M.mapLabels (inv pf) elts)))
+
+instance (Viewable f, Viewable g) => Viewable (f * g) where
+  type View (f*g) = Product (View f) (View g)
+  view' (Prod x y pf) elts = Pair (view' x elts1) (view' y elts2)
+    where (elts1, elts2) = M.unUnion $ M.mapLabels (inv pf) elts
 
 ------------------------------------------------------------
 -- Recursion!
 
 data Mu :: (* -> * -> *) -> * -> * where
-  Mu :: f y l' -> SNat n -> (y <-> Fin n) -> Substructures f n ls -> (Either l' (Sum ls) <-> l) -> Mu f l
+  Mu :: f y l'
+        -- Top-level f structure, with labels of type y marking
+        -- occurrences of recursive substructures, and labels of type
+        -- l' marking atoms
+
+     -> SNat n
+        -- Number of recursive substructures
+
+     -> (y <-> Fin n)
+        -- Proof that y is an n-element label set
+
+     -> Proxy ls
+        -- Hack to allow instantiating the type ls
+
+     -> Substructures f n ls
+        -- List of n recursive substructures, each using the
+        -- respective label type in the list of types ls :: [*].
+
+     -> (Either l' (Sum ls) <-> l)
+        -- The type of labels for the overall structure is the sum of
+        -- the label types used in the top-level structure and all the
+        -- recursive substructures.
+
+     -> Mu f l
+
+data Proxy a = Proxy
 
 type family Sum (xs :: [*]) :: *
-type instance Sum '[]     = Void
+type instance Sum '[]       = Zero
 type instance Sum (x ': xs) = Either x (Sum xs)
 
 -- for now, ls :: '[*], though it should really have kind 'Vec n * .
@@ -248,20 +265,26 @@ data Fin :: Nat -> * where
   FZ :: Fin (S n)
   FS :: Fin n -> Fin (S n)
 
-type family (!!) (xs :: [k]) (n :: Nat) :: k
-type instance (x ': xs) !! Z = x
-type instance (x ': xs) !! (S n) = xs !! n
-
-type Succ = Either ()
-
-type One = Succ Void
-type Two = Succ One
-type Three = Succ Two
+type Zero = Void
+type One = Fin (S Z)
+type Two = Fin (S (S Z))
+type Three = Fin (S (S (S Z)))
 
 un = undefined
 
+{-  XXX working here: project out recursive structures
+
+instance (ViewableF f) => Viewable (Mu f) where
+
+class ViewableF f where
+  viewF ::
+-}
+
+------------------------------------------------------------
+-- Binary tree example
+
 data T :: * -> * -> * where
-  T :: (X + (Ref t * Ref t)) l -> T Two l
+  T :: (X + (Ref y * Ref y)) l -> T y l
 
 type Tree = Mu T
 
@@ -269,21 +292,19 @@ tree :: Sp Tree Two Char
 tree = Struct
   2
   (Mu
-    (T un {-(InR un un)-})
+    (T (InR (Prod (Ref FZ) (Ref (FS FZ)) zeroPlus) id))
     (SS (SS SZ))
-    pf2
-    ((un,(un,())) :: Substructures T (S (S Z)) '[One,One])  -- argh, can't instantiate ls
+    id
+    (Proxy :: Proxy [One,One])
+    (sub,(sub,()))
     (zeroPlus >>> onePlusOne)
   )
-  (M.toMap [(Left (), 'x'), (Right (Left ()), 'y')])
-
-pf2 :: Two <-> Fin (S (S Z))
-pf2 = Iso pfR pfL
+  un
+--  (M.toMap [(Left (), 'x'), (Right (Left ()), 'y')])
   where
-    pfR (Left ())         = FZ
-    pfR (Right (Left ())) = FS FZ
-    pfL FZ                = Left ()
-    pfL (FS FZ)           = Right (Left ())
+    sub :: Mu T One
+    sub = Mu (T (InL (X () (inv zeroPlus)) id)) SZ id (Proxy :: Proxy '[]) ()
+            (plusZero >>> zeroPlus >>> unitOne)
 
 {-
 data family T1 (ys :: [*]) :: * -> *
@@ -318,18 +339,24 @@ plusCommute = Iso commuteR commuteL
     commuteL (Left b)  = Right b
     commuteL (Right a) = Left a
 
-zeroPlus :: Either Void a <-> a
+zeroPlus :: Either Zero a <-> a
 zeroPlus = Iso zeroPlusL zeroPlusR
   where
     zeroPlusL (Left v)  = absurd v
     zeroPlusL (Right a) = a
     zeroPlusR a         = Right a
 
-plusZero :: Either a Void <-> a
+plusZero :: Either a Zero <-> a
 plusZero = plusCommute >>> zeroPlus
 
+unitOne :: () <-> One
+unitOne = Iso unitOneL unitOneR
+  where
+    unitOneL () = FZ
+    unitOneR FZ = ()
+
 onePlusOne :: Sum '[One, One] <-> Two
-onePlusOne = plusAssoc >>> plusR (zeroPlus >>> plusZero)
+onePlusOne = un -- XXX
 
 plusR :: (b <-> c) -> (Either a b <-> Either a c)
 plusR iso = Iso plusRL plusRR

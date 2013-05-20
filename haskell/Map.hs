@@ -1,6 +1,5 @@
 {-# LANGUAGE DeriveFunctor #-}
 
-
 module Map (Map, empty, singleton, toMap, mapLabels, size, union, lookup) where
 
 import           Control.Arrow (first)
