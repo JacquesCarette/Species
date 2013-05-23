@@ -2,6 +2,7 @@
 
 module Set (Set, empty, singleton, toSet, size, union, elem, find, sum) where
 
+import           BFunctor
 import           Control.Applicative (Applicative)
 import qualified Data.List           as L
 import           Prelude             hiding (elem, sum)
@@ -9,6 +10,8 @@ import qualified Prelude             as P
 
 newtype Set a = Set [a]
   deriving (Functor, Applicative, Monad)
+
+instance BFunctor Set
 
 empty :: Set a
 empty = Set []
