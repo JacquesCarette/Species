@@ -5,3 +5,5 @@
 *.cut
 *.log
 TAGS
+*.hi
+*.o
