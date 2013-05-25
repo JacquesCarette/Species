@@ -1,15 +1,16 @@
-{-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveFunctor             #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE Rank2Types                #-}
+{-# LANGUAGE TemplateHaskell           #-}
+{-# LANGUAGE TypeOperators             #-}
 
 module Map (Map, empty, singleton, insert, toMap, mapLabels, size, union, lookup) where
 
 import           BFunctor
 import           Control.Arrow (first)
 import           Control.Lens
-import qualified Prelude       as P
 import           Prelude       hiding (lookup)
+import qualified Prelude       as P
 import qualified Set           as S
 
 newtype Map l a = Map { _assocs :: [(l,a)] }
