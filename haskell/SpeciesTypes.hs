@@ -195,6 +195,10 @@ instance BFunctor f => BFunctor (P f) where
 
 -- XXX todo
 
+-- Cardinality restriction -----------------------
+
+-- XXX todo
+
 -- List ------------------------------------------
 
 -- It turns out we don't need all that complicated type-level
