@@ -42,7 +42,9 @@ relabelShape = view . bmap
 
 -- Species structures can also be relabelled.
 relabel' :: BFunctor f => (l1 <-> l2) -> (Sp f l1 a <-> Sp f l2 a)
-relabel' i = undefined
+relabel' i =
+  iso (\(Struct shp es) -> Struct (relabelShape i shp) (M.relabel i es))
+      (\(Struct shp es) -> Struct (relabelShape (from i) shp) (M.relabel (from i) es))
 
 relabel :: BFunctor f => (l1 <-> l2) -> Sp f l1 a -> Sp f l2 a
 relabel = view . relabel'
@@ -95,17 +97,17 @@ instance BFunctor Zero
 
 data One l = One (Void <-> l)
 
-makeLenses ''One
-
 instance BFunctor One where
-  bmap = undefined
+  bmap i = iso (\(One vl ) -> One (vl .i))
+               (\(One vl') -> One (vl'.from i))
 
 -- X ---------------------------------------------
 
 data X l = X (() <-> l)
 
 instance BFunctor X where
-  bmap = undefined
+  bmap i = iso (\(X ul ) -> X (ul .i))
+               (\(X ul') -> X (ul'.from i))
 
 -- E ---------------------------------------------
 
@@ -114,7 +116,7 @@ data E l = E { _getE :: S.Set l }
 makeLenses ''E
 
 instance BFunctor E where
-  bmap g = liftIso getE getE (bmap g)
+  bmap i = liftIso getE getE (bmap i)
 
 -- Sum -------------------------------------------
 
@@ -124,16 +126,24 @@ data (f + g) l = Inl (f l)
   deriving Functor
 
 instance (BFunctor f, BFunctor g) => BFunctor (f + g) where
-  bmap = undefined
+  bmap i = iso (applyIso i) (applyIso (from i))
+    where
+      applyIso :: (BFunctor f, BFunctor g) => (l <-> l') -> (f + g) l -> (f + g) l'
+      applyIso i (Inl f) = Inl (view (bmap i) f)
+      applyIso i (Inr g) = Inr (view (bmap i) g)
 
--- Parallel sum? ---------------------------------
+-- parallel sum? ---------------------------------
 
 -- No idea whether this is useful for anything but it seems to be
 -- suggested by parallels with linear logic.  It's dual to product
 -- just as Cartesian product is dual to sum.  It's pretty weird.
 
 data (f +? g) l where
-  ParSum :: (Either l1 l2 <-> l) -> (Either (f l1) (g l2)) -> (f +? g) l
+  ParSum :: (Either (f l1) (g l2)) -> (Either l1 l2 <-> l) -> (f +? g) l
+
+instance (BFunctor f, BFunctor g) => BFunctor (f +? g) where
+  bmap i = iso (\(ParSum e pf) -> ParSum e (pf.i))
+               (\(ParSum e pf) -> ParSum e (pf.from i))
 
 -- Product ---------------------------------------
 
@@ -142,7 +152,8 @@ data (f * g) l where
   Prod :: f l1 -> g l2 -> (Either l1 l2 <-> l) -> (f * g) l
 
 instance (BFunctor f, BFunctor g) => BFunctor (f * g) where
-  bmap = undefined
+  bmap i = iso (\(Prod f g pf) -> Prod f g (pf.i))
+               (\(Prod f g pf) -> Prod f g (pf.from i))
 
 -- Cartesian product -----------------------------
 
@@ -150,7 +161,10 @@ data (f # g) l where
   CProd :: f l -> g l -> (f # g) l
 
 instance (BFunctor f, BFunctor g) => BFunctor (f # g) where
-  bmap = undefined
+  bmap i = iso (applyIso i) (applyIso (from i))
+    where
+      applyIso :: (BFunctor f, BFunctor g) => (l <-> l') -> (f # g) l -> (f # g) l'
+      applyIso i (CProd f g) = CProd (view (bmap i) f) (view (bmap i) g)
 
 -- Differentiation -------------------------------
 
@@ -158,7 +172,11 @@ data D f l where
   D :: f l1 -> (l1 <-> Maybe l) -> D f l
 
 instance BFunctor f => BFunctor (D f) where
-  bmap = undefined
+  bmap i = iso (\(D f pf) -> D f (pf.iMaybe i))
+               (\(D f pf) -> D f (pf.iMaybe (from i)))
+
+iMaybe :: (a <-> b) -> (Maybe a <-> Maybe b)
+iMaybe i = liftIso _Just _Just i
 
 -- Pointing --------------------------------------
 
@@ -166,11 +184,16 @@ data P f l where
   P :: l -> f l -> P f l
 
 instance BFunctor f => BFunctor (P f) where
-  bmap = undefined
+  bmap i = iso (\(P l f) -> P (view i l) (view (bmap i) f))
+               (\(P l f) -> P (view (from i) l) (view (bmap (from i)) f))
 
 -- Composition -----------------------------------
 
+-- XXX todo
+
 -- Functor composition ---------------------------
+
+-- XXX todo
 
 -- List ------------------------------------------
 
