@@ -4,7 +4,7 @@
 {-# LANGUAGE TemplateHaskell           #-}
 {-# LANGUAGE TypeOperators             #-}
 
-module Map (Map, empty, singleton, insert, toMap, mapLabels, size, union, lookup) where
+module Map (Map, empty, singleton, insert, toMap, mapLabels, relabel', relabel, size, union, lookup) where
 
 import           BFunctor
 import           Control.Arrow (first)
@@ -38,10 +38,13 @@ elimMap f (Map xs) = f xs
 mapLabels :: (l -> l') -> Map l a -> Map l' a
 mapLabels f (Map ls) = Map ((map . first) f ls)
 
-relabel :: (l <-> l') -> (Map l a <-> Map l' a)
-relabel = liftIso ls ls
+relabel' :: (l <-> l') -> (Map l a <-> Map l' a)
+relabel' = liftIso ls ls
   where
     ls = assocs.mapped._1
+
+relabel :: (l <-> l') -> Map l a -> Map l' a
+relabel = view . relabel'
 
 size :: Map l a -> Int
 size (Map as) = length as
