@@ -238,9 +238,16 @@ instance (BFunctor f, BFunctor g) => BFunctor (f # g) where
 
 cprodSh :: Shape f l -> Shape g l -> Shape (f # g) l
 cprodSh (Shape m f) (Shape _ g) = Shape m (CProd f g)
-  -- XXX what to do about cached sizes here?
+  -- XXX what to do about cached sizes here? dynamically throw an
+  -- error if they don't match... or just assume that they do match?
 
--- XXX finish -- intro forms for cprod
+-- Superimpose a new shape atop an existing structure from the left
+cprodL :: Shape f l -> Sp g l a -> Sp (f # g) l a
+cprodL sf (Struct sg es) = Struct (cprodSh sf sg) es
+
+-- Same thing from the right
+cprodR :: Sp f l a -> Shape g l -> Sp (f # g) l a
+cprodR (Struct sf es) sg = Struct (cprodSh sf sg) es
 
 -- Differentiation -------------------------------
 
@@ -282,7 +289,7 @@ p l (Struct s es) = Struct (pSh l s) es
 -- Composition -----------------------------------
 
 -- Here's the type we want for comp's introduction form:
-comp :: Sp f l (Sp' g a) -> Sp' (Comp f g) a
+-- comp :: Sp f l (Sp' g a) -> Sp' (Comp f g) a
 
   -- However, I don't know of a way to define Comp to make this possible.
   -- One attempt is as follows:
