@@ -9,6 +9,7 @@ module SpeciesTypes where
 
 import           BFunctor
 import           Control.Lens hiding (cons)
+import           Data.Maybe   (fromJust)
 import           Data.Void
 import qualified Map          as M
 import qualified Set          as S
@@ -365,12 +366,6 @@ toList (x:xs) =
     SpEx s -> SpEx (cons x s)
 
 ------------------------------------------------------------
---  Introduction forms for labelled structures
-
-
--- XXX finish
-
-------------------------------------------------------------
 --  Eliminators for labelled structures
 
 -- An eliminator for labelled structures should be able to look at the labelling.
@@ -384,6 +379,23 @@ elim (Elim el) (Struct s e) = el s e
 
 elim' :: Elim f a b -> Sp' f a -> b
 elim' el (SpEx s) = elim el s
+
+-- Some combinators for building eliminators
+
+elimZero :: Elim Zero a r
+elimZero = undefined
+
+elimOne :: r -> Elim One a r
+elimOne r = Elim (\_ _ -> r)   -- arguably we should force the shape + proof contained therein
+
+elimX :: (a -> r) -> Elim X a r
+elimX f = Elim (\(Shape _ (X i)) m -> f (fromJust (M.lookup (view i ()) m)))
+
+elimSum :: Elim f a r -> Elim g a r -> Elim (f+g) a r
+elimSum ef eg = undefined
+
+elimProd :: Elim f a (Elim g a r) -> Elim (f*g) a r
+elimProd e = undefined
 
 ------------------------------------------------------------
 --  Generically deriving labelled structures
