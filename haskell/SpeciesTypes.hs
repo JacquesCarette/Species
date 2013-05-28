@@ -277,10 +277,35 @@ pSh l (Shape n f) = Shape n (P l f)
 p :: l -> Sp f l a -> Sp (P f) l a
 p l (Struct s es) = Struct (pSh l s) es
 
+-- No p' operation---it again depends on the labels
+
 -- Composition -----------------------------------
 
--- data Comp f g l where
---   Comp ::
+-- Here's the type we want for comp's introduction form:
+comp :: Sp f l (Sp' g a) -> Sp' (Comp f g) a
+
+  -- However, I don't know of a way to define Comp to make this possible.
+  -- One attempt is as follows:
+  --
+  -- data Comp f g l where
+  --   Comp :: f l1 -> M.Map l1 (g l2) -> ((l1,l2) <-> l) -> Comp f g l
+  --
+  -- However, this isn't right: we should be able to have a different
+  -- type l2 in each g-structure.  I.e. l2 should actually be indexed
+  -- on l1.  Note this isn't just an infelicity, we really can't use
+  -- this to implement comp: the typechecker will complain that it
+  -- can't prove all the l2 types stored in the Sp' structures are the
+  -- same.
+  --
+  -- Of course, we could use the above to implement
+  --
+  --   comp :: Sp f l1 (Sp g l2 a) -> Sp (Comp f g) (l1,l2) a
+  --
+  -- but this is wrong for the same reason.
+  --
+  -- Instead, we really want something like (as a pseudo-dependent-type):
+  --
+  --   f l1 -> (m : M.Map l1 (Sigma l2::*. g l2)) -> (Sum (map pi1 (elems m)) <-> l) -> Comp f g l
 
 -- Functor composition ---------------------------
 
