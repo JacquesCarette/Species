@@ -2,15 +2,17 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE Rank2Types                #-}
 {-# LANGUAGE TemplateHaskell           #-}
+{-# LANGUAGE TupleSections             #-}
 {-# LANGUAGE TypeOperators             #-}
 
-module Map (Map, empty, singleton, insert, toMap, mapLabels, relabel', relabel, size, union, lookup) where
+module Map (Map, empty, singleton, insert, toMap, remap, mapLabels, relabel', relabel, size, union, lookup) where
 
 import           BFunctor
 import           Control.Arrow (first)
 import           Control.Lens
-import           Prelude       hiding (lookup)
+import           Data.Maybe    (catMaybes)
 import qualified Prelude       as P
+import           Prelude       hiding (lookup)
 import qualified Set           as S
 
 newtype Map l a = Map { _assocs :: [(l,a)] }
@@ -35,8 +37,13 @@ toMap = Map
 elimMap :: ([(l,a)] -> b) -> Map l a -> b
 elimMap f (Map xs) = f xs
 
+-- | Modify the labels, and also delete any labels which map to Nothing
+remap :: (l -> Maybe l') -> Map l a -> Map l' a
+remap f (Map ls) = Map (catMaybes . map (strength . first f) $ ls)
+  where strength (fa,b) = fmap (,b) fa
+
 mapLabels :: (l -> l') -> Map l a -> Map l' a
-mapLabels f (Map ls) = Map ((map . first) f ls)
+mapLabels = remap . (Just .)
 
 relabel' :: (l <-> l') -> (Map l a <-> Map l' a)
 relabel' = liftIso ls ls
