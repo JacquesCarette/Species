@@ -142,11 +142,16 @@ instance BFunctor E where
 eSh :: S.Set l -> Shape E l
 eSh ls = Shape (S.size ls) (E ls)
 
-e :: M.Map l a -> Sp E l a
-e = undefined
+e :: Eq l => M.Map l a -> Sp E l a
+e m = Struct (eSh (M.keys m)) m
 
 e' :: [a] -> Sp' E a
-e' = undefined
+e' [] = SpEx (Struct (eSh (S.empty :: S.Set Void)) M.empty)
+e' (a:as) = case e' as of
+              SpEx (Struct (Shape n (E ls)) es) ->
+                SpEx (Struct (Shape (n+1) (E (S.insert Nothing (S.map Just ls))))
+                             (M.insert Nothing a (M.mapLabels Just es))
+                     )
 
 -- Sum -------------------------------------------
 

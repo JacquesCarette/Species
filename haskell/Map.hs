@@ -5,7 +5,7 @@
 {-# LANGUAGE TupleSections             #-}
 {-# LANGUAGE TypeOperators             #-}
 
-module Map (Map, empty, singleton, insert, toMap, remap, mapLabels, relabel', relabel, size, union, lookup) where
+module Map (Map, empty, singleton, insert, toMap, remap, mapLabels, relabel', relabel, size, union, lookup, keys) where
 
 import           BFunctor
 import           Control.Arrow (first)
@@ -61,3 +61,6 @@ union (Map as) (Map bs) = Map (as ++ bs)
 
 lookup :: Eq l => l -> Map l a -> Maybe a
 lookup l (Map as) = P.lookup l as
+
+keys :: Eq l => Map l a -> S.Set l
+keys = elimMap (S.toSet . map fst)
