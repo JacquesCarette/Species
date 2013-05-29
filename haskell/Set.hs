@@ -1,51 +1,58 @@
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE GADTs #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Set (Set, empty, singleton, insert, toSet, map, size, union, elem, find, sum) where
+module Set (Set, empty, singleton, insert, mapInj, size, union, elem, find, sum) where
 
 import           BFunctor
 import           Control.Applicative (Applicative)
 import qualified Data.List           as L
+import           Nat
 import           Prelude             hiding (elem, sum, map)
 import qualified Prelude             as P
 
-newtype Set a = Set [a]
-  deriving (Functor, Applicative, Monad)
+data Set :: Nat -> * -> * where
+  Set :: SNat n -> [a] -> Set n a
 
-instance BFunctor Set
+deriving instance Functor (Set n)
 
-empty :: Set a
-empty = Set []
+instance BFunctor (Set n)
 
-singleton :: a -> Set a
-singleton a = Set [a]
+empty :: Set Z a
+empty = Set SZ []
 
-insert :: Eq a => a -> Set a -> Set a
-insert a (Set as)
-  | a `P.elem` as = Set as
-  | otherwise   = Set (a:as)
+singleton :: a -> Set (S Z) a
+singleton a = Set (SS SZ) [a]
 
-toSet :: Eq a => [a] -> Set a
-toSet = Set . L.nub
+-- | Prerequisite: new element is distinct from the existing elements
+--   in the set
+insert :: a -> Set n a -> Set (S n) a
+insert a (Set n as) = Set (SS n) (a:as)
 
 -- | Proof obligation: the first argument is a function which yields
 --   the same result for any permutation of a given input list.
-elimSet :: ([a] -> b) -> Set a -> b
-elimSet f (Set xs) = f xs
+elimSet :: ([a] -> b) -> Set n a -> b
+elimSet f (Set _ xs) = f xs
 
-map :: Eq b => (a -> b) -> Set a -> Set b
-map f (Set as) = Set (L.nub $ P.map f as)
+-- | Map an /injective/ function over a set.
+mapInj :: Eq b => (a -> b) -> Set n a -> Set n b
+mapInj f (Set n as) = Set n (P.map f as)
 
-size :: Set a -> Int
-size (Set as) = length as
+size :: Set n a -> Int
+size (Set n as) = snatToInt n
 
-union :: Eq a => Set a -> Set a -> Set a
-union (Set as) (Set bs) = Set (L.nub $ as ++ bs)
+-- | Take the disjoint union of two sets.
+union :: Eq a => Set m a -> Set n a -> Set (Plus m n) a
+union (Set m as) (Set n bs) = Set (plus m n) (as ++ bs)
 
-elem :: Eq a => a -> Set a -> Bool
-elem a (Set as) = a `P.elem` as
+elem :: Eq a => a -> Set n a -> Bool
+elem a (Set _ as) = a `P.elem` as
 
-find :: (a -> Bool) -> Set a -> Maybe a
-find p (Set as) = L.find p as
+find :: (a -> Bool) -> Set n a -> Maybe a
+find p (Set _ as) = L.find p as
 
-sum :: Num a => Set a -> a
+sum :: Num a => Set n a -> a
 sum = elimSet P.sum
