@@ -5,7 +5,7 @@
 {-# LANGUAGE TupleSections             #-}
 {-# LANGUAGE TypeOperators             #-}
 
-module Map (Map, empty, singleton, insert, toMap, remap, mapLabels, relabel', relabel, size, union, lookup, keys) where
+module Map (Map, empty, singleton, insert, toMap, elems, remap, mapLabels, relabel', relabel, size, union, lookup, keys) where
 
 import           BFunctor
 import           Control.Arrow (first)
@@ -36,6 +36,10 @@ toMap = Map
 --   the same result for any permutation of a given input list.
 elimMap :: ([(l,a)] -> b) -> Map l a -> b
 elimMap f (Map xs) = f xs
+
+-- | Note: you should not depend on the order of the elements.
+elems :: Map l a -> [a]
+elems (Map xs) = map snd xs
 
 -- | Modify the labels, and also delete any labels which map to Nothing
 remap :: (l -> Maybe l') -> Map l a -> Map l' a
