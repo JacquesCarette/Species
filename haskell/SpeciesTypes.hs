@@ -13,8 +13,8 @@ module SpeciesTypes where
 
 import           BFunctor
 import           Control.Lens hiding (cons)
+import           Data.Functor ((<$>))
 import           Data.Maybe   (fromJust)
-import           Data.Void
 import           Nat
 import qualified Map          as M
 import qualified Set          as S
@@ -22,15 +22,25 @@ import qualified Set          as S
 ------------------------------------------------------------
 --  Labelled shapes and data structures
 
--- A labelled shape is a shape full of labels, along with a cached
--- (finite) size for convenience.
-data Shape f l = Shape { _shapeSize :: Int, _shapeVal :: f l }
+-- A labelled shape is a shape full of labels, along with a proof that
+-- the label type has a given (finite) size.
+data Shape :: (* -> *) -> * -> * where
+  Shape { _shapeSize :: SNat n
+        , _finPf     :: Fin n <-> l
+        , _shapeVal  :: f l
+        }
+    :: Shape f l
+
+shapeSize :: Shape f l -> Int
+shapeSize (Shape n _ _) = snatToInt n
+
+shapeVal :: Lens (Shape f l) (Shape g l) (f l) (g l)
+shapeVal g (Shape sz pf s) = (\s' -> Shape sz pf s') <$> g s
 
 -- A species is a labelled shape paired with a map from labels to data
 -- values.
 data Sp f l a = Struct { _shape :: Shape f l, _elts :: M.Map l a }
 
-makeLenses ''Shape
 makeLenses ''Sp
 
 ------------------------------------------------------------
@@ -38,7 +48,8 @@ makeLenses ''Sp
 
 -- Shapes are B-functors, i.e. they can be relabelled.
 instance (BFunctor f) => BFunctor (Shape f) where
-  bmap i = liftIso shapeVal shapeVal (bmap i)
+  bmap i = iso (\(Shape sz pf v) -> Shape sz (pf.i) (view (bmap i) v))
+               (\(Shape sz pf v) -> Shape sz (pf.from i) (view (bmap (from i)) v))
 
 relabelShape' :: BFunctor f => (l1 <-> l2) -> (Shape f l1 <-> Shape f l2)
 relabelShape' = bmap
@@ -104,16 +115,16 @@ instance BFunctor Zero
 
 -- One -------------------------------------------
 
-data One l = One (Void <-> l)
+data One l = One (Fin Z <-> l)
 
 instance BFunctor One where
   bmap i = iso (\(One vl ) -> One (vl .i))
                (\(One vl') -> One (vl'.from i))
 
-oneSh :: Shape One Void
-oneSh = Shape 0 (One id)
+oneSh :: Shape One (Fin Z)
+oneSh = Shape SZ id (One id)
 
-one :: Sp One Void a
+one :: Sp One (Fin Z) a
 one = Struct oneSh M.empty
 
 one' :: Sp' One a
@@ -121,43 +132,47 @@ one' = SpEx one
 
 -- X ---------------------------------------------
 
-data X l = X (() <-> l)
+data X l = X (Fin (S Z) <-> l)
 
 instance BFunctor X where
   bmap i = iso (\(X ul ) -> X (ul .i))
                (\(X ul') -> X (ul'.from i))
 
-xSh :: Shape X ()
-xSh = Shape 1 (X id)
+xSh :: Shape X (Fin (S Z))
+xSh = Shape (SS SZ) id (X id)
 
-x :: a -> Sp X () a
-x a = Struct xSh (M.singleton () a)
+x :: a -> Sp X (Fin (S Z)) a
+x a = Struct xSh (M.singleton FZ a)
 
 x' :: a -> Sp' X a
 x' = SpEx . x
 
 -- E ---------------------------------------------
 
-data E l = E { _getE :: S.Set l }
+data E n l = E { _getE :: S.Set n l }
 
 makeLenses ''E
 
-instance BFunctor E where
+instance BFunctor (E n) where
   bmap i = liftIso getE getE (bmap i)
 
-eSh :: S.Set l -> Shape E l
-eSh ls = Shape (S.size ls) (E ls)
+-- XXX TODO, fix me!
+--   - index Map by size
+--   - should all shape functors be indexed by size??
 
-e :: Eq l => M.Map l a -> Sp E l a
-e m = Struct (eSh (M.keys m)) m
+-- eSh :: S.Set n l -> Shape (E n) l
+-- eSh ls = Shape (S.size ls) (E ls)
 
-e' :: [a] -> Sp' E a
-e' [] = SpEx (Struct (eSh (S.empty :: S.Set Void)) M.empty)
-e' (a:as) = case e' as of
-              SpEx (Struct (Shape n (E ls)) es) ->
-                SpEx (Struct (Shape (n+1) (E (S.insert Nothing (S.map Just ls))))
-                             (M.insert Nothing a (M.mapLabels Just es))
-                     )
+-- e :: Eq l => M.Map l a -> Sp E l a
+-- e m = Struct (eSh (M.keys m)) m
+
+-- e' :: [a] -> Sp' E a
+-- e' [] = SpEx (Struct (eSh (S.empty :: S.Set (Fin Z))) M.empty)
+-- e' (a:as) = case e' as of
+--               SpEx (Struct (Shape n (E ls)) es) ->
+--                 SpEx (Struct (Shape (n+1) (E (S.insert Nothing (S.mapInj Just ls))))
+--                              (M.insert Nothing a (M.mapLabels Just es))
+--                      )
 
 -- Sum -------------------------------------------
 
@@ -338,7 +353,7 @@ type instance Apply g Z     '[]       = ()
 type instance Apply g (S n) (l ': ls) = (g l, Apply g n ls)
 
 type family Sum (ls :: [*]) :: *
-type instance Sum '[]       = Void
+type instance Sum '[]       = Fin Z
 type instance Sum (l ': ls) = Either l (Sum ls)
 
 data Shape' :: (* -> *) -> * where
@@ -378,7 +393,15 @@ comp = undefined
 
 -- Cardinality restriction -----------------------
 
--- XXX todo
+-- data OfSize :: Nat -> (* -> *) -> * -> * where
+--   OfSize :: SNat n -> (Fin n <-> l) -> f l -> OfSize n f l
+
+-- instance BFunctor f => BFunctor (OfSize n f) where
+--   bmap i = iso (\(OfSize n pf f) -> OfSize n (pf.i) (view (bmap i) f))
+--                (\(OfSize n pf f) -> OfSize n (pf.from i) (view (bmap (from i)) f))
+
+-- ofSizeSh :: SNat n -> (Fin n <-> l) -> Shape f l -> OfSize n f l
+-- ofSizeSh n pf (Shape m
 
 -- List ------------------------------------------
 
@@ -402,7 +425,7 @@ instance BFunctor L where
 list :: Sp (One + X*L) l a -> Sp L l a
 list = reshape (from isoL)
 
-nil :: Sp L Void a
+nil :: Sp L (Fin Z) a
 nil = list $ inl one
 
 cons :: a -> Sp L l' a -> Sp L (Either () l') a
