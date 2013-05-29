@@ -25,11 +25,11 @@ import qualified Set          as S
 -- A labelled shape is a shape full of labels, along with a proof that
 -- the label type has a given (finite) size.
 data Shape :: (* -> *) -> * -> * where
-  Shape { _shapeSize :: SNat n
-        , _finPf     :: Fin n <-> l
-        , _shapeVal  :: f l
-        }
-    :: Shape f l
+  Shape :: { _shapeSize :: SNat n
+           , _finPf     :: Fin n <-> l
+           , _shapeVal  :: f l
+           }
+           -> Shape f l
 
 shapeSize :: Shape f l -> Int
 shapeSize (Shape n _ _) = snatToInt n
@@ -189,19 +189,19 @@ instance (BFunctor f, BFunctor g) => BFunctor (f + g) where
       applyIso i (Inr g) = Inr (view (bmap i) g)
 
 inlSh :: Shape f l -> Shape (f + g) l
-inlSh (Shape n shp) = Shape n (Inl shp)
+inlSh = shapeVal %~ Inl
 
 inl :: Sp f l a -> Sp (f + g) l a
-inl (Struct shp es) = Struct (inlSh shp) es
+inl = shape %~ inlSh
 
 inl' :: Sp' f a -> Sp' (f + g) a
 inl' (SpEx s) = SpEx (inl s)
 
 inrSh :: Shape g l -> Shape (f + g) l
-inrSh (Shape n shp) = Shape n (Inr shp)
+inrSh = shapeVal %~ Inr
 
 inr :: Sp g l a -> Sp (f + g) l a
-inr (Struct shp es) = Struct (inrSh shp) es
+inr = shape %~ inrSh
 
 inr' :: Sp' g a -> Sp' (f + g) a
 inr' (SpEx s) = SpEx (inr s)
@@ -219,11 +219,11 @@ instance (BFunctor f, BFunctor g) => BFunctor (f +? g) where
   bmap i = iso (\(ParSum e pf) -> ParSum e (pf.i))
                (\(ParSum e pf) -> ParSum e (pf.from i))
 
-pInlSh :: Shape f l1 -> Shape (f +? g) (Either l1 l2)
-pInlSh (Shape n f) = Shape n (ParSum (Left f) id)
+-- pInlSh :: Shape f l1 -> Shape (f +? g) (Either l1 l2)
+-- pInlSh (Shape n f) = Shape n (ParSum (Left f) id)
 
-pInl :: Sp f l1 a -> Sp (f +? g) (Either l1 l2) a
-pInl (Struct s es) = Struct (pInlSh s) (M.mapLabels Left es)
+-- pInl :: Sp f l1 a -> Sp (f +? g) (Either l1 l2) a
+-- pInl (Struct s es) = Struct (pInlSh s) (M.mapLabels Left es)
 
 -- This doesn't typecheck because l2 is completely ambiguous.
 -- Fundamentally this is because ParSum is weird.
@@ -242,7 +242,7 @@ instance (BFunctor f, BFunctor g) => BFunctor (f * g) where
                (\(Prod f g pf) -> Prod f g (pf.from i))
 
 prodSh :: Shape f l1 -> Shape g l2 -> Shape (f * g) (Either l1 l2)
-prodSh (Shape m f) (Shape n g) = Shape (m+n) (Prod f g id)
+prodSh (Shape m mpf f) (Shape n npf g) = Shape (plus m n) (plusPf mpf npf) (Prod f g id)
 
 prod :: Sp f l1 a -> Sp g l2 a -> Sp (f * g) (Either l1 l2) a
 prod (Struct sf esf) (Struct sg esg) = Struct (prodSh sf sg)
@@ -263,9 +263,7 @@ instance (BFunctor f, BFunctor g) => BFunctor (f # g) where
       applyIso i (CProd f g) = CProd (view (bmap i) f) (view (bmap i) g)
 
 cprodSh :: Shape f l -> Shape g l -> Shape (f # g) l
-cprodSh (Shape m f) (Shape _ g) = Shape m (CProd f g)
-  -- XXX what to do about cached sizes here? dynamically throw an
-  -- error if they don't match... or just assume that they do match?
+cprodSh (Shape m pf f) (Shape _ _ g) = Shape m pf (CProd f g)
 
 -- Superimpose a new shape atop an existing structure from the left
 cprodL :: Shape f l -> Sp g l a -> Sp (f # g) l a
@@ -287,11 +285,13 @@ instance BFunctor f => BFunctor (D f) where
 iMaybe :: (a <-> b) -> (Maybe a <-> Maybe b)
 iMaybe i = liftIso _Just _Just i
 
-dSh :: Shape f (Maybe l) -> Shape (D f) l
-dSh (Shape n f) = Shape (n-1) (D f id)
+-- XXX TODO fixme
 
-d :: Sp f (Maybe l) a -> Sp (D f) l a
-d (Struct s es) = Struct (dSh s) (M.remap id es)
+-- dSh :: Shape f (Maybe l) -> Shape (D f) l
+-- dSh (Shape n f) = Shape (n-1) (D f id)
+
+-- d :: Sp f (Maybe l) a -> Sp (D f) l a
+-- d (Struct s es) = Struct (dSh s) (M.remap id es)
 
 -- No d' operation since it really does depend on the labels
 
@@ -304,11 +304,13 @@ instance BFunctor f => BFunctor (P f) where
   bmap i = iso (\(P l f) -> P (view i l) (view (bmap i) f))
                (\(P l f) -> P (view (from i) l) (view (bmap (from i)) f))
 
-pSh :: l -> Shape f l -> Shape (P f) l
-pSh l (Shape n f) = Shape n (P l f)
+-- XXX TODO fixme
 
-p :: l -> Sp f l a -> Sp (P f) l a
-p l (Struct s es) = Struct (pSh l s) es
+-- pSh :: l -> Shape f l -> Shape (P f) l
+-- pSh l (Shape n f) = Shape n (P l f)
+
+-- p :: l -> Sp f l a -> Sp (P f) l a
+-- p l (Struct s es) = Struct (pSh l s) es
 
 -- No p' operation---it again depends on the labels
 
@@ -362,30 +364,32 @@ data Shape' :: (* -> *) -> * where
 data LProxy' where
   LProxy' :: Proxy (a :: [*]) -> LProxy'
 
+-- XXX TODO fixme
+
 -- ugh agh ick.  Extract the existentially quantified label types from
 -- a list of shapes and put them in an existentially quantified
 -- type-level list.  Oh how I dearly wish I did not have to choose
 -- between practicality and actual dependent types.
-getLabelTypes :: [Shape' g] -> LProxy'
-getLabelTypes [] = LProxy' (Proxy :: Proxy '[])
-getLabelTypes (Shape' (Shape _ (_ :: g l)) : ss) =
-  case getLabelTypes ss of
-    LProxy' (Proxy :: Proxy ls) -> LProxy' (Proxy :: Proxy (l ': ls))
+-- getLabelTypes :: [Shape' g] -> LProxy'
+-- getLabelTypes [] = LProxy' (Proxy :: Proxy '[])
+-- getLabelTypes (Shape' (Shape _ (_ :: g l)) : ss) =
+--   case getLabelTypes ss of
+--     LProxy' (Proxy :: Proxy ls) -> LProxy' (Proxy :: Proxy (l ': ls))
 
--- argh, probably need the above to keep around more information about the length?
+-- -- argh, probably need the above to keep around more information about the length?
 
-compSh :: IsFinite l => Sp f l (Shape' g) -> Shape' (Comp f g)
-compSh (Struct (Shape _ fl) es) =
-    case (finite, getLabelTypes shps) of
-      (Finite finPf, LProxy' prox) -> Shape' (Shape n' (Comp fl finPf prox undefined id))
-  where
-    shps                              = M.elems es
-    ns                                = map getShapeSize shps
-    getShapeSize (Shape' (Shape s _)) = s
-    n'                                = sum ns
+-- compSh :: IsFinite l => Sp f l (Shape' g) -> Shape' (Comp f g)
+-- compSh (Struct (Shape _ fl) es) =
+--     case (finite, getLabelTypes shps) of
+--       (Finite finPf, LProxy' prox) -> Shape' (Shape n' (Comp fl finPf prox undefined id))
+--   where
+--     shps                              = M.elems es
+--     ns                                = map getShapeSize shps
+--     getShapeSize (Shape' (Shape s _)) = s
+--     n'                                = sum ns
 
-comp :: IsFinite l => Sp f l (Sp' g a) -> Sp' (Comp f g) a
-comp = undefined
+-- comp :: IsFinite l => Sp f l (Sp' g a) -> Sp' (Comp f g) a
+-- comp = undefined
 
 -- Functor composition ---------------------------
 
@@ -422,17 +426,19 @@ instance BFunctor L where
 -- Haskell list to a Sp' L.  Ideally all of this would be generically
 -- derivable.
 
+listSh :: Shape (One + X*L) l -> Shape L l
+listSh = reshapeShape (from isoL)
+
 list :: Sp (One + X*L) l a -> Sp L l a
 list = reshape (from isoL)
 
 nil :: Sp L (Fin Z) a
 nil = list $ inl one
 
-cons :: a -> Sp L l' a -> Sp L (Either () l') a
-cons a (Struct (Shape n shp) es) = Struct shp' es'
+cons :: a -> Sp L l' a -> Sp L (Either (Fin (S Z)) l') a
+cons a (Struct shp es) = Struct (listSh (inrSh (prodSh xSh shp))) es'
   where
-    shp' = Shape (n+1) (L (Inr (Prod (X id) shp id)))
-    es'  = M.insert (Left ()) a (M.mapLabels Right es)
+    es'  = M.insert (Left FZ) a (M.mapLabels Right es)
 
 toList :: [a] -> Sp' L a
 toList [] = SpEx nil
@@ -464,7 +470,7 @@ elimOne :: r -> Elim One a r
 elimOne r = Elim (\_ _ -> r)   -- arguably we should force the shape + proof contained therein
 
 elimX :: (a -> r) -> Elim X a r
-elimX f = Elim (\(Shape _ (X i)) m -> f (fromJust (M.lookup (view i ()) m)))
+elimX f = Elim (\(Shape _ _ (X i)) m -> f (fromJust (M.lookup (view i FZ) m)))
 
 elimSum :: Elim f a r -> Elim g a r -> Elim (f+g) a r
 elimSum ef eg = undefined

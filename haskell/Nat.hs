@@ -73,6 +73,10 @@ finToInt = fin 0 succ
 ------------------------------------------------------------
 -- Proofs of finiteness
 
+plusPf :: (Fin m <-> l1) -> (Fin n <-> l2) -> Fin (Plus m n) <-> (Either l1 l2)
+plusPf = undefined  -- XXX TODO
+
+
 data Finite :: * -> * where
   Finite :: (l <-> Fin n) -> Finite l
 
