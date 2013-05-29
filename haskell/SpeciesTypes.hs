@@ -28,7 +28,7 @@ import qualified Vec          as V
 newtype Shape f l = Shape { _shapeVal  :: f l }
 
 shapeSize :: forall f l. Finite l => Shape f l -> Int
-shapeSize _ = size (Proxy :: Proxy l)
+shapeSize _ = snatToInt (size (Proxy :: Proxy l))
 
 -- A species is a labelled shape paired with a map from labels to data
 -- values.  Since label types are required to be constructively
