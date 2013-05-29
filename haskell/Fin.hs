@@ -1,8 +1,9 @@
-{-# LANGUAGE Rank2Types     #-}
-{-# LANGUAGE TypeOperators  #-}
-{-# LANGUAGE GADTs          #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE DataKinds      #-}
+{-# LANGUAGE DataKinds          #-}
+{-# LANGUAGE GADTs              #-}
+{-# LANGUAGE KindSignatures     #-}
+{-# LANGUAGE Rank2Types         #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE TypeOperators      #-}
 
 module Fin where
 
@@ -11,6 +12,7 @@ import Control.Lens
 import Data.Void
 
 data Nat = Z | S Nat
+  deriving (Eq, Ord, Show)
 
 nat :: r -> (r -> r) -> Nat -> r
 nat z s Z     = z
@@ -27,6 +29,8 @@ data SNat :: Nat -> * where
   SZ :: SNat Z
   SS :: SNat n -> SNat (S n)
 
+deriving instance Show (SNat n)
+
 snat :: r -> (r -> r) -> SNat n -> r
 snat z s SZ     = z
 snat z s (SS n) = s (snat z s n)
@@ -37,6 +41,9 @@ snatToInt = snat 0 succ
 data Fin :: Nat -> * where
   FZ :: Fin (S n)
   FS :: Fin n -> Fin (S n)
+
+deriving instance Show (Fin n)
+deriving instance Eq (Fin n)
 
 fin :: r -> (r -> r) -> Fin n -> r
 fin z s FZ     = z
