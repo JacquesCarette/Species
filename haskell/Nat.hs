@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies       #-}
 {-# LANGUAGE DataKinds          #-}
 {-# LANGUAGE GADTs              #-}
 {-# LANGUAGE KindSignatures     #-}
@@ -43,6 +44,14 @@ snat z s (SS n) = s (snat z s n)
 
 snatToInt :: SNat n -> Int
 snatToInt = snat 0 succ
+
+type family Plus (m :: Nat) (n :: Nat) :: Nat
+type instance Plus Z n     = n
+type instance Plus (S m) n = S (Plus m n)
+
+plus :: SNat m -> SNat n -> SNat (Plus m n)
+plus SZ n     = n
+plus (SS m) n = SS (plus m n)
 
 ------------------------------------------------------------
 -- Finite types
