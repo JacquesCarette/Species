@@ -1,10 +1,11 @@
-{-# LANGUAGE TypeFamilies       #-}
-{-# LANGUAGE DataKinds          #-}
-{-# LANGUAGE GADTs              #-}
-{-# LANGUAGE KindSignatures     #-}
-{-# LANGUAGE Rank2Types         #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TypeOperators      #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE GADTs                #-}
+{-# LANGUAGE KindSignatures       #-}
+{-# LANGUAGE Rank2Types           #-}
+{-# LANGUAGE StandaloneDeriving   #-}
+{-# LANGUAGE TypeOperators        #-}
 
 module Nat where
 
@@ -45,6 +46,15 @@ snat z s (SS n) = s (snat z s n)
 snatToInt :: SNat n -> Int
 snatToInt = snat 0 succ
 
+class Natural (n :: Nat) where
+  toSNat :: SNat n
+
+instance Natural Z where
+  toSNat = SZ
+
+instance Natural n => Natural (S n) where
+  toSNat = SS toSNat
+
 type family Plus (m :: Nat) (n :: Nat) :: Nat
 type instance Plus Z n     = n
 type instance Plus (S m) n = S (Plus m n)
@@ -52,6 +62,14 @@ type instance Plus (S m) n = S (Plus m n)
 plus :: SNat m -> SNat n -> SNat (Plus m n)
 plus SZ n     = n
 plus (SS m) n = SS (plus m n)
+
+type family Times (m :: Nat) (n :: Nat) :: Nat
+type instance Times Z n     = Z
+type instance Times (S m) n = Plus n (Times m n)
+
+times :: SNat m -> SNat n -> SNat (Times m n)
+times SZ _     = SZ
+times (SS m) n = plus n (times m n)
 
 ------------------------------------------------------------
 -- Finite types
@@ -69,34 +87,3 @@ fin z s (FS n) = s (fin z s n)
 
 finToInt :: Fin n -> Int
 finToInt = fin 0 succ
-
-------------------------------------------------------------
--- Proofs of finiteness
-
-plusPf :: (Fin m <-> l1) -> (Fin n <-> l2) -> Fin (Plus m n) <-> (Either l1 l2)
-plusPf = undefined  -- XXX TODO
-
-
-data Finite :: * -> * where
-  Finite :: (l <-> Fin n) -> Finite l
-
-class IsFinite l where
-  finite :: Finite l
-
-instance IsFinite Void where
-  finite = Finite (undefined :: Void <-> Fin Z)
-
-instance IsFinite () where
-  finite = Finite (iso (const FZ) (const ()) :: () <-> Fin (S Z))
-
-instance IsFinite Bool where
-  finite = Finite (iso (\b -> case b of False -> FZ; True -> FS FZ)
-                       (\s -> case s of FZ -> False; FS FZ -> True)
-                       :: Bool <-> Fin (S (S Z))
-                  )
-
-instance (IsFinite a, IsFinite b) => IsFinite (Either a b) where
-  finite = undefined -- XXX todo
-
-instance (IsFinite a, IsFinite b) => IsFinite (a,b) where
-  finite = undefined -- XXX todo
