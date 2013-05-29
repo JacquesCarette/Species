@@ -1,3 +1,5 @@
+{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -10,6 +12,7 @@ module Finite where
 import BFunctor
 import Control.Lens
 import Data.Void
+import Equality
 import Nat
 import Proxy
 
@@ -48,3 +51,10 @@ instance (Finite a, Finite b) => Finite (a,b) where
   type Size (a,b) = Times (Size a) (Size b)
   size _ = size (Proxy :: Proxy a) * size (Proxy :: Proxy b)
   finite = undefined -- XXX todo
+
+------------------------------------------------------------
+-- Miscellaneous proofs about size
+
+isoPresSize :: (l1 <-> l2) -> (Size l1 == Size l2)
+isoPresSize = undefined
+  -- Can we actually implement this in Haskell?  I don't think so.
