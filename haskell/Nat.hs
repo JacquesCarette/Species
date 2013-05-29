@@ -11,6 +11,9 @@ import BFunctor
 import Control.Lens
 import Data.Void
 
+------------------------------------------------------------
+-- Natural numbers
+
 data Nat = Z | S Nat
   deriving (Eq, Ord, Show)
 
@@ -25,6 +28,9 @@ intToNat :: Int -> Nat
 intToNat 0 = Z
 intToNat n = S (intToNat (n-1))
 
+------------------------------------------------------------
+-- Singleton Nats
+
 data SNat :: Nat -> * where
   SZ :: SNat Z
   SS :: SNat n -> SNat (S n)
@@ -37,6 +43,9 @@ snat z s (SS n) = s (snat z s n)
 
 snatToInt :: SNat n -> Int
 snatToInt = snat 0 succ
+
+------------------------------------------------------------
+-- Finite types
 
 data Fin :: Nat -> * where
   FZ :: Fin (S n)
@@ -51,6 +60,9 @@ fin z s (FS n) = s (fin z s n)
 
 finToInt :: Fin n -> Int
 finToInt = fin 0 succ
+
+------------------------------------------------------------
+-- Proofs of finiteness
 
 data Finite :: * -> * where
   Finite :: (l <-> Fin n) -> Finite l
