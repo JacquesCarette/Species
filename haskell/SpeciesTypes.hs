@@ -15,10 +15,11 @@ import           BFunctor
 import           Control.Lens hiding (cons)
 import           Data.Functor ((<$>))
 import           Data.Maybe   (fromJust)
+import           Equality
 import           Finite
-import qualified Map          as M
 import           Nat
 import           Proxy
+import qualified Vec          as V
 
 ------------------------------------------------------------
 --  Labelled shapes and data structures
@@ -30,8 +31,10 @@ shapeSize :: forall f l. Finite l => Shape f l -> Int
 shapeSize _ = size (Proxy :: Proxy l)
 
 -- A species is a labelled shape paired with a map from labels to data
--- values.
-data Sp f l a = Struct { _shape :: Shape f l, _elts :: M.Map l a }
+-- values.  Since label types are required to be constructively
+-- finite, that is, come with an isomorphism to Fin n for some n, we
+-- can represent the map as a length-n vector.
+data Sp f l a = Struct { _shape :: Shape f l, _elts :: V.Vec (Size l) a }
 
 makeLenses ''Shape
 makeLenses ''Sp
@@ -52,8 +55,9 @@ relabelShape = view . bmap
 -- Species structures can also be relabelled.
 relabel' :: BFunctor f => (l1 <-> l2) -> (Sp f l1 a <-> Sp f l2 a)
 relabel' i =
-  iso (\(Struct shp es) -> Struct (relabelShape i shp) (M.relabel i es))
-      (\(Struct shp es) -> Struct (relabelShape (from i) shp) (M.relabel (from i) es))
+  case isoPresSize i of
+    Refl -> iso (\(Struct s e) -> Struct (view (bmap i) s) e)
+                (\(Struct s e) -> Struct (view (bmap (from i)) s) e)
 
 relabel :: BFunctor f => (l1 <-> l2) -> Sp f l1 a -> Sp f l2 a
 relabel = view . relabel'
@@ -117,7 +121,7 @@ oneSh :: Shape One (Fin Z)
 oneSh = Shape (One id)
 
 one :: Sp One (Fin Z) a
-one = Struct oneSh M.empty
+one = Struct oneSh V.VNil
 
 one' :: Sp' One a
 one' = SpEx one
@@ -134,7 +138,7 @@ xSh :: Shape X (Fin (S Z))
 xSh = Shape (X id)
 
 x :: a -> Sp X (Fin (S Z)) a
-x a = Struct xSh (M.singleton FZ a)
+x a = Struct xSh (V.singleton a)
 
 x' :: a -> Sp' X a
 x' = SpEx . x
@@ -149,16 +153,11 @@ instance BFunctor E
 eSh :: Shape E l
 eSh = Shape E
 
--- e :: Eq l => M.Map l a -> Sp E l a
--- e m = Struct (eSh (M.keys m)) m
+e :: (l -> a) -> Sp E l a
+e = undefined  -- XXX TODO
 
--- e' :: [a] -> Sp' E a
--- e' [] = SpEx (Struct (eSh (S.empty :: S.Set (Fin Z))) M.empty)
--- e' (a:as) = case e' as of
---               SpEx (Struct (Shape n (E ls)) es) ->
---                 SpEx (Struct (Shape (n+1) (E (S.insert Nothing (S.mapInj Just ls))))
---                              (M.insert Nothing a (M.mapLabels Just es))
---                      )
+e' :: [a] -> Sp' E a
+e' = undefined  -- XXX TODO
 
 -- Sum -------------------------------------------
 
@@ -232,7 +231,8 @@ prodSh (Shape f) (Shape g) = Shape (Prod f g id)
 
 prod :: Sp f l1 a -> Sp g l2 a -> Sp (f * g) (Either l1 l2) a
 prod (Struct sf esf) (Struct sg esg) = Struct (prodSh sf sg)
-                                              (M.mapLabels Left esf `M.union` M.mapLabels Right esg)
+                                              undefined  -- XXX FIXME
+                                              -- (M.mapLabels Left esf `M.union` M.mapLabels Right esg)
 
 prod' :: Sp' f a -> Sp' g a -> Sp' (f * g) a
 prod' (SpEx f) (SpEx g) = SpEx (prod f g)
@@ -419,9 +419,7 @@ nil :: Sp L (Fin Z) a
 nil = list $ inl one
 
 cons :: a -> Sp L l' a -> Sp L (Either (Fin (S Z)) l') a
-cons a (Struct shp es) = Struct (listSh (inrSh (prodSh xSh shp))) es'
-  where
-    es'  = M.insert (Left FZ) a (M.mapLabels Right es)
+cons a (Struct shp es) = Struct (listSh (inrSh (prodSh xSh shp))) (V.VCons a es)
 
 toList :: [a] -> Sp' L a
 toList [] = SpEx nil
@@ -436,10 +434,12 @@ toList (x:xs) =
 -- XXX but should be restricted to not care about the labels -- parametricity!
 -- XXX need Eq by default.  Ord gives us L-species.  No constraint is isomorphic to (f a -> b).
 -- XXX this only really matters for e.g. cartesian product.
-newtype Elim f a b = Elim (forall l. Eq l => Shape f l -> M.Map l a -> b)
+newtype Elim f a b = Elim (forall l. Eq l => Shape f l -> (l -> a) -> b)
 
+-- XXX FIXME
 elim :: Eq l => Elim f a b -> Sp f l a -> b
-elim (Elim el) (Struct s e) = el s e
+elim = undefined
+-- elim (Elim el) (Struct s e) = el s e
 
 elim' :: Elim f a b -> Sp' f a -> b
 elim' el (SpEx s) = elim el s
@@ -452,8 +452,8 @@ elimZero = undefined
 elimOne :: r -> Elim One a r
 elimOne r = Elim (\_ _ -> r)   -- arguably we should force the shape + proof contained therein
 
-elimX :: (a -> r) -> Elim X a r
-elimX f = Elim (\(Shape (X i)) m -> f (fromJust (M.lookup (view i FZ) m)))
+-- elimX :: (a -> r) -> Elim X a r
+-- elimX f = Elim (\(Shape (X i)) m -> f (fromJust (M.lookup (view i FZ) m)))
 
 elimSum :: Elim f a r -> Elim g a r -> Elim (f+g) a r
 elimSum ef eg = undefined
