@@ -5,7 +5,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeOperators      #-}
 
-module Fin where
+module Nat where
 
 import BFunctor
 import Control.Lens

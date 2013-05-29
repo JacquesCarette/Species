@@ -15,7 +15,7 @@ import           BFunctor
 import           Control.Lens hiding (cons)
 import           Data.Maybe   (fromJust)
 import           Data.Void
-import           Fin
+import           Nat
 import qualified Map          as M
 import qualified Set          as S
 
