@@ -12,9 +12,38 @@ import Data.Void
 
 data Nat = Z | S Nat
 
+nat :: r -> (r -> r) -> Nat -> r
+nat z s Z     = z
+nat z s (S n) = s (nat z s n)
+
+natToInt :: Nat -> Int
+natToInt = nat 0 succ
+
+intToNat :: Int -> Nat
+intToNat 0 = Z
+intToNat n = S (intToNat (n-1))
+
+data SNat :: Nat -> * where
+  SZ :: SNat Z
+  SS :: SNat n -> SNat (S n)
+
+snat :: r -> (r -> r) -> SNat n -> r
+snat z s SZ     = z
+snat z s (SS n) = s (snat z s n)
+
+snatToInt :: SNat n -> Int
+snatToInt = snat 0 succ
+
 data Fin :: Nat -> * where
   FZ :: Fin (S n)
   FS :: Fin n -> Fin (S n)
+
+fin :: r -> (r -> r) -> Fin n -> r
+fin z s FZ     = z
+fin z s (FS n) = s (fin z s n)
+
+finToInt :: Fin n -> Int
+finToInt = fin 0 succ
 
 data Finite :: * -> * where
   Finite :: (l <-> Fin n) -> Finite l
