@@ -15,32 +15,25 @@ import           BFunctor
 import           Control.Lens hiding (cons)
 import           Data.Functor ((<$>))
 import           Data.Maybe   (fromJust)
-import           Nat
+import           Finite
 import qualified Map          as M
-import qualified Set          as S
+import           Nat
+import           Proxy
 
 ------------------------------------------------------------
 --  Labelled shapes and data structures
 
--- A labelled shape is a shape full of labels, along with a proof that
--- the label type has a given (finite) size.
-data Shape :: (* -> *) -> * -> * where
-  Shape :: { _shapeSize :: SNat n
-           , _finPf     :: Fin n <-> l
-           , _shapeVal  :: f l
-           }
-           -> Shape f l
+-- A labelled shape is a shape filled with a finite set of labels
+newtype Shape f l = Shape { _shapeVal  :: f l }
 
-shapeSize :: Shape f l -> Int
-shapeSize (Shape n _ _) = snatToInt n
-
-shapeVal :: Lens (Shape f l) (Shape g l) (f l) (g l)
-shapeVal g (Shape sz pf s) = (\s' -> Shape sz pf s') <$> g s
+shapeSize :: forall f l. Finite l => Shape f l -> Int
+shapeSize _ = size (Proxy :: Proxy l)
 
 -- A species is a labelled shape paired with a map from labels to data
 -- values.
 data Sp f l a = Struct { _shape :: Shape f l, _elts :: M.Map l a }
 
+makeLenses ''Shape
 makeLenses ''Sp
 
 ------------------------------------------------------------
@@ -48,8 +41,7 @@ makeLenses ''Sp
 
 -- Shapes are B-functors, i.e. they can be relabelled.
 instance (BFunctor f) => BFunctor (Shape f) where
-  bmap i = iso (\(Shape sz pf v) -> Shape sz (pf.i) (view (bmap i) v))
-               (\(Shape sz pf v) -> Shape sz (pf.from i) (view (bmap (from i)) v))
+  bmap i = liftIso shapeVal shapeVal (bmap i)
 
 relabelShape' :: BFunctor f => (l1 <-> l2) -> (Shape f l1 <-> Shape f l2)
 relabelShape' = bmap
@@ -122,7 +114,7 @@ instance BFunctor One where
                (\(One vl') -> One (vl'.from i))
 
 oneSh :: Shape One (Fin Z)
-oneSh = Shape SZ id (One id)
+oneSh = Shape (One id)
 
 one :: Sp One (Fin Z) a
 one = Struct oneSh M.empty
@@ -139,7 +131,7 @@ instance BFunctor X where
                (\(X ul') -> X (ul'.from i))
 
 xSh :: Shape X (Fin (S Z))
-xSh = Shape (SS SZ) id (X id)
+xSh = Shape (X id)
 
 x :: a -> Sp X (Fin (S Z)) a
 x a = Struct xSh (M.singleton FZ a)
@@ -149,19 +141,13 @@ x' = SpEx . x
 
 -- E ---------------------------------------------
 
-data E n l = E { _getE :: S.Set n l }
+data E (l :: *) = E
+  deriving Functor
 
-makeLenses ''E
+instance BFunctor E
 
-instance BFunctor (E n) where
-  bmap i = liftIso getE getE (bmap i)
-
--- XXX TODO, fix me!
---   - index Map by size
---   - should all shape functors be indexed by size??
-
--- eSh :: S.Set n l -> Shape (E n) l
--- eSh ls = Shape (S.size ls) (E ls)
+eSh :: Shape E l
+eSh = Shape E
 
 -- e :: Eq l => M.Map l a -> Sp E l a
 -- e m = Struct (eSh (M.keys m)) m
@@ -242,7 +228,7 @@ instance (BFunctor f, BFunctor g) => BFunctor (f * g) where
                (\(Prod f g pf) -> Prod f g (pf.from i))
 
 prodSh :: Shape f l1 -> Shape g l2 -> Shape (f * g) (Either l1 l2)
-prodSh (Shape m mpf f) (Shape n npf g) = Shape (plus m n) (plusPf mpf npf) (Prod f g id)
+prodSh (Shape f) (Shape g) = Shape (Prod f g id)
 
 prod :: Sp f l1 a -> Sp g l2 a -> Sp (f * g) (Either l1 l2) a
 prod (Struct sf esf) (Struct sg esg) = Struct (prodSh sf sg)
@@ -263,7 +249,7 @@ instance (BFunctor f, BFunctor g) => BFunctor (f # g) where
       applyIso i (CProd f g) = CProd (view (bmap i) f) (view (bmap i) g)
 
 cprodSh :: Shape f l -> Shape g l -> Shape (f # g) l
-cprodSh (Shape m pf f) (Shape _ _ g) = Shape m pf (CProd f g)
+cprodSh (Shape f) (Shape g) = Shape (CProd f g)
 
 -- Superimpose a new shape atop an existing structure from the left
 cprodL :: Shape f l -> Sp g l a -> Sp (f # g) l a
@@ -342,13 +328,10 @@ instance BFunctor f => BFunctor (P f) where
 
 data Comp f g l where
   Comp :: f l1
-       -> (l1 <-> Fin n)
        -> Proxy ls
-       -> Apply g n ls
+       -> Apply g (Size l1) ls
        -> (Sum ls <-> l)
        -> Comp f g l
-
-data Proxy a = Proxy
 
 type family Apply (g :: * -> *) (n :: Nat) (ls :: [*]) :: *
 type instance Apply g Z     '[]       = ()
@@ -470,7 +453,7 @@ elimOne :: r -> Elim One a r
 elimOne r = Elim (\_ _ -> r)   -- arguably we should force the shape + proof contained therein
 
 elimX :: (a -> r) -> Elim X a r
-elimX f = Elim (\(Shape _ _ (X i)) m -> f (fromJust (M.lookup (view i FZ) m)))
+elimX f = Elim (\(Shape (X i)) m -> f (fromJust (M.lookup (view i FZ) m)))
 
 elimSum :: Elim f a r -> Elim g a r -> Elim (f+g) a r
 elimSum ef eg = undefined
