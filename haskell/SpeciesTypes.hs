@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE DeriveFunctor       #-}
@@ -19,6 +20,7 @@ import           Equality
 import           Finite
 import           Nat
 import           Proxy
+import           Set
 import qualified Vec          as V
 
 ------------------------------------------------------------
@@ -147,13 +149,11 @@ x' = SpEx . x
 
 -- E ---------------------------------------------
 
-data E (l :: *) = E
-  deriving Functor
+newtype E (l :: *) = E (Set l)
+  deriving BFunctor
 
-instance BFunctor E
-
-eSh :: Shape E l
-eSh = Shape E
+eSh :: Finite l => Shape E l
+eSh = Shape (E enumerate)
 
 e :: (l -> a) -> Sp E l a
 e = undefined  -- XXX TODO

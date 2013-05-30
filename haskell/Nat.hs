@@ -87,3 +87,10 @@ fin z s (FS n) = s (fin z s n)
 
 finToInt :: Fin n -> Int
 finToInt = fin 0 succ
+
+--------------------------------------------------
+-- Enumerating all the elements of Fin n
+
+fins :: SNat n -> [Fin n]
+fins SZ     = []
+fins (SS n) = FZ : map FS (fins n)
