@@ -93,10 +93,8 @@ reshape = view . reshape'
 -- can't really do anything with them and we might as well just not
 -- have them at all.
 
--- XXX this should probably now be a Finite constraint instead of Eq?
--- (note that Finite implies Eq).
 data Sp' f a where
-  SpEx :: Eq l => Sp f l a -> Sp' f a
+  SpEx :: (Finite l, Eq l) => Sp f l a -> Sp' f a
 
 -- Or we can package up an Ord constraint and get L-species
 -- structures.
@@ -424,16 +422,23 @@ toList (x:xs) =
 ------------------------------------------------------------
 --  Eliminators for labelled structures
 
--- An eliminator for labelled structures should be able to look at the labelling.
--- XXX but should be restricted to not care about the labels -- parametricity!
--- XXX need Eq by default.  Ord gives us L-species.  No constraint is isomorphic to (f a -> b).
--- XXX this only really matters for e.g. cartesian product.
+-- An eliminator for labelled structures should be able to look at the
+-- labelling.  However, it should not actually care about the labels
+-- that is, it should be indifferent to relabeling.  Fortunately, we
+-- can actually enforce this in Haskell via parametricity.  We specify
+-- that an eliminator must work for *any* label type which is an
+-- instance of Eq.  (If we use Ord instead of Eq, we get eliminators
+-- for L-species instead; if we use no constraint at all, Elim f a b
+-- would be isomorphic to (f a -> b), that is, a usual eliminator for
+-- (non-labeled) f-structures.)
+--
+-- Note that the difference between Elim f a b and (f a -> b) really
+-- only matters for structures with sharing, e.g. cartesian product.
+
 newtype Elim f a b = Elim (forall l. Eq l => Shape f l -> (l -> a) -> b)
 
--- XXX FIXME
-elim :: Eq l => Elim f a b -> Sp f l a -> b
-elim = undefined
--- elim (Elim el) (Struct s e) = el s e
+elim :: (Finite l, Eq l) => Elim f a b -> Sp f l a -> b
+elim (Elim el) (Struct shp elts) = el shp (V.vIndex elts . view (from finite))
 
 elim' :: Elim f a b -> Sp' f a -> b
 elim' el (SpEx s) = elim el s

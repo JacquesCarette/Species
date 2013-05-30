@@ -26,6 +26,10 @@ singleton a = VCons a VNil
 tail :: Vec (S n) a -> Vec n a
 tail (VCons _ v) = v
 
+vIndex :: Vec n a -> Fin n -> a
+vIndex (VCons a _) FZ     = a
+vIndex (VCons _ v) (FS f) = vIndex v f
+
 fins :: SNat n -> Vec n (Fin n)
 fins SZ     = VNil
 fins (SS n) = VCons FZ (fmap FS (fins n))
