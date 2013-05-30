@@ -29,6 +29,10 @@ import qualified Vec          as V
 -- A labelled shape is a shape filled with a finite set of labels
 newtype Shape f l = Shape { _shapeVal  :: f l }
 
+-- Shapes with an existentially quantified label type.
+data Shape' :: (* -> *) -> * where
+  Shape' :: Shape f l -> Shape' f
+
 shapeSize :: forall f l. Finite l => Shape f l -> Int
 shapeSize _ = snatToInt (size (Proxy :: Proxy l))
 
@@ -326,51 +330,38 @@ p l (Struct s es) = Struct (pSh l s) es
 
 data Comp f g l where
   Comp :: f l1
-       -> Proxy ls
-       -> Apply g (Size l1) ls
-       -> (Sum ls <-> l)
+       -> HVec (Size l1) gls
+       -> (SumArgs gls <-> l)
        -> Comp f g l
 
-type family Apply (g :: * -> *) (n :: Nat) (ls :: [*]) :: *
-type instance Apply g Z     '[]       = ()
-type instance Apply g (S n) (l ': ls) = (g l, Apply g n ls)
+type family SumArgs (gls :: [*]) :: *
+type instance SumArgs '[]         = Fin Z
+type instance SumArgs (g l ': ls) = Either l (SumArgs ls)
 
-type family Sum (ls :: [*]) :: *
-type instance Sum '[]       = Fin Z
-type instance Sum (l ': ls) = Either l (Sum ls)
+-- Length-indexed, type-indexed heterogeneous vectors
+data HVec :: Nat -> [*] -> * where
+  HNil   :: HVec Z '[]
+  HCons  :: l -> HVec n ls -> HVec (S n) (l ': ls)
 
-data Shape' :: (* -> *) -> * where
-  Shape' :: Shape f l -> Shape' f
+data HVec' :: Nat -> * where
+  HVec' :: HVec n ls -> HVec' n
 
-data LProxy' where
-  LProxy' :: Proxy (a :: [*]) -> LProxy'
+-- Convert a length-indexed vector of existentially quantified shapes
+-- into a length-indexed, existentially-quantified, heterogenous
+-- type-indexed vector of shapes.  Got that?
+getShapes :: V.Vec n (Shape' g) -> HVec' n
+getShapes V.VNil = HVec' HNil
+getShapes (V.VCons (Shape' (Shape shp)) ss) =
+  case getShapes ss of
+    HVec' v -> HVec' (HCons shp v)
 
--- XXX TODO fixme
+compSh :: Sp f l (Shape' g) -> Shape' (Comp f g)
+compSh (Struct (Shape f) gshapes) =
+  case getShapes gshapes of
+    (HVec' v) -> Shape' (Shape (Comp f v id))
 
--- ugh agh ick.  Extract the existentially quantified label types from
--- a list of shapes and put them in an existentially quantified
--- type-level list.  Oh how I dearly wish I did not have to choose
--- between practicality and actual dependent types.
--- getLabelTypes :: [Shape' g] -> LProxy'
--- getLabelTypes [] = LProxy' (Proxy :: Proxy '[])
--- getLabelTypes (Shape' (Shape _ (_ :: g l)) : ss) =
---   case getLabelTypes ss of
---     LProxy' (Proxy :: Proxy ls) -> LProxy' (Proxy :: Proxy (l ': ls))
-
--- -- argh, probably need the above to keep around more information about the length?
-
--- compSh :: IsFinite l => Sp f l (Shape' g) -> Shape' (Comp f g)
--- compSh (Struct (Shape _ fl) es) =
---     case (finite, getLabelTypes shps) of
---       (Finite finPf, LProxy' prox) -> Shape' (Shape n' (Comp fl finPf prox undefined id))
---   where
---     shps                              = M.elems es
---     ns                                = map getShapeSize shps
---     getShapeSize (Shape' (Shape s _)) = s
---     n'                                = sum ns
-
--- comp :: IsFinite l => Sp f l (Sp' g a) -> Sp' (Comp f g) a
--- comp = undefined
+comp :: Sp f l (Sp' g a) -> Sp' (Comp f g) a
+comp = undefined
 
 -- Functor composition ---------------------------
 
