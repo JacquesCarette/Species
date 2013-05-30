@@ -36,6 +36,19 @@ instance Finite () where
   size _ = SS SZ
   finite = iso (const ()) (const FZ)
 
+instance Finite a => Finite (Maybe a) where
+  type Size (Maybe a) = S (Size a)
+  size _ = SS (size (Proxy :: Proxy a))
+  finite = iso toM fromM
+    where
+      toM :: Fin (S (Size a)) -> Maybe a
+      toM FZ         = Nothing
+      toM (FS n)     = Just $ view finite n
+
+      fromM :: Maybe a -> Fin (S (Size a))
+      fromM Nothing  = FZ
+      fromM (Just l) = FS (view (from finite) l)
+
 instance Finite Bool where
   type Size (Bool) = S (S Z)
   size _ = SS (SS SZ)
