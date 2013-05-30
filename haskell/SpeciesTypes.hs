@@ -20,7 +20,7 @@ import           Equality
 import           Finite
 import           Nat
 import           Proxy
-import           Set
+import qualified Set          as S
 import qualified Vec          as V
 
 ------------------------------------------------------------
@@ -149,14 +149,14 @@ x' = SpEx . x
 
 -- E ---------------------------------------------
 
-newtype E (l :: *) = E (Set l)
+newtype E (l :: *) = E (S.Set l)
   deriving BFunctor
 
 eSh :: Finite l => Shape E l
-eSh = Shape (E enumerate)
+eSh = Shape (E S.enumerate)
 
-e :: (l -> a) -> Sp E l a
-e = undefined  -- XXX TODO
+e :: Finite l => (l -> a) -> Sp E l a
+e f = Struct eSh (fmap f V.enumerate)
 
 e' :: [a] -> Sp' E a
 e' = undefined  -- XXX TODO

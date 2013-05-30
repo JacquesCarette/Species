@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE GADTs          #-}
@@ -6,7 +7,10 @@
 
 module Vec where
 
-import Nat
+import Control.Lens
+import Finite
+import Nat (Nat(..), Fin(..), SNat(..))
+import Proxy
 
 data Vec :: Nat -> * -> * where
   VNil :: Vec Z a
@@ -19,3 +23,9 @@ instance Functor (Vec n) where
 singleton :: a -> Vec (S Z) a
 singleton a = VCons a VNil
 
+fins :: SNat n -> Vec n (Fin n)
+fins SZ     = VNil
+fins (SS n) = VCons FZ (fmap FS (fins n))
+
+enumerate :: forall l. Finite l => Vec (Size l) l
+enumerate = fmap (view finite) (fins (size (Proxy :: Proxy l)))
