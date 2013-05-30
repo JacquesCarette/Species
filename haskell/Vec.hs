@@ -29,3 +29,12 @@ fins (SS n) = VCons FZ (fmap FS (fins n))
 
 enumerate :: forall l. Finite l => Vec (Size l) l
 enumerate = fmap (view finite) (fins (size (Proxy :: Proxy l)))
+
+data Vec' :: * -> * where
+  SomeVec :: Vec n a -> Vec' a
+
+fromList :: [a] -> Vec' a
+fromList [] = SomeVec VNil
+fromList (a:as) =
+  case fromList as of
+    SomeVec v -> SomeVec (VCons a v)
