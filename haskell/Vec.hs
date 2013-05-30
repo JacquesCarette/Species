@@ -23,6 +23,9 @@ instance Functor (Vec n) where
 singleton :: a -> Vec (S Z) a
 singleton a = VCons a VNil
 
+tail :: Vec (S n) a -> Vec n a
+tail (VCons _ v) = v
+
 fins :: SNat n -> Vec n (Fin n)
 fins SZ     = VNil
 fins (SS n) = VCons FZ (fmap FS (fins n))
