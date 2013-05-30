@@ -273,13 +273,11 @@ instance BFunctor f => BFunctor (D f) where
 iMaybe :: (a <-> b) -> (Maybe a <-> Maybe b)
 iMaybe i = liftIso _Just _Just i
 
--- XXX TODO fixme
+dSh :: Shape f (Maybe l) -> Shape (D f) l
+dSh (Shape f) = Shape (D f id)
 
--- dSh :: Shape f (Maybe l) -> Shape (D f) l
--- dSh (Shape n f) = Shape (n-1) (D f id)
-
--- d :: Sp f (Maybe l) a -> Sp (D f) l a
--- d (Struct s es) = Struct (dSh s) (M.remap id es)
+d :: Sp f (Maybe l) a -> Sp (D f) l a
+d (Struct s es) = Struct (dSh s) (V.tail es)
 
 -- No d' operation since it really does depend on the labels
 
