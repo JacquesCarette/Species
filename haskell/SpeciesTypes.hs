@@ -224,16 +224,19 @@ instance (BFunctor f, BFunctor g) => BFunctor (f +? g) where
 
 infixl 7 *
 data (f * g) l where
-  Prod :: f l1 -> g l2 -> (Either l1 l2 <-> l) -> (f * g) l
+  Prod :: (Eq l1, Finite l1, Eq l2, Finite l2)
+       => f l1 -> g l2 -> (Either l1 l2 <-> l) -> (f * g) l
 
 instance (BFunctor f, BFunctor g) => BFunctor (f * g) where
   bmap i = iso (\(Prod f g pf) -> Prod f g (pf.i))
                (\(Prod f g pf) -> Prod f g (pf.from i))
 
-prodSh :: Shape f l1 -> Shape g l2 -> Shape (f * g) (Either l1 l2)
+prodSh :: (Eq l1, Finite l1, Eq l2, Finite l2)
+       => Shape f l1 -> Shape g l2 -> Shape (f * g) (Either l1 l2)
 prodSh (Shape f) (Shape g) = Shape (Prod f g id)
 
-prod :: Sp f l1 a -> Sp g l2 a -> Sp (f * g) (Either l1 l2) a
+prod :: (Eq l1, Finite l1, Eq l2, Finite l2)
+     => Sp f l1 a -> Sp g l2 a -> Sp (f * g) (Either l1 l2) a
 prod (Struct sf esf) (Struct sg esg) = Struct (prodSh sf sg)
                                               undefined  -- XXX FIXME
                                               -- (M.mapLabels Left esf `M.union` M.mapLabels Right esg)
@@ -361,6 +364,9 @@ compSh (Struct (Shape f) gshapes) =
 comp :: Sp f l (Sp' g a) -> Sp' (Comp f g) a
 comp = undefined
 
+unComp :: Sp' (Comp f g) a -> Sp' f (Sp' g a)
+unComp = undefined
+
 -- Functor composition ---------------------------
 
 -- XXX todo
@@ -410,7 +416,7 @@ list = reshape (from isoL)
 nil :: Sp L (Fin Z) a
 nil = list $ inl one
 
-cons :: a -> Sp L l' a -> Sp L (Either (Fin (S Z)) l') a
+cons :: (Eq l', Finite l') => a -> Sp L l' a -> Sp L (Either (Fin (S Z)) l') a
 cons a (Struct shp es) = Struct (listSh (inrSh (prodSh xSh shp))) (V.VCons a es)
 
 toList :: [a] -> Sp' L a
@@ -449,16 +455,29 @@ elimZero :: Elim Zero a r
 elimZero = undefined
 
 elimOne :: r -> Elim One a r
-elimOne r = Elim (\_ _ -> r)   -- arguably we should force the shape + proof contained therein
+elimOne r = Elim (\_ _ -> r)
+  -- arguably we should force the shape + proof contained therein
 
--- elimX :: (a -> r) -> Elim X a r
--- elimX f = Elim (\(Shape (X i)) m -> f (fromJust (M.lookup (view i FZ) m)))
+elimX :: (a -> r) -> Elim X a r
+elimX f = Elim (\(Shape (X i)) m -> f (m (view i FZ)))
 
 elimSum :: Elim f a r -> Elim g a r -> Elim (f+g) a r
-elimSum ef eg = undefined
+elimSum (Elim f) (Elim g) = Elim $ \(Shape shp) m ->
+  case shp of
+    Inl fShp -> f (Shape fShp) m
+    Inr gShp -> g (Shape gShp) m
 
 elimProd :: Elim f a (Elim g a r) -> Elim (f*g) a r
-elimProd e = undefined
+elimProd (Elim f) = Elim $ \(Shape (Prod fShp gShp pf)) m ->
+  let mEither  = m . view pf
+      (mf, mg) = (mEither . Left, mEither . Right)
+  in
+    case f (Shape fShp) mf of
+      (Elim g) -> g (Shape gShp) mg
+
+elimComp :: Elim g a x -> Elim f x r -> Elim (Comp f g) a r
+elimComp (Elim g) (Elim f) = Elim $ \(Shape (Comp fShp gShps pf)) m ->
+  undefined
 
 ------------------------------------------------------------
 --  Generically deriving labelled structures
