@@ -290,13 +290,11 @@ instance BFunctor f => BFunctor (P f) where
   bmap i = iso (\(P l f) -> P (view i l) (view (bmap i) f))
                (\(P l f) -> P (view (from i) l) (view (bmap (from i)) f))
 
--- XXX TODO fixme
+pSh :: l -> Shape f l -> Shape (P f) l
+pSh l (Shape f) = Shape (P l f)
 
--- pSh :: l -> Shape f l -> Shape (P f) l
--- pSh l (Shape n f) = Shape n (P l f)
-
--- p :: l -> Sp f l a -> Sp (P f) l a
--- p l (Struct s es) = Struct (pSh l s) es
+p :: l -> Sp f l a -> Sp (P f) l a
+p l (Struct s es) = Struct (pSh l s) es
 
 -- No p' operation---it again depends on the labels
 
