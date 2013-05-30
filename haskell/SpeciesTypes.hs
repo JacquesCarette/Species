@@ -87,6 +87,8 @@ reshape = view . reshape'
 -- can't really do anything with them and we might as well just not
 -- have them at all.
 
+-- XXX this should probably now be a Finite constraint instead of Eq?
+-- (note that Finite implies Eq).
 data Sp' f a where
   SpEx :: Eq l => Sp f l a -> Sp' f a
 
