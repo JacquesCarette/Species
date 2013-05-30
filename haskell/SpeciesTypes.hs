@@ -378,15 +378,20 @@ data LProxy' where
 
 -- Cardinality restriction -----------------------
 
--- data OfSize :: Nat -> (* -> *) -> * -> * where
---   OfSize :: SNat n -> (Fin n <-> l) -> f l -> OfSize n f l
+data OfSize :: Nat -> (* -> *) -> * -> * where
+  OfSize :: SNat n -> (n == Size l) -> f l -> OfSize n f l
 
--- instance BFunctor f => BFunctor (OfSize n f) where
---   bmap i = iso (\(OfSize n pf f) -> OfSize n (pf.i) (view (bmap i) f))
---                (\(OfSize n pf f) -> OfSize n (pf.from i) (view (bmap (from i)) f))
+instance BFunctor f => BFunctor (OfSize n f) where
+  bmap i =
+    case isoPresSize i of
+      Refl -> iso (\(OfSize n eq f) -> OfSize n eq (view (bmap i) f))
+                  (\(OfSize n eq f) -> OfSize n eq (view (bmap (from i)) f))
 
--- ofSizeSh :: SNat n -> (Fin n <-> l) -> Shape f l -> OfSize n f l
--- ofSizeSh n pf (Shape m
+sizedSh :: forall f l. Finite l => Shape f l -> Shape (OfSize (Size l) f) l
+sizedSh (Shape sh) = Shape (OfSize (size (Proxy :: Proxy l)) Refl sh)
+
+sized :: Finite l => Sp f l a -> Sp (OfSize (Size l) f) l a
+sized (Struct s e) = Struct (sizedSh s) e
 
 -- List ------------------------------------------
 
