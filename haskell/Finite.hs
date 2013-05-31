@@ -16,6 +16,8 @@ import Equality
 import Nat
 import Proxy
 
+import Unsafe.Coerce (unsafeCoerce)
+
 class Finite l where
   type Size l :: Nat
   size        :: Proxy l -> SNat (Size l)
@@ -68,6 +70,12 @@ instance (Finite a, Finite b) => Finite (a,b) where
 ------------------------------------------------------------
 -- Miscellaneous proofs about size
 
-isoPresSize :: (l1 <-> l2) -> (Size l1 == Size l2)
-isoPresSize = undefined
+isoPresSize :: forall l1 l2. (Finite l1, Finite l2)
+            => (l1 <-> l2) -> (Size l1 == Size l2)
+isoPresSize _
+  | snatEq s1 s2 = unsafeCoerce Refl
+  | otherwise = error $ "isoPresSize: " ++ show s1 ++ " /= " ++ show s2
+  where s1 = size (Proxy :: Proxy l1)
+        s2 = size (Proxy :: Proxy l2)
+
   -- Can we actually implement this in Haskell?  I don't think so.

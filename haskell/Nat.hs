@@ -46,6 +46,11 @@ snat z s (SS n) = s (snat z s n)
 snatToInt :: SNat n -> Int
 snatToInt = snat 0 succ
 
+snatEq :: SNat m -> SNat n -> Bool
+snatEq SZ SZ         = True
+snatEq (SS m) (SS n) = snatEq m n
+snatEq _ _           = False
+
 class Natural (n :: Nat) where
   toSNat :: SNat n
 
