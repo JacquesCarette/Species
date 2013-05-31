@@ -9,10 +9,10 @@
 
 module Finite where
 
-import BFunctor
 import Control.Lens
 import Data.Void
 import Equality
+import Iso
 import Nat
 import Proxy
 
@@ -70,8 +70,8 @@ instance (Finite a, Finite b) => Finite (a,b) where
 ------------------------------------------------------------
 -- Miscellaneous proofs about size
 
-isoPresSize :: forall l1 l2. (Finite l1, Finite l2)
-            => (l1 <-> l2) -> (Size l1 == Size l2)
+isoPresSize :: forall l1 l2. (Finite l1, Finite l2) =>
+               (l1 <-> l2) -> (Size l1 == Size l2)
 isoPresSize _
   | snatEq s1 s2 = unsafeCoerce Refl
   | otherwise = error $ "isoPresSize: " ++ show s1 ++ " /= " ++ show s2

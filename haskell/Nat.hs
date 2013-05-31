@@ -9,7 +9,6 @@
 
 module Nat where
 
-import BFunctor
 import Control.Lens
 import Data.Void
 

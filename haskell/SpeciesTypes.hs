@@ -14,10 +14,12 @@ module SpeciesTypes where
 
 import           BFunctor
 import           Control.Lens hiding (cons)
+import           Data.Array
 import           Data.Functor ((<$>))
 import           Data.Maybe   (fromJust)
 import           Equality
 import           Finite
+import           Iso
 import           Nat
 import           Proxy
 import qualified Set          as S
@@ -52,24 +54,31 @@ makeLenses ''Sp
 instance (BFunctor f) => BFunctor (Shape f) where
   bmap i = liftIso shapeVal shapeVal (bmap i)
 
-relabelShape' :: BFunctor f => (l1 <-> l2) -> (Shape f l1 <-> Shape f l2)
+relabelShape' :: (Finite l1, Finite l2, BFunctor f)
+              => (l1 <-> l2) -> (Shape f l1 <-> Shape f l2)
 relabelShape' = bmap
 
-relabelShape :: BFunctor f => (l1 <-> l2) -> Shape f l1 -> Shape f l2
+relabelShape :: (Finite l1, Finite l2, BFunctor f)
+             => (l1 <-> l2) -> Shape f l1 -> Shape f l2
 relabelShape = view . bmap
 
 -- Species structures can also be relabelled.
-relabel' :: BFunctor f => (l1 <-> l2) -> (Sp f l1 a <-> Sp f l2 a)
+relabel' :: (Finite l1, Finite l2, BFunctor f)
+         => (l1 <-> l2) -> (Sp f l1 a <-> Sp f l2 a)
 relabel' i =
   case isoPresSize i of
     Refl -> iso (\(Struct s e) -> Struct (view (bmap i) s) e)
                 (\(Struct s e) -> Struct (view (bmap (from i)) s) e)
 
-relabel :: BFunctor f => (l1 <-> l2) -> Sp f l1 a -> Sp f l2 a
+relabel :: (Finite l1, Finite l2, BFunctor f)
+        => (l1 <-> l2) -> Sp f l1 a -> Sp f l2 a
 relabel = view . relabel'
 
 instance Functor (Sp f l) where
   fmap = over (elts . mapped)
+
+instance Functor (Sp' f) where
+  fmap f (SpEx s) = SpEx (fmap f s)
 
 ------------------------------------------------------------
 --  Reshaping
@@ -173,7 +182,8 @@ data (f + g) (l :: *) = Inl (f l)
 instance (BFunctor f, BFunctor g) => BFunctor (f + g) where
   bmap i = iso (applyIso i) (applyIso (from i))
     where
-      applyIso :: (BFunctor f, BFunctor g) => (l <-> l') -> (f + g) l -> (f + g) l'
+      applyIso :: (BFunctor f, BFunctor g, Finite l, Finite l')
+               => (l <-> l') -> (f + g) l -> (f + g) l'
       applyIso i (Inl f) = Inl (view (bmap i) f)
       applyIso i (Inr g) = Inr (view (bmap i) g)
 
@@ -251,7 +261,8 @@ data (f # g) l where
 instance (BFunctor f, BFunctor g) => BFunctor (f # g) where
   bmap i = iso (applyIso i) (applyIso (from i))
     where
-      applyIso :: (BFunctor f, BFunctor g) => (l <-> l') -> (f # g) l -> (f # g) l'
+      applyIso :: (BFunctor f, BFunctor g, Finite l, Finite l')
+               => (l <-> l') -> (f # g) l -> (f # g) l'
       applyIso i (CProd f g) = CProd (view (bmap i) f) (view (bmap i) g)
 
 cprodSh :: Shape f l -> Shape g l -> Shape (f # g) l

@@ -5,14 +5,13 @@
 module BFunctor where
 
 import Control.Lens
+import Finite
+import Iso
 
-type (<->) a b = Iso' a b
-
-type (<-->) f g = forall l. f l <-> g l
-
--- Functors in the category B with isomorphisms as arrows.
+-- Functors in the category B of finite sets with isomorphisms as
+-- arrows.
 class BFunctor f where
-  bmap :: (a <-> b) -> (f a <-> f b)
+  bmap :: (Finite a, Finite b) => (a <-> b) -> (f a <-> f b)
 
   -- Any Functor is automatically a BFunctor. (However, some things
   -- are BFunctors but not Functors.)
