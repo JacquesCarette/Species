@@ -9,7 +9,7 @@ module Vec where
 
 import Control.Lens
 import Finite
-import Nat (Nat(..), Fin(..), SNat(..))
+import Nat (Nat(..), Fin(..), SNat(..), Plus)
 import Proxy
 
 data Vec :: Nat -> * -> * where
@@ -36,6 +36,10 @@ fins (SS n) = VCons FZ (fmap FS (fins n))
 
 enumerate :: forall l. Finite l => Vec (Size l) l
 enumerate = fmap (view finite) (fins (size (Proxy :: Proxy l)))
+
+concat :: Vec k l -> Vec k' l -> Vec (Plus k k') l
+concat VNil v = v
+concat (VCons a v) v' = VCons a (Vec.concat v v')
 
 data Vec' :: * -> * where
   SomeVec :: Vec n a -> Vec' a

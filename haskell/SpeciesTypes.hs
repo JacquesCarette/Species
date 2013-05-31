@@ -161,7 +161,7 @@ e :: Finite l => (l -> a) -> Sp E l a
 e f = Struct eSh (fmap f V.enumerate)
 
 e' :: [a] -> Sp' E a
-e' = undefined  -- XXX TODO
+e' l = undefined  -- XXX TODO
 
 -- Sum -------------------------------------------
 
@@ -238,8 +238,7 @@ prodSh (Shape f) (Shape g) = Shape (Prod f g id)
 prod :: (Eq l1, Finite l1, Eq l2, Finite l2)
      => Sp f l1 a -> Sp g l2 a -> Sp (f * g) (Either l1 l2) a
 prod (Struct sf esf) (Struct sg esg) = Struct (prodSh sf sg)
-                                              undefined  -- XXX FIXME
-                                              -- (M.mapLabels Left esf `M.union` M.mapLabels Right esg)
+                                              (V.concat esf esg)
 
 prod' :: Sp' f a -> Sp' g a -> Sp' (f * g) a
 prod' (SpEx f) (SpEx g) = SpEx (prod f g)
