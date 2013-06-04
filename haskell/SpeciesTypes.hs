@@ -374,19 +374,41 @@ compSh (Struct (Shape f) gshapes) =
 
 -- This is kind of like a generalized 'join'.
 comp :: Sp f l (Sp' g a) -> Sp' (Comp f g) a
-comp s@(Struct (Shape fSh) es) = undefined -- SpEx (Struct (Shape (Comp fSh gShps
+comp s@(Struct (Shape fSh) es)
+  = case foo es of
+      Foo prox gShps gElts ->
+        SpEx (Struct (Shape (Comp fSh gShps id)) (hconcat prox gElts))
 
   -- fSh :: Shape f l
   -- es  :: Vec (Size l) (Sp' g a)
 
-  where
-    decomp :: Sp g l2 a -> (Shape g l2, V.Vec (Size l2) a)
-    decomp (Struct gSh v) = (gSh,v)
 
 --  Vec (Size l) (Sp' g a)
 --  Vec (Size l) (exists l2. Sp g l2 a)
 --  Vec (Size l) (exists l2. (Shape g l2, V.Vec (Size l2) a)
---  exists l2s :: [*]. (HVec (Size l) (Map g l2s), HVec (Size l) (Map (\l2 -> V.Vec (Size l2) a) l2s))
+--  exists gl2s :: [*]. (HVec (Size l) gl2s, HVec (Size l) (Map (\g l2 -> V.Vec (Size l2) a) gl2s))
+
+-- need
+--
+--   HVec (Size l) (EltVecs gl2s a) -> Vec (Size (SumArgs gl2s)) a
+
+hconcat :: Proxy gl2s -> HVec n (EltVecs gl2s a) -> V.Vec (Size (SumArgs gl2s)) a
+hconcat = undefined
+-- hconcat _ HNil = V.VNil
+
+data Foo n g a where
+  Foo :: (Eq (SumArgs gl2s), Finite (SumArgs gl2s))
+      => Proxy gl2s -> HVec n gl2s -> HVec n (EltVecs gl2s a) -> Foo n g a
+
+type family EltVecs (gl2s :: [*]) (a :: *) :: [*]
+type instance EltVecs '[] a            = '[]
+type instance EltVecs (g l2 ': gl2s) a = (V.Vec (Size l2) a ': EltVecs gl2s a)
+
+foo :: V.Vec n (Sp' g a) -> Foo n g a
+foo V.VNil = Foo Proxy HNil HNil
+foo (V.VCons (SpEx (Struct (Shape gl2) v)) sps) =
+  case foo sps of
+    Foo _ gl2s evs -> Foo Proxy (HCons gl2 gl2s) (HCons v evs)
 
 -- This is like a generalized (<*>).
 -- app :: Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
