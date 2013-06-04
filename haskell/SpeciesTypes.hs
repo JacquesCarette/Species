@@ -1,3 +1,4 @@
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DataKinds           #-}
@@ -33,7 +34,7 @@ newtype Shape f l = Shape { _shapeVal  :: f l }
 
 -- Shapes with an existentially quantified label type.
 data Shape' :: (* -> *) -> * where
-  Shape' :: Shape f l -> Shape' f
+  Shape' :: (Eq l, Finite l) => Shape f l -> Shape' f
 
 shapeSize :: forall f l. Finite l => Shape f l -> Int
 shapeSize _ = snatToInt (size (Proxy :: Proxy l))
@@ -248,7 +249,7 @@ prodSh (Shape f) (Shape g) = Shape (Prod f g id)
 prod :: (Eq l1, Finite l1, Eq l2, Finite l2)
      => Sp f l1 a -> Sp g l2 a -> Sp (f * g) (Either l1 l2) a
 prod (Struct sf esf) (Struct sg esg) = Struct (prodSh sf sg)
-                                              (V.concat esf esg)
+                                              (V.append esf esg)
 
 prod' :: Sp' f a -> Sp' g a -> Sp' (f * g) a
 prod' (SpEx f) (SpEx g) = SpEx (prod f g)
@@ -355,7 +356,7 @@ data HVec :: Nat -> [*] -> * where
   HCons  :: l -> HVec n ls -> HVec (S n) (l ': ls)
 
 data HVec' :: Nat -> * where
-  HVec' :: HVec n ls -> HVec' n
+  HVec' :: (Eq (SumArgs ls), Finite (SumArgs ls)) => HVec n ls -> HVec' n
 
 -- Convert a length-indexed vector of existentially quantified shapes
 -- into a length-indexed, existentially-quantified, heterogenous
@@ -371,8 +372,26 @@ compSh (Struct (Shape f) gshapes) =
   case getShapes gshapes of
     (HVec' v) -> Shape' (Shape (Comp f v id))
 
+-- This is kind of like a generalized 'join'.
 comp :: Sp f l (Sp' g a) -> Sp' (Comp f g) a
-comp = undefined
+comp s@(Struct (Shape fSh) es) = undefined -- SpEx (Struct (Shape (Comp fSh gShps
+
+  -- fSh :: Shape f l
+  -- es  :: Vec (Size l) (Sp' g a)
+
+  where
+    decomp :: Sp g l2 a -> (Shape g l2, V.Vec (Size l2) a)
+    decomp (Struct gSh v) = (gSh,v)
+
+--  Vec (Size l) (Sp' g a)
+--  Vec (Size l) (exists l2. Sp g l2 a)
+--  Vec (Size l) (exists l2. (Shape g l2, V.Vec (Size l2) a)
+--  exists l2s :: [*]. (HVec (Size l) (Map g l2s), HVec (Size l) (Map (\l2 -> V.Vec (Size l2) a) l2s))
+
+-- This is like a generalized (<*>).
+-- app :: Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
+-- app (Struct (Shape fSh) fs) (Struct (Shape gSh) as)
+--   = Struct (Shape (Comp fSh (pureHVec gSh) id)) (V.concat (fmap (\f -> fmap f as) fs))
 
 unComp :: Sp' (Comp f g) a -> Sp' f (Sp' g a)
 unComp = undefined
@@ -429,11 +448,30 @@ nil = list $ inl one
 cons :: (Eq l', Finite l') => a -> Sp L l' a -> Sp L (Either (Fin (S Z)) l') a
 cons a (Struct shp es) = Struct (listSh (inrSh (prodSh xSh shp))) (V.VCons a es)
 
-toList :: [a] -> Sp' L a
-toList [] = SpEx nil
-toList (x:xs) =
-  case toList xs of
+fromList :: [a] -> Sp' L a
+fromList [] = SpEx nil
+fromList (x:xs) =
+  case fromList xs of
     SpEx s -> SpEx (cons x s)
+
+-- Array -----------------------------------------
+
+-- Arrays are finite maps, i.e. labelled bags.  We keep the original
+-- index range around so we can convert back later, since the type i
+-- is not required to be isomorphic to the set of labels.
+
+data Arr i l = Arr (i,i) (E l)
+
+-- It would be nicer if we could get an explicit label type out, but
+-- the problem is that the type i doesn't really tell us much: Arrays
+-- can (and typically do) use only a subset of the index type for
+-- their indices.  It would be nice if Haskell had some sort of
+-- subset/range types.
+fromArray :: Ix i => Array i e -> Sp' (Arr i) e
+fromArray arr = undefined
+  where
+    (lo,hi) = bounds arr
+    sz      = rangeSize (lo,hi)
 
 ------------------------------------------------------------
 --  Eliminators for labelled structures
