@@ -20,11 +20,12 @@ import           Data.Functor ((<$>))
 import           Data.Maybe   (fromJust)
 import           Equality
 import           Finite
-import           HVec
 import           Iso
 import           Nat
 import           Proxy
 import qualified Set          as S
+import           Util
+import           Vec          (Vec)
 import qualified Vec          as V
 
 ------------------------------------------------------------
@@ -344,17 +345,9 @@ p l (Struct s es) = Struct (pSh l s) es
 data Comp f g l where
   Comp :: f l1
        -> LProxy (Size l1) ls
-       -> HVec (Size l1) (Map g ls)
+       -> V.HVec (Size l1) (Map g ls)
        -> (Sum ls <-> l)
        -> Comp f g l
-
-type family Sum (ls :: [*]) :: *
-type instance Sum '[]       = Fin Z
-type instance Sum (l ': ls) = Either l (Sum ls)
-
-type family Map (f :: * -> *) (as :: [*]) :: [*]
-type instance Map f '[] = '[]
-type instance Map f (a ': as) = f a ': Map f as
 
 -- This is kind of like a generalized 'join'.
 comp :: forall f l g a. Sp f l (Sp' g a) -> Sp' (Comp f g) a
@@ -363,29 +356,19 @@ comp s@(Struct (Shape fSh) es)
       Foo prox gShps gElts ->
         SpEx (Struct
                (Shape (Comp fSh prox gShps id))
-               (hconcat (Proxy :: Proxy g) prox gElts)
+               (V.hconcat (Proxy :: Proxy g) prox gElts)
              )
-
-hconcat :: Proxy g -> LProxy n l2s -> HVec n (EltVecs l2s a) -> V.Vec (Size (Sum l2s)) a
-hconcat _ LNil HNil = V.VNil
-hconcat p (LCons _ ls) (HCons v vs)
-  = V.append v (hconcat p ls vs)
 
 data Foo n g a where
   Foo :: (Eq (Sum l2s), Finite (Sum l2s))
-      => LProxy n l2s -> HVec n (Map g l2s) -> HVec n (EltVecs l2s a) -> Foo n g a
-
--- XXX better name?
-type family EltVecs (l2s :: [*]) (a :: *) :: [*]
-type instance EltVecs '[] a         = '[]
-type instance EltVecs (l2 ': l2s) a = (V.Vec (Size l2) a ': EltVecs l2s a)
+      => LProxy n l2s -> V.HVec n (Map g l2s) -> V.HVec n (V.VecsOfSize l2s a) -> Foo n g a
 
 foo :: V.Vec n (Sp' g a) -> Foo n g a
-foo V.VNil = Foo LNil HNil HNil
+foo V.VNil = Foo LNil V.HNil V.HNil
 foo (V.VCons (SpEx (Struct (Shape (gl2 :: g l2)) v)) sps) =
   case foo sps of
     Foo p gl2s evs
-      -> Foo (LCons (Proxy :: Proxy l2) p) (HCons gl2 gl2s) (HCons v evs)
+      -> Foo (LCons (Proxy :: Proxy l2) p) (V.HCons gl2 gl2s) (V.HCons v evs)
 
 -- This is like a generalized (<*>).
 -- app :: Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b

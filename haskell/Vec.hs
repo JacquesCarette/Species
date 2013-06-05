@@ -1,3 +1,6 @@
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE StandaloneDeriving #-}
@@ -13,6 +16,7 @@ import Control.Lens
 import Finite
 import Nat (Nat(..), Fin(..), SNat(..), Plus, Times)
 import Proxy
+import Util
 
 data Vec :: Nat -> * -> * where
   VNil :: Vec Z a
@@ -73,3 +77,23 @@ concat' :: Vec k (Vec' a) -> Vec' a
 concat' VNil = SomeVec VNil
 concat' (VCons v vs) = append' v (concat' vs)
 
+------------------------------------------------------------
+-- HVec: Length-indexed, type-indexed heterogeneous vectors
+------------------------------------------------------------
+
+data HVec :: Nat -> [*] -> * where
+  HNil   :: HVec Z '[]
+  HCons  :: l -> HVec n ls -> HVec (S n) (l ': ls)
+
+-- Given a heterogeneous vector of vectors with sizes (n1, n2, ...),
+-- concatenate them to give a single vector of size (n1 + n2 + ...).
+hconcat :: Proxy g -> LProxy n l2s -> HVec n (VecsOfSize l2s a) -> Vec (Size (Sum l2s)) a
+hconcat _ LNil HNil                 = VNil
+hconcat p (LCons _ ls) (HCons v vs) = append v (hconcat p ls vs)
+
+-- Essentially, VecsOfSize ls a = Map ((\n -> Vec n a) . Size) ls, but
+-- we can't write that explicitly, because (1) no type-level lambdas
+-- and (2) Size has to be fully applied.
+type family VecsOfSize (ls :: [*]) (a :: *) :: [*]
+type instance VecsOfSize '[] a         = '[]
+type instance VecsOfSize (l ': ls) a = (Vec (Size l) a ': VecsOfSize ls a)
