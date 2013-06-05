@@ -113,6 +113,15 @@ zeroL = iso (absurd . fst) absurd
 oneL :: ((), a) <-> a
 oneL = iso snd ((,) ())
 
+commT :: (a,b) <-> (b,a)
+commT = iso swap swap
+        where swap (a,b) = (b,a)
+
+commP :: Either a b <-> Either b a
+commP = iso swap swap
+        where swap (Left x)  = Right x
+              swap (Right y) = Left y
+
 distribR :: (Either a b, c) <-> Either (a,c) (b,c)
 distribR = iso distribR1 distribR2
   where
@@ -130,3 +139,20 @@ succFin = iso succFin1 succFin2
     succFin2 :: Fin (S m) -> Either () (Fin m)
     succFin2 FZ        = Left ()
     succFin2 (FS f)    = Right f
+
+assocLP :: Either b1 (Either b2 b3) <-> Either (Either b1 b2) b3
+assocLP = iso shuffleRight shuffleLeft
+          where
+            shuffleRight (Left x)   = Left (Left x)
+            shuffleRight (Right (Left x)) = Left (Right x)
+            shuffleRight (Right (Right x)) = Right x
+
+            shuffleLeft (Left (Left x)) = Left x
+            shuffleLeft (Left (Right x)) = Right (Left x)
+            shuffleLeft (Right x) = Right (Right x)
+
+assocLT :: (b1,(b2,b3)) <-> ((b1,b2),b3)
+assocLT = iso shuffleRight shuffleLeft
+          where
+            shuffleRight (a,(b,c)) = ((a,b),c)
+            shuffleLeft ((a,b),c) = (a,(b,c))
