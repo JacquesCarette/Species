@@ -352,23 +352,34 @@ data Comp f g l where
 -- This is kind of like a generalized 'join'.
 comp :: forall f l g a. Sp f l (Sp' g a) -> Sp' (Comp f g) a
 comp s@(Struct (Shape fSh) es)
-  = case foo es of
-      Foo prox gShps gElts ->
+  = case unzipSpSp' es of
+      UZSS ls gShps gElts ->
         SpEx (Struct
-               (Shape (Comp fSh prox gShps id))
-               (V.hconcat (Proxy :: Proxy g) prox gElts)
+               (Shape (Comp fSh ls gShps id))
+               (V.hconcat (Proxy :: Proxy g) ls gElts)
              )
 
-data Foo n g a where
-  Foo :: (Eq (Sum l2s), Finite (Sum l2s))
-      => LProxy n l2s -> V.HVec n (Map g l2s) -> V.HVec n (V.VecsOfSize l2s a) -> Foo n g a
+-- A data structure to represent an "unzipped" Sp(Sp')-thing: a vector
+-- of g-structures paired with a vector of element vectors, with the
+-- list of label types existentially hidden.
+data UnzippedSpSp' n g a where
+  UZSS :: (Eq (Sum ls), Finite (Sum ls))
+       => LProxy n ls    -- We need an LProxy so the typechecker can
+                         -- actually infer the label types (the only
+                         -- other occurrences of ls are buried inside
+                         -- type functions which we know are injective
+                         -- but GHC doesn't) and to drive recursion
+                         -- over the vectors.
+       -> V.HVec n (Map g ls)           -- vector of g-structures
+       -> V.HVec n (V.VecsOfSize ls a)  -- vector of element vectors
+       -> UnzippedSpSp' n g a
 
-foo :: V.Vec n (Sp' g a) -> Foo n g a
-foo V.VNil = Foo LNil V.HNil V.HNil
-foo (V.VCons (SpEx (Struct (Shape (gl2 :: g l2)) v)) sps) =
-  case foo sps of
-    Foo p gl2s evs
-      -> Foo (LCons (Proxy :: Proxy l2) p) (V.HCons gl2 gl2s) (V.HCons v evs)
+unzipSpSp' :: V.Vec n (Sp' g a) -> UnzippedSpSp' n g a
+unzipSpSp' V.VNil = UZSS LNil V.HNil V.HNil
+unzipSpSp' (V.VCons (SpEx (Struct (Shape (gl :: g l)) v)) sps) =
+  case unzipSpSp' sps of
+    UZSS p gls evs
+      -> UZSS (LCons (Proxy :: Proxy l) p) (V.HCons gl gls) (V.HCons v evs)
 
 -- This is like a generalized (<*>).
 -- app :: Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
