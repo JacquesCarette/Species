@@ -10,7 +10,9 @@
 module Nat where
 
 import Control.Lens
-import Data.Void
+import Iso
+
+import Unsafe.Coerce  -- for eliminating Fin Z
 
 ------------------------------------------------------------
 -- Natural numbers
@@ -92,9 +94,39 @@ fin z s (FS n) = s (fin z s n)
 finToInt :: Fin n -> Int
 finToInt = fin 0 succ
 
+absurd :: Fin Z -> a
+absurd = unsafeCoerce
+
 --------------------------------------------------
 -- Enumerating all the elements of Fin n
 
 fins :: SNat n -> [Fin n]
 fins SZ     = []
 fins (SS n) = FZ : map FS (fins n)
+
+------------------------------------------------------------
+-- Some arithmetic isomorphisms
+
+zeroL :: (Fin Z, a) <-> Fin Z
+zeroL = iso (absurd . fst) absurd
+
+oneL :: ((), a) <-> a
+oneL = iso snd ((,) ())
+
+distribR :: (Either a b, c) <-> Either (a,c) (b,c)
+distribR = iso distribR1 distribR2
+  where
+    distribR1 (Left a, c)   = Left (a,c)
+    distribR1 (Right b, c)  = Right (b,c)
+    distribR2 (Left (a,c))  = (Left a, c)
+    distribR2 (Right (b,c)) = (Right b, c)
+
+succFin :: Either () (Fin m) <-> Fin (S m)
+succFin = iso succFin1 succFin2
+  where
+    succFin1 (Left ()) = FZ
+    succFin1 (Right f) = FS f
+
+    succFin2 :: Fin (S m) -> Either () (Fin m)
+    succFin2 FZ        = Left ()
+    succFin2 (FS f)    = Right f
