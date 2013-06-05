@@ -413,15 +413,14 @@ unzipSpSp' (V.VCons (SpEx (Struct (Shape (gl :: g l)) v)) sps) =
     UZSS p gls evs
       -> UZSS (LCons (Proxy :: Proxy l) p) (V.HCons gl gls) (V.HCons v evs)
 
--- compA and compA' are generalized versions of (<*>).  Just as with
--- compJ we have two variants: one with a restricted type and one with
--- an existential type standing in for a dependent variant of the first.
+-- compA is a generalized version of (<*>). Unlike compJ, there is no
+-- dependent variant of compA: we only get to provide a single
+-- g-structure which is copied into all the locations of the
+-- f-structure, so all the label types must be the same; they cannot
+-- depend on the labels of the f-structure.
 
 compA :: Finite l1 => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
 compA spf spg = compJ ((<$> spg) <$> spf)
-
-compA' :: Sp f l1 (a -> b) -> Sp' g a -> Sp' (Comp f g) b
-compA' spf spg = compJ' ((<$> spg) <$> spf)
 
 -- unComp :: Sp' (Comp f g) a -> Sp' f (Sp' g a)
 -- unComp = undefined
