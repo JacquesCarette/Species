@@ -342,13 +342,18 @@ p l (Struct s es) = Struct (pSh l s) es
 
 data Comp f g l where
   Comp :: f l1
-       -> HVec (Size l1) gls
-       -> (SumArgs gls <-> l)
+       -> LProxy (Size l1) ls
+       -> HVec (Size l1) (Map g ls)
+       -> (Sum ls <-> l)
        -> Comp f g l
 
-type family SumArgs (gls :: [*]) :: *
-type instance SumArgs '[]         = Fin Z
-type instance SumArgs (g l ': ls) = Either l (SumArgs ls)
+type family Sum (ls :: [*]) :: *
+type instance Sum '[]       = Fin Z
+type instance Sum (l ': ls) = Either l (Sum ls)
+
+type family Map (f :: * -> *) (as :: [*]) :: [*]
+type instance Map f '[] = '[]
+type instance Map f (a ': as) = f a ': Map f as
 
 -- Length-indexed, type-indexed heterogeneous vectors
 data HVec :: Nat -> [*] -> * where
@@ -356,28 +361,31 @@ data HVec :: Nat -> [*] -> * where
   HCons  :: l -> HVec n ls -> HVec (S n) (l ': ls)
 
 data HVec' :: Nat -> * where
-  HVec' :: (Eq (SumArgs ls), Finite (SumArgs ls)) => HVec n ls -> HVec' n
+  HVec' :: (Eq (Sum ls), Finite (Sum ls)) => HVec n ls -> HVec' n
 
 -- Convert a length-indexed vector of existentially quantified shapes
 -- into a length-indexed, existentially-quantified, heterogenous
 -- type-indexed vector of shapes.  Got that?
-getShapes :: V.Vec n (Shape' g) -> HVec' n
-getShapes V.VNil = HVec' HNil
-getShapes (V.VCons (Shape' (Shape shp)) ss) =
-  case getShapes ss of
-    HVec' v -> HVec' (HCons shp v)
+-- getShapes :: V.Vec n (Shape' g) -> HVec' n
+-- getShapes V.VNil = HVec' HNil
+-- getShapes (V.VCons (Shape' (Shape shp)) ss) =
+--   case getShapes ss of
+--     HVec' v -> HVec' (HCons shp v)
 
-compSh :: Sp f l (Shape' g) -> Shape' (Comp f g)
-compSh (Struct (Shape f) gshapes) =
-  case getShapes gshapes of
-    (HVec' v) -> Shape' (Shape (Comp f v id))
+-- compSh :: Sp f l (Shape' g) -> Shape' (Comp f g)
+-- compSh (Struct (Shape f) gshapes) =
+--   case getShapes gshapes of
+--     (HVec' v) -> Shape' (Shape (Comp f v id))
 
 -- This is kind of like a generalized 'join'.
-comp :: Sp f l (Sp' g a) -> Sp' (Comp f g) a
+comp :: forall f l g a. Sp f l (Sp' g a) -> Sp' (Comp f g) a
 comp s@(Struct (Shape fSh) es)
   = case foo es of
       Foo prox gShps gElts ->
-        SpEx (Struct (Shape (Comp fSh gShps id)) (hconcat prox gElts))
+        SpEx (Struct
+               (Shape (Comp fSh prox gShps id))
+               (hconcat (Proxy :: Proxy g) prox gShps gElts)
+             )
 
   -- fSh :: Shape f l
   -- es  :: Vec (Size l) (Sp' g a)
@@ -392,23 +400,26 @@ comp s@(Struct (Shape fSh) es)
 --
 --   HVec (Size l) (EltVecs gl2s a) -> Vec (Size (SumArgs gl2s)) a
 
-hconcat :: Proxy gl2s -> HVec n (EltVecs gl2s a) -> V.Vec (Size (SumArgs gl2s)) a
-hconcat = undefined
--- hconcat _ HNil = V.VNil
+hconcat :: Proxy g -> LProxy n l2s -> HVec n (Map g l2s) -> HVec n (EltVecs l2s a) -> V.Vec (Size (Sum l2s)) a
+hconcat _ LNil HNil HNil = V.VNil
+hconcat p (LCons _ ls) (HCons _ h) (HCons v vs)
+  = V.append v (hconcat p ls h vs)
 
 data Foo n g a where
-  Foo :: (Eq (SumArgs gl2s), Finite (SumArgs gl2s))
-      => Proxy gl2s -> HVec n gl2s -> HVec n (EltVecs gl2s a) -> Foo n g a
+  Foo :: (Eq (Sum l2s), Finite (Sum l2s))
+      => LProxy n l2s -> HVec n (Map g l2s) -> HVec n (EltVecs l2s a) -> Foo n g a
 
-type family EltVecs (gl2s :: [*]) (a :: *) :: [*]
-type instance EltVecs '[] a            = '[]
-type instance EltVecs (g l2 ': gl2s) a = (V.Vec (Size l2) a ': EltVecs gl2s a)
+-- XXX better name?
+type family EltVecs (l2s :: [*]) (a :: *) :: [*]
+type instance EltVecs '[] a         = '[]
+type instance EltVecs (l2 ': l2s) a = (V.Vec (Size l2) a ': EltVecs l2s a)
 
 foo :: V.Vec n (Sp' g a) -> Foo n g a
-foo V.VNil = Foo Proxy HNil HNil
-foo (V.VCons (SpEx (Struct (Shape gl2) v)) sps) =
+foo V.VNil = Foo LNil HNil HNil
+foo (V.VCons (SpEx (Struct (Shape (gl2 :: g l2)) v)) sps) =
   case foo sps of
-    Foo _ gl2s evs -> Foo Proxy (HCons gl2 gl2s) (HCons v evs)
+    Foo p gl2s evs
+      -> Foo (LCons (Proxy :: Proxy l2) p) (HCons gl2 gl2s) (HCons v evs)
 
 -- This is like a generalized (<*>).
 -- app :: Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
@@ -546,8 +557,19 @@ elimProd (Elim f) = Elim $ \(Shape (Prod fShp gShp pf)) m ->
       (Elim g) -> g (Shape gShp) mg
 
 elimComp :: Elim g a x -> Elim f x r -> Elim (Comp f g) a r
-elimComp (Elim g) (Elim f) = Elim $ \(Shape (Comp fShp gShps pf)) m ->
+elimComp (Elim g) (Elim f) = Elim $ \(Shape (Comp fShp _ gShps pf)) m ->
   undefined
+
+------------------------------------------------------------
+--  Other operations
+
+-- Not entirely sure whether this makes sense.  What constraint do we
+-- need on 'f' for this to work?  Not Monoidal.  Need some kind of
+-- "labelled monoidal" (along with some kind of constraint on the type
+-- of labels l.
+
+-- instance ??? f => Monoidal (Sp f l) where
+--   unit =
 
 ------------------------------------------------------------
 --  Generically deriving labelled structures
