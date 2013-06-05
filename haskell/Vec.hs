@@ -85,6 +85,14 @@ data HVec :: Nat -> [*] -> * where
   HNil   :: HVec Z '[]
   HCons  :: l -> HVec n ls -> HVec (S n) (l ': ls)
 
+toHVec :: Vec n a -> HVec n (Replicate n a)
+toHVec VNil        = HNil
+toHVec (VCons a v) = HCons a (toHVec v)
+
+hProxy :: HVec n ls -> LProxy n ls
+hProxy HNil               = LNil
+hProxy (HCons (_ :: l) h) = LCons (Proxy :: Proxy l) (hProxy h)
+
 -- Given a heterogeneous vector of vectors with sizes (n1, n2, ...),
 -- concatenate them to give a single vector of size (n1 + n2 + ...).
 hconcat :: Proxy g -> LProxy n l2s -> HVec n (VecsOfSize l2s a) -> Vec (Size (Sum l2s)) a

@@ -349,15 +349,47 @@ data Comp f g l where
        -> (Sum ls <-> l)
        -> Comp f g l
 
--- This is kind of like a generalized 'join'.
-comp :: forall f l g a. Sp f l (Sp' g a) -> Sp' (Comp f g) a
-comp s@(Struct (Shape fSh) es)
+-- compJ and compJ' are like generalized versions of 'join'.
+
+-- compJ is a restricted form of composition where the substructures
+-- are constrained to all have the same label type.
+compJ :: forall f l1 g l2 a. Finite l1 => Sp f l1 (Sp g l2 a) -> Sp (Comp f g) (l1,l2) a
+compJ (Struct (Shape fSh) es)
+    = case mapRep l1Size (Proxy :: Proxy g) (Proxy :: Proxy l2) of
+        Refl ->
+          Struct (Shape (Comp fSh (lpRep l1Size (Proxy :: Proxy l2)) gShps' pf))
+                 (V.concat gElts)
+  where
+    l1Size              = size (Proxy :: Proxy l1)
+    (gShps, gElts)      = V.unzip (fmap unSp es)
+    gShps'              = V.toHVec (fmap (view shapeVal) gShps)
+    unSp (Struct sh es) = (sh, es)
+    pf                  :: Sum (Replicate (Size l1) l2) <-> (l1, l2)
+    pf                  = sumRepIso (Proxy :: Proxy l1)
+
+-- Ideally the type of compJ' would be a dependent version of the type
+-- of compJ, where l2 can depend on l1.  Indeed, I expect that in a
+-- true dependently typed language we can write that type directly.
+-- However, we can't express that in Haskell, so instead we use
+-- existential quantification.
+compJ' :: forall f l g a. Sp f l (Sp' g a) -> Sp' (Comp f g) a
+compJ' (Struct (Shape fSh) es)
   = case unzipSpSp' es of
       UZSS ls gShps gElts ->
         SpEx (Struct
                (Shape (Comp fSh ls gShps id))
                (V.hconcat (Proxy :: Proxy g) ls gElts)
              )
+
+  -- If you squint really hard, you can see that the implementations
+  -- of compJ and compJ' are structurally identical, but with a bunch
+  -- of extra machinery thrown in to convince the typechecker, in
+  -- fact, different machinery in each case: in the case of compJ, we
+  -- have to do some work to replicate the second label type and show
+  -- that iterated sum is the same as a product.  In the case of
+  -- compJ', we have to work to maintain existentially-quantified
+  -- heterogeneous lists of types and carefully preserve knowledge
+  -- about which types are equal.
 
 -- A data structure to represent an "unzipped" Sp(Sp')-thing: a vector
 -- of g-structures paired with a vector of element vectors, with the
@@ -381,13 +413,18 @@ unzipSpSp' (V.VCons (SpEx (Struct (Shape (gl :: g l)) v)) sps) =
     UZSS p gls evs
       -> UZSS (LCons (Proxy :: Proxy l) p) (V.HCons gl gls) (V.HCons v evs)
 
--- This is like a generalized (<*>).
--- app :: Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
--- app (Struct (Shape fSh) fs) (Struct (Shape gSh) as)
---   = Struct (Shape (Comp fSh (pureHVec gSh) id)) (V.concat (fmap (\f -> fmap f as) fs))
+-- compA and compA' are generalized versions of (<*>).  Just as with
+-- compJ we have two variants: one with a restricted type and one with
+-- an existential type standing in for a dependent variant of the first.
 
-unComp :: Sp' (Comp f g) a -> Sp' f (Sp' g a)
-unComp = undefined
+compA :: Finite l1 => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
+compA spf spg = compJ ((<$> spg) <$> spf)
+
+compA' :: Sp f l1 (a -> b) -> Sp' g a -> Sp' (Comp f g) b
+compA' spf spg = compJ' ((<$> spg) <$> spf)
+
+-- unComp :: Sp' (Comp f g) a -> Sp' f (Sp' g a)
+-- unComp = undefined
 
 -- Functor composition ---------------------------
 
