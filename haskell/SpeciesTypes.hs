@@ -363,13 +363,13 @@ comp s@(Struct (Shape fSh) es)
       Foo prox gShps gElts ->
         SpEx (Struct
                (Shape (Comp fSh prox gShps id))
-               (hconcat (Proxy :: Proxy g) prox gShps gElts)
+               (hconcat (Proxy :: Proxy g) prox gElts)
              )
 
-hconcat :: Proxy g -> LProxy n l2s -> HVec n (Map g l2s) -> HVec n (EltVecs l2s a) -> V.Vec (Size (Sum l2s)) a
-hconcat _ LNil HNil HNil = V.VNil
-hconcat p (LCons _ ls) (HCons _ h) (HCons v vs)
-  = V.append v (hconcat p ls h vs)
+hconcat :: Proxy g -> LProxy n l2s -> HVec n (EltVecs l2s a) -> V.Vec (Size (Sum l2s)) a
+hconcat _ LNil HNil = V.VNil
+hconcat p (LCons _ ls) (HCons v vs)
+  = V.append v (hconcat p ls vs)
 
 data Foo n g a where
   Foo :: (Eq (Sum l2s), Finite (Sum l2s))
