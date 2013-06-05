@@ -20,6 +20,7 @@ import           Data.Functor ((<$>))
 import           Data.Maybe   (fromJust)
 import           Equality
 import           Finite
+import           HVec
 import           Iso
 import           Nat
 import           Proxy
@@ -354,11 +355,6 @@ type instance Sum (l ': ls) = Either l (Sum ls)
 type family Map (f :: * -> *) (as :: [*]) :: [*]
 type instance Map f '[] = '[]
 type instance Map f (a ': as) = f a ': Map f as
-
--- Length-indexed, type-indexed heterogeneous vectors
-data HVec :: Nat -> [*] -> * where
-  HNil   :: HVec Z '[]
-  HCons  :: l -> HVec n ls -> HVec (S n) (l ': ls)
 
 -- This is kind of like a generalized 'join'.
 comp :: forall f l g a. Sp f l (Sp' g a) -> Sp' (Comp f g) a
