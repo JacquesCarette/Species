@@ -360,23 +360,6 @@ data HVec :: Nat -> [*] -> * where
   HNil   :: HVec Z '[]
   HCons  :: l -> HVec n ls -> HVec (S n) (l ': ls)
 
-data HVec' :: Nat -> * where
-  HVec' :: (Eq (Sum ls), Finite (Sum ls)) => HVec n ls -> HVec' n
-
--- Convert a length-indexed vector of existentially quantified shapes
--- into a length-indexed, existentially-quantified, heterogenous
--- type-indexed vector of shapes.  Got that?
--- getShapes :: V.Vec n (Shape' g) -> HVec' n
--- getShapes V.VNil = HVec' HNil
--- getShapes (V.VCons (Shape' (Shape shp)) ss) =
---   case getShapes ss of
---     HVec' v -> HVec' (HCons shp v)
-
--- compSh :: Sp f l (Shape' g) -> Shape' (Comp f g)
--- compSh (Struct (Shape f) gshapes) =
---   case getShapes gshapes of
---     (HVec' v) -> Shape' (Shape (Comp f v id))
-
 -- This is kind of like a generalized 'join'.
 comp :: forall f l g a. Sp f l (Sp' g a) -> Sp' (Comp f g) a
 comp s@(Struct (Shape fSh) es)
@@ -386,19 +369,6 @@ comp s@(Struct (Shape fSh) es)
                (Shape (Comp fSh prox gShps id))
                (hconcat (Proxy :: Proxy g) prox gShps gElts)
              )
-
-  -- fSh :: Shape f l
-  -- es  :: Vec (Size l) (Sp' g a)
-
-
---  Vec (Size l) (Sp' g a)
---  Vec (Size l) (exists l2. Sp g l2 a)
---  Vec (Size l) (exists l2. (Shape g l2, V.Vec (Size l2) a)
---  exists gl2s :: [*]. (HVec (Size l) gl2s, HVec (Size l) (Map (\g l2 -> V.Vec (Size l2) a) gl2s))
-
--- need
---
---   HVec (Size l) (EltVecs gl2s a) -> Vec (Size (SumArgs gl2s)) a
 
 hconcat :: Proxy g -> LProxy n l2s -> HVec n (Map g l2s) -> HVec n (EltVecs l2s a) -> V.Vec (Size (Sum l2s)) a
 hconcat _ LNil HNil HNil = V.VNil
