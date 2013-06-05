@@ -558,15 +558,4 @@ elimComp (Elim g) (Elim f) = Elim $ \(Shape (Comp fShp _ gShps pf)) m ->
   undefined
 
 ------------------------------------------------------------
---  Other operations
-
--- Not entirely sure whether this makes sense.  What constraint do we
--- need on 'f' for this to work?  Not Monoidal.  Need some kind of
--- "labelled monoidal" (along with some kind of constraint on the type
--- of labels l.
-
--- instance ??? f => Monoidal (Sp f l) where
---   unit =
-
-------------------------------------------------------------
 --  Generically deriving labelled structures
