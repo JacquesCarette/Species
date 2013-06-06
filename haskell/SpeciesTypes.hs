@@ -172,8 +172,13 @@ eSh = Shape (E S.enumerate)
 e :: Finite l => (l -> a) -> Sp E l a
 e f = Struct eSh (fmap f V.enumerate)
 
-e' :: [a] -> Sp' E a
-e' l = undefined  -- XXX TODO
+-- Argh, this needs a Natural constraint, but adding one to SomeVec
+-- ends up infecting everything in a very annoying way.
+
+-- e' :: [a] -> Sp' E a
+-- e' as =
+--   case V.fromList as of
+--     (V.SomeVec (v :: Vec n a)) -> SpEx (Struct (eSh :: Shape E (Fin n)) v)
 
 -- Sum -------------------------------------------
 
