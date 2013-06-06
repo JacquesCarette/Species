@@ -348,7 +348,8 @@ p l (Struct s es) = Struct (pSh l s) es
 -- which we can encode in Haskell as follows:
 
 data Comp f g l where
-  Comp :: f l1
+  Comp :: Eq l1
+       => f l1
        -> LProxy (Size l1) ls
        -> V.HVec (Size l1) (Map g ls)
        -> (Sum ls <-> l)
@@ -358,7 +359,7 @@ data Comp f g l where
 
 -- compJ is a restricted form of composition where the substructures
 -- are constrained to all have the same label type.
-compJ :: forall f l1 g l2 a. Finite l1 => Sp f l1 (Sp g l2 a) -> Sp (Comp f g) (l1,l2) a
+compJ :: forall f l1 g l2 a. (Eq l1, Finite l1) => Sp f l1 (Sp g l2 a) -> Sp (Comp f g) (l1,l2) a
 compJ (Struct (Shape fSh) es)
     = case mapRep l1Size (Proxy :: Proxy g) (Proxy :: Proxy l2) of
         Refl ->
@@ -377,7 +378,7 @@ compJ (Struct (Shape fSh) es)
 -- true dependently typed language we can write that type directly.
 -- However, we can't express that in Haskell, so instead we use
 -- existential quantification.
-compJ' :: forall f l g a. Sp f l (Sp' g a) -> Sp' (Comp f g) a
+compJ' :: forall f l g a. Eq l => Sp f l (Sp' g a) -> Sp' (Comp f g) a
 compJ' (Struct (Shape fSh) es)
   = case unzipSpSp' es of
       UZSS ls gShps gElts ->
@@ -424,7 +425,7 @@ unzipSpSp' (V.VCons (SpEx (Struct (Shape (gl :: g l)) v)) sps) =
 -- f-structure, so all the label types must be the same; they cannot
 -- depend on the labels of the f-structure.
 
-compA :: Finite l1 => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
+compA :: (Eq l1, Finite l1) => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
 compA spf spg = compJ ((<$> spg) <$> spf)
 
 -- unComp :: Sp' (Comp f g) a -> Sp' f (Sp' g a)
@@ -557,9 +558,14 @@ elimProd (Elim f) = Elim $ \(Shape (Prod fShp gShp pf)) m ->
     case f (Shape fShp) mf of
       (Elim g) -> g (Shape gShp) mg
 
-elimComp :: Elim g a x -> Elim f x r -> Elim (Comp f g) a r
-elimComp (Elim g) (Elim f) = Elim $ \(Shape (Comp fShp _ gShps pf)) m ->
-  undefined
+{-
+elimComp :: Elim f x r -> Elim g a x -> Elim (Comp f g) a r
+elimComp (Elim ef) (Elim eg) = Elim $ \(Shape (Comp fl1 lp gs pf)) m ->
+  let mSum = m . view pf
+      -- mSum :: Sum ls -> a
+  in
+      ef (Shape fl1) (\l1 -> eg (Shape (undefined {- gs ! l1 -})) (mSum . undefined))
+-}
 
 ------------------------------------------------------------
 --  Generically deriving labelled structures
