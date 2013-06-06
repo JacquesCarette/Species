@@ -29,6 +29,10 @@ type family Replicate (n :: Nat) (a :: k) :: [k]
 type instance Replicate Z     a = '[]
 type instance Replicate (S n) a = a ': Replicate n a
 
+type family (!!) (as :: [*]) (n :: Nat) :: *
+type instance (a ': as) !! Z     = a
+type instance (a ': as) !! (S n) = as !! n
+
 lpRep :: SNat n -> Proxy l -> LProxy n (Replicate n l)
 lpRep SZ _ = LNil
 lpRep (SS n) p = LCons p (lpRep n p)
