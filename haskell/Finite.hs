@@ -9,14 +9,14 @@
 
 module Finite where
 
-import Control.Lens
-import Data.Void
-import Equality
-import Iso
-import Nat
-import Proxy
+import           Control.Lens
+import qualified Data.Void     as DV
+import           Equality
+import           Iso
+import           Nat
+import           Proxy
 
-import Unsafe.Coerce (unsafeCoerce)
+import           Unsafe.Coerce (unsafeCoerce)
 
 class Finite l where
   type Size l :: Nat
@@ -28,10 +28,10 @@ instance Natural n => Finite (Fin n) where
   size _ = toSNat
   finite = id
 
-instance Finite Void where
-  type Size Void = Z
+instance Finite DV.Void where
+  type Size DV.Void = Z
   size _ = SZ
-  finite = undefined
+  finite = iso absurd DV.absurd
 
 instance Finite () where
   type Size () = S Z
