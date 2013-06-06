@@ -493,25 +493,6 @@ fromList (x:xs) =
   case fromList xs of
     SpEx s -> SpEx (cons x s)
 
--- Array -----------------------------------------
-
--- Arrays are finite maps, i.e. labelled bags.  We keep the original
--- index range around so we can convert back later, since the type i
--- is not required to be isomorphic to the set of labels.
-
-data Arr i l = Arr (i,i) (E l)
-
--- It would be nicer if we could get an explicit label type out, but
--- the problem is that the type i doesn't really tell us much: Arrays
--- can (and typically do) use only a subset of the index type for
--- their indices.  It would be nice if Haskell had some sort of
--- subset/range types.
-fromArray :: Ix i => Array i e -> Sp' (Arr i) e
-fromArray arr = undefined
-  where
-    (lo,hi) = bounds arr
-    sz      = rangeSize (lo,hi)
-
 ------------------------------------------------------------
 --  Eliminators for labelled structures
 
