@@ -355,6 +355,10 @@ data Comp f g l where
        -> (Sum ls <-> l)
        -> Comp f g l
 
+instance BFunctor f => BFunctor (Comp f g) where
+  bmap i = iso (\(Comp fl lp gs pf) -> Comp fl lp gs (pf.i))
+               (\(Comp fl lp gs pf) -> Comp fl lp gs (pf.from i))
+
 -- compJ and compJ' are like generalized versions of 'join'.
 
 -- compJ is a restricted form of composition where the substructures
