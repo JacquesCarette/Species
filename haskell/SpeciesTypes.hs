@@ -20,7 +20,6 @@ import           Data.Functor ((<$>))
 import           Data.Maybe   (fromJust)
 import           Equality
 import           Finite
-import           Iso
 import           Nat
 import           Proxy
 import qualified Set          as S
@@ -86,16 +85,16 @@ instance Functor (Sp' f) where
 ------------------------------------------------------------
 --  Reshaping
 
-reshapeShape' :: (f <--> g) -> (Shape f l <-> Shape g l)
+reshapeShape' :: Finite l => (f <--> g) -> (Shape f l <-> Shape g l)
 reshapeShape' i = liftIso shapeVal shapeVal i
 
-reshapeShape :: (f <--> g) -> Shape f l -> Shape g l
+reshapeShape :: Finite l => (f <--> g) -> Shape f l -> Shape g l
 reshapeShape = view . reshapeShape'
 
-reshape' :: (f <--> g) -> (Sp f l a <-> Sp g l a)
+reshape' :: Finite l => (f <--> g) -> (Sp f l a <-> Sp g l a)
 reshape' i = liftIso shape shape (reshapeShape' i)
 
-reshape :: (f <--> g) -> Sp f l a -> Sp g l a
+reshape :: Finite l => (f <--> g) -> Sp f l a -> Sp g l a
 reshape = view . reshape'
 
 ------------------------------------------------------------
@@ -481,10 +480,10 @@ instance BFunctor L where
 -- Haskell list to a Sp' L.  Ideally all of this would be generically
 -- derivable.
 
-listSh :: Shape (One + X*L) l -> Shape L l
+listSh :: Finite l => Shape (One + X*L) l -> Shape L l
 listSh = reshapeShape (from isoL)
 
-list :: Sp (One + X*L) l a -> Sp L l a
+list :: Finite l => Sp (One + X*L) l a -> Sp L l a
 list = reshape (from isoL)
 
 nil :: Sp L (Fin Z) a

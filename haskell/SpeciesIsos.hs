@@ -4,10 +4,11 @@
 
 module SpeciesIsos where
 
-import Iso
-import Nat
-import Control.Lens
+import ArithIsos
 import BFunctor
+import Control.Lens
+import Finite
+import Nat
 import SpeciesTypes
 
 import Unsafe.Coerce -- for eliminating Zero
@@ -16,13 +17,16 @@ absurdS :: Zero l -> a
 absurdS = unsafeCoerce
 
 zeroCancel :: (Zero * f) <--> Zero
-zeroCancel = iso (absurdS . elimZ) absurdS
+zeroCancel = iso elimZf absurdS
              where
-               elimZ :: (Zero * f) l -> Zero l
-               elimZ (Prod x y i) = undefined -- FIXME
+               elimZf :: (Zero * f) l -> a
+               elimZf (Prod x y i) = absurdS x
 
-oneCancel :: (One * f) <--> f
-oneCancel = iso (\(Prod (One x) y i) -> undefined) undefined  -- FIXME
+oneCancel :: BFunctor f => (One * f) <--> f
+oneCancel = iso
+  (\(Prod (One x) y i) -> view (bmap (from zeroPL . liftIso _Left _Left x . i)) y)
+                           {- l2 ~ Either Void l2 ~  Either l1 l2 ~ l -}
+  (\fl -> Prod (One id) fl zeroPL)
 
 plusComm :: (f + g) <--> (g + f)
 plusComm = iso swap swap
@@ -38,8 +42,8 @@ timesComm = iso swap swap
 ------------------------------
 -- Some species isomorphisms
 
-isoPlus :: Sp (f + g) l a <-> Sp (g + f) l a
+isoPlus :: Finite l => Sp (f + g) l a <-> Sp (g + f) l a
 isoPlus = reshape' plusComm
 
-isoTimes :: Sp (f * g) l a <-> Sp (g * f) l a 
+isoTimes :: Finite l => Sp (f * g) l a <-> Sp (g * f) l a
 isoTimes = reshape' timesComm

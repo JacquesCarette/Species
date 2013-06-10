@@ -6,7 +6,6 @@ module BFunctor where
 
 import Control.Lens
 import Finite
-import Iso
 
 -- Functors in the category B of finite sets with isomorphisms as
 -- arrows.

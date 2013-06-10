@@ -9,11 +9,11 @@ module Util where
 
 -- Some utilities for working with type-level lists
 
+import ArithIsos
 import BFunctor
 import Control.Lens
 import Equality
 import Finite
-import Iso
 import Nat
 import Proxy
 

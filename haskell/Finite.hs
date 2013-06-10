@@ -12,13 +12,26 @@ module Finite where
 import           Control.Lens
 import qualified Data.Void     as DV
 import           Equality
-import           Iso
 import           Nat
 import           Proxy
 
 import           Unsafe.Coerce (unsafeCoerce)
 
-class Finite l where
+------------------------------------------------------------
+--  Isomorphisms
+
+type (<->) a b = Iso' a b
+
+type (<-->) f g = forall l. (Eq l, Finite l) => f l <-> g l
+
+-- Lift an iso on a field to an iso of the whole structure.
+liftIso :: Setter s t a b -> Setter t s b a -> (a <-> b) -> (s <-> t)
+liftIso l1 l2 ab = withIso ab $ \f g -> iso (l1 %~ f) (l2 %~ g)
+
+------------------------------------------------------------
+--  Constructively finite types
+
+class Eq l => Finite l where
   type Size l :: Nat
   size        :: Proxy l -> SNat (Size l)
   finite      :: Fin (Size l) <-> l
