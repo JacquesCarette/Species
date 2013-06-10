@@ -107,20 +107,32 @@ fins (SS n) = FZ : map FS (fins n)
 ------------------------------------------------------------
 -- Some arithmetic isomorphisms
 
-zeroL :: (Fin Z, a) <-> Fin Z
-zeroL = iso (absurd . fst) absurd
+zeroPL :: Either (Fin Z) a <-> a
+zeroPL = iso (either absurd id) Right
 
-oneL :: ((), a) <-> a
-oneL = iso snd ((,) ())
-
-commT :: (a,b) <-> (b,a)
-commT = iso swap swap
-        where swap (a,b) = (b,a)
+zeroPR :: Either a (Fin Z) <-> a
+zeroPR = commP . zeroPL
 
 commP :: Either a b <-> Either b a
 commP = iso swap swap
         where swap (Left x)  = Right x
               swap (Right y) = Left y
+
+zeroTL :: (Fin Z, a) <-> Fin Z
+zeroTL = iso (absurd . fst) absurd
+
+zeroTR :: (a, Fin Z) <-> Fin Z
+zeroTR = commT . zeroTL
+
+oneTL :: ((), a) <-> a
+oneTL = iso snd ((,) ())
+
+oneTR :: (a, ()) <-> a
+oneTR = commT . oneTL
+
+commT :: (a,b) <-> (b,a)
+commT = iso swap swap
+        where swap (a,b) = (b,a)
 
 distribR :: (Either a b, c) <-> Either (a,c) (b,c)
 distribR = iso distribR1 distribR2

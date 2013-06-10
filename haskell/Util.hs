@@ -47,19 +47,19 @@ sumRepIso p = sumRepIso' (size p) . liftIso _1 _1 finite
 
 -- For finite m, a + ... + a (m times) = m*a
 sumRepIso' :: SNat m -> (Sum (Replicate m a) <-> (Fin m, a))
-sumRepIso' SZ = from zeroL
+sumRepIso' SZ = from zeroTL
   {-
        Sum (Replicate Z a)
    ~           { def. of Replicate }
        Sum '[]
    ~           { def. of Sum }
        Fin Z
-   <->         { from zeroL }
+   <->         { from zeroTL }
        (Fin Z, a)
   -}
 
 sumRepIso' (SS m) = liftIso _Right _Right (sumRepIso' m)
-                 . liftIso _Left _Left (from oneL)
+                 . liftIso _Left _Left (from oneTL)
                  . from distribR
                  . liftIso _1 _1 succFin
   {-
@@ -70,7 +70,7 @@ sumRepIso' (SS m) = liftIso _Right _Right (sumRepIso' m)
        Either a (Sum (Replicate m a))
    <->         { IH }
        Either a (Fin m, a)
-   <->         { from oneL }
+   <->         { from oneTL }
        Either ((), a) (Fin m, a)
    <->         { from distribR }
        (Either () (Fin m), a)
