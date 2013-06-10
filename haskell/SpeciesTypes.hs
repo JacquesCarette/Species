@@ -432,6 +432,12 @@ unzipSpSp' (V.VCons (SpEx (Struct (Shape (gl :: g l)) v)) sps) =
 compA :: (Eq l1, Finite l1) => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
 compA spf spg = compJ ((<$> spg) <$> spf)
 
+-- compAP is a generalized version of an alternate formulation of
+-- Applicative.
+
+compAP :: (Eq l1, Finite l1) => Sp f l1 a -> Sp g l2 b -> Sp (Comp f g) (l1,l2) (a,b)
+compAP spf spg = compA (fmap (,) spf) spg
+
 -- unComp :: Sp' (Comp f g) a -> Sp' f (Sp' g a)
 -- unComp = undefined
 
