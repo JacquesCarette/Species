@@ -88,14 +88,14 @@ instance Functor (Sp' f) where
 reshapeShape' :: Finite l => (f <--> g) -> (Shape f l <-> Shape g l)
 reshapeShape' i = liftIso shapeVal shapeVal i
 
-reshapeShape :: Finite l => (f <--> g) -> Shape f l -> Shape g l
-reshapeShape = view . reshapeShape'
+reshapeShape :: Finite l => (f --> g) -> Shape f l -> Shape g l
+reshapeShape r = over shapeVal r
 
 reshape' :: Finite l => (f <--> g) -> (Sp f l a <-> Sp g l a)
 reshape' i = liftIso shape shape (reshapeShape' i)
 
-reshape :: Finite l => (f <--> g) -> Sp f l a -> Sp g l a
-reshape = view . reshape'
+reshape :: Finite l => (f --> g) -> Sp f l a -> Sp g l a
+reshape r = over shape (reshapeShape r)
 
 ------------------------------------------------------------
 --  Existentially labelled structures
@@ -481,10 +481,10 @@ instance BFunctor L where
 -- derivable.
 
 listSh :: Finite l => Shape (One + X*L) l -> Shape L l
-listSh = reshapeShape (from isoL)
+listSh = reshapeShape (view (from isoL))
 
 list :: Finite l => Sp (One + X*L) l a -> Sp L l a
-list = reshape (from isoL)
+list = reshape (view (from isoL))
 
 nil :: Sp L (Fin Z) a
 nil = list $ inl one

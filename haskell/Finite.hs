@@ -29,6 +29,11 @@ liftIso :: Setter s t a b -> Setter t s b a -> (a <-> b) -> (s <-> t)
 liftIso l1 l2 ab = withIso ab $ \f g -> iso (l1 %~ f) (l2 %~ g)
 
 ------------------------------------------------------------
+--  Natural transformations
+
+type (-->) f g = forall l. (Eq l, Finite l) => f l -> g l
+
+------------------------------------------------------------
 --  Constructively finite types
 
 class Eq l => Finite l where
