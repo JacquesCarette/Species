@@ -437,9 +437,6 @@ compA spf spg = compJ ((<$> spg) <$> spf)
 compAP :: (Eq l1, Finite l1) => Sp f l1 a -> Sp g l2 b -> Sp (Comp f g) (l1,l2) (a,b)
 compAP spf spg = compA (fmap (,) spf) spg
 
--- unComp :: Sp' (Comp f g) a -> Sp' f (Sp' g a)
--- unComp = undefined
-
 -- Functor composition ---------------------------
 
 -- XXX todo
