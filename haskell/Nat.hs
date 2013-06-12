@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables  #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE DataKinds            #-}
@@ -6,6 +7,7 @@
 {-# LANGUAGE Rank2Types           #-}
 {-# LANGUAGE StandaloneDeriving   #-}
 {-# LANGUAGE TypeOperators        #-}
+
 
 module Nat where
 
@@ -96,8 +98,61 @@ finToInt = fin 0 succ
 absurd :: Fin Z -> a
 absurd = unsafeCoerce
 
-finPair :: SNat m -> Fin m -> Fin n -> Fin (Times m n)
-finPair = undefined
+data (<=) :: Nat -> Nat -> * where
+  LTEZ :: Z <= n
+  LTES :: m <= n -> S m <= S n
+
+lteRefl :: SNat n -> n <= n
+lteRefl SZ     = LTEZ
+lteRefl (SS n) = LTES (lteRefl n)
+
+lteInj :: S m <= S n -> m <= n
+lteInj (LTES pf) = pf
+
+lteS :: m <= n -> m <= S n
+lteS LTEZ      = LTEZ
+lteS (LTES pf) = LTES (lteS pf)
+
+ltePlus :: SNat x -> m <= n -> m <= (Plus x n)
+ltePlus SZ pf     = pf
+ltePlus (SS x) pf = lteS (ltePlus x pf)
+
+plusMono :: SNat n -> m <= n -> x <= y -> (Plus m x) <= (Plus n y)
+plusMono _ LTEZ LTEZ               = LTEZ
+plusMono n LTEZ (LTES xLTy)        = ltePlus n (LTES xLTy)
+plusMono (SS n) (LTES mLTn) (xLTy) = LTES (plusMono n mLTn xLTy)
+
+timesMono :: SNat y -> m <= n -> x <= y -> (Times m x) <= (Times n y)
+timesMono _ LTEZ _ = LTEZ
+timesMono y (LTES mLTn) xLTy = plusMono y xLTy (timesMono y mLTn xLTy)
+
+type m < n = S m <= n
+
+absurdLT :: (i < Z) -> a
+absurdLT = unsafeCoerce
+
+data FinN :: Nat -> * where
+  FinN :: SNat i -> (i < n) -> FinN n
+
+finToFinN :: Fin n -> FinN n
+finToFinN FZ     = FinN SZ (LTES LTEZ)
+finToFinN (FS i) =
+  case finToFinN i of
+    (FinN j jLTn) -> FinN (SS j) (LTES jLTn)
+
+finNToFin :: FinN n -> Fin n
+finNToFin (FinN SZ (LTES _))        = FZ
+finNToFin (FinN (SS i) (LTES iLTn)) = FS (finNToFin (FinN i iLTn))
+
+finNProd :: SNat m -> SNat n -> FinN m -> FinN n -> FinN (Times m n)
+finNProd SZ     _ (FinN _ iLTZ) _             = absurdLT iLTZ
+finNProd (SS m) n (FinN i iLTm) (FinN j jLTn)
+    = FinN (j `plus` (i `times` n)) finNProdPf
+  where
+    finNProdPf = plusMono n jLTn (timesMono n (lteInj iLTm) (lteRefl n))
+
+finPair :: SNat m -> SNat n -> Fin m -> Fin n -> Fin (Times m n)
+finPair m n i j = finNToFin (finNProd m n (finToFinN i) (finToFinN j))
 
 --------------------------------------------------
 -- Enumerating all the elements of Fin n
