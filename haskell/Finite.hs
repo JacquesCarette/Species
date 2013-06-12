@@ -78,12 +78,21 @@ instance Finite Bool where
 instance (Finite a, Finite b) => Finite (Either a b) where
   type Size (Either a b) = Plus (Size a) (Size b)
   size _ = plus (size (Proxy :: Proxy a)) (size (Proxy :: Proxy b))
-  finite = undefined -- XXX todo
+  finite = error "finite for Either" -- XXX todo
 
 instance (Finite a, Finite b) => Finite (a,b) where
   type Size (a,b) = Times (Size a) (Size b)
   size _ = times (size (Proxy :: Proxy a)) (size (Proxy :: Proxy b))
-  finite = undefined -- XXX todo
+--  finite :: Fin (Times (Size a) (Size b)) <-> (a,b)
+  finite = iso (error "finite for pairs")  -- XXX todo.  Have to do divmod.
+               (\(a,b) -> finPair szA szB (getFin a) (getFin b))
+    where
+      szA = size (Proxy :: Proxy a)
+      szB = size (Proxy :: Proxy b)
+      getFin :: Finite x => x -> Fin (Size x)
+      getFin = view (from finite)
+
+  -- error "finite for pairs" -- XXX todo
 
 ------------------------------------------------------------
 -- Miscellaneous proofs about size
