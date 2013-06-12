@@ -3,6 +3,7 @@ module FinPf where
 open import Data.Fin hiding ( _≤_ ; _<_ ; _+_ )
 open import Data.Nat
 open import Data.Product
+open import Data.Sum
 open import Relation.Binary.PropositionalEquality
 
 Finℕ : ℕ → Set
@@ -48,6 +49,14 @@ Finℕprod {suc m} {n} (i , i<m) (j , j<n) = j + i * n , +-mono {suc j} {n} {i *
 finPair : ∀ {m n} → Fin m → Fin n → Fin (m * n)
 finPair i j = Finℕ→Fin (Finℕprod (Fin→Finℕ i) (Fin→Finℕ j))
 
-finPair_correct : ∀ {m n} → (i : Fin m) → (j : Fin n)
-                → (toℕ (finPair i j) ≡ toℕ j + toℕ i * n)
-finPair_correct i j = {!!}
+-- Need to do inverse of Finℕprod.  Involves doing a divmod operation.
+
+--------------------------------------------------
+-- Stuff for sums
+
+Finℕsum : ∀ {m n} → (Finℕ m ⊎ Finℕ n) → Finℕ (m + n)
+Finℕsum {m} {n} (inj₁ (i , i<m)) = i + n , +-mono {suc i} {m} i<m ≤-refl
+Finℕsum {m} {n} (inj₂ (j , j<n)) = j , ≤-+R {suc j} {n} {m} j<n
+
+FinℕsumInv : ∀ {m n} → Finℕ (m + n) → Finℕ m ⊎ Finℕ n
+FinℕsumInv (i , i<mn) = {!!}  -- check whether i is >= n.
