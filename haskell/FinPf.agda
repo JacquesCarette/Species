@@ -29,6 +29,10 @@ Finℕprod {suc m} {n} (i , i<m) (j , j<n) = j + i * n , {!!}
   --
   -- by congruence, QED.  Just a matter of finding all those things in
   -- the Agda library.  Not sure how much is needed to port this to Haskell.
+  --
+  -- ≤-pred : ∀ {m n} → suc m ≤ suc n → m ≤ n
+  --
+  -- _+-mono_ : _+_ Preserves₂ _≤_ ⟶ _≤_ ⟶ _≤_
 
 finPair : ∀ {m n} → Fin m → Fin n → Fin (m * n)
 finPair i j = Finℕ→Fin (Finℕprod (Fin→Finℕ i) (Fin→Finℕ j))
