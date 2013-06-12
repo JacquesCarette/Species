@@ -10,6 +10,7 @@ import Nat
 import Proxy
 
 newtype Set a = Set [a]
+  deriving Show
 
 instance BFunctor Set where
   bmap i = iso (\(Set as) -> Set (map (view i) as))

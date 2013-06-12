@@ -10,7 +10,7 @@
 
 module Vec where
 
-import Prelude hiding (concat, unzip)
+import Prelude hiding (concat, unzip, zip, zipWith)
 
 import Control.Lens
 import Finite
@@ -25,6 +25,8 @@ data Vec :: Nat -> * -> * where
 instance Functor (Vec n) where
   fmap _ VNil = VNil
   fmap f (VCons a v) = VCons (f a) (fmap f v)
+
+deriving instance (Show a) => Show (Vec n a)
 
 data Vec' :: * -> * where
   SomeVec :: Vec n a -> Vec' a
@@ -57,6 +59,13 @@ unzip :: Vec n (a,b) -> (Vec n a, Vec n b)
 unzip VNil = (VNil, VNil)
 unzip (VCons (a,b) v) = (VCons a va, VCons b vb)
   where (va,vb) = unzip v
+
+zip :: Vec n a -> Vec n b -> Vec n (a,b)
+zip = zipWith (,)
+
+zipWith :: (a -> b -> c) -> Vec n a -> Vec n b -> Vec n c
+zipWith _ VNil VNil = VNil
+zipWith f (VCons a as) (VCons b bs) = VCons (f a b) (zipWith f as bs)
 
 fins :: SNat n -> Vec n (Fin n)
 fins SZ     = VNil

@@ -1,3 +1,4 @@
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -33,6 +34,8 @@ import qualified Vec          as V
 -- A labelled shape is a shape filled with a finite set of labels
 newtype Shape f l = Shape { _shapeVal  :: f l }
 
+deriving instance Show (f l) => Show (Shape f l)
+
 -- Shapes with an existentially quantified label type.
 data Shape' :: (* -> *) -> * where
   Shape' :: (Eq l, Finite l) => Shape f l -> Shape' f
@@ -45,6 +48,7 @@ shapeSize _ = snatToInt (size (Proxy :: Proxy l))
 -- finite, that is, come with an isomorphism to Fin n for some n, we
 -- can represent the map as a length-n vector.
 data Sp f l a = Struct { _shape :: Shape f l, _elts :: V.Vec (Size l) a }
+  deriving Show
 
 makeLenses ''Shape
 makeLenses ''Sp
@@ -130,6 +134,9 @@ instance BFunctor Zero
 
 data One l = One (Fin Z <-> l)
 
+instance Show (One l) where
+  show _ = "One"
+
 instance BFunctor One where
   bmap i = iso (\(One vl ) -> One (vl .i))
                (\(One vl') -> One (vl'.from i))
@@ -147,6 +154,9 @@ one' = SpEx one
 
 data X l = X (Fin (S Z) <-> l)
 
+instance Show l => Show (X l) where
+  show (X i) = show (view i FZ)
+
 instance BFunctor X where
   bmap i = iso (\(X ul ) -> X (ul .i))
                (\(X ul') -> X (ul'.from i))
@@ -163,7 +173,7 @@ x' = SpEx . x
 -- E ---------------------------------------------
 
 newtype E (l :: *) = E (S.Set l)
-  deriving BFunctor
+  deriving (BFunctor, Show)
 
 eSh :: Finite l => Shape E l
 eSh = Shape (E S.enumerate)
