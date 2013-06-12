@@ -49,6 +49,10 @@ vIndex :: Vec n a -> Fin n -> a
 vIndex (VCons a _) FZ     = a
 vIndex (VCons _ v) (FS f) = vIndex v f
 
+mkV :: SNat n -> (Fin n -> a) -> Vec n a
+mkV SZ     _ = VNil
+mkV (SS n) f = VCons (f FZ) (mkV n (f . FS))
+
 unzip :: Vec n (a,b) -> (Vec n a, Vec n b)
 unzip VNil = (VNil, VNil)
 unzip (VCons (a,b) v) = (VCons a va, VCons b vb)

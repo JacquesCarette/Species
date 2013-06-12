@@ -96,6 +96,9 @@ finToInt = fin 0 succ
 absurd :: Fin Z -> a
 absurd = unsafeCoerce
 
+finPair :: SNat m -> Fin m -> Fin n -> Fin (Times m n)
+finPair = undefined
+
 --------------------------------------------------
 -- Enumerating all the elements of Fin n
 

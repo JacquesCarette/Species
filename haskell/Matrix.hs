@@ -1,19 +1,39 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
 
 module Matrix where
 
+import ArithIsos
+import Finite
 import Nat
+import Proxy
+import Set
 import SpeciesTypes
+import Vec hiding (enumerate)
 
-type MatrixSh = Comp E E
+type MatrixSh = E
 
-type Matrix m n = Sp MatrixSh (Fin m, Fin n)
+joinE :: Comp E E --> E
+joinE (Comp _ _ _ _) = E enumerate
 
-mkMatrix :: (Natural m, Natural n)
-         => (Fin m -> Fin n -> a) -> Matrix m n a
-mkMatrix m = compA (e m) (e id)
+splitE :: forall l1 l2 a. (Finite l1, Finite l2) => Sp E (l1,l2) a -> Sp E l1 (Sp E l2 a)
+splitE (Struct _ as) = Struct eSh (mkV l1Sz $ \i ->
+                         Struct eSh (mkV l2Sz $ \j ->
+                           vIndex as (finPair l1Sz i j)
+                         )
+                       )
+  where
+    l1Sz = size (Proxy :: Proxy l1)
+    l2Sz = size (Proxy :: Proxy l2)
+
+type Matrix2 m n = Sp MatrixSh (Fin m, Fin n)
+
+mkMatrix2 :: (Natural m, Natural n)
+         => (Fin m -> Fin n -> a) -> Matrix2 m n a
+mkMatrix2 m = reshape joinE $ compA (e m) (e id)
 
 transpose :: (Natural m, Natural n)
-          => Matrix m n a -> Matrix n m a
+          => Matrix2 m n a -> Matrix2 n m a
 transpose = relabel commT
 
 
