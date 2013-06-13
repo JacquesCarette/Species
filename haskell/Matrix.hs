@@ -6,6 +6,7 @@ module Matrix where
 
 import ArithIsos
 import Data.List (foldl')
+import FinIsos
 import Finite
 import Nat
 import Proxy
@@ -25,7 +26,7 @@ joinE = reshape joinE'
 splitE :: forall l1 l2 a. (Finite l1, Finite l2) => Sp E (l1,l2) a -> Sp E l1 (Sp E l2 a)
 splitE (Struct _ as) = Struct eSh (mkV l1Sz $ \i ->
                          Struct eSh (mkV l2Sz $ \j ->
-                           vIndex as (finPair l1Sz l2Sz i j)
+                           vIndex as (finPair l1Sz l2Sz (i, j))
                          )
                        )
   where

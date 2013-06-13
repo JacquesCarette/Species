@@ -12,6 +12,7 @@ module Finite where
 import           Control.Lens
 import qualified Data.Void     as DV
 import           Equality
+import           FinIsos
 import           Nat
 import           Proxy
 
@@ -85,7 +86,7 @@ instance (Finite a, Finite b) => Finite (a,b) where
   size _ = times (size (Proxy :: Proxy a)) (size (Proxy :: Proxy b))
 --  finite :: Fin (Times (Size a) (Size b)) <-> (a,b)
   finite = iso (error "finite for pairs")  -- XXX todo.  Have to do divmod.
-               (\(a,b) -> finPair szA szB (getFin a) (getFin b))
+               (\(a,b) -> finPair szA szB (getFin a, getFin b))
     where
       szA = size (Proxy :: Proxy a)
       szB = size (Proxy :: Proxy b)
