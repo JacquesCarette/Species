@@ -63,6 +63,18 @@ prod2 = prod2' (+) 0 (*)
 
 {-
 
+   It works!!  Squaring the matrix [[0 1] [1 2]] in GHCi:
+
+>>> let m = mkMatrix2 (fin finToInt ((+1) .)) :: Matrix2 (S (S Z)) (S (S Z)) Int
+>>> m
+Struct {_shape = Shape {_shapeVal = E (Set [(FZ,FZ),(FZ,FS FZ),(FS FZ,FZ),(FS FZ,FS FZ)])}, _elts = VCons 0 (VCons 1 (VCons 1 (VCons 2 VNil)))}
+>>> prod2 m m
+Struct {_shape = Shape {_shapeVal = E (Set [(FZ,FZ),(FZ,FS FZ),(FS FZ,FZ),(FS FZ,FS FZ)])}, _elts = VCons 1 (VCons 2 (VCons 2 (VCons 5 VNil)))}
+
+-}
+
+{-
+
 -- an old (currently aborted) attempt at converting from Haskell
 -- Arrays, but that's hard
 

@@ -1,5 +1,6 @@
 module FinPf where
 
+open import Data.Empty
 open import Data.Fin hiding ( _≤_ ; _<_ ; _+_ )
 open import Data.Nat
 open import Data.Product
@@ -119,8 +120,21 @@ divmod x n | inj₂ (x' , x≡x'+n) | i' , j , j<n , x'≡j+i'*n
 ≤-trans z≤n y≤z = z≤n
 ≤-trans (s≤s x≤y) (s≤s y≤z) = s≤s (≤-trans x≤y y≤z)
 
-≤-<-trans : (x y z : ℕ) → x ≤ y → y < z → x < z
+≤-<-trans : ∀ x y z → x ≤ y → y < z → x < z
 ≤-<-trans x y z x≤y y<z = ≤-trans (s≤s x≤y) y<z
+
+<-implies-≤ : ∀ x y → x < y → x ≤ y
+<-implies-≤ zero y x<y = z≤n
+<-implies-≤ (suc x) zero ()
+<-implies-≤ (suc x) (suc y) (s≤s x<y) = s≤s (<-implies-≤ x y x<y)
+
+≤-decomp : ∀ x y → x ≤ y → (x ≡ y) ⊎ (x < y)
+≤-decomp zero zero x≤y = inj₁ refl
+≤-decomp zero (suc y) x≤y = inj₂ (s≤s z≤n)
+≤-decomp (suc x) zero ()
+≤-decomp (suc x) (suc y) (s≤s x≤y) with (≤-decomp x y x≤y)
+≤-decomp (suc x) (suc y) (s≤s x≤y) | inj₁ x≡y rewrite x≡y = inj₁ refl
+≤-decomp (suc x) (suc y) (s≤s x≤y) | inj₂ x<y = inj₂ (s≤s x<y)
 
 cancel-+-left-≤ : ∀ i {j k} → i + j ≤ i + k → j ≤ k
 cancel-+-left-≤ zero    le       = le
@@ -136,11 +150,16 @@ cancel-*-right-≤ (suc i) (suc j) k le =
 *-zeroR zero = refl
 *-zeroR (suc x) = *-zeroR x
 
-*-cancelR : (i m n : ℕ) → i * n < m * n → i < m
-*-cancelR i m zero () rewrite *-zeroR i | *-zeroR m
-*-cancelR i m (suc n) im<mn = {!!}
+suc-≤-contra : ∀ x → suc x ≤ x → ⊥
+suc-≤-contra zero ()
+suc-≤-contra (suc x) (s≤s p) = suc-≤-contra x p
 
--- cancel-*-right-≤ (suc i) m n {!≤-<-trans !}  -- {! ≤-<-trans (n + i * suc n) (i * suc n) (m * suc n) !}
+*-cancelR : (i m n : ℕ) → i * n < m * n → i < m
+*-cancelR i m zero () rewrite *-zeroR m | *-zeroR i
+*-cancelR i m (suc n) in<mn with
+  ≤-decomp i m (cancel-*-right-≤ i m n (<-implies-≤ (i * suc n) (m * suc n) in<mn))
+*-cancelR i m (suc n) in<mn | inj₁ i≡m rewrite i≡m = ⊥-elim (suc-≤-contra (m * suc n) in<mn)
+*-cancelR i m (suc n) in<mn | inj₂ i<m = i<m
 
 FinℕprodInv : (m : ℕ) → (n : ℕ) → Finℕ (m * n) → Finℕ m × Finℕ n
 FinℕprodInv m n (x , x<mn) with divmod x n

@@ -9,6 +9,7 @@
 
 module Finite where
 
+import           Control.Arrow ((***), (+++))
 import           Control.Lens
 import qualified Data.Void     as DV
 import           Equality
@@ -41,6 +42,10 @@ class Eq l => Finite l where
   type Size l :: Nat
   size        :: Proxy l -> SNat (Size l)
   finite      :: Fin (Size l) <-> l
+  toFin       :: l -> Fin (Size l)
+  toFin = view (from finite)
+  fromFin     :: Fin (Size l) -> l
+  fromFin = view finite
 
 instance Natural n => Finite (Fin n) where
   type Size (Fin n) = n
@@ -79,21 +84,20 @@ instance Finite Bool where
 instance (Finite a, Finite b) => Finite (Either a b) where
   type Size (Either a b) = Plus (Size a) (Size b)
   size _ = plus (size (Proxy :: Proxy a)) (size (Proxy :: Proxy b))
-  finite = error "finite for Either" -- XXX todo
+  finite = iso ((fromFin +++ fromFin) . finSumInv szA szB)
+               (finSum szA szB . (toFin +++ toFin))
+    where
+      szA = size (Proxy :: Proxy a)
+      szB = size (Proxy :: Proxy b)
 
 instance (Finite a, Finite b) => Finite (a,b) where
   type Size (a,b) = Times (Size a) (Size b)
   size _ = times (size (Proxy :: Proxy a)) (size (Proxy :: Proxy b))
---  finite :: Fin (Times (Size a) (Size b)) <-> (a,b)
-  finite = iso (error "finite for pairs")  -- XXX todo.  Have to do divmod.
-               (\(a,b) -> finPair szA szB (getFin a, getFin b))
+  finite = iso ((fromFin *** fromFin) . finPairInv szA szB)
+               (finPair szA szB . (toFin *** toFin))
     where
       szA = size (Proxy :: Proxy a)
       szB = size (Proxy :: Proxy b)
-      getFin :: Finite x => x -> Fin (Size x)
-      getFin = view (from finite)
-
-  -- error "finite for pairs" -- XXX todo
 
 ------------------------------------------------------------
 -- Miscellaneous proofs about size
