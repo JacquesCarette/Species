@@ -10,5 +10,8 @@ TAGS
 *.agdai
 *.ibc
 *.tex
+*.bbl
+*.blg
 Shake
 .shake.database
+.diagrams_cache
