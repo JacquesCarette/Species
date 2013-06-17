@@ -80,10 +80,10 @@
 
 \title{Species Constructors}
 
-\authorinfo{Brent A. Yorgey}
+\authorinfo{Brent A. Yorgey \\ Stephanie Weirich}
 {Dept. of Computer and Information Science\\ The University of Pennsylvania\\
 Philadelphia, Pennsylvania, USA}
-{byorgey@@cis.upenn.edu}
+{\{byorgey,sweirich\}@@cis.upenn.edu}
 
 \authorinfo{Jacques Carette}
 {Dept. of Computing and Software\\ McMaster University\\
