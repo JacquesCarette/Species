@@ -9,3 +9,6 @@ TAGS
 *.o
 *.agdai
 *.ibc
+*.tex
+Shake
+.shake.database
