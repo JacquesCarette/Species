@@ -1,4 +1,4 @@
-\documentclass[9pt,preprint]{sigplanconf}
+\documentclass[9pt,preprint,authoryear]{sigplanconf}
 
 \usepackage{../species}
 
@@ -25,6 +25,14 @@
 \newtheorem{lemma}{Lemma}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% lhs2TeX
+
+%include polycode.fmt
+
+% Use 'arrayhs' mode, so code blocks will not be split across page breaks.
+\arrayhs
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
 
 \usepackage{prettyref}
@@ -44,7 +52,7 @@
 % \Pref is just like \pref but it uppercases the first letter; for use
 % at the beginning of a sentence.
 \newcommand{\Pref}[1]{%
-  \expandafter\ifx\csname r@#1\endcsname\relax {\scriptsize[ref]}
+  \expandafter\ifx\csname r@@#1\endcsname\relax {\scriptsize[ref]}
     \else
     \edef\reftext{\prettyref{#1}}\expandafter\MakeUppercase\reftext
     \fi
@@ -75,12 +83,12 @@
 \authorinfo{Brent A. Yorgey}
 {Dept. of Computer and Information Science\\ The University of Pennsylvania\\
 Philadelphia, Pennsylvania, USA}
-{byorgey@cis.upenn.edu}
+{byorgey@@cis.upenn.edu}
 
 \authorinfo{Jacques Carette}
 {Dept. of Computing and Software\\ McMaster University\\
 Hamilton, Ontario, Canada}
-{carette@mcmaster.ca}
+{carette@@mcmaster.ca}
 
 \maketitle
 
