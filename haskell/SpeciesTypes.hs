@@ -28,6 +28,8 @@ import           Util
 import           Vec          (Vec)
 import qualified Vec          as V
 
+import           Unsafe.Coerce
+
 ------------------------------------------------------------
 --  Labelled shapes and data structures
 
@@ -129,6 +131,9 @@ data Zero :: * -> *
   deriving Functor
 
 instance BFunctor Zero
+
+absurdZ :: Zero l -> a
+absurdZ = unsafeCoerce
 
 -- One -------------------------------------------
 
@@ -532,7 +537,7 @@ elim' el (SpEx s) = elim el s
 -- Some combinators for building eliminators
 
 elimZero :: Elim Zero a r
-elimZero = undefined
+elimZero = Elim (\(Shape z) _ -> absurdZ z)
 
 elimOne :: r -> Elim One a r
 elimOne r = Elim (\_ _ -> r)
