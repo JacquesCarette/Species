@@ -69,11 +69,11 @@ instance Finite a => Finite (Maybe a) where
     where
       toM :: Fin (S (Size a)) -> Maybe a
       toM FZ         = Nothing
-      toM (FS n)     = Just $ view finite n
+      toM (FS n)     = Just $ fromFin n
 
       fromM :: Maybe a -> Fin (S (Size a))
       fromM Nothing  = FZ
-      fromM (Just l) = FS (view (from finite) l)
+      fromM (Just l) = FS (toFin l)
 
 instance Finite Bool where
   type Size (Bool) = S (S Z)
