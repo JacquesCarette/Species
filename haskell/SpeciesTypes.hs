@@ -561,6 +561,9 @@ elimProd (Elim f) = Elim $ \(Shape (Prod fShp gShp pf)) m ->
       (Elim g) -> g (Shape gShp) mg
 
 {-
+-- XXX finish me!!  I know exactly how this is "supposed" to work but
+haven't yet figured out how to convince the Haskell typechecker.
+
 elimComp :: Elim f x r -> Elim g a x -> Elim (Comp f g) a r
 elimComp (Elim ef) (Elim eg) = Elim $ \(Shape (Comp fl1 lp gs pf)) m ->
   let mSum = m . view pf
