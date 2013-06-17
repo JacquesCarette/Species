@@ -8,5 +8,5 @@ main = shake shakeOptions $ do
   "*.pdf" *> \out -> do
     let lhs = replaceExtension out "lhs"
         bib = replaceExtension out "bib"
-    need [bib]
+    need [lhs,bib]
     system' "rubber" ["-f", "-d",lhs]
