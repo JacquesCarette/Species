@@ -1,0 +1,19 @@
+To build the paper, you will need
+
+  * lhs2TeX
+
+    I assume you already have this, or know how to install it.
+
+  * shake
+
+    'cabal install shake' should get this if you don't have it.
+
+  * diagrams
+
+    You need the standard diagrams packages along with the postscript
+    backend and diagrams-builder:
+
+      cabal install diagrams diagrams-postscript -fps diagrams-builder
+
+    This ought to work on all platforms under both GHC 7.4 and 7.6.
+    Let me know if you have trouble.
