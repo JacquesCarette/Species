@@ -510,6 +510,10 @@ fromList (x:xs) =
   case fromList xs of
     SpEx s -> SpEx (cons x s)
 
+-- this manipulates things enough that Sp' seems hard
+toList :: (Finite l) => Sp L l a -> Sp (One + X*L) l a
+toList = reshape (view isoL)
+
 ------------------------------------------------------------
 --  Eliminators for labelled structures
 
@@ -559,6 +563,9 @@ elimProd (Elim f) = Elim $ \(Shape (Prod fShp gShp pf)) m ->
   in
     case f (Shape fShp) mf of
       (Elim g) -> g (Shape gShp) mg
+
+elimList :: (a -> b -> b) -> b -> Elim L a b
+elimList f x = undefined
 
 {-
 -- XXX finish me!!  I know exactly how this is "supposed" to work but
