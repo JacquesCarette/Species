@@ -88,6 +88,8 @@
 \newcommand{\eg}{\emph{e.g.}\xspace}
 \newcommand{\ie}{\emph{i.e.}\xspace}
 
+\newcommand{\term}[1]{\emph{#1}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -140,6 +142,19 @@ Languages, Types
   \end{itemize}
 \end{todoP}
 
+The idea of separating shapes and data is not new \todo{citations:
+  containers, shapely types, etc.}.  However, previous approaches have
+left the labels \emph{implicit}.  Bringing the labels to the fore
+enables cool stuff like
+\begin{itemize}
+\item include a bunch of disparate stuff
+  under one framework
+\item let us talk about relabelling as a separate
+  operation
+\item put structure on the labels themselves, e.g. L-species
+\item \todo{more?}
+\end{itemize}
+
 \section{Labelled Structures}
 \label{sec:labelled}
 
@@ -151,8 +166,7 @@ of container shapes and the data stored in those shapes.  Labels
 provide the missing link between shapes and data, allowing one to
 specify which data goes where.
 
-Informally, a labelled shape is specified by:
-
+Informally, a \term{labelled structure} is specified by:
 \begin{itemize}
 \item a finite type of labels $L$;
 \item a type of data elements $A$;
@@ -160,15 +174,12 @@ Informally, a labelled shape is specified by:
   once; and
 \item a function $v : L \to A$ which maps labels to data values.
 \end{itemize}
+See~\pref{fig:labelled-structure-example} for an abstract example.  A
+\emph{family} of labelled structures refers to a class of structures
+parameterized over the label type $L$ and data type $A$.
 
-Note that shapes must contain each label exactly once, but the
-function $L \to A$ need not be injective; it is perfectly possible to
-have the same value of type $A$ occurring multiple times (each matched
-to a different label).  The requirement that shapes contain all the
-labels, with no duplicates, may seem overly restrictive; we will have
-more to say about this later.  The notion of ``shape'' is also left
-vague for now; a precise definition will be given in \todo{where?}.
-
+\begin{figure}
+  \centering
 \begin{diagram}[width=200]
 import Graphics.SVGFonts.ReadFont
 import Diagrams.Points
@@ -206,28 +217,55 @@ infixl 6 ....
 x .... y = x ... strutX 0.5 ... y
 \end{diagram}
 %$
+  \caption{A labelled structure with six labels}
+  \label{fig:labelled-structure-example}
+\end{figure}
 
-The idea of separating shapes and data is not new \todo{citations:
-  containers, shapely types, etc.}.  However, previous approaches have
-left the labels \emph{implicit}.  By bringing the labels to the fore
-we enable \todo{cool stuff.}
+Note that shapes must contain each label exactly once, but the
+function $L \to A$ need not be injective. As illustrated in
+\pref{fig:labelled-structure-example}, it is perfectly valid to have
+the same value of type $A$ occurring multiple times, each matched to a
+different label.  The requirement that shapes contain all the labels,
+with no duplicates, may seem overly restrictive; we will have more to
+say about this later.  The notion of ``shape'' is also left vague for
+now; a precise definition will be given in \todo{where?}.
 
 \paragraph{Algebraic data types}
 
-Lists, trees.  Show examples.  Note this is much richer than the usual
-notions of lists and trees since we can distinguish different
-labellings, though for usual ADTs this is not very interesting.
+All the usual algebraic data types can be viewed as families of
+labelled structures.  For example, \todo{example}.  Note, however, that
+the family of labelled tree structures is quite a bit larger than the
+usual algebraic type of trees: every possible different way of
+labelling a given tree shape results in a different labelled
+structure.  For algebraic data types, this added structure is
+uninteresting, in a way that we will make precise later
+\todo{when?}. \bay{Idea here is that for regular species we can always
+  recover a canonical labelling from the shape; and moreover there are
+  always precisely $n!$ different labellings for a shape of size $n$
+  (given a fixed set of labels).}
 
 \paragraph{Finite maps}
 
+Since the definition of a labelled structure already includes the
+notion of a mapping from labels to data, we may encode finite maps
+simply by using \emph{sets} of labels as shapes, \ie\ shapes with no
+structure other than containing some labels.
+
+\todo{picture?}
+
 \paragraph{Vectors and arrays}
 
-\bay{
-Which are really just finite maps, with some interesting
-  structure on the labels.
-}
+Vectors, and multi-dimensional arrays more generally, \todo{from one
+  point of view are just finite maps with some nontrivial structure on
+  the labels.  Can also move the structure around between labels and
+  shape (???).}
 
 \paragraph{Cycles}
+
+\bay{should we include cycles at all?  Our system can't handle them
+  although they fit from a theoretical point of view\dots}
+\todo{Show how cycles work and mention some applications
+  (e.g. computational geometry)}
 
 \paragraph{Structures with value-level sharing}
 
