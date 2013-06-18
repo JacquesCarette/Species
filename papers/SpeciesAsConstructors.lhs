@@ -260,14 +260,26 @@ Vectors, and multi-dimensional arrays more generally, \todo{from one
   the labels.  Can also move the structure around between labels and
   shape (???).}
 
-\paragraph{Cycles}
+\paragraph{Symmetric shapes}
+
+We have not yet defined precisely what counts as a ``shape'', but one
+interesting possibility is the use of shapes with some sort of
+\term{symmetry}.  For example, a \term{cycle} is like a list, except
+that it is invariant under cyclic rotation of its labels.  One area
+where cycles are especially useful is in computational geometry: we
+can represent an (oriented) polygon, for example, as a labelled cycle
+shape, with each label mapping to a point in space.
+
+\todo{picture of a polygon represented with labelled cycle}
 
 \bay{should we include cycles at all?  Our system can't handle them
   although they fit from a theoretical point of view\dots}
-\todo{Show how cycles work and mention some applications
-  (e.g. computational geometry)}
 
-\paragraph{Structures with value-level sharing}
+An \emph{unordered pair} is another sort of shape with symmetry: it is
+like an ordered pair but invariant under swapping.  Unordered pairs
+can be used to represent undirected graph edges, \todo{other stuff?}
+
+\paragraph{Value-level sharing}
 
 \bay{
 e.g. $\L \times \F$
