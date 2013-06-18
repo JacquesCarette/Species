@@ -11,9 +11,9 @@ To build the paper, you will need
   * diagrams
 
     You need the standard diagrams packages along with the postscript
-    backend and diagrams-builder:
+    backend, diagrams-builder package, and SVGFonts package:
 
-      cabal install diagrams diagrams-postscript -fps diagrams-builder
+      cabal install diagrams diagrams-postscript -fps diagrams-builder SVGFonts
 
     This ought to work on all platforms under both GHC 7.4 and 7.6.
     Let me know if you have trouble.

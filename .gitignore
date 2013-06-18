@@ -15,3 +15,6 @@ TAGS
 Shake
 .shake.database
 .diagrams_cache
+papers/diagrams/*.pdf
+papers/diagrams/*.eps
+papers/diagrams/*.hs

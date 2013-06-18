@@ -169,6 +169,44 @@ labels, with no duplicates, may seem overly restrictive; we will have
 more to say about this later.  The notion of ``shape'' is also left
 vague for now; a precise definition will be given in \todo{where?}.
 
+\begin{diagram}[width=200]
+import Graphics.SVGFonts.ReadFont
+import Diagrams.Points
+
+mark = named ()
+
+mkL n = text' (show n) <> (circle 0.8 # mark)
+
+text' s = (stroke $ textSVG' (TextOpts s lin2 INSIDE_H KERN False 1 1)) # fc black # lw 0
+
+drawLabels = centerByMarks
+           . cat' (unitX # rotateBy (-1/3)) myCatOpts
+           . map (hcat' myCatOpts . map mkL)
+  where
+    myCatOpts = with {catMethod = Distrib, sep = 2.5}
+
+centerByMarks = withNameAll () $ \ss ->
+  let p = centroid (map location ss)
+  in  moveOriginTo p
+
+labs = drawLabels [[2],[1,4],[3,0,5]]
+
+shape = triangle (width (labs :: D R2) + 2.5)
+
+mapping = centerY . vcat' with {sep = 0.3} $ zipWith mkMapping [0..5] "SNAILS"
+  where
+    mkMapping i c = mkL i .... hrule 1 .... (text' (show c) <> strutX 1)
+
+dia = ((labs <> shape) # centerY ... strutX 5 ... mapping)
+    # centerXY # pad 1.1
+
+infixl 6 ...
+infixl 6 ....
+(...) = (||||||)
+x .... y = x ... strutX 0.5 ... y
+\end{diagram}
+%$
+
 The idea of separating shapes and data is not new \todo{citations:
   containers, shapely types, etc.}.  However, previous approaches have
 left the labels \emph{implicit}.  By bringing the labels to the fore

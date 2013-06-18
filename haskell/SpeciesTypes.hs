@@ -510,9 +510,11 @@ fromList (x:xs) =
   case fromList xs of
     SpEx s -> SpEx (cons x s)
 
--- this manipulates things enough that Sp' seems hard
-toList :: (Finite l) => Sp L l a -> Sp (One + X*L) l a
-toList = reshape (view isoL)
+elimList :: r -> (a -> r -> r) -> Elim L a r
+elimList r f = mapElimShape (view isoL)
+             $ elimSum
+                 (elimOne r)
+                 (elimProd . elimX $ \a -> fmap (f a) (elimList r f))
 
 ------------------------------------------------------------
 --  Eliminators for labelled structures
@@ -530,7 +532,20 @@ toList = reshape (view isoL)
 -- Note that the difference between Elim f a b and (f a -> b) really
 -- only matters for structures with sharing, e.g. cartesian product.
 
-newtype Elim f a b = Elim (forall l. Eq l => Shape f l -> (l -> a) -> b)
+newtype Elim f a r = Elim (forall l. Eq l => Shape f l -> (l -> a) -> r)
+  deriving Functor
+
+-- Elim is a covariant functor in its final argument (witnessed by the
+-- Functor instance) and contravariant in its first two, witnessed by
+-- mapElimSrc and mapElimShape.
+
+mapElimSrc :: (b -> a) -> Elim f a r -> Elim f b r
+mapElimSrc f (Elim e) = Elim $ \s m -> e s (f . m)
+
+mapElimShape :: (forall l. g l -> f l) -> Elim f a r -> Elim g a r
+mapElimShape q (Elim e) = Elim $ \(Shape s) m -> e (Shape (q s)) m
+
+-- Running eliminators
 
 elim :: (Finite l, Eq l) => Elim f a b -> Sp f l a -> b
 elim (Elim el) (Struct shp elts) = el shp (V.vIndex elts . view (from finite))
@@ -563,9 +578,6 @@ elimProd (Elim f) = Elim $ \(Shape (Prod fShp gShp pf)) m ->
   in
     case f (Shape fShp) mf of
       (Elim g) -> g (Shape gShp) mg
-
-elimList :: (a -> b -> b) -> b -> Elim L a b
-elimList f x = undefined
 
 {-
 -- XXX finish me!!  I know exactly how this is "supposed" to work but
