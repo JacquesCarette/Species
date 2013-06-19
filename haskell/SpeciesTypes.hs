@@ -28,6 +28,8 @@ import           Util
 import           Vec          (Vec)
 import qualified Vec          as V
 
+-- import Data.Key
+
 import           Unsafe.Coerce
 
 ------------------------------------------------------------
@@ -593,3 +595,22 @@ elimComp (Elim ef) (Elim eg) = Elim $ \(Shape (Comp fl1 lp gs pf)) m ->
 
 ------------------------------------------------------------
 --  Generically deriving labelled structures
+
+------------------------------------------------------------
+--  Representable etc.
+
+-- canonicalize :: forall l f a. (Finite l, Finite (Key f), Keyed f)
+--              => Sp f l a -> (Sp E (Key f) a, l <-> Key f)
+-- canonicalize (Struct (Shape fl) e)
+--   = (Struct eSh (V.shuffle szL szK shuf e), i)
+--   where
+--     szL :: SNat (Size l)
+--     szL = size Proxy
+--     szK :: SNat (Size (Key f))
+--     szK = size Proxy
+--     i :: l <-> Key f
+--     i    = iso undefined undefined
+--     shuf :: Fin (Size (Key f)) -> Fin (Size l)
+--     shuf = view shufIso
+--     shufIso :: Fin (Size (Key f)) <-> Fin (Size l)
+--     shufIso = finite . from i . from finite

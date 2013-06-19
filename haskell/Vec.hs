@@ -14,7 +14,7 @@ import Prelude hiding (concat, unzip, zip, zipWith)
 
 import Control.Lens
 import Finite
-import Nat (Nat(..), Fin(..), SNat(..), Plus, Times)
+import Nat (Natural(..), Nat(..), Fin(..), SNat(..), Plus, Times)
 import Proxy
 import Util
 
@@ -89,6 +89,9 @@ concat (VCons v vs) = append v (concat vs)
 concat' :: Vec k (Vec' a) -> Vec' a
 concat' VNil = SomeVec VNil
 concat' (VCons v vs) = append' v (concat' vs)
+
+shuffle :: SNat m -> SNat n -> (Fin n -> Fin m) -> (Vec m a -> Vec n a)
+shuffle _ n f v = mkV n (vIndex v . f)
 
 ------------------------------------------------------------
 -- HVec: Length-indexed, type-indexed heterogeneous vectors
