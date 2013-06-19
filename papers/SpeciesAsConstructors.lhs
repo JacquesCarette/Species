@@ -1,7 +1,19 @@
 \documentclass[9pt,preprint,authoryear]{sigplanconf}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% lhs2TeX
+
+%include polycode.fmt
+
+% Use 'arrayhs' mode, so code blocks will not be split across page breaks.
+\arrayhs
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Package imports
+
 \usepackage{../species}
 
+\usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{latexsym}
 \usepackage{amssymb}
@@ -11,29 +23,37 @@
 \usepackage{xspace}
 \usepackage{xcolor}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Page size
+
 \pdfpagewidth=8.5in
 \pdfpageheight=11in
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Theorems etc.
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Diagrams
+
+\usepackage{graphicx}
+\usepackage[outputdir=diagrams/,backend=ps,extension=eps]{diagrams-latex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Math typesetting
 
 \newcommand{\lam}[2]{\lambda #1 . #2}
 
 \newcommand{\rase}[1]{\ulcorner #1 \urcorner}
 \newcommand{\lowr}[1]{\llcorner #1 \lrcorner}
 
-\newtheorem{theorem}{Theorem}
-\newtheorem{proposition}{Proposition}
-\newtheorem{definition}{Definition}
-\newtheorem{lemma}{Lemma}
-
-\usepackage{graphicx}
-\usepackage[outputdir=diagrams/,backend=ps,extension=eps]{diagrams-latex}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% lhs2TeX
-
-%include polycode.fmt
-
-% Use 'arrayhs' mode, so code blocks will not be split across page breaks.
-\arrayhs
+\newcommand{\bij}{\leftrightarrow}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -83,7 +103,7 @@
 \newcommand{\bay}[1]{\authornote{blue}{BAY}{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Misc
+%% Semantic markup
 
 \newcommand{\eg}{\emph{e.g.}\xspace}
 \newcommand{\ie}{\emph{i.e.}\xspace}
@@ -299,9 +319,74 @@ can we do graphs?
 \section{Combinatorial Species}
 \label{sec:species}
 
-\todo{
-  Theory.
-}
+% We want to think of each labeled structure as \emph{indexed by} its
+% set of labels (or, more generally, by the \emph{size} of the set of
+% labels).  We can accomplish this by a mapping from label sets to all
+% the structures built from them, with some extra properties to
+% guarantee that we really do get the same family of structures no
+% matter what set of labels we happen to choose.
+
+\begin{definition}
+A \term{species} $F$ is a pair of mappings which
+\begin{itemize}
+\item sends any finite set $L$ (of \term{labels}) to a finite set
+  $F[L]$ (of \term{shapes}), and
+\item sends any bijection on finite sets $\sigma : L \bij L'$ (a
+  \term{relabelling}) to a function $F[\sigma] : F[L] \to F[L']$
+  (illustrated in \pref{fig:relabelling}),
+\end{itemize}
+satisfying the following functoriality conditions:
+\begin{itemize}
+\item $F[id_L] = id_{F[L]}$, and
+\item $F[\sigma \circ \tau] = F[\sigma] \circ F[\tau]$.
+\end{itemize}
+\end{definition}
+
+% \begin{figure}
+%   \centering
+%   \includegraphics{relabelling}
+%   \caption{Relabelling}
+%   \label{fig:relabelling}
+% \end{figure}
+% \later{redraw this with diagrams}
+
+Using the language of category theory, this definition can be pithily
+summed up by saying that a species is a functor $F : \B \to
+\FinSet$, where $\B$ is the category of finite sets whose morphisms
+are bijections, and $\FinSet$ is the category of finite sets whose
+morphisms are arbitrary (total) functions.
+
+We call $F[L]$ the set of ``$F$-shapes with
+labels drawn from $L$'', or simply ``$F$-shapes on $L$'', or even
+(when $L$ is clear from context) just ``$F$-shapes.  $F[\sigma]$
+is called the ``transport of $\sigma$ along $F$'', or sometimes the
+``relabelling of $F$-shapes by $\sigma$''.
+
+Note that in the combinatorial literature, elements of $F[L]$ are
+usually called ``$F$-structures'' rather than ``$F$-shapes''.
+To a combinatorialist, labelled shapes are themselves the primary
+objects of interest; however, in a computational context, we must be
+careful to distinguish between labelled structures (which have data
+associated with the labels) and bare labelled shapes (which do not).
+
+Here we see that the formal notion of ``shape'' is actually quite
+broad, so broad as to make one squirm: a shape is just an element of
+some arbitrary set!  In this context our informal insistance from the
+previous section that a shape ``contain each label exactly once'' is
+completely meaningless, because there is no sense in which we can say
+that a shape ``contains'' labels.
+
+In practice, however, we are interested not in arbitrary species but
+in ones built up algebraically from a set of primitives and
+operations.  In that case the corresponding shapes will have more
+structure as well.
+
+\todo{where to put formal definition of labelled structures?}
+
+\subsection{The algebra of species}
+\label{sec:algebraic}
+
+
 
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}

@@ -3,31 +3,36 @@
 \usepackage{stmaryrd}
 
 \newcommand{\bbb}[1]{\ensuremath{\mathbb{#1}}}
-\newcommand{\B}{\bbb{B}}
-\newcommand{\N}{\bbb{N}}
+\providecommand{\B}{\bbb{B}}
+\providecommand{\N}{\bbb{N}}
+\providecommand{\FinSet}{\mathsf{FinSet}}
 
-\newcommand{\Spe}[1]{\ensuremath{\mathsf{#1}}}
-\newcommand{\X}{\Spe{X}}
-\newcommand{\Y}{\Spe{Y}}
-\newcommand{\C}{\Spe{C}}
-\newcommand{\E}{\Spe{E}}
-\newcommand{\F}{\Spe{F}}
-\newcommand{\G}{\Spe{G}}
-\renewcommand{\L}{\Spe{L}}
-\newcommand{\T}{\Spe{T}}
-\newcommand{\Par}{\Spe{Par}}
+\providecommand{\Sp}{}
+\renewcommand{\Sp}[1]{\ensuremath{\mathsf{#1}}}
+\newcommand{\X}{\Sp{X}}
+\newcommand{\Y}{\Sp{Y}}
+\newcommand{\E}{\Sp{E}}
+\newcommand{\F}{\Sp{F}}
+\providecommand{\G}{\Sp{G}}
+\renewcommand{\L}{\Sp{L}}
+\newcommand{\T}{\Sp{T}}
+\newcommand{\Par}{\Sp{Par}}
+\newcommand{\Bag}{\Sp{E}}
+\newcommand{\Cyc}{\Sp{C}}
 
 \newcommand{\Zero}{\mathsf{0}}
 \newcommand{\One}{\mathsf{1}}
 
-\newcommand{\sprod}{\bullet}
+\newcommand{\sprod}{\cdot}
+\newcommand{\fcomp}{\mathbin{\square}}
 
 \renewcommand{\S}{\ensuremath{\mathcal{S}}}
 \renewcommand{\H}{\ensuremath{\mathcal{H}}}
-\newcommand{\I}{\ensuremath{\mathcal{I}}}
 
-\newcommand{\comp}{\circ}
+\providecommand{\comp}{\circ}
 
 \newcommand{\usum}{\boxplus}
 \newcommand{\uprod}{\boxtimes}
 \newcommand{\ucomp}{\boxcircle}
+
+\newcommand{\unl}[1]{\widetilde{#1}}
