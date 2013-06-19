@@ -1,7 +1,5 @@
-{-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 ------------------------------------------
 -- The point of this module is to show that Traversable is the same as
@@ -9,52 +7,31 @@
 
 module Traversal where
 
-import BFunctor
 import SpeciesTypes
 import Data.Traversable
 import qualified Data.Foldable as F
-import qualified Vec as V
-import Nat
-import Proxy
+import Control.Applicative
 import Finite
+import qualified Vec as V
+import qualified Prelude as P
 
--- reify Functor dictionary
-data FuncDict f = FuncDict { _tmap :: forall a b . (a -> b) -> f a -> f b }
+{- we would like:
+fromTrav :: (F.Foldable f) => f a -> Sp' (f # L) a
+but we can at least get:
+-}
+fromFold :: F.Foldable f => f a -> Sp' L a
+fromFold f = fromList l
+  where l = F.foldr (:) [] f
 
--- reify Applicative dictionary
-data ApplDict f = ApplDict {
-  _func :: FuncDict f, -- is a functor
-  _pure :: forall a . a -> f a,
-  _app  :: forall a b . f (a -> b) -> f a -> f b }
-  
--- reify Foldable dictionary
-data FoldDict f = FoldDict {
-  _foldr :: forall a b . (a -> b -> b) -> b -> f a -> b
-}
+-- All of these are valid:
+instance Finite l => F.Foldable (Sp L l) where
+  foldr f b (Struct (Shape f2) elts) =
+    elim (elimList b f) (Struct (Shape f2) elts)
 
--- we need to reify a Traversable's dictionary
-data TravDict t = TravDict {
-  _tfunc :: FuncDict t,
-  _tfold :: FoldDict t,
-  _traverse :: forall a b f . ApplDict f -> (a -> f b) -> t a -> f (t b)
-}
+instance Finite l => F.Foldable (Sp (f # L) l) where
+  foldr f b (Struct (Shape (CProd _ f2)) elts) =
+    elim (elimList b f) (Struct (Shape f2) elts)
 
-toTrav :: Sp' (f # L) a -> TravDict (Sp' f)
-toTrav (SpEx (Struct (Shape (CProd f1 f2)) elts)) = TravDict {
-  _tfunc = FuncDict {_tmap = fmap},
-  _tfold = FoldDict {_foldr = spfoldr},
-  _traverse = undefined
-}
-    where
-      -- need elimList to define this
-      spfoldr g a (SpEx (Struct (Shape s1) els)) = undefined
-
-fromTrav :: (F.Foldable f) => f a -> Sp (f # L) l a
-fromTrav f = Struct (Shape (CProd undefined undefined)) undefined
-  where x = reverse (F.toList f)
-        -- very dynamic ?!?
-        vIndex :: [a] -> Fin n -> a
-        vIndex [x] FZ = x
-        vIndex (x:xs) (FS f) = vIndex xs f
-        y :: Finite l => V.Vec (Size l) a
-        y = V.mkV (size (undefined :: Proxy l)) (vIndex x)
+instance F.Foldable (Sp' (f # L)) where
+  foldr f b (SpEx (Struct (Shape (CProd _ f2)) elts)) =
+    elim (elimList b f) (Struct (Shape f2) elts)
