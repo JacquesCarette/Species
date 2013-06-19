@@ -55,6 +55,12 @@
 
 \newcommand{\bij}{\leftrightarrow}
 
+\newcommand{\msf}[1]{\ensuremath{\mathsf{#1}}}
+
+\newcommand{\Species}{\msf{Species}}
+\newcommand{\FinType}{\msf{FinType}}
+\newcommand{\Type}{\msf{Type}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
 
@@ -326,6 +332,16 @@ can we do graphs?
 % guarantee that we really do get the same family of structures no
 % matter what set of labels we happen to choose.
 
+\bay{Note, the usual definition of species is all done in terms of set
+  theory, but we really want to be working in type theory.  Should we
+  just ``port'' the definition, so that a species is a functor from
+  the category of finite \emph{types} with bijections, etc.?  The
+  point is that we want the objects to be \emph{constructively}
+  finite, and we want the morphisms to be only computable functions,
+  etc.  For a combinatorialist the distinction is merely academic, but
+  since the whole point is for us to actually use this in a
+  computational setting, perhaps it really matters for us.}
+
 \begin{definition}
 A \term{species} $F$ is a pair of mappings which
 \begin{itemize}
@@ -381,12 +397,31 @@ in ones built up algebraically from a set of primitives and
 operations.  In that case the corresponding shapes will have more
 structure as well.
 
-\todo{where to put formal definition of labelled structures?}
-
 \subsection{The algebra of species}
 \label{sec:algebraic}
 
 
+\subsection{Labelled structures, formally}
+\label{sec:labelled-formal}
+
+Formally, we may define a labelled structure as a dependent five-tuple
+\[
+   (F : \Species) \times (L : \FinType) \times (A : \Type) \times F[L]
+   \times (L \to A),
+\]
+that is,
+\begin{itemize}
+\item a species $F$,
+\item a constructively finite type $L$ of \term{labels},
+\item a type $A$ of \term{data},
+\item an shape of type $F[L]$, \ie\ an $L$-labelled $F$-shape,
+\item a mapping from labels to data, $m : L \to A$.
+\end{itemize}
+
+\todo{formal intro and elim forms for labelled structures? operations
+  on labelled structures?}
+
+\todo{how formal do we want/need to make this?}
 
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
