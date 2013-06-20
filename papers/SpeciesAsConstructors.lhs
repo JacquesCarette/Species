@@ -15,6 +15,7 @@
 
 \usepackage{amsthm}
 \usepackage{amsmath}
+\usepackage{mathtools}
 \usepackage{latexsym}
 \usepackage{amssymb}
 \usepackage{proof}
@@ -48,18 +49,32 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Math typesetting
 
-\newcommand{\lam}[2]{\lambda #1 . #2}
+% Use sans-serif for math operators
+\DeclareSymbolFont{sfoperators}{OT1}{cmss}{m}{n}
+\DeclareSymbolFontAlphabet{\mathsf}{sfoperators}
 
-\newcommand{\rase}[1]{\ulcorner #1 \urcorner}
-\newcommand{\lowr}[1]{\llcorner #1 \lrcorner}
+\makeatletter
+\def\operator@@font{\mathgroup\symsfoperators}
+\makeatother
+
+\newcommand{\lam}[2]{\lambda #1 . #2}
 
 \newcommand{\bij}{\leftrightarrow}
 
-\newcommand{\msf}[1]{\ensuremath{\mathsf{#1}}}
+\newcommand{\defn}{\vcentcolon\equiv}
 
-\newcommand{\Species}{\msf{Species}}
-\newcommand{\FinType}{\msf{FinType}}
-\newcommand{\Type}{\msf{Type}}
+\newcommand{\TyZero}{\ensuremath{\mathbf{0}}}
+\newcommand{\TyOne}{\ensuremath{\mathbf{1}}}
+
+\DeclareMathOperator{\Species}{Species}
+\DeclareMathOperator{\FinType}{FinType}
+\DeclareMathOperator{\Type}{Type}
+\DeclareMathOperator{\Fin}{Fin}
+\DeclareMathOperator{\IsFinite}{IsFinite}
+\DeclareMathOperator{\NatZ}{O}
+\DeclareMathOperator{\NatS}{S}
+\DeclareMathOperator{\FinZ}{fO}
+\DeclareMathOperator{\FinS}{fS}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -67,7 +82,7 @@
 \usepackage{prettyref}
 
 \newrefformat{fig}{Figure~\ref{#1}}
-\newrefformat{sec}{section~\ref{#1}}
+\newrefformat{sec}{\sect\ref{#1}}
 \newrefformat{eq}{equation~\eqref{#1}}
 \newrefformat{prob}{Problem~\ref{#1}}
 \newrefformat{tab}{Table~\ref{#1}}
@@ -332,15 +347,9 @@ can we do graphs?
 % guarantee that we really do get the same family of structures no
 % matter what set of labels we happen to choose.
 
-\bay{Note, the usual definition of species is all done in terms of set
-  theory, but we really want to be working in type theory.  Should we
-  just ``port'' the definition, so that a species is a functor from
-  the category of finite \emph{types} with bijections, etc.?  The
-  point is that we want the objects to be \emph{constructively}
-  finite, and we want the morphisms to be only computable functions,
-  etc.  For a combinatorialist the distinction is merely academic, but
-  since the whole point is for us to actually use this in a
-  computational setting, perhaps it really matters for us.}
+We begin with a standard set-theoretic definition of species
+\cite{Joyal, BLL} (we will upgrade to a \emph{type}-theoretic
+definition in \pref{sec:constructive-species}).
 
 \begin{definition}
 A \term{species} $F$ is a pair of mappings which
@@ -397,16 +406,62 @@ in ones built up algebraically from a set of primitives and
 operations.  In that case the corresponding shapes will have more
 structure as well.
 
+\subsection{Species, constructively}
+\label{sec:constructive-species}
+
+The foregoing set-theoretic definition of species is perfectly
+serviceable in the context of classical combinatorics, but in order to
+use it as a foundation for data structures, it is useful to first
+``port'' the definition from set theory to constructive type theory.
+
+In the remainder of this paper, we work within a standard variant of
+Martin-L\"of dependent type theory \cite{martin-lof} (precisely
+\emph{which} variant we use probably does not matter very much),
+equipped with an empty type \TyZero, unit type \TyOne, coproducts,
+dependent pairs, dependent functions, and a universe $\Type$ of
+types. For convenience, instead of writing the traditional $\sum_{x :
+  A} B(x)$ and $\prod_{x:A} B(x)$ for dependent pair and function
+types, we will use the Agda-like \cite{Agda} notations $(x:A) \times
+B(x)$ and $(x:A) \to B(x)$, respectively.  We continue to use the
+standard abbreviations $A \times B$ and $A \to B$ for non-dependent
+pair and function types, that is, when $x$ does not appear free in
+$B$.
+
+\todo{Need to pick a notation for implicit arguments ($\forall$?
+  subscript? Agda braces?), and explain it. \eg\ see types of $\FinZ$
+  and $\FinS$ below.}
+
+We use $\N : \Type$ to denote the usual inductively defined type of
+natural numbers, with constructors $\NatZ : \N$ and $\NatS : \N \to
+\N$.  We also make use of the usual indexed type of canonical finite
+sets $\Fin : \N \to \Type$, with constructors $\FinZ : \forall (n :
+\N). \Fin (\NatS n)$ and $\FinS : \forall (n : \N). \Fin n \to \Fin
+(\NatS n)$.
+
+\todo{define $\bij$}
+
+The first concept we need to port is that of a finite set.
+Constructively, a finite set is one with an isomorphism to $\Fin\
+n$ for some natural number $n$. That is,
+\[ \IsFinite A \defn (n : \N) \times (\Fin n \bij A). \] \bay{Note
+  there are other notions of finiteness but this is the one we
+  want/need?  See \eg\ \url{http://ncatlab.org/nlab/show/finite+set}.}
+
+
 \subsection{The algebra of species}
 \label{sec:algebraic}
 
+\todo{Note that a lot of the power of the theory for combinatorics
+  comes from homomorphisms to rings of formal power series; we won't
+  use that in this paper.}
 
 \subsection{Labelled structures, formally}
 \label{sec:labelled-formal}
 
 Formally, we may define a labelled structure as a dependent five-tuple
+with the type
 \[
-   (F : \Species) \times (L : \FinType) \times (A : \Type) \times F[L]
+   (F : \Species) \times (L : \FinType) \times (A : \Type) \times F\ L
    \times (L \to A),
 \]
 that is,
@@ -414,7 +469,7 @@ that is,
 \item a species $F$,
 \item a constructively finite type $L$ of \term{labels},
 \item a type $A$ of \term{data},
-\item an shape of type $F[L]$, \ie\ an $L$-labelled $F$-shape,
+\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape,
 \item a mapping from labels to data, $m : L \to A$.
 \end{itemize}
 
