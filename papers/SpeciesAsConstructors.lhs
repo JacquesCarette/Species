@@ -75,6 +75,9 @@
 \DeclareMathOperator{\NatS}{S}
 \DeclareMathOperator{\FinZ}{fO}
 \DeclareMathOperator{\FinS}{fS}
+\DeclareMathOperator{\id}{id}
+\DeclareMathOperator{\shapes}{shapes}
+\DeclareMathOperator{\relabel}{relabel}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -418,14 +421,14 @@ In the remainder of this paper, we work within a standard variant of
 Martin-L\"of dependent type theory \cite{martin-lof} (precisely
 \emph{which} variant we use probably does not matter very much),
 equipped with an empty type \TyZero, unit type \TyOne, coproducts,
-dependent pairs, dependent functions, and a universe $\Type$ of
-types. For convenience, instead of writing the traditional $\sum_{x :
-  A} B(x)$ and $\prod_{x:A} B(x)$ for dependent pair and function
-types, we will use the Agda-like \cite{Agda} notations $(x:A) \times
-B(x)$ and $(x:A) \to B(x)$, respectively.  We continue to use the
-standard abbreviations $A \times B$ and $A \to B$ for non-dependent
-pair and function types, that is, when $x$ does not appear free in
-$B$.
+dependent pairs, dependent functions, a universe $\Type$ of types, and
+a notion of propositional equality. For convenience, instead of
+writing the traditional $\sum_{x : A} B(x)$ and $\prod_{x:A} B(x)$ for
+dependent pair and function types, we will use the Agda-like
+\cite{Agda} notations $(x:A) \times B(x)$ and $(x:A) \to B(x)$,
+respectively.  We continue to use the standard abbreviations $A \times
+B$ and $A \to B$ for non-dependent pair and function types, that is,
+when $x$ does not appear free in $B$.
 
 \todo{Need to pick a notation for implicit arguments ($\forall$?
   subscript? Agda braces?), and explain it. \eg\ see types of $\FinZ$
@@ -438,7 +441,12 @@ sets $\Fin : \N \to \Type$, with constructors $\FinZ : \forall (n :
 \N). \Fin (\NatS n)$ and $\FinS : \forall (n : \N). \Fin n \to \Fin
 (\NatS n)$.
 
-\todo{define $\bij$}
+\todo{define $\bij$} \bay{Have to be careful: don't want this section
+  to just become a big Agda file!  Want to define things precisely
+  enough so that people get the idea but omit all the sufficiently
+  obvious parts. \eg\ we probably don't actually need to write out the
+  definition of $\bij$ but just say in English what it denotes (\ie\ a
+  pair of inverse functions).}
 
 The first concept we need to port is that of a finite set.
 Constructively, a finite set is one with an isomorphism to $\Fin\
@@ -446,7 +454,28 @@ n$ for some natural number $n$. That is,
 \[ \IsFinite A \defn (n : \N) \times (\Fin n \bij A). \] \bay{Note
   there are other notions of finiteness but this is the one we
   want/need?  See \eg\ \url{http://ncatlab.org/nlab/show/finite+set}.}
+Then we can define $\FinType \defn (A : \Type) \times \IsFinite A$ as
+the universe of finite types.
 
+\todo{need some nice notation for dependent $n$-tuples, \ie\ records.}
+
+\bay{Should we write it out like this?  Or just use some sort of
+  $\mathsf{IsFunctor}$ which we leave undefined?}
+
+\begin{align*}
+\Species & \defn (\shapes : \FinType \to \Type) \\
+         & \times (\relabel : (\FinType \bij \FinType) \to
+           (\Type \bij \Type)) \\
+         & \times ((L : \FinType) \to \relabel \id_L = \id_{(\shapes L)}) \\
+         & \times ((L_1, L_2, L_3 : \FinType) \to (\sigma : L_2 \bij L_3) \to (\tau : L_1 \bij L_2) \to
+(\relabel (\sigma \comp \tau) = \relabel \sigma \comp \relabel \tau))
+\end{align*}
+
+Where the meaning is clear from context, we will use simple
+application to denote the action of a species on both objects and
+arrows. That is, if $F : \Species$, instead of writing $\pi_1\ F\ L$
+or $\pi_1\ (\pi_2\ F)\ \sigma$ we will just write $F\ L$ or $F\
+\sigma$.
 
 \subsection{The algebra of species}
 \label{sec:algebraic}
