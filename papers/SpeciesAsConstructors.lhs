@@ -350,6 +350,9 @@ can we do graphs?
 % guarantee that we really do get the same family of structures no
 % matter what set of labels we happen to choose.
 
+\subsection{Species, set-theoretically}
+\label{sec:set-species}
+
 We begin with a standard set-theoretic definition of species
 \cite{Joyal, BLL} (we will upgrade to a \emph{type}-theoretic
 definition in \pref{sec:constructive-species}).
@@ -479,6 +482,71 @@ or $\pi_1\ (\pi_2\ F)\ \sigma$ we will just write $F\ L$ or $F\
 
 \subsection{The algebra of species}
 \label{sec:algebraic}
+
+We now return to the observation from \pref{sec:set-species} that we
+do not really want to work directly with the definition of species,
+but rather with an algebraic theory. \todo{say a bit more}
+
+\paragraph{Zero}
+  The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
+  unique species with no shapes whatsoever, defined by its action on
+  finite types and bijections as
+  \begin{align*}
+  \Zero\ L &= \TyZero \\
+  \Zero\ \sigma &= \id_\TyZero
+  \end{align*}
+  We omit the straightforward proofs of functoriality.
+
+\paragraph{One}
+  The \emph{one} or \emph{unit} species, denoted $\One$, is the
+  species with a single shape of size $0$.  Set-theoretically, we
+  could write
+  \[ \One\ L =
+  \begin{cases}
+    \{\star\} & ||U|| = 0 \\
+    \varnothing & \text{otherwise}
+  \end{cases}
+  \]
+
+  But this is confusing \todo{explain}.  Type-theoretically,
+  \begin{align*}
+    \One\ L &= (\TyZero \bij L) \\
+    \One\ \sigma &= (\lam {\tau}{\sigma \comp \tau}) \bij (\lam {\tau}{\sigma^{-1} \comp \tau})
+  \end{align*}
+  which gives a better idea of what is going on: in order to construct
+  something of type $\One\ L$, one must provide a proof that $\L$ is
+  empty (that is, isomorphic to $\TyZero$).
+
+\paragraph{Singleton}
+  The \emph{singleton} species, denoted $\X$, is defined by
+  % \[ \X[U]
+  % = \begin{cases} U & ||U|| = 1 \\ \emptyset &
+  %   \text{otherwise} \end{cases}
+  % \]
+  % with lifting of bijections defined in the evident manner. That is,
+  % there is a single $\X$-structure on a label set of size $1$
+  % (which we identify with the label itself), and no
+  % $\X$-structures indexed by any other number of labels.
+
+\paragraph{Bags}
+  The species of \emph{bags}
+
+% \footnote{The species literature calls
+%     this the species of \emph{sets}, but that's misleading to computer
+%     scientists, who expect the word ``set'' to imply that elements
+%     cannot be repeated. The \emph{labels} in a bag structure cannot be
+%   repeated, but nothing stops us from mapping labels to data elements
+%   in a non-injective way.}, denoted $\Bag$, is defined by \[ \Bag[U] =
+%   \{U\}, \] that is, there is a single $\Bag$-structure on any set of
+%   labels $U$, which we usually identify with the set of labels itself
+%   (although we could equivalently define $\Bag[U] = \{\star\}$). The
+%   idea is that an $\Bag$-structure consists solely of a collection of
+%   labels, with no imposed ordering whatsoever.
+
+%   $\E$ is precisely the species mentioned previously which some
+%   na\"ively expect as the definition of $\One$.  In fact, $\E$ is
+%   indeed the identity element for a product-like operation,
+%   \term{Cartesian product}, to be discussed below.
 
 \todo{Note that a lot of the power of the theory for combinatorics
   comes from homomorphisms to rings of formal power series; we won't
