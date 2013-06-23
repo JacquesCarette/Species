@@ -289,6 +289,9 @@ instance (BFunctor f, BFunctor g) => BFunctor (f # g) where
                => (l <-> l') -> (f # g) l -> (f # g) l'
       applyIso i (CProd f g) = CProd (view (bmap i) f) (view (bmap i) g)
 
+instance (Functor f, Functor g) => Functor (f # g) where
+  fmap f (CProd f1 f2) = CProd (fmap f f1) (fmap f f2)
+
 cprodSh :: Shape f l -> Shape g l -> Shape (f # g) l
 cprodSh (Shape f) (Shape g) = Shape (CProd f g)
 
