@@ -1,5 +1,6 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 ------------------------------------------
 -- The point of this module is to show that Traversable is the same as
@@ -11,6 +12,7 @@ import SpeciesTypes
 import qualified Data.Traversable as T
 import qualified Data.Foldable as F
 import Control.Applicative
+import qualified Nat as N
 import Finite
 import qualified Vec as V
 
@@ -28,23 +30,36 @@ fromFold :: F.Foldable f => f a -> Sp' L a
 fromFold f = fromList l
   where l = F.foldr (:) [] f
 
+replace :: a -> WriterT [(a,N.Nat)] (Supply N.Nat) N.Nat
+replace a = do
+  l <- supply
+  tell [(a,l)]
+  return l
+
+toL :: T.Traversable f => f a -> Sp' L a
+toL = fromList . execWriter . T.traverse rep'
+  where
+    rep' :: a -> Writer [a] ()
+    rep' a = do tell [a]; return () 
+
+fromTrav :: T.Traversable f => f a -> Sp' (f # L) a
+fromTrav fa = 
+    case toL fa of
+      SpEx (Struct sh v) -> SpEx (Struct (Shape (CProd undefined (_shapeVal sh))) v)
+{-
 fromTrav :: T.Traversable f => f a -> Sp' (f # L) a
 fromTrav = mkSp' . T.traverse replace
   where
-    replace :: a -> WriterT [a] (Supply Int) Int
-    replace a = do
-      l <- supply
-      tell [a]
-      return l
+    mkSp' :: WriterT [a] (Supply N.Nat) (f N.Nat) -> Sp' (f # L) a
     mkSp' m =
-      let (fl, as) = flip evalSupply [0..] . runWriterT $ m
-      in  undefined
-          -- case V.fromList as of
-          --   (V.SomeVec v) ->
-          --     SpEx (Struct (Shape (fmap undefined fl)) v)
+      let nats = map N.intToNat [0..] in
+      --  (fl, as) :: (f N.Nat, [a])
+      let (fl, as) = flip evalSupply nats . runWriterT $ m
+      in SpEx (Struct (Shape (CProd fl undefined)) undefined)
 
         -- convert all Ints to Fin n for some n, convert as to vector,
         -- pair up with L shape
+-}
 
 -- All of these are valid:
 instance Finite l => F.Foldable (Sp L l) where
