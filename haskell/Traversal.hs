@@ -1,6 +1,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies #-}
 
 ------------------------------------------
 -- The point of this module is to show that Traversable is the same as
@@ -26,16 +27,18 @@ instance Applicative (Supply s) where
   pure  = return
   (<*>) = ap
 
+-- can get a L-structure from just Foldable
 fromFold :: F.Foldable f => f a -> Sp' L a
-fromFold f = fromList l
-  where l = F.foldr (:) [] f
+fromFold f = fromList $ F.foldr (:) [] f
 
-replace :: a -> WriterT [(a,N.Nat)] (Supply N.Nat) N.Nat
+-- useful utility routine for below
+replace :: a -> WriterT [a] (Supply l) l
 replace a = do
   l <- supply
-  tell [(a,l)]
+  tell [a]
   return l
 
+-- so of course, it can be done from Traversable too:
 toL :: T.Traversable f => f a -> Sp' L a
 toL = fromList . execWriter . T.traverse rep'
   where
@@ -43,23 +46,18 @@ toL = fromList . execWriter . T.traverse rep'
     rep' a = do tell [a]; return () 
 
 fromTrav :: T.Traversable f => f a -> Sp' (f # L) a
-fromTrav fa = 
-    case toL fa of
-      SpEx (Struct sh v) -> SpEx (Struct (Shape (CProd undefined (_shapeVal sh))) v)
-{-
-fromTrav :: T.Traversable f => f a -> Sp' (f # L) a
-fromTrav = mkSp' . T.traverse replace
-  where
-    mkSp' :: WriterT [a] (Supply N.Nat) (f N.Nat) -> Sp' (f # L) a
-    mkSp' m =
-      let nats = map N.intToNat [0..] in
-      --  (fl, as) :: (f N.Nat, [a])
-      let (fl, as) = flip evalSupply nats . runWriterT $ m
-      in SpEx (Struct (Shape (CProd fl undefined)) undefined)
+fromTrav fa = let ll = F.foldr (:) [] fa in
+              case fromList ll of
+                SpEx sp@(Struct (Shape l) v) -> 
+                  SpEx (Struct (Shape (CProd undefined l)) v)
+                  where fl = fst . evalSup m $ toList sp
+                        m = runWriterT . T.traverse replace $ fa
 
-        -- convert all Ints to Fin n for some n, convert as to vector,
-        -- pair up with L shape
--}
+toList :: Eq l => Sp L l a -> [l]
+toList (Struct shp _) = case (elimList [] (:)) of Elim f -> f shp id
+
+evalSup :: Supply s (f s, [a]) -> [s] -> (f s, [a])
+evalSup m l = flip evalSupply l m
 
 -- All of these are valid:
 instance Finite l => F.Foldable (Sp L l) where
