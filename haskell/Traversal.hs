@@ -46,18 +46,14 @@ toL = fromList . execWriter . T.traverse rep'
     rep' a = do tell [a]; return () 
 
 fromTrav :: T.Traversable f => f a -> Sp' (f # L) a
-fromTrav fa = let ll = F.foldr (:) [] fa in
-              case fromList ll of
+fromTrav fa = case fromFold fa of
                 SpEx sp@(Struct (Shape l) v) -> 
                   SpEx (Struct (Shape (CProd fl l)) v)
-                  where fl = fst . evalSup m $ toList sp
+                  where fl = fst . evalSupply m $ toList sp
                         m = runWriterT . T.traverse replace $ fa
 
 toList :: Eq l => Sp L l a -> [l]
 toList (Struct shp _) = case elimList [] (:) of Elim f -> f shp id
-
-evalSup :: Supply s (f s, [a]) -> [s] -> (f s, [a])
-evalSup m l = flip evalSupply l m
 
 -- All of these are valid:
 instance Finite l => F.Foldable (Sp L l) where
