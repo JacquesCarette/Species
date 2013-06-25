@@ -73,6 +73,13 @@ instance F.Foldable (Sp' (f # L)) where
     elim (elimList b f) (Struct (Shape f2) elts)
 
 {-
+
+Basic idea: get the 'L l' structure, traverse that, and use 
+the resulting f [l] to decode what should be there.
+
+And fundamentally this is false, as there is no 'left to right'
+in g, not matter what the super-imposed L-structure says.  
+
 instance T.Traversable (Sp' (g # L)) where
   -- traverse :: Applicative f => (a -> f b) -> t a -> f (t b)
   --  where t = Sp' (g # L)
