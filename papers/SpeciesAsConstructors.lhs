@@ -59,8 +59,10 @@
 
 \newcommand{\lam}[2]{\lambda #1 . #2}
 
-\newcommand{\bij}{\leftrightarrow}
+\newcommand{\iso}{\leftrightarrow}
+\newcommand{\mkIso}{\rightleftharpoons}
 
+\newcommand{\impl}[1]{\ensuremath{\{#1\}}} % implicit arguments
 \newcommand{\defn}{\vcentcolon\equiv}
 
 \newcommand{\TyZero}{\ensuremath{\mathbf{0}}}
@@ -362,7 +364,7 @@ A \term{species} $F$ is a pair of mappings which
 \begin{itemize}
 \item sends any finite set $L$ (of \term{labels}) to a finite set
   $F[L]$ (of \term{shapes}), and
-\item sends any bijection on finite sets $\sigma : L \bij L'$ (a
+\item sends any bijection on finite sets $\sigma : L \iso L'$ (a
   \term{relabelling}) to a function $F[\sigma] : F[L] \to F[L']$
   (illustrated in \pref{fig:relabelling}),
 \end{itemize}
@@ -431,53 +433,63 @@ dependent pair and function types, we will use the Agda-like
 \cite{Agda} notations $(x:A) \times B(x)$ and $(x:A) \to B(x)$,
 respectively.  We continue to use the standard abbreviations $A \times
 B$ and $A \to B$ for non-dependent pair and function types, that is,
-when $x$ does not appear free in $B$.
-
-\todo{Need to pick a notation for implicit arguments ($\forall$?
-  subscript? Agda braces?), and explain it. \eg\ see types of $\FinZ$
-  and $\FinS$ below.}
+when $x$ does not appear free in $B$.  We write $\impl A \to B$ for
+the type of functions taking $A$ as an \emph{implicit} argument, and
+omit implicit arguments when applying such functions.  For example, if
+$f : \impl{A:\Type} \to A \to A$ then we write simply $f\ 3$ instead of
+$f\ \N\ 3$.  When an implicit argument needs to be provided explicitly
+we use a subscript, as in $f_{\N}\ 3$.
 
 We use $\N : \Type$ to denote the usual inductively defined type of
 natural numbers, with constructors $\NatZ : \N$ and $\NatS : \N \to
 \N$.  We also make use of the usual indexed type of canonical finite
-sets $\Fin : \N \to \Type$, with constructors $\FinZ : \forall (n :
-\N). \Fin (\NatS n)$ and $\FinS : \forall (n : \N). \Fin n \to \Fin
+sets $\Fin : \N \to \Type$, with constructors $\FinZ : \impl{n :
+\N} \to \Fin (\NatS n)$ and $\FinS : \impl {n : \N} \to \Fin n \to \Fin
 (\NatS n)$.
 
-\todo{define $\bij$} \bay{Have to be careful: don't want this section
-  to just become a big Agda file!  Want to define things precisely
-  enough so that people get the idea but omit all the sufficiently
-  obvious parts. \eg\ we probably don't actually need to write out the
-  definition of $\bij$ but just say in English what it denotes (\ie\ a
-  pair of inverse functions).}
+$A \iso B$ is the type of isomorphisms between $A$ and $B$, \ie\ pairs
+of inverse functions $f : A \to B$ and $g : B \to A$.  We overload the
+notations $\id$ and $\comp$ to denote the identity isomorphism and
+isomorphism composition respectively.  If $f : A \to B$ and $g : B \to
+A$ are inverse, then $f \mkIso g : A \iso B$ (the proof
+that $f$ and $g$ are inverse is left implicit).  For any $T : \Type \to
+\Type$ and $\sigma : A \iso B$ we can also construct the isomorphism
+$T\ \sigma : T\ A \iso T\ B$. \bay{I think this is admissible for all
+  $T : \Type \to \Type$\dots right?}
 
-The first concept we need to port is that of a finite set.
-Constructively, a finite set is one with an isomorphism to $\Fin\
-n$ for some natural number $n$. That is,
-\[ \IsFinite A \defn (n : \N) \times (\Fin n \bij A). \] \bay{Note
+With the preliminaries out of the way, The first concept we need to
+port is that of a finite set.  Constructively, a finite set is one
+with an isomorphism to $\Fin\ n$ for some natural number $n$. That is,
+\[ \IsFinite A \defn (n : \N) \times (\Fin n \iso A). \] \bay{Note
   there are other notions of finiteness but this is the one we
   want/need?  See \eg\ \url{http://ncatlab.org/nlab/show/finite+set}.}
-Then we can define $\FinType \defn (A : \Type) \times \IsFinite A$ as
+Then we can define \[ \FinType \defn (A : \Type) \times \IsFinite A \] as
 the universe of finite types.
 
 \todo{need some nice notation for dependent $n$-tuples, \ie\ records.}
 
-\bay{Should we write it out like this?  Or just use some sort of
-  $\mathsf{IsFunctor}$ which we leave undefined?}
+\bay{in the set-theory section we said the codomain of species is
+  \emph{finite} types, but in this definition the codomain is $\Type$
+  rather than $\FinType$.  What's going on? Certainly the finiteness
+  of the codomain does not seem to be that important---it doesn't come
+  up at all in our implementation, which is why I didn't notice the
+  discrepancy at first. I suppose it only becomes important when one
+  wants to do things like map to generating functions.  At the very
+  least we should include a discussion of this point somewhere\dots}
 
 \begin{align*}
 \Species & \defn (\shapes : \FinType \to \Type) \\
-         & \times (\relabel : (\FinType \bij \FinType) \to
-           (\Type \bij \Type)) \\
+         & \times (\relabel : (\FinType \iso \FinType) \to
+           (\Type \iso \Type)) \\
          & \times ((L : \FinType) \to \relabel \id_L = \id_{(\shapes L)}) \\
-         & \times ((L_1, L_2, L_3 : \FinType) \to (\sigma : L_2 \bij L_3) \to (\tau : L_1 \bij L_2) \to
+         & \times ((L_1, L_2, L_3 : \FinType) \to (\sigma : L_2 \iso L_3) \to (\tau : L_1 \iso L_2) \to
 (\relabel (\sigma \comp \tau) = \relabel \sigma \comp \relabel \tau))
 \end{align*}
 
 Where the meaning is clear from context, we will use simple
 application to denote the action of a species on both objects and
-arrows. That is, if $F : \Species$, instead of writing $\pi_1\ F\ L$
-or $\pi_1\ (\pi_2\ F)\ \sigma$ we will just write $F\ L$ or $F\
+arrows. That is, if $F : \Species$, instead of writing $F.\shapes\ L$
+or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 \sigma$.
 
 \subsection{The algebra of species}
@@ -495,27 +507,34 @@ but rather with an algebraic theory. \todo{say a bit more}
   \Zero\ L &= \TyZero \\
   \Zero\ \sigma &= \id_\TyZero
   \end{align*}
-  We omit the straightforward proofs of functoriality.
+  \bay{Say more here?}
 
 \paragraph{One}
   The \emph{one} or \emph{unit} species, denoted $\One$, is the
-  species with a single shape of size $0$.  Set-theoretically, we
-  could write
+  species with a single shape of size $0$.  The usual set-theoretic
+  definition is
   \[ \One\ L =
   \begin{cases}
-    \{\star\} & ||U|| = 0 \\
+    \{\star\} & ||L|| = 0 \\
     \varnothing & \text{otherwise}
   \end{cases}
   \]
+  However, this is confusing to the typical type theorist.  First, it
+  seems strange that the definition of $\One$ gets to ``look at'' $L$,
+  since species are supposed to be functorial.  In fact, the
+  definition does not violate functoriality (because it only ``looks
+  at'' the size of $L$, not its contents, and bijections preserve
+  size), but this is not manifestly obvious. It's also strange that we
+  have to pull some arbitrary one-element set out of thin air.
 
-  But this is confusing \todo{explain}.  Type-theoretically,
-  \begin{align*}
-    \One\ L &= (\TyZero \bij L) \\
-    \One\ \sigma &= (\lam {\tau}{\sigma \comp \tau}) \bij (\lam {\tau}{\sigma^{-1} \comp \tau})
-  \end{align*}
-  which gives a better idea of what is going on: in order to construct
-  something of type $\One\ L$, one must provide a proof that $\L$ is
-  empty (that is, isomorphic to $\TyZero$).
+  The corresponding type-theoretic definition, on the other hand, is
+  \[ \One\ L = \TyZero \iso L. \] That is, a $\One$-shape consists
+  solely of a proof that $\L$ is empty. (By function extensionality,
+  for any given type $\L$ there is only one such proof.)  In this form,
+  the functoriality of $\One$ is also evident: \[ \One\ \sigma =
+  \TyZero \iso \sigma, \] or more explicitly, \[ \One\ \sigma = (\lam
+  {\tau}{\sigma \comp \tau}) \mkIso (\lam {\tau}{\sigma^{-1} \comp
+    \tau}). \]  %% XXX FIXME, \tau is not in scope
 
 \paragraph{Singleton}
   The \emph{singleton} species, denoted $\X$, is defined by
