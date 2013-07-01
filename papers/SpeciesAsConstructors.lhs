@@ -65,8 +65,9 @@
 \newcommand{\impl}[1]{\ensuremath{\{#1\}}} % implicit arguments
 \newcommand{\defn}{\vcentcolon\equiv}
 
-\newcommand{\TyZero}{\ensuremath{\mathbf{0}}}
-\newcommand{\TyOne}{\ensuremath{\mathbf{1}}}
+\newcommand{\TyZero}{\ensuremath{\bot}}
+\newcommand{\TyOne}{\ensuremath{\top}}
+\newcommand{\unit}{\ensuremath{\langle\rangle}}
 
 \DeclareMathOperator{\Species}{Species}
 \DeclareMathOperator{\FinType}{FinType}
@@ -451,12 +452,17 @@ sets $\Fin : \N \to \Type$, with constructors $\FinZ : \impl{n :
 $A \iso B$ is the type of isomorphisms between $A$ and $B$, \ie\ pairs
 of inverse functions $f : A \to B$ and $g : B \to A$.  We overload the
 notations $\id$ and $\comp$ to denote the identity isomorphism and
-isomorphism composition respectively.  If $f : A \to B$ and $g : B \to
-A$ are inverse, then $f \mkIso g : A \iso B$ (the proof
-that $f$ and $g$ are inverse is left implicit).  For any $T : \Type \to
-\Type$ and $\sigma : A \iso B$ we can also construct the isomorphism
-$T\ \sigma : T\ A \iso T\ B$. \bay{I think this is admissible for all
-  $T : \Type \to \Type$\dots right?}
+isomorphism composition respectively; we also allow isomorphisms of
+type $A \iso B$ to be implicitly used as functions $A \to B$ where it
+does not cause confusion.  We use the notation $\mkIso$ for
+constructing isomorphisms from a pair of functions. That is, if $f : A
+\to B$ and $g : B \to A$ are inverse, then $f \mkIso g : A \iso B$;
+the proof that $f$ and $g$ are inverse is left implicit.  For
+admissible $T : \Type \to \Type$ and $\sigma : A \iso B$ we can also
+construct the isomorphism $T\ \sigma : T\ A \iso T\ B$. For example,
+$\sigma \times (\sigma \to C) : A \times (A \to C) \iso B \times (B
+\to C)$, given by \[ \sigma \times (\sigma \to C) =
+(\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso (\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
 
 With the preliminaries out of the way, The first concept we need to
 port is that of a finite set.  Constructively, a finite set is one
@@ -475,15 +481,20 @@ the universe of finite types.
   of the codomain does not seem to be that important---it doesn't come
   up at all in our implementation, which is why I didn't notice the
   discrepancy at first. I suppose it only becomes important when one
-  wants to do things like map to generating functions.  At the very
-  least we should include a discussion of this point somewhere\dots}
+  wants to do things like map to generating functions.  Following a
+  discussion with Stephanie, it seems that quite a few theorems about
+  species (molecular decomposition, maybe implicit species theorem)
+  may actually depend on the finiteness, but it's hard to be sure.
+  Would be interesting to try to port the theorems and proofs as well
+  as the definition.}
 
 \begin{align*}
 \Species & \defn (\shapes : \FinType \to \Type) \\
          & \times (\relabel : (\FinType \iso \FinType) \to
            (\Type \iso \Type)) \\
          & \times ((L : \FinType) \to \relabel \id_L = \id_{(\shapes L)}) \\
-         & \times ((L_1, L_2, L_3 : \FinType) \to (\sigma : L_2 \iso L_3) \to (\tau : L_1 \iso L_2) \to
+         & \times ((L_1, L_2, L_3 : \FinType) \to (\sigma : L_2 \iso
+         L_3) \\ &\to (\tau : L_1 \iso L_2) \to
 (\relabel (\sigma \comp \tau) = \relabel \sigma \comp \relabel \tau))
 \end{align*}
 
@@ -493,7 +504,7 @@ arrows. That is, if $F : \Species$, instead of writing $F.\shapes\ L$
 or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 \sigma$.
 
-\subsection{The algebra of species}
+\subsection{Species, algebraically}
 \label{sec:algebraic}
 
 We now return to the observation from \pref{sec:set-species} that we
@@ -531,25 +542,33 @@ but rather with an algebraic theory. \todo{say a bit more}
   The corresponding type-theoretic definition, on the other hand, is
   \[ \One\ L = \TyZero \iso L. \] That is, a $\One$-shape consists
   solely of a proof that $\L$ is empty. (By function extensionality,
-  for any given type $\L$ there is only one such proof.)  In this form,
-  the functoriality of $\One$ is also evident: \[ \One\ \sigma =
+  for any given type $\L$ there is only one such proof.)  In this
+  form, the functoriality of $\One$ is also evident: \[ \One\ \sigma =
   \TyZero \iso \sigma, \] or more explicitly, \[ \One\ \sigma = (\lam
   {\tau}{\sigma \comp \tau}) \mkIso (\lam {\tau}{\sigma^{-1} \comp
-    \tau}). \]  %% XXX FIXME, \tau is not in scope
+    \tau}). \] \bay{Note that something equivalent is mentioned in
+    Yeh, “The calculus of virtual species and K-species”, namely that
+    $\One$ can be defined as the hom-functor $\B(\varnothing, -)$.}
 
 \paragraph{Singleton}
   The \emph{singleton} species, denoted $\X$, is defined by
-  % \[ \X[U]
-  % = \begin{cases} U & ||U|| = 1 \\ \emptyset &
-  %   \text{otherwise} \end{cases}
-  % \]
-  % with lifting of bijections defined in the evident manner. That is,
-  % there is a single $\X$-structure on a label set of size $1$
-  % (which we identify with the label itself), and no
-  % $\X$-structures indexed by any other number of labels.
+  \[ \X\ L = \TyOne \iso L, \] that is, an $\X$-shape is just a proof that
+  $L$ has size $1$.  Again, if there is such a proof, there is only
+  one.  Unlike $\One$, we may also think of an $\X$-shape as
+  ``containing'' a single label of type $L$, which we may recover by
+  applying the isomorphism to $\unit$.
 
-\paragraph{Bags}
-  The species of \emph{bags}
+  Note that once again the definition is ``obviously'' functorial; we
+  may syntactically replace $L$ by $\sigma$ to obtain \[ \X\ \sigma =
+  \top \iso \sigma. \]  This will remain true for most \bay{all?} of the
+  definitions given from here on. \bay{But we will explicitly discuss
+    it when it is not obvious?}
+
+\paragraph{Sets}
+The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
+\TyOne. \] That is, there is a single $\E$-shape for every label type.
+
+\todo{say more here?}
 
 % \footnote{The species literature calls
 %     this the species of \emph{sets}, but that's misleading to computer
@@ -571,6 +590,32 @@ but rather with an algebraic theory. \todo{say a bit more}
 \todo{Note that a lot of the power of the theory for combinatorics
   comes from homomorphisms to rings of formal power series; we won't
   use that in this paper.}
+
+We have now seen four primitive species: \Zero, \One, \X, and \E.  It
+turns out that each of them is the unit for a monoidal operation on
+species; we will look at each of these in turn.
+
+\paragraph{Sum}
+Given two species $F$ and $G$, we may form their sum. We use $\oplus$
+for the sum of two species to distinguish it from $+$, which denotes a
+sum of types. The definition is straightforward: \[ (F \oplus G)\ L =
+F\ L + G\ L. \] \bay{say more?}
+
+$\Zero$ is the identity element for $\oplus$ up to species
+isomorphism. \todo{need to define this somewhere previously! and say
+  more here}
+
+\paragraph{Product}
+
+\paragraph{Composition}
+
+\paragraph{Cartesian product}
+
+\paragraph{Cardinality restriction}
+
+\paragraph{Derivative and pointing}
+
+\paragraph{Functor composition}
 
 \subsection{Labelled structures, formally}
 \label{sec:labelled-formal}
