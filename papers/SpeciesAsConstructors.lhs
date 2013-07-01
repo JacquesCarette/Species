@@ -412,7 +412,8 @@ that a shape ``contains'' labels.
 In practice, however, we are interested not in arbitrary species but
 in ones built up algebraically from a set of primitives and
 operations.  In that case the corresponding shapes will have more
-structure as well.
+structure as well. Before we get there, however, we need to give the
+definition of species a firmer computational basis.
 
 \subsection{Species, constructively}
 \label{sec:constructive-species}
@@ -607,6 +608,7 @@ that is,
 
 \todo{
   Give some examples of using our implementation.
+  e.g. $n$-dimensional vectors.
 }
 
 \section{Related Work}
@@ -614,6 +616,8 @@ that is,
 
 \begin{itemize}
 \item containers, naturally
+\item shapely types
+\item HoTT?
 \end{itemize}
 
 \section{Conclusion}
