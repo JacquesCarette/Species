@@ -23,6 +23,7 @@
 \usepackage{url}
 \usepackage{xspace}
 \usepackage{xcolor}
+\usepackage[all]{xy}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Page size
@@ -78,9 +79,21 @@
 \DeclareMathOperator{\NatS}{S}
 \DeclareMathOperator{\FinZ}{fO}
 \DeclareMathOperator{\FinS}{fS}
+\DeclareMathOperator{\Vect}{Vec}
 \DeclareMathOperator{\id}{id}
 \DeclareMathOperator{\shapes}{shapes}
 \DeclareMathOperator{\relabel}{relabel}
+\DeclareMathOperator{\Natural}{Natural}
+
+\DeclareMathOperator{\map}{map}
+\DeclareMathOperator{\sumTys}{sumTys}
+
+\newcommand{\mor}{\stackrel{\bullet}{\rightarrow}}
+\newcommand{\natiso}{\stackrel{\bullet}{\iso}}
+
+\newcommand{\ssum}{\oplus}
+\newcommand{\sprod}{\odot}
+\newcommand{\scomp}{\circledcirc}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -268,6 +281,9 @@ x .... y = x ... strutX 0.5 ... y
   \label{fig:labelled-structure-example}
 \end{figure}
 
+\bay{another, perhaps better, way to say "contain each label once":
+  the size of a shape is determined by the size of the label set.}
+
 Note that shapes must contain each label exactly once, but the
 function $L \to A$ need not be injective. As illustrated in
 \pref{fig:labelled-structure-example}, it is perfectly valid to have
@@ -364,15 +380,15 @@ definition in \pref{sec:constructive-species}).
 A \term{species} $F$ is a pair of mappings which
 \begin{itemize}
 \item sends any finite set $L$ (of \term{labels}) to a finite set
-  $F[L]$ (of \term{shapes}), and
+  $F(L)$ (of \term{shapes}), and
 \item sends any bijection on finite sets $\sigma : L \iso L'$ (a
-  \term{relabelling}) to a function $F[\sigma] : F[L] \to F[L']$
+  \term{relabelling}) to a function $F(\sigma) : F(L) \to F(L')$
   (illustrated in \pref{fig:relabelling}),
 \end{itemize}
 satisfying the following functoriality conditions:
 \begin{itemize}
-\item $F[id_L] = id_{F[L]}$, and
-\item $F[\sigma \circ \tau] = F[\sigma] \circ F[\tau]$.
+\item $F(id_L) = id_{F(L)}$, and
+\item $F(\sigma \circ \tau) = F(\sigma) \circ F(\tau)$.
 \end{itemize}
 \end{definition}
 
@@ -390,13 +406,13 @@ summed up by saying that a species is a functor $F : \B \to
 are bijections, and $\FinSet$ is the category of finite sets whose
 morphisms are arbitrary (total) functions.
 
-We call $F[L]$ the set of ``$F$-shapes with
+We call $F(L)$ the set of ``$F$-shapes with
 labels drawn from $L$'', or simply ``$F$-shapes on $L$'', or even
-(when $L$ is clear from context) just ``$F$-shapes.  $F[\sigma]$
+(when $L$ is clear from context) just ``$F$-shapes.  $F(\sigma)$
 is called the ``transport of $\sigma$ along $F$'', or sometimes the
 ``relabelling of $F$-shapes by $\sigma$''.
 
-Note that in the combinatorial literature, elements of $F[L]$ are
+Note that in the combinatorial literature, elements of $F(L)$ are
 usually called ``$F$-structures'' rather than ``$F$-shapes''.
 To a combinatorialist, labelled shapes are themselves the primary
 objects of interest; however, in a computational context, we must be
@@ -491,7 +507,7 @@ the universe of finite types.
 \begin{align*}
 \Species & \defn (\shapes : \FinType \to \Type) \\
          & \times (\relabel : (\FinType \iso \FinType) \to
-           (\Type \iso \Type)) \\
+           (\Type \to \Type)) \\
          & \times ((L : \FinType) \to \relabel \id_L = \id_{(\shapes L)}) \\
          & \times ((L_1, L_2, L_3 : \FinType) \to (\sigma : L_2 \iso
          L_3) \\ &\to (\tau : L_1 \iso L_2) \to
@@ -593,23 +609,103 @@ The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
 
 We have now seen four primitive species: \Zero, \One, \X, and \E.  It
 turns out that each of them is the unit for a monoidal operation on
-species; we will look at each of these in turn.
+species; we will look at each of these in turn.  Before we get there,
+however, we need to take a brief detour to discuss isomorphism of
+species.
+
+\subsection{Species isomorphism}
+\label{sec:species-iso}
+
+Since species are functors, a \term{morphism} between species is a
+natural transformation.  Spelling this out, the type of species
+morphisms is given by
+\begin{align*}
+  &- \mor - : \Species \to \Species \to \Type \\
+  &F \mor G = (\varphi : \impl{L : \FinType} \to F\ L \to G\ L)
+  \times \Natural\ \varphi
+\end{align*}
+where $\Natural\ \phi$ is the proposition which states that $\phi$ is
+\term{natural}, that is, the following diagram commutes for all $L :
+\FinType$:
+
+\centerline{
+  \xymatrix{
+    F\ L \ar[d]_{\varphi_L} \ar[r]^{F\ \sigma} & F\ L' \ar[d]^{\varphi_{L'}} \\
+    G\ L                    \ar[r]_{G\ \sigma} & G\ L'
+  }
+}
+
+Intuitively, $\varphi$ is natural if it does not depend on the type of
+the labels, that is, it acts uniformly for all choices of label set:
+it does not matter whether one first relabels an $F$-shape and then
+applies $\varphi$, or applies $\varphi$ first and later relabels.
+
+An \term{isomorphism} between species, denoted $F \natiso G$, is a
+pair of inverse morphisms.\bay{explain in more detail?}
+
+Species isomorphism preserves all the interesting \emph{combinatorial}
+properties of species; hence in the combinatorics literature
+everything is always done up to isomorphism. However, isomorphism does not
+necessarily preserve all the \emph{computational} properties we might
+care about.  For example, \todo{example}.
+
+It is worth noting that a pair of ``bare'' inverse morphisms, without
+naturality, constitute what is termed an \term{equipotence} between
+two species.  An equipotence preserves the \emph{number} of shapes of
+each size, but it does not necessarily preserve the structure of those
+shapes.  For example, \todo{example}.  Equipotences are of interest to
+combinatorialists, but they do not seem to be of much use in the
+service of computation, so we will not consider them further.
+
+\subsection{Species operations}
+\label{sec:species-ops}
 
 \paragraph{Sum}
-Given two species $F$ and $G$, we may form their sum. We use $\oplus$
+Given two species $F$ and $G$, we may form their sum. We use $\ssum$
 for the sum of two species to distinguish it from $+$, which denotes a
-sum of types. The definition is straightforward: \[ (F \oplus G)\ L =
-F\ L + G\ L. \] \bay{say more?}
+sum of types. The definition is straightforward, and unsurprising to
+anyone who has ever done any generic programming: \[ (F \ssum G)\ L =
+F\ L + G\ L. \] That is, an $(F \ssum G)$-shape is either an
+$F$-shape or a $G$-shape.
 
-$\Zero$ is the identity element for $\oplus$ up to species
-isomorphism. \todo{need to define this somewhere previously! and say
-  more here}
+As the reader is invited to check, $\Zero$ is the identity element for
+$\ssum$ up to species isomorphism.  That is, we can define
+\[ zeroPlusL : \impl{F : \Species} \to (\Zero \ssum F) \natiso F \]
+and also a similar isomorphism $zeroPlusR$.
 
 \paragraph{Product}
+The product of two species $F$ and $G$ consists of paired $F$- and
+$G$-shapes, but with a twist: the label types $L_1$ and $L_2$ passed
+to $F$ and $G$ are not necessarily the same as the label type $L$
+which is passed to $(F \sprod G)$.  In fact, they must constitute a
+partition of $L$, in the sense that their sum is isomorphic to $L$.
+\begin{multline*}
+(F \sprod G)\ L = (L_1, L_2 : \FinType) \times (L_1 + L_2 \iso L)
+\\ \times F\ L_1 \times G\ L_2
+\end{multline*}
+The intuition here is that if an $(F \sprod G)$-shape is to contain
+each label from $L$ exactly once, then the labels must be divvied up,
+some going into the $F$-shape and some into the $G$-shape.
+
+\todo{$\One$ is identity for $\sprod$.}
 
 \paragraph{Composition}
 
+\begin{multline*}
+ (F \scomp G)\ L = (n : \N) \times (\mathit{Ls} : \Vect\ n\ \Type) \\
+ \times F\ (\Fin\ n) \times \sumTys\ (\map\ G\ \mathit{Ls})
+\end{multline*}
+where $\sumTys$ is defined by
+\todo{fix typesetting}
+\begin{spec}
+  sumTys :  Vec n Type  ->   Type
+  sumTys    []          =    \bot
+  sumTys    (t:ts)      =    t + sumTys ts
+\end{spec}
+
 \paragraph{Cartesian product}
+
+\[ (F \scprod G)\ L = F\ L \times G\ L \]
 
 \paragraph{Cardinality restriction}
 
