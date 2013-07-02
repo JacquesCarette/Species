@@ -12,6 +12,7 @@ TAGS
 *.tex
 *.bbl
 *.blg
+*.ptb
 Shake
 .shake.database
 .diagrams_cache
