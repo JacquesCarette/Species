@@ -70,6 +70,8 @@
 \newcommand{\TyOne}{\ensuremath{\top}}
 \newcommand{\unit}{\ensuremath{\langle\rangle}}
 
+\newcommand{\cons}[1]{\ensuremath{\mathsf{#1}}}
+
 \DeclareMathOperator{\Species}{Species}
 \DeclareMathOperator{\FinType}{FinType}
 \DeclareMathOperator{\Type}{Type}
@@ -89,11 +91,12 @@
 \DeclareMathOperator{\sumTys}{sumTys}
 
 \newcommand{\mor}{\stackrel{\bullet}{\rightarrow}}
-\newcommand{\natiso}{\stackrel{\bullet}{\iso}}
+\newcommand{\natiso}{\stackrel{\bullet}{\longleftrightarrow}}
 
 \newcommand{\ssum}{\oplus}
 \newcommand{\sprod}{\odot}
 \newcommand{\scomp}{\circledcirc}
+\newcommand{\scprod}{\otimes}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -670,8 +673,8 @@ $F$-shape or a $G$-shape.
 
 As the reader is invited to check, $\Zero$ is the identity element for
 $\ssum$ up to species isomorphism.  That is, we can define
-\[ zeroPlusL : \impl{F : \Species} \to (\Zero \ssum F) \natiso F \]
-and also a similar isomorphism $zeroPlusR$.
+\[ \cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \natiso F) \]
+and also a similar isomorphism $\cons{zeroPlusR}$.
 
 \paragraph{Product}
 The product of two species $F$ and $G$ consists of paired $F$- and
