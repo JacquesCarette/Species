@@ -14,7 +14,7 @@ import Prelude hiding (concat, unzip, zip, zipWith)
 
 import Control.Lens
 import Finite
-import Nat (Natural(..), Nat(..), Fin(..), SNat(..), Plus, Times)
+import Nat (Nat(..), Fin(..), SNat(..), Plus, Times)
 import Proxy
 import Util
 

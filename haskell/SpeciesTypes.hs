@@ -16,16 +16,13 @@ module SpeciesTypes where
 
 import           BFunctor
 import           Control.Lens hiding (cons)
-import           Data.Array
 import           Data.Functor ((<$>))
-import           Data.Maybe   (fromJust)
 import           Equality
 import           Finite
 import           Nat
 import           Proxy
 import qualified Set          as S
 import           Util
-import           Vec          (Vec)
 import qualified Vec          as V
 
 -- import Data.Key
@@ -77,8 +74,8 @@ relabel' :: (Finite l1, Finite l2, BFunctor f)
          => (l1 <-> l2) -> (Sp f l1 a <-> Sp f l2 a)
 relabel' i =
   case isoPresSize i of
-    Refl -> iso (\(Struct s e) -> Struct (view (bmap i) s) e)
-                (\(Struct s e) -> Struct (view (bmap (from i)) s) e)
+    Refl -> iso (\(Struct s es) -> Struct (view (bmap i) s) es)
+                (\(Struct s es) -> Struct (view (bmap (from i)) s) es)
 
 relabel :: (Finite l1, Finite l2, BFunctor f)
         => (l1 <-> l2) -> Sp f l1 a -> Sp f l2 a
@@ -208,8 +205,8 @@ instance (BFunctor f, BFunctor g) => BFunctor (f + g) where
     where
       applyIso :: (BFunctor f, BFunctor g, Finite l, Finite l')
                => (l <-> l') -> (f + g) l -> (f + g) l'
-      applyIso i (Inl f) = Inl (view (bmap i) f)
-      applyIso i (Inr g) = Inr (view (bmap i) g)
+      applyIso i' (Inl f) = Inl (view (bmap i') f)
+      applyIso i' (Inr g) = Inr (view (bmap i') g)
 
 inlSh :: Shape f l -> Shape (f + g) l
 inlSh = shapeVal %~ Inl
@@ -239,8 +236,8 @@ data (f +? g) l where
   ParSum :: (Either (f l1) (g l2)) -> (Either l1 l2 <-> l) -> (f +? g) l
 
 instance (BFunctor f, BFunctor g) => BFunctor (f +? g) where
-  bmap i = iso (\(ParSum e pf) -> ParSum e (pf.i))
-               (\(ParSum e pf) -> ParSum e (pf.from i))
+  bmap i = iso (\(ParSum fg pf) -> ParSum fg (pf.i))
+               (\(ParSum fg pf) -> ParSum fg (pf.from i))
 
 -- pInlSh :: Shape f l1 -> Shape (f +? g) (Either l1 l2)
 -- pInlSh (Shape n f) = Shape n (ParSum (Left f) id)
@@ -287,7 +284,7 @@ instance (BFunctor f, BFunctor g) => BFunctor (f # g) where
     where
       applyIso :: (BFunctor f, BFunctor g, Finite l, Finite l')
                => (l <-> l') -> (f # g) l -> (f # g) l'
-      applyIso i (CProd f g) = CProd (view (bmap i) f) (view (bmap i) g)
+      applyIso i' (CProd f g) = CProd (view (bmap i') f) (view (bmap i') g)
 
 instance (Functor f, Functor g) => Functor (f # g) where
   fmap f (CProd f1 f2) = CProd (fmap f f1) (fmap f f2)
@@ -392,7 +389,7 @@ compJ (Struct (Shape fSh) es)
     l1Size              = size (Proxy :: Proxy l1)
     (gShps, gElts)      = V.unzip (fmap unSp es)
     gShps'              = V.toHVec (fmap (view shapeVal) gShps)
-    unSp (Struct sh es) = (sh, es)
+    unSp (Struct sh es') = (sh, es')
     pf                  :: Sum (Replicate (Size l1) l2) <-> (l1, l2)
     pf                  = sumRepIso (Proxy :: Proxy l1)
 
@@ -439,8 +436,8 @@ unzipSpSp' :: V.Vec n (Sp' g a) -> UnzippedSpSp' n g a
 unzipSpSp' V.VNil = UZSS LNil V.HNil V.HNil
 unzipSpSp' (V.VCons (SpEx (Struct (Shape (gl :: g l)) v)) sps) =
   case unzipSpSp' sps of
-    UZSS p gls evs
-      -> UZSS (LCons (Proxy :: Proxy l) p) (V.HCons gl gls) (V.HCons v evs)
+    UZSS prox gls evs
+      -> UZSS (LCons (Proxy :: Proxy l) prox) (V.HCons gl gls) (V.HCons v evs)
 
 -- compA is a generalized version of (<*>). Unlike compJ, there is no
 -- dependent variant of compA: we only get to provide a single
@@ -476,7 +473,7 @@ sizedSh :: forall f l. Finite l => Shape f l -> Shape (OfSize (Size l) f) l
 sizedSh (Shape sh) = Shape (OfSize (size (Proxy :: Proxy l)) Refl sh)
 
 sized :: Finite l => Sp f l a -> Sp (OfSize (Size l) f) l a
-sized (Struct s e) = Struct (sizedSh s) e
+sized (Struct s es) = Struct (sizedSh s) es
 
 -- List ------------------------------------------
 
@@ -511,9 +508,9 @@ cons a (Struct shp es) = Struct (listSh (inrSh (prodSh xSh shp))) (V.VCons a es)
 
 fromList :: [a] -> Sp' L a
 fromList [] = SpEx nil
-fromList (x:xs) =
-  case fromList xs of
-    SpEx s -> SpEx (cons x s)
+fromList (a:as) =
+  case fromList as of
+    SpEx s -> SpEx (cons a s)
 
 elimList :: r -> (a -> r -> r) -> Elim L a r
 elimList r f = mapElimShape (view isoL)
@@ -545,15 +542,15 @@ newtype Elim f a r = Elim (forall l. Eq l => Shape f l -> (l -> a) -> r)
 -- mapElimSrc and mapElimShape.
 
 mapElimSrc :: (b -> a) -> Elim f a r -> Elim f b r
-mapElimSrc f (Elim e) = Elim $ \s m -> e s (f . m)
+mapElimSrc f (Elim el) = Elim $ \s m -> el s (f . m)
 
 mapElimShape :: (forall l. g l -> f l) -> Elim f a r -> Elim g a r
-mapElimShape q (Elim e) = Elim $ \(Shape s) m -> e (Shape (q s)) m
+mapElimShape q (Elim el) = Elim $ \(Shape s) m -> el (Shape (q s)) m
 
 -- Running eliminators
 
 elim :: (Finite l, Eq l) => Elim f a b -> Sp f l a -> b
-elim (Elim el) (Struct shp elts) = el shp (V.vIndex elts . view (from finite))
+elim (Elim el) (Struct shp es) = el shp (V.vIndex es . view (from finite))
 
 elim' :: Elim f a b -> Sp' f a -> b
 elim' el (SpEx s) = elim el s

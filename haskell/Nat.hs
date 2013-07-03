@@ -11,8 +11,6 @@
 
 module Nat where
 
-import Control.Lens
-
 import Unsafe.Coerce  -- for eliminating Fin Z
 
 ------------------------------------------------------------
@@ -22,7 +20,7 @@ data Nat = Z | S Nat
   deriving (Eq, Ord, Show)
 
 nat :: r -> (r -> r) -> Nat -> r
-nat z s Z     = z
+nat z _ Z     = z
 nat z s (S n) = s (nat z s n)
 
 natToInt :: Nat -> Int
@@ -42,7 +40,7 @@ data SNat :: Nat -> * where
 deriving instance Show (SNat n)
 
 snat :: r -> (r -> r) -> SNat n -> r
-snat z s SZ     = z
+snat z _ SZ     = z
 snat z s (SS n) = s (snat z s n)
 
 snatToInt :: SNat n -> Int
@@ -89,7 +87,7 @@ deriving instance Show (Fin n)
 deriving instance Eq (Fin n)
 
 fin :: r -> (r -> r) -> Fin n -> r
-fin z s FZ     = z
+fin z _ FZ     = z
 fin z s (FS n) = s (fin z s n)
 
 finToInt :: Fin n -> Int

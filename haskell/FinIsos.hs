@@ -75,13 +75,13 @@ lte_ltTrans xLTy yLTz = lteTrans (LTES xLTy) yLTz
 
 lt__lte :: SNat x -> SNat y -> x < y -> x <= y
 lt__lte SZ _ _ = LTEZ
-lt__lte (SS x) SZ lt = absurdLT lt
+lt__lte (SS _) SZ lt = absurdLT lt
 lt__lte (SS x) (SS y) (LTES lt) = LTES (lt__lte x y lt)
 
 lteDecomp :: SNat x -> SNat y -> x <= y -> Either (x == y) (x < y)
 lteDecomp SZ SZ _ = Left Refl
-lteDecomp SZ (SS y) _ = Right (LTES LTEZ)
-lteDecomp (SS x) SZ lt = absurdLT lt
+lteDecomp SZ (SS _) _ = Right (LTES LTEZ)
+lteDecomp (SS _) SZ lt = absurdLT lt
 lteDecomp (SS x) (SS y) (LTES lte) =
   case lteDecomp x y lte of
     Left Refl -> Left Refl
@@ -112,7 +112,7 @@ lteCancelPlusL (SS i) (LTES le) = lteCancelPlusL i le
 
 lteCancelMulR :: SNat i -> SNat j -> SNat k -> Times i (S k) <= Times j (S k) -> i <= j
 lteCancelMulR SZ _ _ _ = LTEZ
-lteCancelMulR (SS i) SZ _ le = absurdLT le
+lteCancelMulR (SS _) SZ _ le = absurdLT le
 lteCancelMulR (SS i) (SS j) k le = LTES (lteCancelMulR i j k (lteCancelPlusL (SS k) le))
 
 ltCancelMulR :: SNat i -> SNat m -> SNat n -> Times i n < Times m n -> i < m
@@ -130,7 +130,7 @@ data Minus x n where
 
 decLT :: SNat n -> SNat x -> Either (x < n) (x `Minus` n)
 decLT SZ x = case plusZeroR x of Refl -> Right (Minus x Refl)
-decLT (SS n) SZ = Left (LTES LTEZ)
+decLT (SS _) SZ = Left (LTES LTEZ)
 decLT (SS n) (SS x) = case decLT n x of
   Left xLTn            -> Left (LTES xLTn)
   Right (Minus j Refl) -> case plusSuccR j n of Refl -> Right (Minus j Refl)
@@ -180,7 +180,7 @@ finNToFin (FinN (SS i) (LTES iLTn)) = FS (finNToFin (FinN i iLTn))
 
 finNSum :: SNat m -> SNat n -> Either (FinN m) (FinN n) -> FinN (Plus m n)
 finNSum m n (Left (FinN i iLTm))  = FinN (plus i n) (plusMono m iLTm (lteRefl n))
-finNSum m n (Right (FinN j jLTn)) = FinN j (ltePlus m jLTn)
+finNSum m _ (Right (FinN j jLTn)) = FinN j (ltePlus m jLTn)
 
 finSum :: SNat m -> SNat n -> Either (Fin m) (Fin n) -> Fin (Plus m n)
 finSum m n = finNToFin . finNSum m n . (finToFinN +++ finToFinN)
@@ -203,7 +203,7 @@ finSumInv m n = (finNToFin +++ finNToFin) . finNSumInv m n . finToFinN
 
 finNProd :: SNat m -> SNat n -> (FinN m, FinN n) -> FinN (Times m n)
 finNProd SZ     _ (FinN _ iLTZ, _)             = absurdLT iLTZ
-finNProd (SS m) n (FinN i iLTm, FinN j jLTn)
+finNProd (SS _) n (FinN i iLTm, FinN j jLTn)
     = FinN (j `plus` (i `times` n)) finNProdPf
   where
     finNProdPf = plusMono n jLTn (timesMono n (lteInj iLTm) (lteRefl n))
