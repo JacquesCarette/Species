@@ -18,6 +18,7 @@
 \usepackage{mathtools}
 \usepackage{latexsym}
 \usepackage{amssymb}
+\usepackage{stmaryrd}
 \usepackage{proof}
 \usepackage{comment}
 \usepackage{url}
@@ -86,17 +87,21 @@
 \DeclareMathOperator{\shapes}{shapes}
 \DeclareMathOperator{\relabel}{relabel}
 \DeclareMathOperator{\Natural}{Natural}
+\DeclareMathOperator{\OfSize}{OfSize}
 
 \DeclareMathOperator{\map}{map}
 \DeclareMathOperator{\sumTys}{sumTys}
 
-\newcommand{\mor}{\stackrel{\bullet}{\rightarrow}}
-\newcommand{\natiso}{\stackrel{\bullet}{\longleftrightarrow}}
+\newcommand{\mor}{\Rightarrow}
+% \newcommand{\mor}{\stackrel{\bullet}{\rightarrow}}
+\newcommand{\natiso}{\Leftrightarrow}
+% \newcommand{\natiso}{\stackrel{\bullet}{\longleftrightarrow}}
 
-\newcommand{\ssum}{\oplus}
-\newcommand{\sprod}{\odot}
-\newcommand{\scomp}{\circledcirc}
-\newcommand{\scprod}{\otimes}
+\newcommand{\ssum}{\boxplus}
+\newcommand{\sprod}{\boxdot}
+\newcommand{\scomp}{\boxcircle}
+\newcommand{\scprod}{\boxtimes}
+\newcommand{\fcomp}{\boxbox}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -540,6 +545,11 @@ but rather with an algebraic theory. \todo{say a bit more}
   \end{align*}
   \bay{Say more here?}
 
+  \todo{be more explicit about how we will be defining species
+    implicitly by defining the $\cons{shapes}$ field; $\cons{relabel}$
+    can be obtained by the syntactic substitution trick outlined
+    below; the proofs are straightforward and omitted.}
+
 \paragraph{One}
   The \emph{one} or \emph{unit} species, denoted $\One$, is the
   species with a single shape of size $0$.  The usual set-theoretic
@@ -628,15 +638,18 @@ morphisms is given by
   \times \Natural\ \varphi
 \end{align*}
 where $\Natural\ \phi$ is the proposition which states that $\phi$ is
-\term{natural}, that is, the following diagram commutes for all $L :
-\FinType$:
+\term{natural}, that is, the following diagram commutes for all $L, L' :
+\FinType$ and $\sigma : L \iso L'$:
 
+\begin{figure}[h!]
+  \centering
 \centerline{
   \xymatrix{
     F\ L \ar[d]_{\varphi_L} \ar[r]^{F\ \sigma} & F\ L' \ar[d]^{\varphi_{L'}} \\
     G\ L                    \ar[r]_{G\ \sigma} & G\ L'
   }
-}
+} 
+\end{figure}
 
 Intuitively, $\varphi$ is natural if it does not depend on the type of
 the labels, that is, it acts uniformly for all choices of label set:
@@ -644,8 +657,7 @@ it does not matter whether one first relabels an $F$-shape and then
 applies $\varphi$, or applies $\varphi$ first and later relabels.
 
 An \term{isomorphism} between species, denoted $F \natiso G$, is a
-pair of inverse morphisms.\bay{explain in more detail?}
-
+pair of inverse morphisms.\bay{explain in more detail}
 Species isomorphism preserves all the interesting \emph{combinatorial}
 properties of species; hence in the combinatorics literature
 everything is always done up to isomorphism. However, isomorphism does not
@@ -702,19 +714,55 @@ where $\sumTys$ is defined by
 \todo{fix typesetting}
 \begin{spec}
   sumTys :  Vec n Type  ->   Type
-  sumTys    []          =    \bot
-  sumTys    (t:ts)      =    t + sumTys ts
+  sumTys    []          =    undefined
+  sumTys    (t::ts)     =    t + sumTys ts
 \end{spec}
 
 \paragraph{Cartesian product}
+
+\todo{``Na\"ive'' product in the sense that the labels are not
+  partitioned.  Can think of this as modelling (value-level) sharing.}
 
 \[ (F \scprod G)\ L = F\ L \times G\ L \]
 
 \paragraph{Cardinality restriction}
 
+\todo{explain}
+
+\begin{align*}
+&\OfSize : \Species \to \N \to \Species \\
+&\OfSize\ F\ n = \lam{L}{(\Fin n \iso L) \times F\ L}
+\end{align*}
+
+As is standard, we will use the notation $F_n$ as shorthand for
+$\OfSize\ F\ n$.
+
+We could also generalize to arbitrary collections of natural numbers,
+as in
+\begin{align*}
+&\OfSize' : \Species \to (\N \to \Type) \to \Species \\
+&\OfSize'\ F\ P = \lam{L}{(m : \N) \times P\ m \times (\Fin m \iso L)
+  \times F\ L}
+\end{align*}
+The original $\OfSize$ can be recovered by setting $P\ m = (m \equiv
+n)$.  However, $\OfSize'$ is difficult to compute with, since $P$ is
+an opaque function.  In practice, $P\ m = (m \leq n)$ and $P\ m = (m
+\geq n)$ (along with equality) cover the vast majority of cases we
+care about, so as a practical tradeoff we can add explicit combinators
+$\cons{OfSizeLT}$ and $\cons{OfSizeGT}$ representing these predicates,
+abbreviated as $F_{\leq n}$ and $F_{\geq n}$ respectively.
+
 \paragraph{Derivative and pointing}
 
+\[ F'\ L = (L' : \FinType) \times (L' \iso \TyOne + L) \times F\ L \]
+
+\[ \pt{F}\ L = L \times F\ L \]
+
+$\pt F \natiso X \sprod F'$.
+
 \paragraph{Functor composition}
+
+\[ (F \fcomp G)\ L = F\ (G\ L) \]
 
 \subsection{Labelled structures, formally}
 \label{sec:labelled-formal}
