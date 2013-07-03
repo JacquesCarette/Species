@@ -461,16 +461,14 @@ compAP spf spg = compA (fmap (,) spf) spg
 -- Cardinality restriction -----------------------
 
 data OfSize :: Nat -> (* -> *) -> * -> * where
-  OfSize :: SNat n -> (n == Size l) -> f l -> OfSize n f l
+  OfSize :: SNat n -> (Fin n <-> l) -> f l -> OfSize n f l
 
 instance BFunctor f => BFunctor (OfSize n f) where
-  bmap i =
-    case isoPresSize i of
-      Refl -> iso (\(OfSize n eq f) -> OfSize n eq (view (bmap i) f))
-                  (\(OfSize n eq f) -> OfSize n eq (view (bmap (from i)) f))
+  bmap i = iso (\(OfSize n eq f) -> OfSize n (eq.i) (view (bmap i) f))
+               (\(OfSize n eq f) -> OfSize n (eq.from i) (view (bmap (from i)) f))
 
 sizedSh :: forall f l. Finite l => Shape f l -> Shape (OfSize (Size l) f) l
-sizedSh (Shape sh) = Shape (OfSize (size (Proxy :: Proxy l)) Refl sh)
+sizedSh (Shape sh) = Shape (OfSize (size (Proxy :: Proxy l)) finite sh)
 
 sized :: Finite l => Sp f l a -> Sp (OfSize (Size l) f) l a
 sized (Struct s es) = Struct (sizedSh s) es
