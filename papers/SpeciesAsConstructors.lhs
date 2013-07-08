@@ -565,8 +565,6 @@ that is,
 \item a mapping from labels to data, $m : L \to A$.
 \end{itemize}
 
-\todo{how formal do we want/need to make this?}
-
 \subsection{Species, algebraically}
 \label{sec:algebraic}
 
@@ -730,15 +728,18 @@ F\ L + G\ L. \] That is, an $(F \ssum G)$-shape is either an
 $F$-shape or a $G$-shape.
 
 As the reader is invited to check, $\Zero$ is the identity element for
-$\ssum$ up to species isomorphism.  That is, one can define
-\[ \cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \natiso F) \]
-and also a similar isomorphism $\cons{zeroPlusR}$.
+$\ssum$ up to species isomorphism.  That is, one can define isomorphisms
+\begin{align*}
+&\cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \natiso F)
+\text{ and} \\
+&\cons{zeroPlusR} : \impl{F : \Species} \to (F \ssum \Zero \natiso F).
+\end{align*}
 
 \paragraph{Product}
 The product of two species $F$ and $G$ consists of paired $F$- and
-$G$-shapes, but with a twist: the label types $L_1$ and $L_2$ passed
-to $F$ and $G$ are not necessarily the same as the label type $L$
-which is passed to $(F \sprod G)$.  In fact, they must constitute a
+$G$-shapes, but with a twist: the label types $L_1$ and $L_2$ used for
+$F$ and $G$ are not necessarily the same as the label type $L$
+used for $(F \sprod G)$.  In fact, they must constitute a
 partition of $L$, in the sense that their sum is isomorphic to $L$.
 \begin{multline*}
 (F \sprod G)\ L = (L_1, L_2 : \FinType) \times (L_1 + L_2 \iso L)
@@ -837,6 +838,18 @@ $\pt F \natiso X \sprod F'$.
 \paragraph{Functor composition}
 
 \[ (F \fcomp G)\ L = F\ (G\ L) \]
+
+\section{Unlabelled structures}
+
+\bay{``unlabelled'' is a terrible name for this, we need to come up
+  with a better one.  In any case, the definition is equivalence
+  classes of labelled structures.  Concretely, we always have to work
+  with specific representatives of equivalence classes, and there is
+  not always a nice way to choose a ``canonical'' representative.
+  Instead, we can build relabelling into operations like zip so that
+  some ``conversion'' is done in order to first relabel things so they
+  match.  Such conversion is allowed when working with an equivalence
+  class since it doesn't matter which representative we use.}
 
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
