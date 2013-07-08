@@ -8,6 +8,10 @@
 % Use 'arrayhs' mode, so code blocks will not be split across page breaks.
 \arrayhs
 
+\renewcommand{\Conid}[1]{\mathsf{#1}}
+
+%format sumTys = "\cons{sumTys}"
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
 
@@ -238,8 +242,7 @@ Informally, a \term{labelled structure} is specified by:
 \begin{itemize}
 \item a finite type of labels $L$;
 \item a type of data elements $A$;
-\item some sort of ``shape'' containing each label from $L$ exactly
-  once; and
+\item some sort of ``labelled shape''; and
 \item a function $v : L \to A$ which maps labels to data values.
 \end{itemize}
 See~\pref{fig:labelled-structure-example} for an abstract example.  A
@@ -289,8 +292,21 @@ x .... y = x ... strutX 0.5 ... y
   \label{fig:labelled-structure-example}
 \end{figure}
 
-\bay{another, perhaps better, way to say "contain each label once":
-  the size of a shape is determined by the size of the label set.}
+\bay{this whole ``contain each label exactly once'' business is
+  totally bogus; it is only marginally useful as an intuition and
+  can't really be formalized anyway.  The important point is that \emph{we
+  only get to specify one data value per label}, since a labelled
+  structure has a function mapping from labels to data values.  So a
+  structure can contain a label multiple times but they all must be
+  mapped to the same data value---this is where value-level sharing
+  comes from.  The more interesting question is whether a shape must
+  contain all the labels, or if it can omit some.  Of course a shape
+  omitting labels is OK on one level, but note we still have to
+  specify data values for all the labels.}
+
+\bay{The other thing to point out somewhere is that tracking labels is to
+  tracking size as the category B is to the discrete category of
+  natural numbers---i.e. it is a ``categorification''.}
 
 Note that shapes must contain each label exactly once, but the
 function $L \to A$ need not be injective. As illustrated in
@@ -429,10 +445,12 @@ associated with the labels) and bare labelled shapes (which do not).
 
 Here we see that the formal notion of ``shape'' is actually quite
 broad, so broad as to make one squirm: a shape is just an element of
-some arbitrary set!  In this context our informal insistance from the
-previous section that a shape ``contain each label exactly once'' is
-completely meaningless, because there is no sense in which we can say
-that a shape ``contains'' labels.
+some arbitrary set!
+
+% In this context our informal insistance from the
+% previous section that a shape ``contain each label exactly once'' is
+% completely meaningless, because there is no sense in which we can say
+% that a shape ``contains'' labels.
 
 In practice, however, we are interested not in arbitrary species but
 in ones built up algebraically from a set of primitives and
@@ -448,6 +466,7 @@ serviceable in the context of classical combinatorics, but in order to
 use it as a foundation for data structures, it is useful to first
 ``port'' the definition from set theory to constructive type theory.
 
+\todo{this section is too dense}
 In the remainder of this paper, we work within a standard variant of
 Martin-L\"of dependent type theory \cite{martin-lof} (precisely
 \emph{which} variant we use probably does not matter very much),
@@ -459,8 +478,8 @@ dependent pair and function types, we will use the Agda-like
 \cite{Agda} notations $(x:A) \times B(x)$ and $(x:A) \to B(x)$,
 respectively.  We continue to use the standard abbreviations $A \times
 B$ and $A \to B$ for non-dependent pair and function types, that is,
-when $x$ does not appear free in $B$.  We write $\impl A \to B$ for
-the type of functions taking $A$ as an \emph{implicit} argument, and
+when $x$ does not appear free in $B$.  We write $\impl{x:A} \to B$ for
+the type of functions taking $x$ as an \emph{implicit} argument, and
 omit implicit arguments when applying such functions.  For example, if
 $f : \impl{A:\Type} \to A \to A$ then we write simply $f\ 3$ instead of
 $f\ \N\ 3$.  When an implicit argument needs to be provided explicitly
@@ -528,12 +547,36 @@ arrows. That is, if $F : \Species$, instead of writing $F.\shapes\ L$
 or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 \sigma$.
 
+\subsection{Labelled structures, formally}
+\label{sec:labelled-formal}
+
+Formally, we may define a labelled structure as a dependent five-tuple
+with the type
+\[
+   (F : \Species) \times (L : \FinType) \times (A : \Type) \times F\ L
+   \times (L \to A),
+\]
+that is,
+\begin{itemize}
+\item a species $F$,
+\item a constructively finite type $L$ of \term{labels},
+\item a type $A$ of \term{data},
+\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape,
+\item a mapping from labels to data, $m : L \to A$.
+\end{itemize}
+
+\todo{how formal do we want/need to make this?}
+
 \subsection{Species, algebraically}
 \label{sec:algebraic}
 
 We now return to the observation from \pref{sec:set-species} that we
 do not really want to work directly with the definition of species,
 but rather with an algebraic theory. \todo{say a bit more}
+
+For each species primitive or operation, we also discuss the
+associated introduction and elimination forms for the associated
+labelled structures. \todo{add these}
 
 \paragraph{Zero}
   The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
@@ -638,17 +681,20 @@ morphisms is given by
   \times \Natural\ \varphi
 \end{align*}
 where $\Natural\ \phi$ is the proposition which states that $\phi$ is
-\term{natural}, that is, the following diagram commutes for all $L, L' :
-\FinType$ and $\sigma : L \iso L'$:
+\term{natural}, that is, the diagram shown in
+\pref{fig:species-morphism} commutes for all $L, L' : \FinType$ and
+all $\sigma : L \iso L'$.
 
 \begin{figure}[h!]
   \centering
-\centerline{
-  \xymatrix{
-    F\ L \ar[d]_{\varphi_L} \ar[r]^{F\ \sigma} & F\ L' \ar[d]^{\varphi_{L'}} \\
-    G\ L                    \ar[r]_{G\ \sigma} & G\ L'
+  \centerline{
+    \xymatrix{
+      F\ L \ar[d]_{\varphi_L} \ar[r]^{F\ \sigma} & F\ L' \ar[d]^{\varphi_{L'}} \\
+      G\ L                    \ar[r]_{G\ \sigma} & G\ L'
+    }
   }
-} 
+  \caption{Naturality for species morphisms}
+  \label{fig:species-morphism}
 \end{figure}
 
 Intuitively, $\varphi$ is natural if it does not depend on the type of
@@ -684,7 +730,7 @@ F\ L + G\ L. \] That is, an $(F \ssum G)$-shape is either an
 $F$-shape or a $G$-shape.
 
 As the reader is invited to check, $\Zero$ is the identity element for
-$\ssum$ up to species isomorphism.  That is, we can define
+$\ssum$ up to species isomorphism.  That is, one can define
 \[ \cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \natiso F) \]
 and also a similar isomorphism $\cons{zeroPlusR}$.
 
@@ -698,25 +744,53 @@ partition of $L$, in the sense that their sum is isomorphic to $L$.
 (F \sprod G)\ L = (L_1, L_2 : \FinType) \times (L_1 + L_2 \iso L)
 \\ \times F\ L_1 \times G\ L_2
 \end{multline*}
-The intuition here is that if an $(F \sprod G)$-shape is to contain
-each label from $L$ exactly once, then the labels must be divvied up,
-some going into the $F$-shape and some into the $G$-shape.
+The intuition here is that each label represents a unique ``location''
+which can hold a data value, and the locations in the two paired
+shapes should be disjoint. \todo{also say something about the
+  ``skeleton'' view where we are tracking just size instead of full
+  label set.}
 
-\todo{$\One$ is identity for $\sprod$.}
+This highlights once again the fundamental difference between
+\emph{container types} and \emph{labelled shapes}.  Given two functors
+representing container types, we define their product as $(F \times
+G)\ A = F\ A \times G\ A$---that is, an $(F\times G)$-structure
+containing values of type $A$ is a pair of an $F$-structure and a
+$G$-structure, both containing values of type $A$.  On the other hand,
+when dealing with labels instead of data values, we have to carefully
+account for the way the labels are distributed among the two shapes.
+
+Up to species isomorphism, $\One$ is the identity element for
+$\sprod$; that is, we have isomorphisms
+\begin{align*}
+&\cons{oneTimesL} : \impl{F : \Species} \to (\One \sprod F \natiso F) \\
+&\cons{oneTimesR} : \impl{F : \Species} \to (F \sprod \One \natiso F)
+\end{align*}
 
 \paragraph{Composition}
 
+We may also define the \term{composition} of two species.
+Intuitively, $(F \scomp G)$-shapes consist of a single top-level
+$F$-shape, which itself contains labelled $G$-shapes in place of the
+usual labels. \todo{needs a picture of some sort}
+
+We represent this sort of nested shape by pairing an $F$-shape with a
+vector of $G$-shapes, using a canonical labelling for the $F$-shape
+and treating the vector as a mapping from this canonical label set to
+labelled $G$-shapes. \todo{needs another picture} Finally, the label
+type for the overall $(F \scomp G)$-shape is the sum of all the
+individual label types used for the $G$-shapes.  Formally,
 \begin{multline*}
- (F \scomp G)\ L = (n : \N) \times (\mathit{Ls} : \Vect\ n\ \Type) \\
- \times F\ (\Fin\ n) \times \sumTys\ (\map\ G\ \mathit{Ls})
+ (F \scomp G)\ L = (k : \N) \times (\mathit{Ls} : \Vect\ k\ \Type) \\
+ \times F\ (\Fin\ k) \times \sumTys\ (\map\ G\ \mathit{Ls})
 \end{multline*}
-where $\sumTys$ is defined by
-\todo{fix typesetting}
+where $\sumTys$ constructs the sum of a collection of types, and is defined by
 \begin{spec}
   sumTys :  Vec n Type  ->   Type
   sumTys    []          =    undefined
   sumTys    (t::ts)     =    t + sumTys ts
 \end{spec}
+$k$ represents the size of the $F$-shape and hence also the number of
+$G$-shapes.
 
 \paragraph{Cartesian product}
 
@@ -763,29 +837,6 @@ $\pt F \natiso X \sprod F'$.
 \paragraph{Functor composition}
 
 \[ (F \fcomp G)\ L = F\ (G\ L) \]
-
-\subsection{Labelled structures, formally}
-\label{sec:labelled-formal}
-
-Formally, we may define a labelled structure as a dependent five-tuple
-with the type
-\[
-   (F : \Species) \times (L : \FinType) \times (A : \Type) \times F\ L
-   \times (L \to A),
-\]
-that is,
-\begin{itemize}
-\item a species $F$,
-\item a constructively finite type $L$ of \term{labels},
-\item a type $A$ of \term{data},
-\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape,
-\item a mapping from labels to data, $m : L \to A$.
-\end{itemize}
-
-\todo{formal intro and elim forms for labelled structures? operations
-  on labelled structures?}
-
-\todo{how formal do we want/need to make this?}
 
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
