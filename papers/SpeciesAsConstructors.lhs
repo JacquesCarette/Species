@@ -722,11 +722,11 @@ consider them further in this paper.
 
 \paragraph{Sum}
 Given two species $F$ and $G$, we may form their sum. We use $\ssum$
-for the sum of two species to distinguish it from $+$, which denotes a
-sum of types. The definition is straightforward, and unsurprising to
-anyone who has ever done any generic programming: \[ (F \ssum G)\ L =
-F\ L + G\ L. \] That is, an $(F \ssum G)$-shape is either an
-$F$-shape or a $G$-shape.
+to denote the sum of two species to distinguish it from $+$, which
+denotes a sum of types. The definition is straightforward, and
+unsurprising to anyone who has ever done any generic programming: \[
+(F \ssum G)\ L = F\ L + G\ L. \] That is, a labelled $(F \ssum G)$-shape is
+either a labelled $F$-shape or a labelled $G$-shape.
 
 As the reader is invited to check, $(\ssum,\Zero)$ forms a commutative
 monoid structure on species, up to species isomorphism.  That is, one
@@ -750,19 +750,29 @@ partition of $L$, in the sense that their sum is isomorphic to $L$.
 \\ \times F\ L_1 \times G\ L_2
 \end{multline*}
 The intuition here is that each label represents a unique ``location''
-which can hold a data value, and the locations in the two paired
-shapes should be disjoint. \todo{also say something about the
-  ``skeleton'' view where we are tracking just size instead of full
-  label set.}
+which can hold a data value, so the locations in the two paired
+shapes should be disjoint.
 
-This highlights once again the fundamental difference between
-\emph{container types} and \emph{labelled shapes}.  Given two functors
-representing container types, their product is defined as $(F \times
-G)\ A = F\ A \times G\ A$---that is, an $(F\times G)$-structure
-containing values of type $A$ is a pair of an $F$-structure and a
-$G$-structure, both containing values of type $A$.  On the other hand,
-when dealing with labels instead of data values, we have to carefully
-account for the way the labels are distributed among the two shapes.
+Another good way to gain intuition is to imagine indexing species not
+by label types, but by natural number sizes.  Then it is easy to see
+that we would have \[ (F \sprod G)_n = (n_1, n_2 : \N) \times (n_1 +
+n_2 = n) \times F_{n_1} \times G_{n_2}, \] that is, an $(F \sprod
+G)$-shape of size $n$ consists of an $F$-shape of size $n_1$ and a
+$G$-shape of size $n_2$, where $n_1 + n_2 = n$.  Indexing by labels is
+just a generalization (a \emph{categorification}, in fact) of this
+size-indexing scheme, where we replace natural numbers with finite
+types, addition with coproduct, multiplication with product, and
+equality with isomorphism.
+
+Finally, this definition highlights once again the fundamental
+difference between \emph{container types} and \emph{labelled shapes}.
+Given two functors representing container types, their product is
+defined as $(F \times G)\ A = F\ A \times G\ A$---that is, an
+$(F\times G)$-structure containing values of type $A$ is a pair of an
+$F$-structure and a $G$-structure, both containing values of type $A$.
+On the other hand, when dealing with labels instead of data values, we
+have to carefully account for the way the labels are distributed among
+the two shapes.
 
 $(\sprod, \One)$ also forms a commutative monoid up to species
 isomorphism.
