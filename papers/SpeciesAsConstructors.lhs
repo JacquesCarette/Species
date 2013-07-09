@@ -653,8 +653,9 @@ The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
   use that in this paper.}
 
 We have now seen four primitive species: \Zero, \One, \X, and \E.  It
-turns out that each of them is the unit for a monoidal operation on
-species; we will look at each of these in turn.  Before we get there,
+turns out that each of them is the unit for a different monoid
+structure on species; we will look at each of these in turn, as well
+as an additional fifth monoid structure.  Before we get there,
 however, we need to take a brief detour to discuss isomorphism of
 species.
 
@@ -718,12 +719,15 @@ anyone who has ever done any generic programming: \[ (F \ssum G)\ L =
 F\ L + G\ L. \] That is, an $(F \ssum G)$-shape is either an
 $F$-shape or a $G$-shape.
 
-As the reader is invited to check, $\Zero$ is the identity element for
-$\ssum$ up to species isomorphism.  That is, one can define isomorphisms
+As the reader is invited to check, $(\ssum,\Zero)$ forms a commutative
+monoid structure on species, up to species isomorphism.  That is, one
+can define isomorphisms
 \begin{align*}
-&\cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \natiso F)
-\text{ and} \\
-&\cons{zeroPlusR} : \impl{F : \Species} \to (F \ssum \Zero \natiso F).
+&\cons{plusAssoc} : \impl{F, G, H : \Species} \to ((F \ssum G) \ssum H
+\natiso F \ssum (G \ssum H)) \\
+&\cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \natiso F) \\
+&\cons{plusComm} : \impl{F, G : \Species} \to (F \ssum G \natiso G
+\ssum F) \\
 \end{align*}
 
 \paragraph{Product}
@@ -744,19 +748,15 @@ shapes should be disjoint. \todo{also say something about the
 
 This highlights once again the fundamental difference between
 \emph{container types} and \emph{labelled shapes}.  Given two functors
-representing container types, we define their product as $(F \times
+representing container types, their product is defined as $(F \times
 G)\ A = F\ A \times G\ A$---that is, an $(F\times G)$-structure
 containing values of type $A$ is a pair of an $F$-structure and a
 $G$-structure, both containing values of type $A$.  On the other hand,
 when dealing with labels instead of data values, we have to carefully
 account for the way the labels are distributed among the two shapes.
 
-Up to species isomorphism, $\One$ is the identity element for
-$\sprod$; that is, we have isomorphisms
-\begin{align*}
-&\cons{oneTimesL} : \impl{F : \Species} \to (\One \sprod F \natiso F) \\
-&\cons{oneTimesR} : \impl{F : \Species} \to (F \sprod \One \natiso F)
-\end{align*}
+$(\sprod, \One)$ also forms a commutative monoid up to species
+isomorphism.
 
 \paragraph{Composition}
 
@@ -784,12 +784,19 @@ where $\sumTys$ constructs the sum of a collection of types, and is defined by
 $k$ represents the size of the $F$-shape and hence also the number of
 $G$-shapes.
 
+$\scomp$, unlike $\ssum$ and $\sprod$, is not commutative: an $F$-shape
+of $G$-shapes is quite different from a $G$-shape of $F$-shapes.  It
+is, however, still associative (up to isomorphism), and in fact
+$(\scomp, \X)$ forms a monoid up to species isomorphism.
+
 \paragraph{Cartesian product}
 
 \todo{``Na\"ive'' product in the sense that the labels are not
   partitioned.  Can think of this as modelling (value-level) sharing.}
 
 \[ (F \scprod G)\ L = F\ L \times G\ L \]
+
+$(\scprod, \E)$ forms a commutative monoid up to species isomorphism.
 
 \paragraph{Cardinality restriction}
 
