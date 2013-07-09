@@ -254,32 +254,23 @@ parameterized over the label type $L$ and data type $A$.
 \begin{diagram}[width=200]
 import Graphics.SVGFonts.ReadFont
 import Diagrams.Points
+import Data.Tree
+import Diagrams.TwoD.Layout.Tree
 
-mark = named ()
-
-mkL n = text' (show n) <> (circle 0.8 # mark)
+mkL n = text' (show n) <> circle 0.8 # fc white
 
 text' s = (stroke $ textSVG' (TextOpts s lin2 INSIDE_H KERN False 1 1)) # fc black # lw 0
+-- $
 
-drawLabels = centerByMarks
-           . cat' (unitX # rotateBy (-1/3)) myCatOpts
-           . map (hcat' myCatOpts . map mkL)
-  where
-    myCatOpts = with {catMethod = Distrib, sep = 2.5}
+t = Node 2 [Node 1 [], Node 4 [Node 3 [], Node 0 [], Node 5 []]]
 
-centerByMarks = withNameAll () $ \ss ->
-  let p = centroid (map location ss)
-  in  moveOriginTo p
-
-labs = drawLabels [[2],[1,4],[3,0,5]]
-
-shape = triangle (width (labs :: D R2) + 2.5)
+d = renderTree mkL (~~) (symmLayout' with { slHSep = 3.5, slVSep = 3.5 } t)
 
 mapping = centerY . vcat' with {sep = 0.3} $ zipWith mkMapping [0..5] "SNAILS"
   where
     mkMapping i c = mkL i .... hrule 1 .... (text' (show c) <> strutX 1)
 
-dia = ((labs <> shape) # centerY ... strutX 5 ... mapping)
+dia = (d # centerY ... strutX 4 ... mapping)
     # centerXY # pad 1.1
 
 infixl 6 ...
