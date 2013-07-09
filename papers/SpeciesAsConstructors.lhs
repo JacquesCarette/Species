@@ -234,16 +234,19 @@ Rather than diving immediately into species, we begin with an
 intuitive definition of ``labelled structures'' and some examples.
 
 The essential idea of labelled structures is to separate the notions
-of container shapes and the data stored in those shapes.  Labels
-provide the missing link between shapes and data, allowing one to
-specify which data goes where.
+of container shapes and the data stored in those shapes.  This idea in
+and of itself is not new \cite{shapely, containers}; what is new is
+putting \emph{labels} front and center.  Labels provide the missing
+link between shapes and data, allowing one to specify which data goes
+where. \todo{say a bit more? Labels do more than that, which is why
+  bringing them to the fore is interesting.}
 
 Informally, a \term{labelled structure} is specified by:
 \begin{itemize}
 \item a finite type of labels $L$;
 \item a type of data elements $A$;
 \item some sort of ``labelled shape''; and
-\item a function $v : L \to A$ which maps labels to data values.
+\item a (total) function $v : L \to A$ which maps labels to data values.
 \end{itemize}
 See~\pref{fig:labelled-structure-example} for an abstract example.  A
 \emph{family} of labelled structures refers to a class of structures
@@ -283,30 +286,21 @@ x .... y = x ... strutX 0.5 ... y
   \label{fig:labelled-structure-example}
 \end{figure}
 
-\bay{this whole ``contain each label exactly once'' business is
-  totally bogus; it is only marginally useful as an intuition and
-  can't really be formalized anyway.  The important point is that \emph{we
-  only get to specify one data value per label}, since a labelled
-  structure has a function mapping from labels to data values.  So a
-  structure can contain a label multiple times but they all must be
-  mapped to the same data value---this is where value-level sharing
-  comes from.  The more interesting question is whether a shape must
-  contain all the labels, or if it can omit some.  Of course a shape
-  omitting labels is OK on one level, but note we still have to
-  specify data values for all the labels.}
-
 \bay{The other thing to point out somewhere is that tracking labels is to
   tracking size as the category B is to the discrete category of
   natural numbers---i.e. it is a ``categorification''.}
 
-Note that shapes must contain each label exactly once, but the
-function $L \to A$ need not be injective. As illustrated in
-\pref{fig:labelled-structure-example}, it is perfectly valid to have
-the same value of type $A$ occurring multiple times, each matched to a
-different label.  The requirement that shapes contain all the labels,
-with no duplicates, may seem overly restrictive; we will have more to
-say about this later.  The notion of ``shape'' is also left vague for
-now; a precise definition will be given in \todo{where?}.
+Note that the function $v : L \to A$ mapping labels to data values
+need not be injective, so the same value of type $A$ may be associated
+to multiple labels, as illustrated in
+\pref{fig:labelled-structure-example}.  However, each label must
+``occur exactly once'' in the sense that $v$ must be total and cannot
+associate the same label to multiple values.  Abstractly, the labels
+can be thought of as ``holes'' or ``positions'' in the labelled shape
+which are to be filled with data.
+
+For now, we leave the notion of ``labelled shape'' abstract; we will
+return to define it more precisely in \pref{sec:species}.
 
 \paragraph{Algebraic data types}
 
