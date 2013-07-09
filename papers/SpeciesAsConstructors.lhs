@@ -260,17 +260,15 @@ import Graphics.SVGFonts.ReadFont
 import Diagrams.Points
 import Data.Tree
 import Diagrams.TwoD.Layout.Tree
+import SpeciesDiagrams
 
-mkL n = text' (show n) <> circle 0.8 # fc white
-
-text' s = (stroke $ textSVG' (TextOpts s lin2 INSIDE_H KERN False 1 1)) # fc black # lw 0
--- $
+mkL n = text' (show n) <> circle 0.7 # fc white
 
 t = Node 2 [Node 1 [], Node 4 [Node 3 [], Node 0 [], Node 5 []]]
 
 d = renderTree mkL (~~) (symmLayout' with { slHSep = 3.5, slVSep = 3.5 } t)
 
-mapping = centerY . vcat' with {sep = 0.3} $ zipWith mkMapping [0..5] "SNAILS"
+mapping = centerY . vcat' with {sep = 0.3} $ zipWith mkMapping [0..5] "SNAILS" -- $
   where
     mkMapping i c = mkL i .... hrule 1 .... (text' (show c) <> strutX 1)
 
@@ -282,7 +280,6 @@ infixl 6 ....
 (...) = (||||||)
 x .... y = x ... strutX 0.5 ... y
 \end{diagram}
-%$
   \caption{A labelled structure with six labels}
   \label{fig:labelled-structure-example}
 \end{figure}
@@ -649,6 +646,36 @@ The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
 %   indeed the identity element for a product-like operation,
 %   \term{Cartesian product}, to be discussed below.
 
+As a summary, \pref{fig:prims} contains a graphic showing $\Zero$-,
+$\One$-, $\X$-, and $\E$-shapes arranged by size (\ie, the size of the
+underlying type of labels $L$): a dot indicates a single shape, and
+the size of the label type increases from left to right.
+
+\begin{figure}
+  \centering
+\begin{diagram}[width='200']
+import SpeciesDiagrams
+
+dot = circle 0.2 # fc black
+row p     = hcat' with {sep=0.1} . map (drawOne . p) $ [0..10]
+lRow x p  = (text' [x] <> phantom (square 1 :: D R2)) |||||| strutX 0.5 |||||| row p
+drawOne b = square 1 <> mconcat [dot||b]
+
+dia =
+  pad 1.1 .
+  centerXY .
+  vcat' with {sep = 0.3} $
+  [ lRow '0' (const False)
+  , lRow '1' (==0)
+  , lRow 'X' (==1)
+  , lRow 'E' (const True)
+  ]
+\end{diagram}
+%$
+  \caption{Primitive species}
+  \label{fig:prims}
+\end{figure}
+
 \subsection{Species isomorphism}
 \label{sec:species-iso}
 
@@ -728,6 +755,32 @@ unsurprising to anyone who has ever done any generic programming: \[
 (F \ssum G)\ L = F\ L + G\ L. \] That is, a labelled $(F \ssum G)$-shape is
 either a labelled $F$-shape or a labelled $G$-shape.
 
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=250]
+import SpeciesDiagrams
+
+theDia = struct 5 "F+G"
+         ||||||
+         strutX 1
+         ||||||
+         text' "="
+         ||||||
+         strutX 1
+         ||||||
+         ( struct 5 "F"
+           ===
+           text' "+"
+           ===
+           struct 5 "G"
+         ) # centerY
+
+dia = theDia # centerXY # pad 1.1
+    \end{diagram}
+    \caption{Species sum}
+    \label{fig:sum}
+  \end{figure}
+
 As the reader is invited to check, $(\ssum,\Zero)$ forms a commutative
 monoid structure on species, up to species isomorphism.  That is, one
 can define isomorphisms
@@ -752,6 +805,32 @@ partition of $L$, in the sense that their sum is isomorphic to $L$.
 The intuition here is that each label represents a unique ``location''
 which can hold a data value, so the locations in the two paired
 shapes should be disjoint.
+
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=250]
+import SpeciesDiagrams
+
+theDia = struct 5 "F•G"
+         ||||||
+         strutX 1
+         ||||||
+         text' "="
+         ||||||
+         strutX 1
+         ||||||
+         ( struct 2 "F"
+           ===
+           strutY 0.2
+           ===
+           struct 3 "G"
+         ) # centerY
+
+dia = theDia # centerXY # pad 1.1
+    \end{diagram}
+    \caption{Species product}
+    \label{fig:product}
+  \end{figure}
 
 Another good way to gain intuition is to imagine indexing species not
 by label types, but by natural number sizes.  Then it is easy to see
@@ -802,6 +881,33 @@ where $\sumTys$ constructs the sum of a collection of types, and is defined by
 \end{spec}
 $k$ represents the size of the $F$-shape and hence also the number of
 $G$-shapes.
+
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=250]
+import SpeciesDiagrams
+
+theDia = struct 6 "F∘G"
+         ||||||
+         strutX 1
+         ||||||
+         text' "="
+         ||||||
+         strutX 1
+         ||||||
+         drawSpT
+         ( nd (text' "F")
+           [ struct' 2 "G"
+           , struct' 3 "G"
+           , struct' 1 "G"
+           ]
+         ) # centerY
+
+dia = theDia # centerXY # pad 1.1
+    \end{diagram}
+    \caption{Species composition}
+    \label{fig:composition}
+  \end{figure}
 
 $\scomp$, unlike $\ssum$ and $\sprod$, is not commutative: an $F$-shape
 of $G$-shapes is quite different from a $G$-shape of $F$-shapes.  It
