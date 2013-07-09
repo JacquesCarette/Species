@@ -159,6 +159,7 @@
 
 \newcommand{\eg}{\emph{e.g.}\xspace}
 \newcommand{\ie}{\emph{i.e.}\xspace}
+\newcommand{\etal}{\emph{et al.}\xspace}
 
 \newcommand{\term}[1]{\emph{#1}}
 
@@ -286,10 +287,6 @@ x .... y = x ... strutX 0.5 ... y
   \label{fig:labelled-structure-example}
 \end{figure}
 
-\bay{The other thing to point out somewhere is that tracking labels is to
-  tracking size as the category B is to the discrete category of
-  natural numbers---i.e. it is a ``categorification''.}
-
 Note that the function $v : L \to A$ mapping labels to data values
 need not be injective, so the same value of type $A$ may be associated
 to multiple labels, as illustrated in
@@ -371,6 +368,10 @@ can we do graphs?
 \section{Combinatorial Species}
 \label{sec:species}
 
+\bay{The other thing to point out somewhere is that tracking labels is to
+  tracking size as the category B is to the discrete category of
+  natural numbers---i.e. it is a ``categorification''.}
+
 % We want to think of each labeled structure as \emph{indexed by} its
 % set of labels (or, more generally, by the \emph{size} of the set of
 % labels).  We can accomplish this by a mapping from label sets to all
@@ -378,12 +379,22 @@ can we do graphs?
 % guarantee that we really do get the same family of structures no
 % matter what set of labels we happen to choose.
 
+Our theory of labelled structures is inspired by, and directly based
+on, the theory of \term{combinatorial species} \cite{joyal, bll}.
+\todo{point the reader to our own prior work on species + FP}
+
+\todo{Note that a lot of the power of the theory for combinatorics
+  comes from homomorphisms to rings of formal power series; we won't
+  use that in this paper---future work.}
+
 \subsection{Species, set-theoretically}
 \label{sec:set-species}
 
 We begin with a standard set-theoretic definition of species
-\cite{Joyal, BLL} (we will upgrade to a \emph{type}-theoretic
-definition in \pref{sec:constructive-species}).
+(essentially what one finds in Bergeron \etal \cite{bll}, but with
+slightly different terminology).  We will upgrade to a
+\emph{type}-theoretic definition in \pref{sec:constructive-species},
+but include this version for completeness and to help build intuition.
 
 \begin{definition}
 A \term{species} $F$ is a pair of mappings which
@@ -394,7 +405,7 @@ A \term{species} $F$ is a pair of mappings which
   \term{relabelling}) to a function $F(\sigma) : F(L) \to F(L')$
   (illustrated in \pref{fig:relabelling}),
 \end{itemize}
-satisfying the following functoriality conditions:
+additionally satisfying the following functoriality conditions:
 \begin{itemize}
 \item $F(id_L) = id_{F(L)}$, and
 \item $F(\sigma \circ \tau) = F(\sigma) \circ F(\tau)$.
@@ -421,34 +432,28 @@ labels drawn from $L$'', or simply ``$F$-shapes on $L$'', or even
 is called the ``transport of $\sigma$ along $F$'', or sometimes the
 ``relabelling of $F$-shapes by $\sigma$''.
 
-Note that in the combinatorial literature, elements of $F(L)$ are
-usually called ``$F$-structures'' rather than ``$F$-shapes''.
-To a combinatorialist, labelled shapes are themselves the primary
-objects of interest; however, in a computational context, we must be
-careful to distinguish between labelled structures (which have data
-associated with the labels) and bare labelled shapes (which do not).
+Note that in the existing literature, elements of $F(L)$ are usually
+called ``$F$-structures'' rather than ``$F$-shapes''.  To a
+combinatorialist, labelled shapes are themselves the primary objects
+of interest; however, in a computational context, we must be careful
+to distinguish between labelled \emph{structures} (which have data
+associated with the labels) and bare labelled \emph{shapes} (which do
+not).
 
 Here we see that the formal notion of ``shape'' is actually quite
 broad, so broad as to make one squirm: a shape is just an element of
-some arbitrary set!
-
-% In this context our informal insistance from the
-% previous section that a shape ``contain each label exactly once'' is
-% completely meaningless, because there is no sense in which we can say
-% that a shape ``contains'' labels.
-
-In practice, however, we are interested not in arbitrary species but
-in ones built up algebraically from a set of primitives and
-operations.  In that case the corresponding shapes will have more
-structure as well. Before we get there, however, we need to give the
-definition of species a firmer computational basis.
+some arbitrary finite set!  In practice, however, we are interested
+not in arbitrary species but in ones built up algebraically from a set
+of primitives and operations.  In that case the corresponding shapes
+will have more structure as well. First, however, we must put species
+and labelled structures on a firmer computational basis.
 
 \subsection{Species, constructively}
 \label{sec:constructive-species}
 
 The foregoing set-theoretic definition of species is perfectly
 serviceable in the context of classical combinatorics, but in order to
-use it as a foundation for data structures, it is useful to first
+use it as a foundation for data structures, it is necessary to first
 ``port'' the definition from set theory to constructive type theory.
 
 \todo{this section is too dense}
@@ -550,6 +555,8 @@ that is,
 \item a mapping from labels to data, $m : L \to A$.
 \end{itemize}
 
+\todo{say more here?}
+
 \subsection{Species, algebraically}
 \label{sec:algebraic}
 
@@ -607,11 +614,11 @@ labelled structures. \todo{add these}
 
 \paragraph{Singleton}
   The \emph{singleton} species, denoted $\X$, is defined by
-  \[ \X\ L = \TyOne \iso L, \] that is, an $\X$-shape is just a proof that
-  $L$ has size $1$.  Again, if there is such a proof, there is only
-  one.  Unlike $\One$, we may also think of an $\X$-shape as
-  ``containing'' a single label of type $L$, which we may recover by
-  applying the isomorphism to $\unit$.
+  \[ \X\ L = \TyOne \iso L, \] that is, an $\X$-shape is just a proof
+  that $L$ has size $1$.  Again, there is at most one such proof.
+  Unlike $\One$, we may also think of an $\X$-shape as ``containing''
+  a single label of type $L$, which we may recover by applying the
+  isomorphism to $\unit$.
 
   Note that once again the definition is ``obviously'' functorial; we
   may syntactically replace $L$ by $\sigma$ to obtain \[ \X\ \sigma =
@@ -642,29 +649,26 @@ The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
 %   indeed the identity element for a product-like operation,
 %   \term{Cartesian product}, to be discussed below.
 
-\todo{Note that a lot of the power of the theory for combinatorics
-  comes from homomorphisms to rings of formal power series; we won't
-  use that in this paper.}
+\subsection{Species isomorphism}
+\label{sec:species-iso}
 
 We have now seen four primitive species: \Zero, \One, \X, and \E.  It
 turns out that each of them is the unit for a different monoid
 structure on species; we will look at each of these in turn, as well
 as an additional fifth monoid structure.  Before we get there,
 however, we need to take a brief detour to discuss isomorphism of
-species.
+species, since the monoid laws hold only up to isomorphism.
 
-\subsection{Species isomorphism}
-\label{sec:species-iso}
-
-Since species are functors, a \term{morphism} between species is a
-natural transformation.  Spelling this out, the type of species
-morphisms is given by
+Since species are functors, a \term{morphism} between species $F$ and
+$G$ is a natural transformation, that is, a transformation from
+$F$-shapes to $G$-shapes which works uniformly for all label
+types. Formally, the type of species morphisms is given by
 \begin{align*}
   &- \mor - : \Species \to \Species \to \Type \\
   &F \mor G = (\varphi : \impl{L : \FinType} \to F\ L \to G\ L)
   \times \Natural\ \varphi
 \end{align*}
-where $\Natural\ \phi$ is the proposition which states that $\phi$ is
+where $\Natural\ \varphi$ is the proposition which states that $\varphi$ is
 \term{natural}, that is, the diagram shown in
 \pref{fig:species-morphism} commutes for all $L, L' : \FinType$ and
 all $\sigma : L \iso L'$.
@@ -686,21 +690,32 @@ the labels, that is, it acts uniformly for all choices of label set:
 it does not matter whether one first relabels an $F$-shape and then
 applies $\varphi$, or applies $\varphi$ first and later relabels.
 
-An \term{isomorphism} between species, denoted $F \natiso G$, is a
-pair of inverse morphisms.\bay{explain in more detail}
-Species isomorphism preserves all the interesting \emph{combinatorial}
-properties of species; hence in the combinatorics literature
-everything is always done up to isomorphism. However, isomorphism does not
-necessarily preserve all the \emph{computational} properties we might
-care about.  For example, \todo{example}.
+An \term{isomorphism} between species, denoted $F \natiso G$, is just
+a pair of inverse morphisms, that is, $\varphi : F \mor G$ and
+$\varphi^{-1} : G \mor F$ such that $\varphi^{-1}_L \comp \varphi_L =
+id_{FL}$ and $\varphi_L \comp \varphi^{-1}_L = id_{GL}$ for all $L :
+\FinType$.  Species isomorphism preserves all the interesting
+\emph{combinatorial} properties of species; hence in the combinatorics
+literature everything is always implicitly done up to
+isomorphism. However, species isomorphisms carry computational
+content, so when dealing with labelled structures we must be more
+careful and explicit in their use.
 
 It is worth noting that a pair of ``bare'' inverse morphisms, without
 naturality, constitute what is termed an \term{equipotence} between
 two species.  An equipotence preserves the \emph{number} of shapes of
 each size, but it does not necessarily preserve the structure of those
-shapes.  For example, \todo{example}.  Equipotences are of interest to
-combinatorialists, but they do not seem to be of much use in the
-service of computation, so we will not consider them further.
+shapes. As a classic example, the species of \emph{lists} and the
+species of \emph{permutations} are equipotent but not isomorphic:
+there are the same number of lists as permutations of $n$ labels
+(namely, $n!$), but there is no way to set up an isomorphism between
+them which is uniform over the labels: any such isomorphism
+necessarily depends on a linear ordering of the labels.  In a sense,
+permutations have ``more structure'' than lists, and this extra
+structure cannot be preserved by an isomorphism.  In any case,
+although equipotences are of interest to combinatorialists, so far
+they do not seem to be of much use computationally, so we will not
+consider them further in this paper.
 
 \subsection{Species operations}
 \label{sec:species-ops}
