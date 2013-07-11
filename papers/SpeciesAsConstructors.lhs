@@ -916,10 +916,21 @@ $(\scomp, \X)$ forms a monoid up to species isomorphism.
 
 \paragraph{Cartesian product}
 
-\todo{``Na\"ive'' product in the sense that the labels are not
-  partitioned.  Can think of this as modelling (value-level) sharing.}
+As we saw earlier, the definition of the standard product operation on
+species partitioned the set of labels between the two subshapes.
+However, there is nothing to stop us from defining a different
+product-like operation, known as \term{Cartesian product} which does
+not partition the labels:\[ (F \scprod G)\ L = F\ L \times G\ L \]
 
-\[ (F \scprod G)\ L = F\ L \times G\ L \]
+It is important to remember that we still only get to specify a single
+function of type $L \to A$ for the mapping from labels to data.  So
+each label is still associated to only a single data value, but labels
+can occur twice (or more) in an $(F \times G)$-shape.  This models
+(value-level) \emph{sharing}.
+
+\todo{illustration}
+
+\todo{example}
 
 $(\scprod, \E)$ forms a commutative monoid up to species isomorphism.
 
@@ -952,15 +963,34 @@ abbreviated as $F_{\leq n}$ and $F_{\geq n}$ respectively.
 
 \paragraph{Derivative and pointing}
 
-\[ F'\ L = (L' : \FinType) \times (L' \iso \TyOne + L) \times F\ L \]
+The \term{derivative} is a well-known operation on shapes in the
+functional programming community~\cite{holes etc.}, and it works in
+exactly the way one expects on species.  That is, $F'$-shapes consist
+of $F$-shapes with one distinguished location (a ``hole'') that
+contains no data.  Formally, we may define
 
-\[ \pt{F}\ L = L \times F\ L \]
+\[ F'\ L = (L' : \FinType) \times (L' \iso \TyOne + L) \times F\ L' \]
 
-$\pt F \natiso X \sprod F'$.
+\todo{picture}
+
+Note that a function of type $L \to A$ associates data to every label
+in the underlying $F\ L'$ structure but one, since $L' \iso \TyOne +
+L$.
+
+A related, but constructively quite different operation is that of
+\term{pointing}.  A pointed $F$-shape is an $F$-shape with a
+particular label distinguished. \todo{picture} Formally,
+\[ \pt{F}\ L = L \times F\ L. \]
+
+The relationship bewteen pointing and derivative is given by the
+isomorphism \[ \pt F \natiso \X \sprod F'. \]
 
 \paragraph{Functor composition}
 
 \[ (F \fcomp G)\ L = F\ (G\ L) \]
+
+$(\fcomp, \pt{\E})$ forms a (non-commutative) monoid up to species
+isomorphism.
 
 \section{Unlabelled structures}
 
