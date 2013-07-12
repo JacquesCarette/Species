@@ -1046,6 +1046,63 @@ isomorphism.
   e.g. $n$-dimensional vectors.
 }
 
+\subsection{Arrays}
+\label{sec:arrays}
+
+\todo{The following text is just pasted in from an email, needs some
+  major editing.}
+
+For some structures (namely, ``regular'' structures) there is a
+canonical labeling which is based on the structure.  We can use that
+to push structure back and forth between the shapes and the labels.
+
+So for suitable f we should have
+\begin{spec}
+canonicalize :: Suitable f => Sp f l a -> (Sp f (Path f) a, l <-> Path f)
+\end{spec}
+
+That is, we can relabel a structure, using paths into f as canonical
+labels (and along the way we can also find out how the old labels
+match up with the new canonical ones). (I have some ideas about what
+'Suitable' should be but don't worry about it for the moment.)
+
+Now, the problem with (Sp f (Path f) a) is that we've duplicated
+structure in both the shape and the labels.  'canonicalize' doesn't
+directly have a sensible inverse because given something of type (Sp f
+(Path f) a) we have no guarantee that the labels match the structure.
+
+So, we have a function
+\begin{spec}
+  forgetShape :: Sp f l a -> Sp E l a
+\end{spec}
+which forgets the shape.  Of course, the labels may have a lot of
+structure so this may or may not actually lose information.  We can
+then go backwards:
+\begin{spec}
+  reconstitute :: Sp E (Path f) a -> Sp f (Path f) a
+\end{spec}
+We have the law
+\begin{spec}
+  forgetShape . reconstitute === id
+\end{spec}
+and also, we can define
+\begin{spec}
+  unCanonicalize :: (Sp f (Path f) a, l <-> Path f) -> Sp f l a
+  unCanonicalize (sp, i) = relabel (from i) (reconstitute . forgetShape $ sp)
+\end{spec} %$
+which is left inverse to canonicalize.
+
+This lets us go back and forth between different views of data.  Some
+operations are ``structural'', \ie operate on nontrivial shapes
+(e.g. matrix multiplication) whereas some (\eg transpose) are best
+expressed as operations on structured labels.
+
+The shape of 2D arrays, for example, is $L_m \comp L_n$ (if we consider 2D
+arrays as a data structure where the ordering of elements is
+significant).  But $Path(L_m \comp L_n) \sim (Fin m, Fin n)$, so we can convert
+between $(Sp (L_m \comp L_n) l a)$ and $(Sp E (Fin m, Fin n) a)$.
+
+
 \section{Related Work}
 \label{sec:related}
 
