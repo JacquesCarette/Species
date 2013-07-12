@@ -1,3 +1,5 @@
+%% -*- LaTeX -*-
+
 \documentclass[9pt,preprint,authoryear]{sigplanconf}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -921,12 +923,19 @@ species partitioned the set of labels between the two subshapes.
 However, there is nothing to stop us from defining a different
 product-like operation, known as \term{Cartesian product} which does
 not partition the labels:\[ (F \scprod G)\ L = F\ L \times G\ L \]
+This is, of course, the ``na\"ive'' version of product that one might
+expect from experience with generic programming.
 
-It is important to remember that we still only get to specify a single
+With labelled shapes, of course, this works very differently.  It is
+important to remember that we still only get to specify a single
 function of type $L \to A$ for the mapping from labels to data.  So
 each label is still associated to only a single data value, but labels
-can occur twice (or more) in an $(F \times G)$-shape.  This models
-(value-level) \emph{sharing}.
+can occur twice (or more) in an $(F \times G)$-shape.  This lets us
+\emph{explicitly} model sharing, that is, multiple parts of the same
+shape can all ``point to'' the same data.  In pure functional
+languages such as Haskell or Agda, sharing is a (mostly) unobservable
+operational detail; with a labelled structure we can directly model
+and observe it.
 
 \todo{illustration}
 
@@ -987,7 +996,24 @@ isomorphism \[ \pt F \natiso \X \sprod F'. \]
 
 \paragraph{Functor composition}
 
+Just as a ``na\"ive'' product gave us some interesting structures with
+value-level sharing, a ``na\"ive'' composition can do the same.  We
+define the \term{functor product} of two species as follows:
+
 \[ (F \fcomp G)\ L = F\ (G\ L) \]
+
+Note that the label set given to $F$ is the set of \emph{all $(G\
+  L)$-shapes}.  Giving $G$-shapes as labels for $F$ is the same as
+$\scomp$; the difference is that with $\scomp$ the labels are
+partitioned among all the $G$-shapes, but here the complete set of
+labels is given to each $G$-shape.  This means that a particular label
+could occur \emph{many} times in an $(F \fcomp G)$-shape, since it
+will occur at least once in each $G$-shape, and the $F$-shape may
+contain many $G$-shapes.
+
+\todo{picture}
+
+\todo{examples}
 
 $(\fcomp, \pt{\E})$ forms a (non-commutative) monoid up to species
 isomorphism.
