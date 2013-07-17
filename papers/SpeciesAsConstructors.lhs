@@ -13,6 +13,7 @@
 \renewcommand{\Conid}[1]{\mathsf{#1}}
 
 %format sumTys = "\cons{sumTys}"
+%format <->    = "\iso"
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
@@ -97,6 +98,10 @@
 
 \DeclareMathOperator{\map}{map}
 \DeclareMathOperator{\sumTys}{sumTys}
+
+\DeclareMathOperator{\Elim}{Elim}
+\DeclareMathOperator{\elim}{elim}
+\DeclareMathOperator{\DecEq}{DecEq}
 
 \newcommand{\mor}{\Rightarrow}
 % \newcommand{\mor}{\stackrel{\bullet}{\rightarrow}}
@@ -554,7 +559,39 @@ that is,
 \item a mapping from labels to data, $m : L \to A$.
 \end{itemize}
 
-\todo{say more here?}
+We can define the generic type of eliminators for labelled
+$F$-structures, $\Elim_F : \Type \to \Type \to \Type$, as
+\begin{multline*}
+  \Elim_F\ A\ R \defn (L : \Type) \to \\
+  \DecEq L \to F\ L \to (L \to A) \to R
+\end{multline*}
+where $\DecEq L$ represents decidable equality for $L$. There are a
+few subtle issues here which are worth spelling out in detail. First,
+note that $\Elim_F$ is parameterized by $A$ (the type of data elements
+stored in the labelled structure being eliminated) and $R$ (the type
+of the desired result), but \emph{not} by $L$.  Rather, an eliminator
+of type $\Elim_F\ A\ R$ must be parametric in $L$; it is not allowed
+to define an eliminator which works only for certain label types.  The
+second point is that $L$ is a $\Type$ rather than a $\FinType$ as one
+might expect.  The reason is that one can observe an induced linear
+order on the elements of a $\FinType$, using the usual linear order on
+the associated natural numbers, but we do not want to allow this,
+since it would ``break'' the functoriality of species.  \bay{is this
+  the right way to say it?}  That is, an eliminator which was allowed
+to observe an implicit linear order on the labels could give different
+results for two labelled structures which differ only by a
+relabelling, \bay{but this is bad... why?} Instead, we require only
+decidable equality for $L$ (of course, every $\FinType$ has decidable
+equality).
+
+We can ``run'' an eliminator,
+\[ \elim : \Elim_F\ A\ R \to ??? \to R, \] by simply taking apart the
+labelled structure and passing its components to the eliminator,
+projecting the label $\Type$ and its decidable equality from the
+$\FinType$.
+
+\todo{Note all the stuff with $L$ really only makes a difference for
+  things with sharing\dots}
 
 \subsection{Species, algebraically}
 \label{sec:algebraic}
@@ -564,8 +601,8 @@ do not really want to work directly with the definition of species,
 but rather with an algebraic theory. \todo{say a bit more}
 
 For each species primitive or operation, we also discuss the
-associated introduction and elimination forms for the associated
-labelled structures. \todo{add these}
+associated introduction form(s).  We discuss eliminators
+in~\pref{sec:elim}.
 
 \paragraph{Zero}
   The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
@@ -575,6 +612,7 @@ labelled structures. \todo{add these}
   \Zero\ L &= \TyZero \\
   \Zero\ \sigma &= \id_\TyZero
   \end{align*}
+  The zero species, of course, has no introduction form.
   \bay{Say more here?}
 
   \todo{be more explicit about how we will be defining species
@@ -611,6 +649,12 @@ labelled structures. \todo{add these}
     Yeh, “The calculus of virtual species and K-species”, namely that
     $\One$ can be defined as the hom-functor $\B(\varnothing, -)$.}
 
+  There is a trivial introduction form for $\One$, also denoted
+  $\top$, which creates a $\One$-shape using the canonical label set
+  $\Fin\ 0$, that is, $\top : \One\ (\Fin\ 0)$.  Introducing a
+  canonical label type will be standard for introduction forms; other
+  label types may be obtained via relabelling.
+
 \paragraph{Singleton}
   The \emph{singleton} species, denoted $\X$, is defined by
   \[ \X\ L = \TyOne \iso L, \] that is, an $\X$-shape is just a proof
@@ -624,6 +668,9 @@ labelled structures. \todo{add these}
   \top \iso \sigma. \]  This will remain true for most \bay{all?} of the
   definitions given from here on. \bay{But we will explicitly discuss
     it when it is not obvious?}
+
+  $\X$-shapes, as with $\One$, have a trivial introduction form,
+  \[ \cons{x} : \X\ (\Fin\ 1). \]
 
 \paragraph{Sets}
 The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
@@ -1013,7 +1060,13 @@ contain many $G$-shapes.
 
 \todo{picture}
 
-\todo{examples}
+As an example, the species of simple directed graphs with labeled
+vertices can be specified as \[ \mathcal{G} = (\E \sprod \E) \fcomp
+(\X^2 \sprod \E), \] describing a graph as a subset ($\E \sprod \E$)
+of the set of all ordered pairs chosen from the complete set of vertex
+labels ($\X^2 \sprod \E$).
+
+\todo{more examples}
 
 $(\fcomp, \pt{\E})$ forms a (non-commutative) monoid up to species
 isomorphism.
@@ -1038,6 +1091,8 @@ isomorphism.
   things to efficient runtime code is future work.
 }
 
+\todo{be sure to discuss recursion.}
+
 \section{Programming with Labelled Structures}
 \label{sec:programming}
 
@@ -1049,6 +1104,13 @@ isomorphism.
 \subsection{Arrays}
 \label{sec:arrays}
 
+As an extended example and a good way to explore some of the
+combinators which are possible, we present a framework for programming
+with (arbitrary-dimensional) \emph{arrays}.
+
+\todo{Define array: n-dimensional, indexed data.  Not necessarily the
+  same as a *matrix* (which has additional meaning attached to it).}
+
 \todo{The following text is just pasted in from an email, needs some
   major editing.}
 
@@ -1056,45 +1118,44 @@ For some structures (namely, ``regular'' structures) there is a
 canonical labeling which is based on the structure.  We can use that
 to push structure back and forth between the shapes and the labels.
 
-So for suitable f we should have
+So for suitable |f| we should have
 \begin{spec}
 canonicalize :: Suitable f => Sp f l a -> (Sp f (Path f) a, l <-> Path f)
 \end{spec}
 
-That is, we can relabel a structure, using paths into f as canonical
+That is, we can relabel a structure, using paths into |f| as canonical
 labels (and along the way we can also find out how the old labels
-match up with the new canonical ones). (I have some ideas about what
-'Suitable' should be but don't worry about it for the moment.)
+match up with the new canonical ones).
 
-Now, the problem with (Sp f (Path f) a) is that we've duplicated
-structure in both the shape and the labels.  'canonicalize' doesn't
-directly have a sensible inverse because given something of type (Sp f
-(Path f) a) we have no guarantee that the labels match the structure.
+Now, the problem with |(Sp f (Path f) a)| is that we've duplicated
+structure in both the shape and the labels.  |canonicalize| doesn't
+directly have a sensible inverse because given something of type |(Sp f
+(Path f) a)| we have no guarantee that the labels match the structure.
 
 So, we have a function
 \begin{spec}
-  forgetShape :: Sp f l a -> Sp E l a
+forgetShape :: Sp f l a -> Sp E l a
 \end{spec}
 which forgets the shape.  Of course, the labels may have a lot of
 structure so this may or may not actually lose information.  We can
 then go backwards:
 \begin{spec}
-  reconstitute :: Sp E (Path f) a -> Sp f (Path f) a
+reconstitute :: Sp E (Path f) a -> Sp f (Path f) a
 \end{spec}
 We have the law
 \begin{spec}
-  forgetShape . reconstitute === id
+forgetShape . reconstitute = id
 \end{spec}
 and also, we can define
 \begin{spec}
-  unCanonicalize :: (Sp f (Path f) a, l <-> Path f) -> Sp f l a
-  unCanonicalize (sp, i) = relabel (from i) (reconstitute . forgetShape $ sp)
+unCanonicalize :: (Sp f (Path f) a, l <-> Path f) -> Sp f l a
+unCanonicalize (sp, i) = relabel (from i) (reconstitute . forgetShape $ sp)
 \end{spec} %$
-which is left inverse to canonicalize.
+which is left inverse to |canonicalize|.
 
 This lets us go back and forth between different views of data.  Some
 operations are ``structural'', \ie operate on nontrivial shapes
-(e.g. matrix multiplication) whereas some (\eg transpose) are best
+(\eg matrix multiplication) whereas some (\eg transpose) are best
 expressed as operations on structured labels.
 
 The shape of 2D arrays, for example, is $L_m \comp L_n$ (if we consider 2D
