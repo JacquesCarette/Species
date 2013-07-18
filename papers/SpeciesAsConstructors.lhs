@@ -675,25 +675,15 @@ in~\pref{sec:elim}.
 \paragraph{Sets}
 The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
 \TyOne. \] That is, there is a single $\E$-shape for every label type.
+Intuitively, $\E$-shapes impose no structure whatsoever; that is, an
+labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
 
-\todo{say more here?}
+Note that if $\E$-shapes are sets, then labelled
+$\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
+are \emph{bags}: any particular data element may occur multiple times
+(each time associated with a different, unique label).
 
-% \footnote{The species literature calls
-%     this the species of \emph{sets}, but that's misleading to computer
-%     scientists, who expect the word ``set'' to imply that elements
-%     cannot be repeated. The \emph{labels} in a bag structure cannot be
-%   repeated, but nothing stops us from mapping labels to data elements
-%   in a non-injective way.}, denoted $\Bag$, is defined by \[ \Bag[U] =
-%   \{U\}, \] that is, there is a single $\Bag$-structure on any set of
-%   labels $U$, which we usually identify with the set of labels itself
-%   (although we could equivalently define $\Bag[U] = \{\star\}$). The
-%   idea is that an $\Bag$-structure consists solely of a collection of
-%   labels, with no imposed ordering whatsoever.
-
-%   $\E$ is precisely the species mentioned previously which some
-%   na\"ively expect as the definition of $\One$.  In fact, $\E$ is
-%   indeed the identity element for a product-like operation,
-%   \term{Cartesian product}, to be discussed below.
+$\E$-shapes also have a trivial introduction form, $e : \E\ L$.
 
 As a summary, \pref{fig:prims} contains a graphic showing $\Zero$-,
 $\One$-, $\X$-, and $\E$-shapes arranged by size (\ie, the size of the
@@ -829,6 +819,8 @@ dia = theDia # centerXY # pad 1.1
     \caption{Species sum}
     \label{fig:sum}
   \end{figure}
+\todo{need to explain what these pictures mean at some point, and make
+  sure each picture is referenced from the text.}
 
 As the reader is invited to check, $(\ssum,\Zero)$ forms a commutative
 monoid structure on species, up to species isomorphism.  That is, one
@@ -839,6 +831,12 @@ can define isomorphisms
 &\cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \natiso F) \\
 &\cons{plusComm} : \impl{F, G : \Species} \to (F \ssum G \natiso G
 \ssum F) \\
+\end{align*}
+
+As expected, there are two introduction forms for $F \ssum G$ shapes:
+\begin{align*}
+&\cons{inl} : F\ L \to (F \ssum G)\ L \\
+&\cons{inr} : G\ L \to (F \ssum G)\ L
 \end{align*}
 
 \paragraph{Product}
@@ -902,6 +900,11 @@ On the other hand, when dealing with labels instead of data values, we
 have to carefully account for the way the labels are distributed among
 the two shapes.
 
+One introduces a labelled $(F \sprod G)$-shape by pairing a labelled $F$-shape and a
+labelled $G$-shape, using a canonical label set formed as the
+coproduct of the two label types: \[ p : F\ L_1 \to G\ L_2 \to (F
+\sprod G)\ (L_1 + L_2). \]
+
 $(\sprod, \One)$ also forms a commutative monoid up to species
 isomorphism.
 
@@ -910,7 +913,7 @@ isomorphism.
 We may also define the \term{composition} of two species.
 Intuitively, $(F \scomp G)$-shapes consist of a single top-level
 $F$-shape, which itself contains labelled $G$-shapes in place of the
-usual labels. \todo{needs a picture of some sort}
+usual labels, as illustrated in~\pref{fig:composition}.
 
 We represent this sort of nested shape by pairing an $F$-shape with a
 vector of $G$-shapes, using a canonical labelling for the $F$-shape
@@ -962,6 +965,43 @@ $\scomp$, unlike $\ssum$ and $\sprod$, is not commutative: an $F$-shape
 of $G$-shapes is quite different from a $G$-shape of $F$-shapes.  It
 is, however, still associative (up to isomorphism), and in fact
 $(\scomp, \X)$ forms a monoid up to species isomorphism.
+
+Unlike the shape constructions we've seen up to now, the space of
+introduction forms for composition structures is actually quite
+interesting.
+
+\todo{explain compJ, compJ', compA, etc.}
+
+% I've made some excellent progress on the code today.  After banging my
+% head against the introduction form for composition for three days
+% everything finally fell into place.  There are now three intro forms
+% for comp, which can be seen as generalizations of join and <*>, with
+% the join generalization having both non-dependent and dependent variants:
+
+%            Non-dependent   Dependent
+%     join      compJ          compJ'
+%     <*>       compA
+
+% with the following types:
+
+% compJ  :: Finite l1 => Sp f l1 (Sp g l2 a) -> Sp  (Comp f g) (l1,l2) a
+
+% compJ' ::              Sp f l1 (Sp' g   a) -> Sp' (Comp f g)         a
+
+% compA  :: Finite l1 => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
+
+% In compJ', we cannot actually record the dependence of the l2 types on
+% l1 (not in Haskell at least), so instead we have to existentially
+% quantify over the label types.  Off the top of my head I am not sure
+% why compJ' does not require a Finite constraint; it's probably an
+% unimportant/uninteresting implementation detail.  Check out the code,
+% it's quite cool.  [And boy, do I ever wish Haskell had explicit type
+% application!  If only someone were working on that... =D ]
+
+% As I hope should be obvious there seem to be some interesting
+% connections here to (generalizations of) Monad and Applicative!  I am
+% not quite sure what to make of this yet.  Ideas welcome.
+
 
 \paragraph{Cartesian product}
 
@@ -1083,6 +1123,34 @@ isomorphism.
   match.  Such conversion is allowed when working with an equivalence
   class since it doesn't matter which representative we use.}
 
+% Now, on to zipping in general.  The problem is that zipping two
+% labelled structures where the structures are nontrivial is
+% nonsensical: we must be able to match up both the structures *and* the
+% labels, but we cannot do both in general.  Ultimately I think the real
+% problem here is that we usually don't work directly with labelled
+% structures but with unlabelled, that is, equivalence classes of
+% labelled structures.  For *regular* unlabelled structures (i.e. ones
+% with no symmetry) we can then zip because the structure itself gives
+% us canonical labels---as labels we can use the type of "paths" into
+% the structure.  So then we are back to matching up labels, but they
+% are guaranteed to match the structure.
+
+% However I am really not sure how to talk about unlabelled species
+% within our framework.  For a regular species S we can sort of fake it
+% by using E (Path S), i.e. labelled bags where (Path S) is the type of
+% paths into S.  But that's not all that nice and I'm not even convinced
+% it's really the same thing.
+
+% Hmm, now that I think of it, perhaps the idea for unlabelled
+% structures would just be that the system is allowed to permute the
+% labels at any time, and you the user are not supposed to care because
+% you are working with an equivalence class instead of with a concrete
+% labelling.  I suppose this could be enforced by existentially
+% quantifying over the labels or something like that.  So a zip on
+% "unlabelled" structures (urgh, unlabelled is a really bad name!) gets
+% to first permute the labels so they match up before doing the zip.
+
+
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
 
@@ -1108,8 +1176,217 @@ As an extended example and a good way to explore some of the
 combinators which are possible, we present a framework for programming
 with (arbitrary-dimensional) \emph{arrays}.
 
-\todo{Define array: n-dimensional, indexed data.  Not necessarily the
-  same as a *matrix* (which has additional meaning attached to it).}
+What is an array?  One typically thinks of arrays as $n$-dimensional
+grids of data, like
+\[
+\begin{bmatrix}
+5.6 & 5.9 & 5.4 & 0.7\\
+0.1 & 7.4 & 2.1 & 5.9\\
+1.9 & 2.4 & 7.9 & 7.5
+\end{bmatrix}
+\]
+That is, within the framework of labelled structures, one would think
+of a two-dimensional array as a \emph{two-dimensional grid shape}
+paired with some data.
+\[
+\begin{bmatrix}
+\square & \square & \square & \square\\
+\square & \square & \square & \square\\
+\square & \square & \square & \square
+\end{bmatrix}
++ 5.6, 5.9, 5.4, \dots
+\]
+Under this view the particular labels used to match up locations and
+data do not matter very much (which is why labels are omitted in the
+picture above).
+
+However, there is another way to view arrays as labelled structures:
+we can view them as consisting of labelled \emph{bag} shapes (that is,
+shapes with no structure whatsoever), with the $n$-dimensional
+structure instead inherent in the particular type of labels used.  For
+example, a two-dimensional matrix can be viewed as a labelled bag
+structure where the labels are elements of some product type.
+
+This view has several advantages: first, by using label types with
+other sorts of structure we can easily obtain generalizations of the
+usual notion of arrays. Second, it lends itself particularly well to
+index-oriented operations: for example, transposing a two-dimensional
+array is just a call to |relabel|.  One might imagine being able to
+easily optimize away such label-based operations (whereas an
+implementation of transposition as a structure-based operation on grid
+shapes would be much more difficult to work with).
+
+\bay{The usual eliminators are useless on
+  arrays-as-bags-of-structured-labels, because they are not allowed to
+  take into account any structure on labels.  So why are we justified
+  in taking label structure into account for various operations on
+  arrays?  I feel strongly that we are/should be justified but I am
+  not quite sure yet of the right way to explain it.  It has to
+  do specifically with using a bag shape.  If we use some nontrivial
+  shape and \emph{also} have nontrivial structure on the labels then
+  there is potential for the two structures to ``get out of sync''.
+  We start to address some of this in the next section.}
+
+% So I went to try to implement some of this yesterday.  I started out
+% by trying to implement
+
+%   unComp :: Sp (Comp f g) (l1,l2) a -> Sp f l1 (Sp g l2 a)
+
+% I tried writing out an implementation on paper and was having real
+% trouble.  Once again the types seemed to be indicating that I was
+% doing something wrong.  After some deeper reflection I have come to
+% realize that a function with this type cannot possibly exist!
+
+% Jacques, you were actually right: (E . E) is not the right shape for
+% matrices.  The problem is that it allows ragged matrices.  Having
+% something of type Sp (E.E) (l1,l2) does not actually guarantee that we
+% have l1-many rows each labeled by l2: all we know is that there are
+% l1xl2 many entries *in total*, but they can be distributed in weird
+% ways.
+
+% So one idea would be to use something like (E_m . E_n) as the shape of
+% mxn matrices, as Jacques originally suggested.  That solves the
+% problem of ragged matrices, but actually the problem goes deeper than
+% that: given an (E_m . E_n) (l1,l2)-structure, we still can't take it
+% apart coherently because we don't know labels are distributed in a way
+% that matches the structure.  e.g. we could have
+
+%    { { (1,2), (2,1), (2,3) }
+%    , { (2,2), (1,1), (1,3) }
+%    }
+
+% which is incoherent since the (1,x) labels are not all contained in
+% a single row, and so on.
+
+% I think the right solution is to just use E as the shape of all
+% (n-dimensional) matrices, with all the structure in the labels.  In
+% other words, we don't try to impose any ideas about how a matrix is
+% "structured" unless we need the structure for some reason. E.g. to
+% construct a 2D matrix we first use composition:
+
+%   Sp E l1 a -> Sp E l2 a -> Sp (E . E) (l1,l2) a
+
+% But instead of leaving it like that, we now use a "reshape" operation
+% along with the fact that we have a nice "join" operation (E.E) -> E to get
+
+%   Sp E (l1,l2) a
+
+% Now doing things like transposition really is just a relabeling (note
+% that the version of transposition I implemented before had the problem
+% that it changed the labels without doing any restructuring, so the
+% labels no longer corresponded to the structure).  We can (I think)
+% implement an "uncompose" operation of type
+
+%   Sp E (l1,l2) a -> Sp E l1 (Sp E l2 a)
+
+% by just splitting up into subsets according to the label structure.
+% However note that this is specialized to E: we certainly can't do this
+% in general for arbitrary shapes.  Though I'm sure it can be
+% generalized in some way, but I haven't thought carefully yet about
+% what that might look like.
+
+
+\todo{talk about |zip|: can zip two labelled structures with bag
+  shapes and matching label types.  But to zip structurally we need
+  ``unlabelled'' structures so we can force the labels to match up via
+  the structures.}
+
+% I've now been thinking about how to compute the sum of two such
+% matrices.  We evidently need some way to be able to "zip" two shapes
+% together.  So I made a class
+
+%   class Zippy f where
+%     fzip :: f l -> f l -> f l
+
+% Instances for One, X, and E are easy enough to write (because there is
+% only one shape of each type).  I was expecting to be able to write an
+% instance for products but not for sums.  But I got to
+
+%   instance (Zippy f, Zippy g) => Zippy (f * g) where
+%     fzip (Prod f1 g1 pf1) (Prod f2 g2 pf2) = ?
+
+%   where
+%     f1 :: f l11
+%     g1 :: g l12
+%     pf1 :: Either l11 l12 <-> l
+%     f2 :: f l21
+%     g2 :: g l22
+%     pf2 :: Either l21 l22 <-> l
+
+% can you use those to construct something of type (f * g) l?  Of course
+% we could just cheat and return one or the other Prod, but that's
+% definitely cheating since we wouldn't even be using the fact that f
+% and g are Zippy.  The problem is that the labels l might not have been
+% partitioned between f and g in the same way, so there's no guarantee
+% we can do any recursive zipping.
+
+% Of course, if product doesn't even work then composition seems right
+% out.  But everyone knows that you can zip matrices of the same size.
+% So what gives?  I guess there's actually something special going on
+% with E.  E o E  should be Zippy even though we can't say in general
+% that (f o g) is Zippy when f and g are.  But I'm not sure how to make
+% this precise.
+
+
+\todo{explain matrix multiplication.  Need to first finish writing
+  about introduction forms for composition.}
+
+% Here's how matrix product works.  Recall that 2-dimensional matrices
+% have the shape (E . E), where . represents composition.  So I will
+% abbreviate the type of 2D matrices containing elements of type a and
+% labeled with pairs from the set (Fin m, Fin n) as (E.E) (m,n) a.  Now
+% suppose we want to multiply two matrices of types
+
+%   (E.E) (m,p) a
+%   (E.E) (p,n) a
+
+% assuming a suitable ring structure on the type a.  First we transpose
+% the second matrix (by relabeling) to get (E.E) (n,p) a.  Now we
+% "decompose" both to get
+
+%   E m (E p a)
+%   E n (E p a)
+
+% This decomposition step corresponds to shifting from viewing them as
+% 2D matrices to viewing them as 1D matrices of 1D matrices
+% (i.e. collections of rows).  We now compose these two (using
+% e.g. compA), i.e. we pair up rows from the two matrices in all
+% possible ways, resulting in something of type
+
+%   (E.E) (m,n) (E p a, E p a)
+
+% Finally we zip the rows together,
+
+%   (E.E) (m,n) (E p (a,a))
+
+% multiply the resulting pairs,
+
+%   (E.E) (m,n) (E p a)
+
+% and sum over the size-p sets,
+
+%   (E.E) (m,n) a.
+
+% This is all much clearer with the aid of the pictures we scribbled on
+% my paper placemat at New Delhi, but hopefully it makes a bit of
+% sense.  I hope to have some code to show you soon as well. =)
+
+% Note also that the above is actually not specific to 2D matrices.
+% More generally, n-dimensional matrices have shape E^n.  To multiply a
+% j-D matrix by a k-D matrix along a certain axis, we first reassociate
+% and relabel to bring the axes we want to multiply to the end (their
+% size must match, of course):
+
+%   (E^(j-1) . E) (dims1, p) a
+%   (E^(k-1) . E) (dims2, p) a
+
+% dims1 and dims2 can be arbitrarily associated (n-1)-tuples.  We can
+% then perform all the above operations, resulting in something of type
+
+%   (E^(j+k-2)) (dims1,dims2) a .
+
+\subsection{Moving structure between shapes and labels}
+\label{sec:moving-structure}
 
 \todo{The following text is just pasted in from an email, needs some
   major editing.}
