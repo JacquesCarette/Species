@@ -1176,34 +1176,6 @@ isomorphism.
   match.  Such conversion is allowed when working with an equivalence
   class since it doesn't matter which representative we use.}
 
-% Now, on to zipping in general.  The problem is that zipping two
-% labelled structures where the structures are nontrivial is
-% nonsensical: we must be able to match up both the structures *and* the
-% labels, but we cannot do both in general.  Ultimately I think the real
-% problem here is that we usually don't work directly with labelled
-% structures but with unlabelled, that is, equivalence classes of
-% labelled structures.  For *regular* unlabelled structures (i.e. ones
-% with no symmetry) we can then zip because the structure itself gives
-% us canonical labels---as labels we can use the type of "paths" into
-% the structure.  So then we are back to matching up labels, but they
-% are guaranteed to match the structure.
-
-% However I am really not sure how to talk about unlabelled species
-% within our framework.  For a regular species S we can sort of fake it
-% by using E (Path S), i.e. labelled bags where (Path S) is the type of
-% paths into S.  But that's not all that nice and I'm not even convinced
-% it's really the same thing.
-
-% Hmm, now that I think of it, perhaps the idea for unlabelled
-% structures would just be that the system is allowed to permute the
-% labels at any time, and you the user are not supposed to care because
-% you are working with an equivalence class instead of with a concrete
-% labelling.  I suppose this could be enforced by existentially
-% quantifying over the labels or something like that.  So a zip on
-% "unlabelled" structures (urgh, unlabelled is a really bad name!) gets
-% to first permute the labels so they match up before doing the zip.
-
-
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
 
@@ -1338,11 +1310,46 @@ shapes would be much more difficult to work with).
 % generalized in some way, but I haven't thought carefully yet about
 % what that might look like.
 
+\subsection{Zipping}
+\label{sec:zipping}
+
+One natural operation on arrays of the same size is to \term{zip}
+them, applying some operation to their corresponding elements
+pointwise and producing a new array.
 
 \todo{talk about |zip|: can zip two labelled structures with bag
   shapes and matching label types.  But to zip structurally we need
   ``unlabelled'' structures so we can force the labels to match up via
   the structures.}
+
+% Now, on to zipping in general.  The problem is that zipping two
+% labelled structures where the structures are nontrivial is
+% nonsensical: we must be able to match up both the structures *and* the
+% labels, but we cannot do both in general.  Ultimately I think the real
+% problem here is that we usually don't work directly with labelled
+% structures but with unlabelled, that is, equivalence classes of
+% labelled structures.  For *regular* unlabelled structures (i.e. ones
+% with no symmetry) we can then zip because the structure itself gives
+% us canonical labels---as labels we can use the type of "paths" into
+% the structure.  So then we are back to matching up labels, but they
+% are guaranteed to match the structure.
+
+% However I am really not sure how to talk about unlabelled species
+% within our framework.  For a regular species S we can sort of fake it
+% by using E (Path S), i.e. labelled bags where (Path S) is the type of
+% paths into S.  But that's not all that nice and I'm not even convinced
+% it's really the same thing.
+
+% Hmm, now that I think of it, perhaps the idea for unlabelled
+% structures would just be that the system is allowed to permute the
+% labels at any time, and you the user are not supposed to care because
+% you are working with an equivalence class instead of with a concrete
+% labelling.  I suppose this could be enforced by existentially
+% quantifying over the labels or something like that.  So a zip on
+% "unlabelled" structures (urgh, unlabelled is a really bad name!) gets
+% to first permute the labels so they match up before doing the zip.
+
+
 
 % I've now been thinking about how to compute the sum of two such
 % matrices.  We evidently need some way to be able to "zip" two shapes
