@@ -14,6 +14,7 @@
 
 %format sumTys = "\cons{sumTys}"
 %format <->    = "\iso"
+%format compP  = "\cons{compP}"
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
@@ -83,6 +84,7 @@
 \DeclareMathOperator{\Species}{Species}
 \DeclareMathOperator{\FinType}{FinType}
 \DeclareMathOperator{\Type}{Type}
+\DeclareMathOperator{\LStr}{LStr}
 \DeclareMathOperator{\Fin}{Fin}
 \DeclareMathOperator{\IsFinite}{IsFinite}
 \DeclareMathOperator{\NatZ}{O}
@@ -254,7 +256,7 @@ Informally, a \term{labelled structure} is specified by:
 \item a finite type of labels $L$;
 \item a type of data elements $A$;
 \item some sort of ``labelled shape''; and
-\item a (total) function $v : L \to A$ which maps labels to data values.
+\item a (total) function $m : L \to A$ which maps labels to data values.
 \end{itemize}
 See~\pref{fig:labelled-structure-example} for an abstract example.  A
 \emph{family} of labelled structures refers to a class of structures
@@ -477,7 +479,9 @@ the type of functions taking $x$ as an \emph{implicit} argument, and
 omit implicit arguments when applying such functions.  For example, if
 $f : \impl{A:\Type} \to A \to A$ then we write simply $f\ 3$ instead of
 $f\ \N\ 3$.  When an implicit argument needs to be provided explicitly
-we use a subscript, as in $f_{\N}\ 3$.
+we use a subscript, as in $f_{\N}\ 3$.  Free type variables should be
+understood as implicit arguments, for example, the type $A \to A$ is
+shorthand for $\impl{A:\Type} \to A \to A$.
 
 We use $\N : \Type$ to denote the usual inductively defined type of
 natural numbers, with constructors $\NatZ : \N$ and $\NatS : \N \to
@@ -544,18 +548,16 @@ or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 \subsection{Labelled structures, formally}
 \label{sec:labelled-formal}
 
-Formally, we may define a labelled structure as a dependent five-tuple
-with the type
-\[
-   (F : \Species) \times (L : \FinType) \times (A : \Type) \times F\ L
-   \times (L \to A),
-\]
-that is,
+Formally, we may define families of labelled structures as follows.
+\begin{align*}
+   &\LStr : \Species \to \FinType \to \Type \to \Type \\
+   &\LStr\ F\ L\ A = F\ L \times (L \to A)
+\end{align*}
+that is, a labelled structure over the species $F$, a
+constructively finite type $L$ of labels, and a type $A$ of
+data consists simply of
 \begin{itemize}
-\item a species $F$,
-\item a constructively finite type $L$ of \term{labels},
-\item a type $A$ of \term{data},
-\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape,
+\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape, and
 \item a mapping from labels to data, $m : L \to A$.
 \end{itemize}
 
@@ -601,8 +603,8 @@ do not really want to work directly with the definition of species,
 but rather with an algebraic theory. \todo{say a bit more}
 
 For each species primitive or operation, we also discuss the
-associated introduction form(s).  We discuss eliminators
-in~\pref{sec:elim}.
+associated introduction form(s), for both ``bare'' shapes and for
+labelled structures.  We discuss eliminators in~\pref{sec:elim}.
 
 \paragraph{Zero}
   The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
@@ -651,9 +653,13 @@ in~\pref{sec:elim}.
 
   There is a trivial introduction form for $\One$, also denoted
   $\top$, which creates a $\One$-shape using the canonical label set
-  $\Fin\ 0$, that is, $\top : \One\ (\Fin\ 0)$.  Introducing a
-  canonical label type will be standard for introduction forms; other
-  label types may be obtained via relabelling.
+  $\Fin\ 0$, that is, \[ \top : \One\ (\Fin\ 0). \] In a further abuse
+  of notation we can also use $\top$ to denote an introduction form
+  for labelled $\One$-structures, \[ \top : \LStr\ \One\ (\Fin\ 0)\
+  A. \]
+
+  Introducing a canonical label type will be standard for introduction
+  forms; other label types may be obtained via relabelling.
 
 \paragraph{Singleton}
   The \emph{singleton} species, denoted $\X$, is defined by
@@ -670,7 +676,9 @@ in~\pref{sec:elim}.
     it when it is not obvious?}
 
   $\X$-shapes, as with $\One$, have a trivial introduction form,
-  \[ \cons{x} : \X\ (\Fin\ 1). \]
+  \[ \cons{x} : \X\ (\Fin\ 1). \]  To introduce an $\X$-structure, one
+  must provide the single value of type $A$ which is to be stored in
+  the single location: \[ \cons{x} : A \to \LStr\ \X\ (\Fin\ 1)\ A. \]
 
 \paragraph{Sets}
 The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
@@ -683,7 +691,10 @@ $\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
 are \emph{bags}: any particular data element may occur multiple times
 (each time associated with a different, unique label).
 
-$\E$-shapes also have a trivial introduction form, $e : \E\ L$.
+$\E$-shapes also have a trivial introduction form, $\cons{e} : \E\ L$,
+along with a corresponding introduction form for $\E$-structures
+which simply requires the mapping from labels to values: \[ \cons{e} :
+(L \to A) \to \LStr\ \E\ L\ A. \]
 
 As a summary, \pref{fig:prims} contains a graphic showing $\Zero$-,
 $\One$-, $\X$-, and $\E$-shapes arranged by size (\ie, the size of the
@@ -833,10 +844,13 @@ can define isomorphisms
 \ssum F) \\
 \end{align*}
 
-As expected, there are two introduction forms for $F \ssum G$ shapes:
+As expected, there are two introduction forms for $(F \ssum G)$-shapes
+and -structures:
 \begin{align*}
 &\cons{inl} : F\ L \to (F \ssum G)\ L \\
-&\cons{inr} : G\ L \to (F \ssum G)\ L
+&\cons{inr} : G\ L \to (F \ssum G)\ L \\
+&\cons{inl} : \LStr\ F\ L\ A \to \LStr\ (F \ssum G)\ L\ A \\
+&\cons{inl} : \LStr\ G\ L\ A \to \LStr\ (F \ssum G)\ L\ A \\
 \end{align*}
 
 \paragraph{Product}
@@ -902,8 +916,14 @@ the two shapes.
 
 One introduces a labelled $(F \sprod G)$-shape by pairing a labelled $F$-shape and a
 labelled $G$-shape, using a canonical label set formed as the
-coproduct of the two label types: \[ p : F\ L_1 \to G\ L_2 \to (F
-\sprod G)\ (L_1 + L_2). \]
+coproduct of the two label types:
+\begin{align*}
+  &\langle - , - \rangle : F\ L_1 \to G\ L_2 \to (F \sprod G)\ (L_1 +
+  L_2) \\
+  &\langle - , - \rangle : \LStr\ F\ L_1\ A \to \LStr\ G\ L_2\ A \to
+  \LStr\ (F \sprod G)\ (L_1 +
+  L_2)\ A
+\end{align*}
 
 $(\sprod, \One)$ also forms a commutative monoid up to species
 isomorphism.
@@ -968,40 +988,45 @@ $(\scomp, \X)$ forms a monoid up to species isomorphism.
 
 Unlike the shape constructions we've seen up to now, the space of
 introduction forms for composition structures is actually quite
-interesting.
+interesting.  We will not separately consider introduction forms for
+composition shapes, but study introduction forms for composition
+structures directly.
 
-\todo{explain compJ, compJ', compA, etc.}
+At the simplest end of the spectrum, we can define |compP| as follows,
+which is a sort of cartesian product, copying the provided $G$
+structure into every location of the $F$ structure and pairing up
+their labels and data:
+\begin{multline*}
+  \cons{compP} : \LStr\ F\ L_1\ A \to \LStr\ G\ L_2\ B \\ \to \LStr\ (F
+  \scomp G)\ (L_1 \times L_2)\ (A \times B)
+\end{multline*}
 
-% I've made some excellent progress on the code today.  After banging my
-% head against the introduction form for composition for three days
-% everything finally fell into place.  There are now three intro forms
-% for comp, which can be seen as generalizations of join and <*>, with
-% the join generalization having both non-dependent and dependent variants:
+\todo{explain this better, and add an illustration of |compP|}
 
-%            Non-dependent   Dependent
-%     join      compJ          compJ'
-%     <*>       compA
+\todo{monoidal something-or-other. Like Applicative.  So we can
+  equivalently have:}
 
-% with the following types:
+\begin{multline*}
+  \cons{compA} : \LStr\ F\ L_1\ (A \to B) \to \LStr\ G\ L_2\ A \\ \to \LStr\ (F
+  \scomp G)\ (L_1 \times L_2)\ B
+\end{multline*}
 
-% compJ  :: Finite l1 => Sp f l1 (Sp g l2 a) -> Sp  (Comp f g) (l1,l2) a
+\todo{Can also have something like monadic join:}
 
-% compJ' ::              Sp f l1 (Sp' g   a) -> Sp' (Comp f g)         a
+\begin{multline*}
+  \cons{compJ} : \LStr\ F\ L_1\ (\LStr\ G\ L_2\ A) \to \LStr\ (F \scomp
+  G)\ (L_1 \times L_2)\ A
+\end{multline*}
 
-% compA  :: Finite l1 => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
+\todo{And finally, a dependent version something like monadic
+  bind. Note that $L_2 : L_1 \to \FinType$ is allowed to depend on $L_1$.}
 
-% In compJ', we cannot actually record the dependence of the l2 types on
-% l1 (not in Haskell at least), so instead we have to existentially
-% quantify over the label types.  Off the top of my head I am not sure
-% why compJ' does not require a Finite constraint; it's probably an
-% unimportant/uninteresting implementation detail.  Check out the code,
-% it's quite cool.  [And boy, do I ever wish Haskell had explicit type
-% application!  If only someone were working on that... =D ]
+\begin{multline*}
+  \cons{compB} : \LStr\ F\ L_1\ \TyOne \to ((l : L_1) \to \LStr\ G\
+  (L_2\ l)\ A) \\ \to \LStr\ (F \scomp G)\ ((l : L_1) \times L_2\ l)\ A
+\end{multline*}
 
-% As I hope should be obvious there seem to be some interesting
-% connections here to (generalizations of) Monad and Applicative!  I am
-% not quite sure what to make of this yet.  Ideas welcome.
-
+\todo{add some pictures for the above}
 
 \paragraph{Cartesian product}
 
@@ -1028,21 +1053,35 @@ and observe it.
 
 \todo{example}
 
+To introduce a Cartesian product shape, one simply pairs two shapes on
+the same set of labels.  Introducing a Cartesian product structure is
+more interesting. One way to do it is to overlay an additional shape
+on top of an existing structure: \[ \cons{cprodL} : F\ L \to \LStr\ G\ L\ A
+\to \LStr\ (F \scprod G)\ L\ A. \] There is also a corresponding
+$\cons{cprodR}$ which combines an $F$-structure and a $G$-shape.
+\todo{picture}
+
 $(\scprod, \E)$ forms a commutative monoid up to species isomorphism.
 
 \paragraph{Cardinality restriction}
 
-\todo{explain}
+Another important operation on species is \term{cardinality
+  restriction}, which simply restricts a given species to only have
+shapes of certain sizes.  For example, if $\L$ is the species of
+lists, $\L_3$ is the species of lists with length exactly three, and
+$\L_{\geq 1}$ is the species of non-empty lists.  We can formalize a
+simple version of this, for restricting only to particular sizes, as
+follows:
 
 \begin{align*}
 &\OfSize : \Species \to \N \to \Species \\
 &\OfSize\ F\ n = \lam{L}{(\Fin n \iso L) \times F\ L}
 \end{align*}
 
-As is standard, we will use the notation $F_n$ as shorthand for
+As is standard, we use the notation $F_n$ as shorthand for
 $\OfSize\ F\ n$.
 
-We could also generalize to arbitrary collections of natural numbers,
+We could also generalize to arbitrary predicates on natural numbers,
 as in
 \begin{align*}
 &\OfSize' : \Species \to (\N \to \Type) \to \Species \\
@@ -1057,6 +1096,13 @@ care about, so as a practical tradeoff we can add explicit combinators
 $\cons{OfSizeLT}$ and $\cons{OfSizeGT}$ representing these predicates,
 abbreviated as $F_{\leq n}$ and $F_{\geq n}$ respectively.
 
+The introduction form for $\OfSize$ is simple enough,
+\[ \cons{sized} : \LStr\ F\ L\ A \to \LStr\ (\OfSize\ F\ ||L||)\ L\ A, \]
+where $||L||$ denotes the size of $L$ ($L$ is a $\FinType$ and
+therefore has a natural number size).
+
+\todo{intro forms for $\cons{OfSizeLT}$ and $\cons{OfSizeGT}$?}
+
 \paragraph{Derivative and pointing}
 
 The \term{derivative} is a well-known operation on shapes in the
@@ -1064,30 +1110,35 @@ functional programming community~\cite{holes etc.}, and it works in
 exactly the way one expects on species.  That is, $F'$-shapes consist
 of $F$-shapes with one distinguished location (a ``hole'') that
 contains no data.  Formally, we may define
-
 \[ F'\ L = (L' : \FinType) \times (L' \iso \TyOne + L) \times F\ L' \]
-
 \todo{picture}
 
 Note that a function of type $L \to A$ associates data to every label
 in the underlying $F\ L'$ structure but one, since $L' \iso \TyOne +
 L$.
 
+To introduce a derivative structure, we require an input structure
+whose label type is already in the form $\TyOne + L$: \[ \cons{d} :
+\LStr\ F\ (\TyOne + L)\ A \to \LStr\ F'\ L\ A. \]
+
 A related, but constructively quite different operation is that of
 \term{pointing}.  A pointed $F$-shape is an $F$-shape with a
 particular label distinguished. \todo{picture} Formally,
 \[ \pt{F}\ L = L \times F\ L. \]
+Introducing a pointed structure requires simply specifying which label
+should be pointed: \[ \cons{p} : L \to \LStr\ F\ L\ A \to \LStr\
+(\pt{F})\ L\ A. \]
 
 The relationship bewteen pointing and derivative is given by the
-isomorphism \[ \pt F \natiso \X \sprod F'. \]
+isomorphism \[ \pt F \natiso \X \sprod F'. \] \todo{say more about
+  this?}
 
 \paragraph{Functor composition}
 
 Just as a ``na\"ive'' product gave us some interesting structures with
 value-level sharing, a ``na\"ive'' composition can do the same.  We
 define the \term{functor product} of two species as follows:
-
-\[ (F \fcomp G)\ L = F\ (G\ L) \]
+\[ (F \fcomp G)\ L = F\ (G\ L). \]
 
 Note that the label set given to $F$ is the set of \emph{all $(G\
   L)$-shapes}.  Giving $G$-shapes as labels for $F$ is the same as
@@ -1107,6 +1158,8 @@ of the set of all ordered pairs chosen from the complete set of vertex
 labels ($\X^2 \sprod \E$).
 
 \todo{more examples}
+
+\todo{introduction form(s)?}
 
 $(\fcomp, \pt{\E})$ forms a (non-commutative) monoid up to species
 isomorphism.
