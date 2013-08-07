@@ -177,7 +177,7 @@
 
 \begin{document}
 
-\title{Species Constructors}
+\title{Programming with species and labelled types}
 
 \authorinfo{Brent A. Yorgey \\ Stephanie Weirich}
 {Dept. of Computer and Information Science\\ The University of Pennsylvania\\
@@ -193,7 +193,14 @@ Hamilton, Ontario, Canada}
 
 \begin{abstract}
 
-\todo{Abstract goes here.}
+The theory of \term{combinatorial species} has striking similarities
+to the theory of algebraic data types, but the precise
+connection---and its practical import---has remained elusive.
+
+We present a theory of \term{labelled types}, based directly on the
+foundation of combinatorial species and containing algebraic data
+types as a subclass, and demonstrate by example their practical utility
+for programming.
 
 \end{abstract}
 
@@ -205,37 +212,82 @@ Languages, Types
 \section{Introduction}
 \label{sec:intro}
 
-\begin{todoP}
-  Motivation.  ``An answer looking for a question.''  Note symmetries
-  were original motivation, but drawn to labels instead.  ``Follow the
-  theory'' and see what pops out.
+The theory of combinatorial species, as it relates to the theory and
+practice of programming languages, has seemed to the authors ``an
+answer looking for a question'': the theory is too beautiful, and too
+``obviously'' related to algebraic data types, to have no applications
+whatsoever.  Teasing out the precise relationship between species and
+data types, however, has proved challenging, due in large part to two
+main causes.  First, combinatoricists are mainly concerned with
+counting structures, and not with storing and computing with data;
+thus, when attempting to apply species in a computational context,
+there are many hidden assumptions and glossed distinctions that must
+be unraveled first.  Second, being situated in traditional
+mathematical practice rooted in set theory, species are usually
+described in ways that are \emph{untyped} and \emph{nonconstructive},
+both of which hinder adoption and understanding in a computational
+context.
 
-  Take-home points:
-  \begin{itemize}
-  \item Labelled structures capture a wide range of data structures.
-  \item Combinators! ($\times 2!$ --- type level and value level)
-  \end{itemize}
+Initially, we thought that the benefits of the theory of species would
+lie primarily in its ability to describe data types with
+\term{symmetry} (\ie\ quotient types).  For example, the type of
+(oriented) \term{cycles}---nonempty lists considered equivalent up to
+cyclic rotation of the elements---cannot be described as a traditional
+algebraic data type, but do correspond to a species.  Though that
+promise has not gone away, as we took a close look at the definitions,
+we were surprised to see the notion of \term{labels} coming to the
+fore, playing a much more prominent---and promising---role than we had
+previously imagined.
 
-  Other interesting but not take-home points:
-  \begin{itemize}
-  \item fun with isos
-  \item labels as abstract model of memory
-  \item labels make sharing easy
-  \end{itemize}
-\end{todoP}
-
-The idea of separating shapes and data is not new \todo{citations:
-  containers, shapely types, etc.}.  However, previous approaches have
-left the labels \emph{implicit}.  Bringing the labels to the fore
-enables cool stuff like
+The essential idea is to decompose data structures as \emph{shapes}
+filled with \emph{data}, with labels mediating between the two. Of
+course, the idea of separating shapes and data is not at all new
+\todo{citations: containers, shapely types, etc.}.  However, previous
+approaches have left the labels \emph{implicit}.  Bringing the
+mediating labels to the fore is, to our knowledge, novel, and leads to
+some interesting benefits, namely
 \begin{itemize}
-\item include a bunch of disparate stuff
-  under one framework
-\item let us talk about relabelling as a separate
-  operation
-\item put structure on the labels themselves, e.g. L-species
+\item the ability to unify heretofore disparate motions such as
+  algebraic data types and arrays under the same framework
+\item \todo{let us talk about relabelling as a separate
+  operation}
+\item \todo{put structure on the labels themselves, e.g. L-species}
 \item \todo{more?}
 \end{itemize}
+
+In particular, our contributions are as follows:
+\begin{itemize}
+\item We describe a ``port'' of combinatorial species from set theory
+  to constructive type theory, making the theory more directly
+  applicable in a programming context, more accessible to functional
+  programmers, and incidentally illuminating some new features of the
+  theory.
+\item We define a generic framework for \term{labelled types} on top
+  of this basis, showing how to include them in practical
+  programming languages.
+\item We give extended examples showing the utility of labelled types,
+  including \todo{?}
+\end{itemize}
+
+
+% \begin{todoP}
+%   Motivation.  ``An answer looking for a question.''  Note symmetries
+%   were original motivation, but drawn to labels instead.  ``Follow the
+%   theory'' and see what pops out.
+
+%   Take-home points:
+%   \begin{itemize}
+%   \item Labelled structures capture a wide range of data structures.
+%   \item Combinators! ($\times 2!$ --- type level and value level)
+%   \end{itemize}
+
+%   Other interesting but not take-home points:
+%   \begin{itemize}
+%   \item fun with isos
+%   \item labels as abstract model of memory
+%   \item labels make sharing easy
+%   \end{itemize}
+% \end{todoP}
 
 \section{Labelled Structures}
 \label{sec:labelled}
@@ -248,8 +300,8 @@ of container shapes and the data stored in those shapes.  This idea in
 and of itself is not new \cite{shapely, containers}; what is new is
 putting \emph{labels} front and center.  Labels provide the missing
 link between shapes and data, allowing one to specify which data goes
-where. \todo{say a bit more? Labels do more than that, which is why
-  bringing them to the fore is interesting.}
+where (though, as we will see in section \todo{???}, they do quite a
+bit more than that).
 
 Informally, a \term{labelled structure} is specified by:
 \begin{itemize}
@@ -258,9 +310,11 @@ Informally, a \term{labelled structure} is specified by:
 \item some sort of ``labelled shape''; and
 \item a (total) function $m : L \to A$ which maps labels to data values.
 \end{itemize}
-See~\pref{fig:labelled-structure-example} for an abstract example.  A
-\emph{family} of labelled structures refers to a class of structures
-parameterized over the label type $L$ and data type $A$.
+See~\pref{fig:labelled-structure-example} for an abstract example
+showing a labelled tree shape paired with a mapping from (integer)
+labels to (character) data.  A \emph{family} of labelled structures
+refers to a class of structures parameterized over the label type $L$
+and data type $A$.
 
 \begin{figure}
   \centering
@@ -293,31 +347,33 @@ x .... y = x ... strutX 0.5 ... y
   \label{fig:labelled-structure-example}
 \end{figure}
 
-Note that the function $v : L \to A$ mapping labels to data values
+Note that the function $m : L \to A$ mapping labels to data values
 need not be injective, so the same value of type $A$ may be associated
 to multiple labels, as illustrated in
-\pref{fig:labelled-structure-example}.  However, each label must
-``occur exactly once'' in the sense that $v$ must be total and cannot
-associate the same label to multiple values.  Abstractly, the labels
-can be thought of as ``holes'' or ``positions'' in the labelled shape
-which are to be filled with data.
+\pref{fig:labelled-structure-example}.  However, $m$ must be total,
+assigning each label to exactly one value.
 
 For now, we leave the notion of ``labelled shape'' abstract; we will
 return to define it more precisely in \pref{sec:species}.
 
 \paragraph{Algebraic data types}
 
-All the usual algebraic data types can be viewed as families of
-labelled structures.  For example, \todo{example}.  Note, however, that
+All the usual algebraic data types have corresponding families of
+labelled structures, where values of the algebraic data type are used
+as labelled shapes.  Given such a labelled structure we can
+``collapse'' it back to an algebraic data structure by substituting
+data for labels.  For example, \todo{example/illustrate}.  Note that
 the family of labelled tree structures is quite a bit larger than the
-usual algebraic type of trees: every possible different way of
-labelling a given tree shape results in a different labelled
-structure.  For algebraic data types, this added structure is
-uninteresting, in a way that we will make precise later
-\todo{when?}. \bay{Idea here is that for regular species we can always
-  recover a canonical labelling from the shape; and moreover there are
-  always precisely $n!$ different labellings for a shape of size $n$
-  (given a fixed set of labels).}
+usual algebraic type of trees: every possible labelling of a given
+tree shape results in a different labelled structure, whereas there
+are many labelled tree structures that will ``collapse'' to the same
+algebraic data structure, which differ only in the way they are
+labelled.  For algebraic data types, this is uninteresting (in a way
+that we will make precise in section \todo{??} \bay{Idea here is that
+  for regular species we can always recover a canonical labelling from
+  the shape; and moreover there are always precisely $n!$ different
+  labellings for a shape of size $n$ (given a fixed set of
+  labels).}).  For others, however, \todo{??}
 
 \paragraph{Finite maps}
 
