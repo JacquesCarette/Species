@@ -21,13 +21,13 @@
 
 \usepackage{../species}
 
-\usepackage{amsthm}
+% \usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{latexsym}
 \usepackage{amssymb}
 \usepackage{stmaryrd}
-\usepackage{proof}
+% \usepackage{proof}
 \usepackage{comment}
 \usepackage{url}
 \usepackage{xspace}
@@ -440,10 +440,6 @@ can we do graphs?
 \section{Combinatorial Species}
 \label{sec:species}
 
-\bay{The other thing to point out somewhere is that tracking labels is to
-  tracking size as the category B is to the discrete category of
-  natural numbers---i.e. it is a ``categorification''.}
-
 % We want to think of each labeled structure as \emph{indexed by} its
 % set of labels (or, more generally, by the \emph{size} of the set of
 % labels).  We can accomplish this by a mapping from label sets to all
@@ -452,12 +448,16 @@ can we do graphs?
 % matter what set of labels we happen to choose.
 
 Our theory of labelled structures is inspired by, and directly based
-on, the theory of \term{combinatorial species} \cite{joyal, bll}.
-\todo{point the reader to our own prior work on species + FP}
+upon, the theory of \term{combinatorial species} \cite{joyal}.  We
+give a brief introduction to it here; the reader interested in a
+fuller treatment should consult \cite{bll}.  \todo{point the reader
+  to our own prior work on species + FP?}
 
-\todo{Note that a lot of the power of the theory for combinatorics
-  comes from homomorphisms to rings of formal power series; we won't
-  use that in this paper---future work.}
+It is worth noting, in passing, that much of the power of the theory
+of species---at least in the context of combinatorics---can be traced
+to fruitful homomorphisms between algebraic descriptions of species
+and rings of formal power series.  However, we will not make use of
+that aspect of the theory in this paper.
 
 \subsection{Species, set-theoretically}
 \label{sec:set-species}
@@ -571,14 +571,24 @@ $\sigma \times (\sigma \to C) : A \times (A \to C) \iso B \times (B
 \to C)$, given by \[ \sigma \times (\sigma \to C) =
 (\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso (\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
 
-With the preliminaries out of the way, The first concept we need to
-port is that of a finite set.  Constructively, a finite set is one
-with an isomorphism to $\Fin\ n$ for some natural number $n$. That is,
-\[ \IsFinite A \defn (n : \N) \times (\Fin n \iso A). \] \bay{Note
-  there are other notions of finiteness but this is the one we
-  want/need?  See \eg\ \url{http://ncatlab.org/nlab/show/finite+set}.}
-Then we can define \[ \FinType \defn (A : \Type) \times \IsFinite A \] as
-the universe of finite types.
+With the preliminaries out of the way, the first concept we need to
+port is that of a finite set. What does it mean for a set $A$ to be
+finite?  Here are some possibilities:
+\begin{itemize}
+\item $A$ is not in bijection with any infinite set.
+\item There is a natural number $n$ for which $A$ is isomorphic to $\Fin\ n$.
+\item \dots but we don't necessarily know what $n$ is.
+\item ?
+\end{itemize}
+Classically, these are all equivalent, but in a constructive setting
+the distinctions are important.  We choose the second: a finite set is
+one with a (known) natural number size.  That is,
+\[ \IsFinite A \defn (n : \N) \times (\Fin n \iso A). \] There are
+other constructive notions of finiteness
+(\url{http://ncatlab.org/nlab/show/finite+set}) but this is the most
+standard, and the one we will need.  Given $\IsFinite$, we can now
+define \[ \FinType \defn (A : \Type) \times \IsFinite A \] as the
+universe of finite types.
 
 \todo{need some nice notation for dependent $n$-tuples, \ie\ records.}
 
