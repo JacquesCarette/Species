@@ -1,4 +1,6 @@
-\documentclass[9pt,preprint,authoryear]{sigplanconf}
+%% -*- LaTeX -*-
+
+\documentclass{llncs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% lhs2TeX
@@ -11,6 +13,8 @@
 \renewcommand{\Conid}[1]{\mathsf{#1}}
 
 %format sumTys = "\cons{sumTys}"
+%format <->    = "\iso"
+%format compP  = "\cons{compP}"
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
@@ -39,12 +43,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Theorems etc.
 
-\newtheorem{theorem}{Theorem}
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{lemma}[theorem]{Lemma}
+% \newtheorem{theorem}{Theorem}
+% \newtheorem{proposition}[theorem]{Proposition}
+% \newtheorem{lemma}[theorem]{Lemma}
 
-\theoremstyle{definition}
-\newtheorem{definition}[theorem]{Definition}
+% \theoremstyle{definition}
+% \newtheorem{definition}[theorem]{Definition}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Diagrams
@@ -80,6 +84,7 @@
 \DeclareMathOperator{\Species}{Species}
 \DeclareMathOperator{\FinType}{FinType}
 \DeclareMathOperator{\Type}{Type}
+\DeclareMathOperator{\LStr}{LStr}
 \DeclareMathOperator{\Fin}{Fin}
 \DeclareMathOperator{\IsFinite}{IsFinite}
 \DeclareMathOperator{\NatZ}{O}
@@ -95,6 +100,10 @@
 
 \DeclareMathOperator{\map}{map}
 \DeclareMathOperator{\sumTys}{sumTys}
+
+\DeclareMathOperator{\Elim}{Elim}
+\DeclareMathOperator{\elim}{elim}
+\DeclareMathOperator{\DecEq}{DecEq}
 
 \newcommand{\mor}{\Rightarrow}
 % \newcommand{\mor}{\stackrel{\bullet}{\rightarrow}}
@@ -168,65 +177,127 @@
 
 \begin{document}
 
-\title{Species Constructors}
+\title{Programming with species and labelled types}
 
-\authorinfo{Brent A. Yorgey \\ Stephanie Weirich}
-{Dept. of Computer and Information Science\\ The University of Pennsylvania\\
-Philadelphia, Pennsylvania, USA}
-{\{byorgey,sweirich\}@@cis.upenn.edu}
+% \authorinfo{Brent A. Yorgey \\ Stephanie Weirich}
+% {Dept. of Computer and Information Science\\ The University of Pennsylvania\\
+% Philadelphia, Pennsylvania, USA}
+% {\{byorgey,sweirich\}@@cis.upenn.edu}
 
-\authorinfo{Jacques Carette}
-{Dept. of Computing and Software\\ McMaster University\\
+% \authorinfo{Jacques Carette}
+% {Dept. of Computing and Software\\ McMaster University\\
+% Hamilton, Ontario, Canada}
+% {carette@@mcmaster.ca}
+
+\author{Brent A. Yorgey\inst{1} \and Stephanie Weirich\inst{1} \and
+  Jacques Carette\inst{2}}
+
+\institute{Dept. of Computer and Information Science\\
+The University of Pennsylvania\\
+Philadelphia, Pennsylvania, USA
+\and
+Dept. of Computing and Software\\ McMaster University\\
 Hamilton, Ontario, Canada}
-{carette@@mcmaster.ca}
 
 \maketitle
 
 \begin{abstract}
 
-\todo{Abstract goes here.}
+The theory of \term{combinatorial species} has striking similarities
+to the theory of algebraic data types, but the precise
+connection---and its practical import---has remained elusive.
+
+We present a theory of \term{labelled types}, based directly on the
+foundation of combinatorial species and containing algebraic data
+types as a subclass, and demonstrate by example their practical utility
+for programming.
 
 \end{abstract}
 
-\category{D.3.2}{Programming Languages}{Applicative (functional) languages}
+% \category{D.3.2}{Programming Languages}{Applicative (functional) languages}
 
-\terms
-Languages, Types
+% \terms
+% Languages, Types
 
 \section{Introduction}
 \label{sec:intro}
 
-\begin{todoP}
-  Motivation.  ``An answer looking for a question.''  Note symmetries
-  were original motivation, but drawn to labels instead.  ``Follow the
-  theory'' and see what pops out.
+The theory of combinatorial species, as it relates to the theory and
+practice of programming languages, has seemed to the authors ``an
+answer looking for a question'': the theory is too beautiful, and too
+``obviously'' related to algebraic data types, to have no applications
+whatsoever.  Teasing out the precise relationship between species and
+data types, however, has proved challenging, due in large part to two
+main causes.  First, combinatoricists are mainly concerned with
+counting structures, and not with storing and computing with data;
+thus, when attempting to apply species in a computational context,
+there are many hidden assumptions and glossed distinctions that must
+be unraveled first.  Second, being situated in traditional
+mathematical practice rooted in set theory, species are usually
+described in ways that are \emph{untyped} and \emph{nonconstructive},
+both of which hinder adoption and understanding in a computational
+context.
 
-  Take-home points:
-  \begin{itemize}
-  \item Labelled structures capture a wide range of data structures.
-  \item Combinators! ($\times 2!$ --- type level and value level)
-  \end{itemize}
+Initially, we thought that the benefits of the theory of species would
+lie primarily in its ability to describe data types with
+\term{symmetry} (\ie\ quotient types).  For example, the type of
+(oriented) \term{cycles}---nonempty lists considered equivalent up to
+cyclic rotation of the elements---cannot be described as a traditional
+algebraic data type, but do correspond to a species.  Though that
+promise has not gone away, as we took a close look at the definitions,
+we were surprised to see the notion of \term{labels} coming to the
+fore, playing a much more prominent---and promising---role than we had
+previously imagined.
 
-  Other interesting but not take-home points:
-  \begin{itemize}
-  \item fun with isos
-  \item labels as abstract model of memory
-  \item labels make sharing easy
-  \end{itemize}
-\end{todoP}
-
-The idea of separating shapes and data is not new \todo{citations:
-  containers, shapely types, etc.}.  However, previous approaches have
-left the labels \emph{implicit}.  Bringing the labels to the fore
-enables cool stuff like
+The essential idea is to decompose data structures as \emph{shapes}
+filled with \emph{data}, with labels mediating between the two. Of
+course, the idea of separating shapes and data is not at all new
+\todo{citations: containers, shapely types, etc.}.  However, previous
+approaches have left the labels \emph{implicit}.  Bringing the
+mediating labels to the fore is, to our knowledge, novel, and leads to
+some interesting benefits, namely
 \begin{itemize}
-\item include a bunch of disparate stuff
-  under one framework
-\item let us talk about relabelling as a separate
-  operation
-\item put structure on the labels themselves, e.g. L-species
+\item the ability to unify heretofore disparate motions such as
+  algebraic data types and arrays under the same framework
+\item \todo{let us talk about relabelling as a separate
+  operation}
+\item \todo{put structure on the labels themselves, e.g. L-species}
 \item \todo{more?}
 \end{itemize}
+
+In particular, our contributions are as follows:
+\begin{itemize}
+\item We describe a ``port'' of combinatorial species from set theory
+  to constructive type theory, making the theory more directly
+  applicable in a programming context, more accessible to functional
+  programmers, and incidentally illuminating some new features of the
+  theory.
+\item We define a generic framework for \term{labelled types} on top
+  of this basis, showing how to include them in practical
+  programming languages.
+\item We give extended examples showing the utility of labelled types,
+  including \todo{?}
+\end{itemize}
+
+
+% \begin{todoP}
+%   Motivation.  ``An answer looking for a question.''  Note symmetries
+%   were original motivation, but drawn to labels instead.  ``Follow the
+%   theory'' and see what pops out.
+
+%   Take-home points:
+%   \begin{itemize}
+%   \item Labelled structures capture a wide range of data structures.
+%   \item Combinators! ($\times 2!$ --- type level and value level)
+%   \end{itemize}
+
+%   Other interesting but not take-home points:
+%   \begin{itemize}
+%   \item fun with isos
+%   \item labels as abstract model of memory
+%   \item labels make sharing easy
+%   \end{itemize}
+% \end{todoP}
 
 \section{Labelled Structures}
 \label{sec:labelled}
@@ -239,19 +310,21 @@ of container shapes and the data stored in those shapes.  This idea in
 and of itself is not new \cite{shapely, containers}; what is new is
 putting \emph{labels} front and center.  Labels provide the missing
 link between shapes and data, allowing one to specify which data goes
-where. \todo{say a bit more? Labels do more than that, which is why
-  bringing them to the fore is interesting.}
+where (though, as we will see in section \todo{???}, they do quite a
+bit more than that).
 
 Informally, a \term{labelled structure} is specified by:
 \begin{itemize}
 \item a finite type of labels $L$;
 \item a type of data elements $A$;
 \item some sort of ``labelled shape''; and
-\item a (total) function $v : L \to A$ which maps labels to data values.
+\item a (total) function $m : L \to A$ which maps labels to data values.
 \end{itemize}
-See~\pref{fig:labelled-structure-example} for an abstract example.  A
-\emph{family} of labelled structures refers to a class of structures
-parameterized over the label type $L$ and data type $A$.
+See~\pref{fig:labelled-structure-example} for an abstract example
+showing a labelled tree shape paired with a mapping from (integer)
+labels to (character) data.  A \emph{family} of labelled structures
+refers to a class of structures parameterized over the label type $L$
+and data type $A$.
 
 \begin{figure}
   \centering
@@ -284,31 +357,33 @@ x .... y = x ... strutX 0.5 ... y
   \label{fig:labelled-structure-example}
 \end{figure}
 
-Note that the function $v : L \to A$ mapping labels to data values
+Note that the function $m : L \to A$ mapping labels to data values
 need not be injective, so the same value of type $A$ may be associated
 to multiple labels, as illustrated in
-\pref{fig:labelled-structure-example}.  However, each label must
-``occur exactly once'' in the sense that $v$ must be total and cannot
-associate the same label to multiple values.  Abstractly, the labels
-can be thought of as ``holes'' or ``positions'' in the labelled shape
-which are to be filled with data.
+\pref{fig:labelled-structure-example}.  However, $m$ must be total,
+assigning each label to exactly one value.
 
 For now, we leave the notion of ``labelled shape'' abstract; we will
 return to define it more precisely in \pref{sec:species}.
 
 \paragraph{Algebraic data types}
 
-All the usual algebraic data types can be viewed as families of
-labelled structures.  For example, \todo{example}.  Note, however, that
+All the usual algebraic data types have corresponding families of
+labelled structures, where values of the algebraic data type are used
+as labelled shapes.  Given such a labelled structure we can
+``collapse'' it back to an algebraic data structure by substituting
+data for labels.  For example, \todo{example/illustrate}.  Note that
 the family of labelled tree structures is quite a bit larger than the
-usual algebraic type of trees: every possible different way of
-labelling a given tree shape results in a different labelled
-structure.  For algebraic data types, this added structure is
-uninteresting, in a way that we will make precise later
-\todo{when?}. \bay{Idea here is that for regular species we can always
-  recover a canonical labelling from the shape; and moreover there are
-  always precisely $n!$ different labellings for a shape of size $n$
-  (given a fixed set of labels).}
+usual algebraic type of trees: every possible labelling of a given
+tree shape results in a different labelled structure, whereas there
+are many labelled tree structures that will ``collapse'' to the same
+algebraic data structure, which differ only in the way they are
+labelled.  For algebraic data types, this is uninteresting (in a way
+that we will make precise in section \todo{??} \bay{Idea here is that
+  for regular species we can always recover a canonical labelling from
+  the shape; and moreover there are always precisely $n!$ different
+  labellings for a shape of size $n$ (given a fixed set of
+  labels).}).  For others, however, \todo{??}
 
 \paragraph{Finite maps}
 
@@ -470,7 +545,9 @@ the type of functions taking $x$ as an \emph{implicit} argument, and
 omit implicit arguments when applying such functions.  For example, if
 $f : \impl{A:\Type} \to A \to A$ then we write simply $f\ 3$ instead of
 $f\ \N\ 3$.  When an implicit argument needs to be provided explicitly
-we use a subscript, as in $f_{\N}\ 3$.
+we use a subscript, as in $f_{\N}\ 3$.  Free type variables should be
+understood as implicit arguments, for example, the type $A \to A$ is
+shorthand for $\impl{A:\Type} \to A \to A$.
 
 We use $\N : \Type$ to denote the usual inductively defined type of
 natural numbers, with constructors $\NatZ : \N$ and $\NatS : \N \to
@@ -537,22 +614,52 @@ or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 \subsection{Labelled structures, formally}
 \label{sec:labelled-formal}
 
-Formally, we may define a labelled structure as a dependent five-tuple
-with the type
-\[
-   (F : \Species) \times (L : \FinType) \times (A : \Type) \times F\ L
-   \times (L \to A),
-\]
-that is,
+Formally, we may define families of labelled structures as follows.
+\begin{align*}
+   &\LStr : \Species \to \FinType \to \Type \to \Type \\
+   &\LStr\ F\ L\ A = F\ L \times (L \to A)
+\end{align*}
+that is, a labelled structure over the species $F$, a
+constructively finite type $L$ of labels, and a type $A$ of
+data consists simply of
 \begin{itemize}
-\item a species $F$,
-\item a constructively finite type $L$ of \term{labels},
-\item a type $A$ of \term{data},
-\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape,
+\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape, and
 \item a mapping from labels to data, $m : L \to A$.
 \end{itemize}
 
-\todo{say more here?}
+We can define the generic type of eliminators for labelled
+$F$-structures, $\Elim_F : \Type \to \Type \to \Type$, as
+\begin{multline*}
+  \Elim_F\ A\ R \defn (L : \Type) \to \\
+  \DecEq L \to F\ L \to (L \to A) \to R
+\end{multline*}
+where $\DecEq L$ represents decidable equality for $L$. There are a
+few subtle issues here which are worth spelling out in detail. First,
+note that $\Elim_F$ is parameterized by $A$ (the type of data elements
+stored in the labelled structure being eliminated) and $R$ (the type
+of the desired result), but \emph{not} by $L$.  Rather, an eliminator
+of type $\Elim_F\ A\ R$ must be parametric in $L$; it is not allowed
+to define an eliminator which works only for certain label types.  The
+second point is that $L$ is a $\Type$ rather than a $\FinType$ as one
+might expect.  The reason is that one can observe an induced linear
+order on the elements of a $\FinType$, using the usual linear order on
+the associated natural numbers, but we do not want to allow this,
+since it would ``break'' the functoriality of species.  \bay{is this
+  the right way to say it?}  That is, an eliminator which was allowed
+to observe an implicit linear order on the labels could give different
+results for two labelled structures which differ only by a
+relabelling, \bay{but this is bad... why?} Instead, we require only
+decidable equality for $L$ (of course, every $\FinType$ has decidable
+equality).
+
+We can ``run'' an eliminator,
+\[ \elim : \Elim_F\ A\ R \to ??? \to R, \] by simply taking apart the
+labelled structure and passing its components to the eliminator,
+projecting the label $\Type$ and its decidable equality from the
+$\FinType$.
+
+\todo{Note all the stuff with $L$ really only makes a difference for
+  things with sharing\dots}
 
 \subsection{Species, algebraically}
 \label{sec:algebraic}
@@ -562,8 +669,8 @@ do not really want to work directly with the definition of species,
 but rather with an algebraic theory. \todo{say a bit more}
 
 For each species primitive or operation, we also discuss the
-associated introduction and elimination forms for the associated
-labelled structures. \todo{add these}
+associated introduction form(s), for both ``bare'' shapes and for
+labelled structures.  We discuss eliminators in~\pref{sec:elim}.
 
 \paragraph{Zero}
   The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
@@ -573,6 +680,7 @@ labelled structures. \todo{add these}
   \Zero\ L &= \TyZero \\
   \Zero\ \sigma &= \id_\TyZero
   \end{align*}
+  The zero species, of course, has no introduction form.
   \bay{Say more here?}
 
   \todo{be more explicit about how we will be defining species
@@ -609,6 +717,16 @@ labelled structures. \todo{add these}
     Yeh, “The calculus of virtual species and K-species”, namely that
     $\One$ can be defined as the hom-functor $\B(\varnothing, -)$.}
 
+  There is a trivial introduction form for $\One$, also denoted
+  $\top$, which creates a $\One$-shape using the canonical label set
+  $\Fin\ 0$, that is, \[ \top : \One\ (\Fin\ 0). \] In a further abuse
+  of notation we can also use $\top$ to denote an introduction form
+  for labelled $\One$-structures, \[ \top : \LStr\ \One\ (\Fin\ 0)\
+  A. \]
+
+  Introducing a canonical label type will be standard for introduction
+  forms; other label types may be obtained via relabelling.
+
 \paragraph{Singleton}
   The \emph{singleton} species, denoted $\X$, is defined by
   \[ \X\ L = \TyOne \iso L, \] that is, an $\X$-shape is just a proof
@@ -623,28 +741,26 @@ labelled structures. \todo{add these}
   definitions given from here on. \bay{But we will explicitly discuss
     it when it is not obvious?}
 
+  $\X$-shapes, as with $\One$, have a trivial introduction form,
+  \[ \cons{x} : \X\ (\Fin\ 1). \]  To introduce an $\X$-structure, one
+  must provide the single value of type $A$ which is to be stored in
+  the single location: \[ \cons{x} : A \to \LStr\ \X\ (\Fin\ 1)\ A. \]
+
 \paragraph{Sets}
 The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
 \TyOne. \] That is, there is a single $\E$-shape for every label type.
+Intuitively, $\E$-shapes impose no structure whatsoever; that is, an
+labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
 
-\todo{say more here?}
+Note that if $\E$-shapes are sets, then labelled
+$\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
+are \emph{bags}: any particular data element may occur multiple times
+(each time associated with a different, unique label).
 
-% \footnote{The species literature calls
-%     this the species of \emph{sets}, but that's misleading to computer
-%     scientists, who expect the word ``set'' to imply that elements
-%     cannot be repeated. The \emph{labels} in a bag structure cannot be
-%   repeated, but nothing stops us from mapping labels to data elements
-%   in a non-injective way.}, denoted $\Bag$, is defined by \[ \Bag[U] =
-%   \{U\}, \] that is, there is a single $\Bag$-structure on any set of
-%   labels $U$, which we usually identify with the set of labels itself
-%   (although we could equivalently define $\Bag[U] = \{\star\}$). The
-%   idea is that an $\Bag$-structure consists solely of a collection of
-%   labels, with no imposed ordering whatsoever.
-
-%   $\E$ is precisely the species mentioned previously which some
-%   na\"ively expect as the definition of $\One$.  In fact, $\E$ is
-%   indeed the identity element for a product-like operation,
-%   \term{Cartesian product}, to be discussed below.
+$\E$-shapes also have a trivial introduction form, $\cons{e} : \E\ L$,
+along with a corresponding introduction form for $\E$-structures
+which simply requires the mapping from labels to values: \[ \cons{e} :
+(L \to A) \to \LStr\ \E\ L\ A. \]
 
 As a summary, \pref{fig:prims} contains a graphic showing $\Zero$-,
 $\One$-, $\X$-, and $\E$-shapes arranged by size (\ie, the size of the
@@ -780,6 +896,8 @@ dia = theDia # centerXY # pad 1.1
     \caption{Species sum}
     \label{fig:sum}
   \end{figure}
+\todo{need to explain what these pictures mean at some point, and make
+  sure each picture is referenced from the text.}
 
 As the reader is invited to check, $(\ssum,\Zero)$ forms a commutative
 monoid structure on species, up to species isomorphism.  That is, one
@@ -790,6 +908,15 @@ can define isomorphisms
 &\cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \natiso F) \\
 &\cons{plusComm} : \impl{F, G : \Species} \to (F \ssum G \natiso G
 \ssum F) \\
+\end{align*}
+
+As expected, there are two introduction forms for $(F \ssum G)$-shapes
+and -structures:
+\begin{align*}
+&\cons{inl} : F\ L \to (F \ssum G)\ L \\
+&\cons{inr} : G\ L \to (F \ssum G)\ L \\
+&\cons{inl} : \LStr\ F\ L\ A \to \LStr\ (F \ssum G)\ L\ A \\
+&\cons{inl} : \LStr\ G\ L\ A \to \LStr\ (F \ssum G)\ L\ A \\
 \end{align*}
 
 \paragraph{Product}
@@ -853,6 +980,17 @@ On the other hand, when dealing with labels instead of data values, we
 have to carefully account for the way the labels are distributed among
 the two shapes.
 
+One introduces a labelled $(F \sprod G)$-shape by pairing a labelled $F$-shape and a
+labelled $G$-shape, using a canonical label set formed as the
+coproduct of the two label types:
+\begin{align*}
+  &\langle - , - \rangle : F\ L_1 \to G\ L_2 \to (F \sprod G)\ (L_1 +
+  L_2) \\
+  &\langle - , - \rangle : \LStr\ F\ L_1\ A \to \LStr\ G\ L_2\ A \to
+  \LStr\ (F \sprod G)\ (L_1 +
+  L_2)\ A
+\end{align*}
+
 $(\sprod, \One)$ also forms a commutative monoid up to species
 isomorphism.
 
@@ -861,7 +999,7 @@ isomorphism.
 We may also define the \term{composition} of two species.
 Intuitively, $(F \scomp G)$-shapes consist of a single top-level
 $F$-shape, which itself contains labelled $G$-shapes in place of the
-usual labels. \todo{needs a picture of some sort}
+usual labels, as illustrated in~\pref{fig:composition}.
 
 We represent this sort of nested shape by pairing an $F$-shape with a
 vector of $G$-shapes, using a canonical labelling for the $F$-shape
@@ -914,28 +1052,102 @@ of $G$-shapes is quite different from a $G$-shape of $F$-shapes.  It
 is, however, still associative (up to isomorphism), and in fact
 $(\scomp, \X)$ forms a monoid up to species isomorphism.
 
+Unlike the shape constructions we've seen up to now, the space of
+introduction forms for composition structures is actually quite
+interesting.  We will not separately consider introduction forms for
+composition shapes, but study introduction forms for composition
+structures directly.
+
+At the simplest end of the spectrum, we can define |compP| as follows,
+which is a sort of cartesian product, copying the provided $G$
+structure into every location of the $F$ structure and pairing up
+their labels and data:
+\begin{multline*}
+  \cons{compP} : \LStr\ F\ L_1\ A \to \LStr\ G\ L_2\ B \\ \to \LStr\ (F
+  \scomp G)\ (L_1 \times L_2)\ (A \times B)
+\end{multline*}
+
+\todo{explain this better, and add an illustration of |compP|}
+
+\todo{monoidal something-or-other. Like Applicative.  So we can
+  equivalently have:}
+
+\begin{multline*}
+  \cons{compA} : \LStr\ F\ L_1\ (A \to B) \to \LStr\ G\ L_2\ A \\ \to \LStr\ (F
+  \scomp G)\ (L_1 \times L_2)\ B
+\end{multline*}
+
+\todo{Can also have something like monadic join:}
+
+\begin{multline*}
+  \cons{compJ} : \LStr\ F\ L_1\ (\LStr\ G\ L_2\ A) \to \LStr\ (F \scomp
+  G)\ (L_1 \times L_2)\ A
+\end{multline*}
+
+\todo{And finally, a dependent version something like monadic
+  bind. Note that $L_2 : L_1 \to \FinType$ is allowed to depend on $L_1$.}
+
+\begin{multline*}
+  \cons{compB} : \LStr\ F\ L_1\ \TyOne \to ((l : L_1) \to \LStr\ G\
+  (L_2\ l)\ A) \\ \to \LStr\ (F \scomp G)\ ((l : L_1) \times L_2\ l)\ A
+\end{multline*}
+
+\todo{add some pictures for the above}
+
 \paragraph{Cartesian product}
 
-\todo{``Na\"ive'' product in the sense that the labels are not
-  partitioned.  Can think of this as modelling (value-level) sharing.}
+As we saw earlier, the definition of the standard product operation on
+species partitioned the set of labels between the two subshapes.
+However, there is nothing to stop us from defining a different
+product-like operation, known as \term{Cartesian product} which does
+not partition the labels:\[ (F \scprod G)\ L = F\ L \times G\ L \]
+This is, of course, the ``na\"ive'' version of product that one might
+expect from experience with generic programming.
 
-\[ (F \scprod G)\ L = F\ L \times G\ L \]
+With labelled shapes, of course, this works very differently.  It is
+important to remember that we still only get to specify a single
+function of type $L \to A$ for the mapping from labels to data.  So
+each label is still associated to only a single data value, but labels
+can occur twice (or more) in an $(F \times G)$-shape.  This lets us
+\emph{explicitly} model sharing, that is, multiple parts of the same
+shape can all ``point to'' the same data.  In pure functional
+languages such as Haskell or Agda, sharing is a (mostly) unobservable
+operational detail; with a labelled structure we can directly model
+and observe it.
+
+\todo{illustration}
+
+\todo{example}
+
+To introduce a Cartesian product shape, one simply pairs two shapes on
+the same set of labels.  Introducing a Cartesian product structure is
+more interesting. One way to do it is to overlay an additional shape
+on top of an existing structure: \[ \cons{cprodL} : F\ L \to \LStr\ G\ L\ A
+\to \LStr\ (F \scprod G)\ L\ A. \] There is also a corresponding
+$\cons{cprodR}$ which combines an $F$-structure and a $G$-shape.
+\todo{picture}
 
 $(\scprod, \E)$ forms a commutative monoid up to species isomorphism.
 
 \paragraph{Cardinality restriction}
 
-\todo{explain}
+Another important operation on species is \term{cardinality
+  restriction}, which simply restricts a given species to only have
+shapes of certain sizes.  For example, if $\L$ is the species of
+lists, $\L_3$ is the species of lists with length exactly three, and
+$\L_{\geq 1}$ is the species of non-empty lists.  We can formalize a
+simple version of this, for restricting only to particular sizes, as
+follows:
 
 \begin{align*}
 &\OfSize : \Species \to \N \to \Species \\
 &\OfSize\ F\ n = \lam{L}{(\Fin n \iso L) \times F\ L}
 \end{align*}
 
-As is standard, we will use the notation $F_n$ as shorthand for
+As is standard, we use the notation $F_n$ as shorthand for
 $\OfSize\ F\ n$.
 
-We could also generalize to arbitrary collections of natural numbers,
+We could also generalize to arbitrary predicates on natural numbers,
 as in
 \begin{align*}
 &\OfSize' : \Species \to (\N \to \Type) \to \Species \\
@@ -950,17 +1162,73 @@ care about, so as a practical tradeoff we can add explicit combinators
 $\cons{OfSizeLT}$ and $\cons{OfSizeGT}$ representing these predicates,
 abbreviated as $F_{\leq n}$ and $F_{\geq n}$ respectively.
 
+The introduction form for $\OfSize$ is simple enough,
+\[ \cons{sized} : \LStr\ F\ L\ A \to \LStr\ (\OfSize\ F\ ||L||)\ L\ A, \]
+where $||L||$ denotes the size of $L$ ($L$ is a $\FinType$ and
+therefore has a natural number size).
+
+\todo{intro forms for $\cons{OfSizeLT}$ and $\cons{OfSizeGT}$?}
+
 \paragraph{Derivative and pointing}
 
-\[ F'\ L = (L' : \FinType) \times (L' \iso \TyOne + L) \times F\ L \]
+The \term{derivative} is a well-known operation on shapes in the
+functional programming community~\cite{holes etc.}, and it works in
+exactly the way one expects on species.  That is, $F'$-shapes consist
+of $F$-shapes with one distinguished location (a ``hole'') that
+contains no data.  Formally, we may define
+\[ F'\ L = (L' : \FinType) \times (L' \iso \TyOne + L) \times F\ L' \]
+\todo{picture}
 
-\[ \pt{F}\ L = L \times F\ L \]
+Note that a function of type $L \to A$ associates data to every label
+in the underlying $F\ L'$ structure but one, since $L' \iso \TyOne +
+L$.
 
-$\pt F \natiso X \sprod F'$.
+To introduce a derivative structure, we require an input structure
+whose label type is already in the form $\TyOne + L$: \[ \cons{d} :
+\LStr\ F\ (\TyOne + L)\ A \to \LStr\ F'\ L\ A. \]
+
+A related, but constructively quite different operation is that of
+\term{pointing}.  A pointed $F$-shape is an $F$-shape with a
+particular label distinguished. \todo{picture} Formally,
+\[ \pt{F}\ L = L \times F\ L. \]
+Introducing a pointed structure requires simply specifying which label
+should be pointed: \[ \cons{p} : L \to \LStr\ F\ L\ A \to \LStr\
+(\pt{F})\ L\ A. \]
+
+The relationship bewteen pointing and derivative is given by the
+isomorphism \[ \pt F \natiso \X \sprod F'. \] \todo{say more about
+  this?}
 
 \paragraph{Functor composition}
 
-\[ (F \fcomp G)\ L = F\ (G\ L) \]
+Just as a ``na\"ive'' product gave us some interesting structures with
+value-level sharing, a ``na\"ive'' composition can do the same.  We
+define the \term{functor product} of two species as follows:
+\[ (F \fcomp G)\ L = F\ (G\ L). \]
+
+Note that the label set given to $F$ is the set of \emph{all $(G\
+  L)$-shapes}.  Giving $G$-shapes as labels for $F$ is the same as
+$\scomp$; the difference is that with $\scomp$ the labels are
+partitioned among all the $G$-shapes, but here the complete set of
+labels is given to each $G$-shape.  This means that a particular label
+could occur \emph{many} times in an $(F \fcomp G)$-shape, since it
+will occur at least once in each $G$-shape, and the $F$-shape may
+contain many $G$-shapes.
+
+\todo{picture}
+
+As an example, the species of simple directed graphs with labeled
+vertices can be specified as \[ \mathcal{G} = (\E \sprod \E) \fcomp
+(\X^2 \sprod \E), \] describing a graph as a subset ($\E \sprod \E$)
+of the set of all ordered pairs chosen from the complete set of vertex
+labels ($\X^2 \sprod \E$).
+
+\todo{more examples}
+
+\todo{introduction form(s)?}
+
+$(\fcomp, \pt{\E})$ forms a (non-commutative) monoid up to species
+isomorphism.
 
 \section{Unlabelled structures}
 
@@ -982,6 +1250,8 @@ $\pt F \natiso X \sprod F'$.
   things to efficient runtime code is future work.
 }
 
+\todo{be sure to discuss recursion.}
+
 \section{Programming with Labelled Structures}
 \label{sec:programming}
 
@@ -989,6 +1259,313 @@ $\pt F \natiso X \sprod F'$.
   Give some examples of using our implementation.
   e.g. $n$-dimensional vectors.
 }
+
+\subsection{Arrays}
+\label{sec:arrays}
+
+As an extended example and a good way to explore some of the
+combinators which are possible, we present a framework for programming
+with (arbitrary-dimensional) \emph{arrays}.
+
+What is an array?  One typically thinks of arrays as $n$-dimensional
+grids of data, like
+\[
+\begin{bmatrix}
+5.6 & 5.9 & 5.4 & 0.7\\
+0.1 & 7.4 & 2.1 & 5.9\\
+1.9 & 2.4 & 7.9 & 7.5
+\end{bmatrix}
+\]
+That is, within the framework of labelled structures, one would think
+of a two-dimensional array as a \emph{two-dimensional grid shape}
+paired with some data.
+\[
+\begin{bmatrix}
+\square & \square & \square & \square\\
+\square & \square & \square & \square\\
+\square & \square & \square & \square
+\end{bmatrix}
++ 5.6, 5.9, 5.4, \dots
+\]
+Under this view the particular labels used to match up locations and
+data do not matter very much (which is why labels are omitted in the
+picture above).
+
+However, there is another way to view arrays as labelled structures:
+we can view them as consisting of labelled \emph{bag} shapes (that is,
+shapes with no structure whatsoever), with the $n$-dimensional
+structure instead inherent in the particular type of labels used.  For
+example, a two-dimensional matrix can be viewed as a labelled bag
+structure where the labels are elements of some product type.
+
+This view has several advantages: first, by using label types with
+other sorts of structure we can easily obtain generalizations of the
+usual notion of arrays. Second, it lends itself particularly well to
+index-oriented operations: for example, transposing a two-dimensional
+array is just a call to |relabel|.  One might imagine being able to
+easily optimize away such label-based operations (whereas an
+implementation of transposition as a structure-based operation on grid
+shapes would be much more difficult to work with).
+
+\bay{The usual eliminators are useless on
+  arrays-as-bags-of-structured-labels, because they are not allowed to
+  take into account any structure on labels.  So why are we justified
+  in taking label structure into account for various operations on
+  arrays?  I feel strongly that we are/should be justified but I am
+  not quite sure yet of the right way to explain it.  It has to
+  do specifically with using a bag shape.  If we use some nontrivial
+  shape and \emph{also} have nontrivial structure on the labels then
+  there is potential for the two structures to ``get out of sync''.
+  We start to address some of this in the next section.}
+
+% So I went to try to implement some of this yesterday.  I started out
+% by trying to implement
+
+%   unComp :: Sp (Comp f g) (l1,l2) a -> Sp f l1 (Sp g l2 a)
+
+% I tried writing out an implementation on paper and was having real
+% trouble.  Once again the types seemed to be indicating that I was
+% doing something wrong.  After some deeper reflection I have come to
+% realize that a function with this type cannot possibly exist!
+
+% Jacques, you were actually right: (E . E) is not the right shape for
+% matrices.  The problem is that it allows ragged matrices.  Having
+% something of type Sp (E.E) (l1,l2) does not actually guarantee that we
+% have l1-many rows each labeled by l2: all we know is that there are
+% l1xl2 many entries *in total*, but they can be distributed in weird
+% ways.
+
+% So one idea would be to use something like (E_m . E_n) as the shape of
+% mxn matrices, as Jacques originally suggested.  That solves the
+% problem of ragged matrices, but actually the problem goes deeper than
+% that: given an (E_m . E_n) (l1,l2)-structure, we still can't take it
+% apart coherently because we don't know labels are distributed in a way
+% that matches the structure.  e.g. we could have
+
+%    { { (1,2), (2,1), (2,3) }
+%    , { (2,2), (1,1), (1,3) }
+%    }
+
+% which is incoherent since the (1,x) labels are not all contained in
+% a single row, and so on.
+
+% I think the right solution is to just use E as the shape of all
+% (n-dimensional) matrices, with all the structure in the labels.  In
+% other words, we don't try to impose any ideas about how a matrix is
+% "structured" unless we need the structure for some reason. E.g. to
+% construct a 2D matrix we first use composition:
+
+%   Sp E l1 a -> Sp E l2 a -> Sp (E . E) (l1,l2) a
+
+% But instead of leaving it like that, we now use a "reshape" operation
+% along with the fact that we have a nice "join" operation (E.E) -> E to get
+
+%   Sp E (l1,l2) a
+
+% Now doing things like transposition really is just a relabeling (note
+% that the version of transposition I implemented before had the problem
+% that it changed the labels without doing any restructuring, so the
+% labels no longer corresponded to the structure).  We can (I think)
+% implement an "uncompose" operation of type
+
+%   Sp E (l1,l2) a -> Sp E l1 (Sp E l2 a)
+
+% by just splitting up into subsets according to the label structure.
+% However note that this is specialized to E: we certainly can't do this
+% in general for arbitrary shapes.  Though I'm sure it can be
+% generalized in some way, but I haven't thought carefully yet about
+% what that might look like.
+
+\subsection{Zipping}
+\label{sec:zipping}
+
+One natural operation on arrays of the same size is to \term{zip}
+them, applying some operation to their corresponding elements
+pointwise and producing a new array.
+
+\todo{talk about |zip|: can zip two labelled structures with bag
+  shapes and matching label types.  But to zip structurally we need
+  ``unlabelled'' structures so we can force the labels to match up via
+  the structures.}
+
+% Now, on to zipping in general.  The problem is that zipping two
+% labelled structures where the structures are nontrivial is
+% nonsensical: we must be able to match up both the structures *and* the
+% labels, but we cannot do both in general.  Ultimately I think the real
+% problem here is that we usually don't work directly with labelled
+% structures but with unlabelled, that is, equivalence classes of
+% labelled structures.  For *regular* unlabelled structures (i.e. ones
+% with no symmetry) we can then zip because the structure itself gives
+% us canonical labels---as labels we can use the type of "paths" into
+% the structure.  So then we are back to matching up labels, but they
+% are guaranteed to match the structure.
+
+% However I am really not sure how to talk about unlabelled species
+% within our framework.  For a regular species S we can sort of fake it
+% by using E (Path S), i.e. labelled bags where (Path S) is the type of
+% paths into S.  But that's not all that nice and I'm not even convinced
+% it's really the same thing.
+
+% Hmm, now that I think of it, perhaps the idea for unlabelled
+% structures would just be that the system is allowed to permute the
+% labels at any time, and you the user are not supposed to care because
+% you are working with an equivalence class instead of with a concrete
+% labelling.  I suppose this could be enforced by existentially
+% quantifying over the labels or something like that.  So a zip on
+% "unlabelled" structures (urgh, unlabelled is a really bad name!) gets
+% to first permute the labels so they match up before doing the zip.
+
+
+
+% I've now been thinking about how to compute the sum of two such
+% matrices.  We evidently need some way to be able to "zip" two shapes
+% together.  So I made a class
+
+%   class Zippy f where
+%     fzip :: f l -> f l -> f l
+
+% Instances for One, X, and E are easy enough to write (because there is
+% only one shape of each type).  I was expecting to be able to write an
+% instance for products but not for sums.  But I got to
+
+%   instance (Zippy f, Zippy g) => Zippy (f * g) where
+%     fzip (Prod f1 g1 pf1) (Prod f2 g2 pf2) = ?
+
+%   where
+%     f1 :: f l11
+%     g1 :: g l12
+%     pf1 :: Either l11 l12 <-> l
+%     f2 :: f l21
+%     g2 :: g l22
+%     pf2 :: Either l21 l22 <-> l
+
+% can you use those to construct something of type (f * g) l?  Of course
+% we could just cheat and return one or the other Prod, but that's
+% definitely cheating since we wouldn't even be using the fact that f
+% and g are Zippy.  The problem is that the labels l might not have been
+% partitioned between f and g in the same way, so there's no guarantee
+% we can do any recursive zipping.
+
+% Of course, if product doesn't even work then composition seems right
+% out.  But everyone knows that you can zip matrices of the same size.
+% So what gives?  I guess there's actually something special going on
+% with E.  E o E  should be Zippy even though we can't say in general
+% that (f o g) is Zippy when f and g are.  But I'm not sure how to make
+% this precise.
+
+
+\todo{explain matrix multiplication.  Need to first finish writing
+  about introduction forms for composition.}
+
+% Here's how matrix product works.  Recall that 2-dimensional matrices
+% have the shape (E . E), where . represents composition.  So I will
+% abbreviate the type of 2D matrices containing elements of type a and
+% labeled with pairs from the set (Fin m, Fin n) as (E.E) (m,n) a.  Now
+% suppose we want to multiply two matrices of types
+
+%   (E.E) (m,p) a
+%   (E.E) (p,n) a
+
+% assuming a suitable ring structure on the type a.  First we transpose
+% the second matrix (by relabeling) to get (E.E) (n,p) a.  Now we
+% "decompose" both to get
+
+%   E m (E p a)
+%   E n (E p a)
+
+% This decomposition step corresponds to shifting from viewing them as
+% 2D matrices to viewing them as 1D matrices of 1D matrices
+% (i.e. collections of rows).  We now compose these two (using
+% e.g. compA), i.e. we pair up rows from the two matrices in all
+% possible ways, resulting in something of type
+
+%   (E.E) (m,n) (E p a, E p a)
+
+% Finally we zip the rows together,
+
+%   (E.E) (m,n) (E p (a,a))
+
+% multiply the resulting pairs,
+
+%   (E.E) (m,n) (E p a)
+
+% and sum over the size-p sets,
+
+%   (E.E) (m,n) a.
+
+% This is all much clearer with the aid of the pictures we scribbled on
+% my paper placemat at New Delhi, but hopefully it makes a bit of
+% sense.  I hope to have some code to show you soon as well. =)
+
+% Note also that the above is actually not specific to 2D matrices.
+% More generally, n-dimensional matrices have shape E^n.  To multiply a
+% j-D matrix by a k-D matrix along a certain axis, we first reassociate
+% and relabel to bring the axes we want to multiply to the end (their
+% size must match, of course):
+
+%   (E^(j-1) . E) (dims1, p) a
+%   (E^(k-1) . E) (dims2, p) a
+
+% dims1 and dims2 can be arbitrarily associated (n-1)-tuples.  We can
+% then perform all the above operations, resulting in something of type
+
+%   (E^(j+k-2)) (dims1,dims2) a .
+
+\subsection{Moving structure between shapes and labels}
+\label{sec:moving-structure}
+
+\todo{The following text is just pasted in from an email, needs some
+  major editing.}
+
+For some structures (namely, ``regular'' structures) there is a
+canonical labeling which is based on the structure.  We can use that
+to push structure back and forth between the shapes and the labels.
+
+So for suitable |f| we should have
+\begin{spec}
+canonicalize :: Suitable f => Sp f l a -> (Sp f (Path f) a, l <-> Path f)
+\end{spec}
+
+That is, we can relabel a structure, using paths into |f| as canonical
+labels (and along the way we can also find out how the old labels
+match up with the new canonical ones).
+
+Now, the problem with |(Sp f (Path f) a)| is that we've duplicated
+structure in both the shape and the labels.  |canonicalize| doesn't
+directly have a sensible inverse because given something of type |(Sp f
+(Path f) a)| we have no guarantee that the labels match the structure.
+
+So, we have a function
+\begin{spec}
+forgetShape :: Sp f l a -> Sp E l a
+\end{spec}
+which forgets the shape.  Of course, the labels may have a lot of
+structure so this may or may not actually lose information.  We can
+then go backwards:
+\begin{spec}
+reconstitute :: Sp E (Path f) a -> Sp f (Path f) a
+\end{spec}
+We have the law
+\begin{spec}
+forgetShape . reconstitute = id
+\end{spec}
+and also, we can define
+\begin{spec}
+unCanonicalize :: (Sp f (Path f) a, l <-> Path f) -> Sp f l a
+unCanonicalize (sp, i) = relabel (from i) (reconstitute . forgetShape $ sp)
+\end{spec} %$
+which is left inverse to |canonicalize|.
+
+This lets us go back and forth between different views of data.  Some
+operations are ``structural'', \ie operate on nontrivial shapes
+(\eg matrix multiplication) whereas some (\eg transpose) are best
+expressed as operations on structured labels.
+
+The shape of 2D arrays, for example, is $L_m \comp L_n$ (if we consider 2D
+arrays as a data structure where the ordering of elements is
+significant).  But $Path(L_m \comp L_n) \sim (Fin m, Fin n)$, so we can convert
+between $(Sp (L_m \comp L_n) l a)$ and $(Sp E (Fin m, Fin n) a)$.
+
 
 \section{Related Work}
 \label{sec:related}
