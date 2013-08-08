@@ -1,6 +1,6 @@
 %% -*- LaTeX -*-
 
-\documentclass[9pt,preprint,authoryear]{sigplanconf}
+\documentclass{llncs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% lhs2TeX
@@ -43,12 +43,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Theorems etc.
 
-\newtheorem{theorem}{Theorem}
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{lemma}[theorem]{Lemma}
+% \newtheorem{theorem}{Theorem}
+% \newtheorem{proposition}[theorem]{Proposition}
+% \newtheorem{lemma}[theorem]{Lemma}
 
-\theoremstyle{definition}
-\newtheorem{definition}[theorem]{Definition}
+% \theoremstyle{definition}
+% \newtheorem{definition}[theorem]{Definition}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Diagrams
@@ -179,15 +179,25 @@
 
 \title{Species Constructors}
 
-\authorinfo{Brent A. Yorgey \\ Stephanie Weirich}
-{Dept. of Computer and Information Science\\ The University of Pennsylvania\\
-Philadelphia, Pennsylvania, USA}
-{\{byorgey,sweirich\}@@cis.upenn.edu}
+% \authorinfo{Brent A. Yorgey \\ Stephanie Weirich}
+% {Dept. of Computer and Information Science\\ The University of Pennsylvania\\
+% Philadelphia, Pennsylvania, USA}
+% {\{byorgey,sweirich\}@@cis.upenn.edu}
 
-\authorinfo{Jacques Carette}
-{Dept. of Computing and Software\\ McMaster University\\
+% \authorinfo{Jacques Carette}
+% {Dept. of Computing and Software\\ McMaster University\\
+% Hamilton, Ontario, Canada}
+% {carette@@mcmaster.ca}
+
+\author{Brent A. Yorgey\inst{1} \and Stephanie Weirich\inst{1} \and
+  Jacques Carette\inst{2}}
+
+\institute{Dept. of Computer and Information Science\\
+The University of Pennsylvania\\
+Philadelphia, Pennsylvania, USA
+\and
+Dept. of Computing and Software\\ McMaster University\\
 Hamilton, Ontario, Canada}
-{carette@@mcmaster.ca}
 
 \maketitle
 
@@ -197,10 +207,10 @@ Hamilton, Ontario, Canada}
 
 \end{abstract}
 
-\category{D.3.2}{Programming Languages}{Applicative (functional) languages}
+% \category{D.3.2}{Programming Languages}{Applicative (functional) languages}
 
-\terms
-Languages, Types
+% \terms
+% Languages, Types
 
 \section{Introduction}
 \label{sec:intro}
