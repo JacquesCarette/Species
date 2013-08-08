@@ -337,6 +337,36 @@ p l (Struct s es) = Struct (pSh l s) es
 
 -- No p' operation---it again depends on the labels
 
+-- Partition   -----------------------------------
+-- This can be see as 'just' E * E, but it is useful to give it a name
+-- Also, as we don't care at all about the "second" E, elide its structure
+
+data Part l where
+  Part :: (Finite l1, Finite l2) => S.Set l1 -> (Either l1 l2 <-> l) -> Part l
+
+partSh :: (Finite l1, Finite l2) => (Either l1 l2 <-> l) -> Shape Part l
+partSh i = Shape (Part S.enumerate i)
+
+-- the constraint that Plus (Size l1) (Size l2) ~ Size l 
+-- should follow from having an iso between Either l1 l2 and l, but 
+-- it is unclear to me (JC) how to derive that
+part :: forall l1 l2 l a . (Finite l1, Finite l2, Plus (Size l1) (Size l2) ~ Size l) => 
+    (l1 -> a) -> (Either l1 l2 <-> l) -> Sp Part l a
+part f i = Struct (partSh i) (V.append v1 v2)
+            where 
+              v1 :: V.Vec (Size l1) a
+              v1 = fmap f $ V.enumerate
+              -- v2 should never be 'used'
+              v2 :: V.Vec (Size l2) a
+              v2 = fmap (\_ -> undefined) $ (V.enumerate :: V.Vec (Size l2) l2)
+
+instance BFunctor Part where
+  bmap i = iso (\(Part s pf) -> Part s (pf.i))
+               (\(Part s pf) -> Part s (pf.from i))
+
+-- It is not clear that we can create a part' because this witnesses a subset 
+-- relation on labels, which seems difficult to abstract
+
 -- Composition -----------------------------------
 
 -- A naïve attempt at implementing Comp is
