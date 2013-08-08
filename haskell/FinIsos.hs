@@ -3,7 +3,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
 
-module FinIsos ( finSum, finSumInv, finPair, finPairInv ) where
+module FinIsos where -- ( finSum, finSumInv, finPair, finPairInv ) where
 
 import Control.Arrow ((+++), (***))
 
