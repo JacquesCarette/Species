@@ -15,9 +15,10 @@ import Finite
 import qualified Vec as V
 import FinIsos
 import Control.Lens
+import qualified Set as S
 
-take :: forall f l a n . Finite l => Sp f l a -> N.SNat n -> (n <= Size l) -> 
+take :: forall f l a n . (N.Natural n, Finite l) => Sp f l a -> N.SNat n -> (n <= Size l) -> 
   Sp (f # Part) l a
 take (Struct f i) n pf = Struct (cprodSh f (Shape k)) i
   where k :: Part l
-        k = undefined
+        k = Part (S.enumerate :: S.Set (N.Fin n)) undefined
