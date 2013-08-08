@@ -342,27 +342,26 @@ p l (Struct s es) = Struct (pSh l s) es
 -- Also, as we don't care at all about the "second" E, elide its structure
 
 data Part l where
-  Part :: (Finite l1, Finite l2) => S.Set l1 -> (Either l1 l2 <-> l) -> Part l
+  Part :: (Finite l1, Finite l2) => S.Set l1 -> S.Set l2 -> (Either l1 l2 <-> l) -> Part l
 
 partSh :: (Finite l1, Finite l2) => (Either l1 l2 <-> l) -> Shape Part l
-partSh i = Shape (Part S.enumerate i)
+partSh i = Shape (Part S.enumerate S.enumerate i)
 
 -- the constraint that Plus (Size l1) (Size l2) ~ Size l 
 -- should follow from having an iso between Either l1 l2 and l, but 
 -- it is unclear to me (JC) how to derive that
 part :: forall l1 l2 l a . (Finite l1, Finite l2, Plus (Size l1) (Size l2) ~ Size l) => 
-    (l1 -> a) -> (Either l1 l2 <-> l) -> Sp Part l a
-part f i = Struct (partSh i) (V.append v1 v2)
-            where 
-              v1 :: V.Vec (Size l1) a
-              v1 = fmap f $ V.enumerate
-              -- v2 should never be 'used'
-              v2 :: V.Vec (Size l2) a
-              v2 = fmap (\_ -> undefined) $ (V.enumerate :: V.Vec (Size l2) l2)
+    (l1 -> a) -> (l2 -> a) -> (Either l1 l2 <-> l) -> Sp Part l a
+part f g i = Struct (partSh i) (V.append v1 v2)
+              where 
+                v1 :: V.Vec (Size l1) a
+                v1 = fmap f $ V.enumerate
+                v2 :: V.Vec (Size l2) a
+                v2 = fmap g $ V.enumerate
 
 instance BFunctor Part where
-  bmap i = iso (\(Part s pf) -> Part s (pf.i))
-               (\(Part s pf) -> Part s (pf.from i))
+  bmap i = iso (\(Part s1 s2 pf) -> Part s1 s2 (pf.i))
+               (\(Part s1 s2 pf) -> Part s1 s2 (pf.from i))
 
 -- It is not clear that we can create a part' because this witnesses a subset 
 -- relation on labels, which seems difficult to abstract
