@@ -37,6 +37,10 @@ vnil' = SomeVec VNil
 vcons' :: a -> Vec' a -> Vec' a
 vcons' a (SomeVec v) = SomeVec (VCons a v)
 
+vSize :: Vec n a -> SNat n
+vSize VNil = SZ
+vSize (VCons _ v) = SS (vSize v)
+
 fromList :: [a] -> Vec' a
 fromList []     = vnil'
 fromList (a:as) = vcons' a (fromList as)
