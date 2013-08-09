@@ -135,6 +135,14 @@ decLT (SS n) (SS x) = case decLT n x of
   Left xLTn            -> Left (LTES xLTn)
   Right (Minus j Refl) -> case plusSuccR j n of Refl -> Right (Minus j Refl)
 
+-- computes x - n knowing that n <= x
+minus :: SNat x -> SNat n -> (n <= x) -> (x `Minus` n)
+minus x SZ _ = case plusZeroR x of Refl -> Minus x Refl
+minus (SS x) (SS n) (LTES n_le_x) = 
+    case minus x n n_le_x of 
+      Minus y pf ->
+        case (pf, plusSuccR y n) of (Refl,Refl) -> Minus y Refl
+
 --------------------------------------------------
 -- Division algorithm
 
