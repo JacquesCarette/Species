@@ -775,7 +775,7 @@ import SpeciesDiagrams
 
 dot = circle 0.2 # fc black
 row p     = hcat' with {sep=0.1} . map (drawOne . p) $ [0..10]
-lRow x p  = (text' [x] <> phantom (square 1 :: D R2)) |||||| strutX 0.5 |||||| row p
+lRow x p  = hcat [text' [x] <> phantom (square 1 :: D R2), strutX 0.5, row p]
 drawOne b = square 1 <> mconcat [dot||b]
 
 dia =
@@ -877,20 +877,17 @@ either a labelled $F$-shape or a labelled $G$-shape.
     \begin{diagram}[width=250]
 import SpeciesDiagrams
 
-theDia = struct 5 "F+G"
-         ||||||
-         strutX 1
-         ||||||
-         text' "="
-         ||||||
-         strutX 1
-         ||||||
-         ( struct 5 "F"
-           ===
-           text' "+"
-           ===
-           struct 5 "G"
-         ) # centerY
+theDia
+  = hcat' with {sep=1}
+    [ struct 5 "F+G"
+    , text' "="
+    , vcat
+      [ struct 5 "F"
+      , text' "+"
+      , struct 5 "G"
+      ]
+      # centerY
+    ]
 
 dia = theDia # centerXY # pad 1.1
     \end{diagram}
@@ -938,20 +935,16 @@ shapes should be disjoint.
     \begin{diagram}[width=250]
 import SpeciesDiagrams
 
-theDia = struct 5 "F•G"
-         ||||||
-         strutX 1
-         ||||||
-         text' "="
-         ||||||
-         strutX 1
-         ||||||
-         ( struct 2 "F"
-           ===
-           strutY 0.2
-           ===
-           struct 3 "G"
-         ) # centerY
+theDia
+  = hcat' with {sep=1}
+    [ struct 5 "F•G"
+    , text' "="
+    , vcat' with {sep = 0.2}
+      [ struct 2 "F"
+      , struct 3 "G"
+      ]
+      # centerY
+    ]
 
 dia = theDia # centerXY # pad 1.1
     \end{diagram}
@@ -1024,21 +1017,18 @@ $G$-shapes.
     \begin{diagram}[width=250]
 import SpeciesDiagrams
 
-theDia = struct 6 "F∘G"
-         ||||||
-         strutX 1
-         ||||||
-         text' "="
-         ||||||
-         strutX 1
-         ||||||
-         drawSpT
-         ( nd (text' "F")
-           [ struct' 2 "G"
-           , struct' 3 "G"
-           , struct' 1 "G"
-           ]
-         ) # centerY
+theDia
+  = hcat' with {sep = 1}
+    [ struct 6 "F∘G"
+    , text' "="
+    , drawSpT
+      ( nd (text' "F")
+        [ struct' 2 "G"
+        , struct' 3 "G"
+        , struct' 1 "G"
+        ]
+      ) # centerY
+    ]
 
 dia = theDia # centerXY # pad 1.1
     \end{diagram}
@@ -1065,6 +1055,19 @@ their labels and data:
   \cons{compP} : \LStr F {L_1} A \to \LStr G {L_2} B \to \LStr {F
   \scomp G} {L_1 \times L_2} {A \times B}
 \end{equation*}
+
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=250]
+import SpeciesDiagrams
+
+theDia = drawSpT (nd (text' "F") (replicate 3 (struct' 2 "G")))
+
+dia = theDia # centerXY # pad 1.1
+    \end{diagram}
+    \caption{Constructing a composition with |compP|}
+    \label{fig:compP}
+  \end{figure}
 
 \todo{explain this better, and add an illustration of |compP|}
 
