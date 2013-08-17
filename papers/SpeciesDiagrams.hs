@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveFunctor        #-}
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE GADTs                #-}
+{-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module SpeciesDiagrams where
 
@@ -21,11 +22,11 @@ labR, arrowGap :: Double
 labR     = 0.3
 arrowGap = 0.2
 
-text' :: String -> Diagram Postscript R2
-text' s = (stroke $ textSVG' (TextOpts s lin INSIDE_H KERN False 1 1)) # fc black # lw 0
+text' :: Double -> String -> Diagram Postscript R2
+text' d s = (stroke $ textSVG' (TextOpts s lin INSIDE_H KERN False d d)) # fc black # lw 0
 
 labT :: Int -> Diagram Postscript R2
-labT n = text' (show n) # scale labR <> lab n
+labT n = text' 1 (show n) # scale labR <> lab n
 
 lab :: Int -> Diagram Postscript R2
 lab n = lab' (colors !! n)
@@ -111,7 +112,7 @@ arrow len l =
 
 x |-| y = x ||| strutX 1 ||| y
 
-data SpN = Lab Int | Leaf | Hole | Point | Sp (Diagram Postscript R2) CircleFrac | Bag
+data SpN = Lab (Either Int String) | Leaf | Hole | Point | Sp (Diagram Postscript R2) CircleFrac | Bag
 
 type SpT = Tree SpN
 
@@ -126,7 +127,8 @@ drawSpT = drawSpT' (rotation (1/4 :: CircleFrac))
                    with {slHSep = 0.5, slVSep = 2}
 
 drawSpN' :: Transformation R2 -> SpN -> Diagram Postscript R2
-drawSpN' _  (Lab n)  = lab n # scale 0.5
+drawSpN' _  (Lab (Left n))  = lab n # scale 0.5
+drawSpN' tr (Lab (Right t)) = (drawSpN' tr Leaf ||| strutX (labR/2) ||| text' 0.5 t) # transform tr
 drawSpN' _  Leaf     = circle (labR/2) # fc black
 drawSpN' _  Hole     = circle (labR/2) # lw (labR / 10) # fc white
 drawSpN' tr Point    = drawSpN' tr Leaf <> drawSpN' tr Hole # scale 1.7
@@ -138,9 +140,9 @@ drawSpN' tr (Sp s f) = ( arc (3/4 - f/2) (3/4 + f/2)
                        )
                        # scale 0.3
 drawSpN' _  Bag     =
-                ( text' "{" # scale 0.5 ||| strutX (labR/4)
+                ( text' 1 "{" # scale 0.5 ||| strutX (labR/4)
                   ||| circle (labR/2) # fc black
-                  ||| strutX (labR/4) ||| text' "}" # scale 0.5
+                  ||| strutX (labR/4) ||| text' 1 "}" # scale 0.5
                 ) # centerX
 
 drawSpN :: SpN -> Diagram Postscript R2
@@ -157,7 +159,7 @@ lf :: a -> Tree a
 lf x = Node x []
 
 main :: IO ()
-main = -- defaultMain (arrow 1 ((text' "f" <> strutY 1) # scale 0.5))
+main = -- defaultMain (arrow 1 ((text' 1 "f" <> strutY 1) # scale 0.5))
 
  defaultMain (draw (down (Cyc [lab 0, lab 1, lab 2])))
 
@@ -171,7 +173,7 @@ struct n x = drawSpT (struct' n x)
            # centerXY
 
 struct' :: Int -> String -> Tree SpN
-struct' n x = struct'' n (text' x <> rect 2 1 # lw 0)
+struct' n x = struct'' n (text' 1 x <> rect 2 1 # lw 0)
 
 struct'' :: Int -> Diagram Postscript R2 -> Tree SpN
 struct'' n d = nd d (replicate n (lf Leaf))

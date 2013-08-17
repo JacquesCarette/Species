@@ -15,6 +15,7 @@
 %format sumTys = "\cons{sumTys}"
 %format <->    = "\iso"
 %format compP  = "\cons{compP}"
+%format <*>    = "<\!\!*\!\!>"
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
@@ -118,6 +119,11 @@
 \newcommand{\fcomp}{\boxbox}
 
 \newcommand{\LStr}[3]{\langle #1 \rangle_{#2}(#3)}
+
+\newcommand{\compP}{\otimes}
+\newcommand{\compA}{\oast}
+\newcommand{\compJ}{\varovee}
+\newcommand{\compB}{\varogreaterthan}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -338,7 +344,7 @@ import Data.Tree
 import Diagrams.TwoD.Layout.Tree
 import SpeciesDiagrams
 
-mkL n = text' (show n) <> circle 0.7 # fc white
+mkL n = text' 1 (show n) <> circle 0.7 # fc white
 
 t = Node 2 [Node 1 [], Node 4 [Node 3 [], Node 0 [], Node 5 []]]
 
@@ -346,7 +352,7 @@ d = renderTree mkL (~~) (symmLayout' with { slHSep = 3.5, slVSep = 3.5 } t)
 
 mapping = centerY . vcat' with {sep = 0.3} $ zipWith mkMapping [0..5] "SNAILS" -- $
   where
-    mkMapping i c = mkL i .... hrule 1 .... (text' (show c) <> strutX 1)
+    mkMapping i c = mkL i .... hrule 1 .... (text' 1 (show c) <> strutX 1)
 
 dia = (d # centerY ... strutX 4 ... mapping)
     # centerXY # pad 1.1
@@ -775,7 +781,7 @@ import SpeciesDiagrams
 
 dot = circle 0.2 # fc black
 row p     = hcat' with {sep=0.1} . map (drawOne . p) $ [0..10]
-lRow x p  = hcat [text' [x] <> phantom (square 1 :: D R2), strutX 0.5, row p]
+lRow x p  = hcat [text' 1 [x] <> phantom (square 1 :: D R2), strutX 0.5, row p]
 drawOne b = square 1 <> mconcat [dot||b]
 
 dia =
@@ -880,10 +886,10 @@ import SpeciesDiagrams
 theDia
   = hcat' with {sep=1}
     [ struct 5 "F+G"
-    , text' "="
+    , text' 1 "="
     , vcat
       [ struct 5 "F"
-      , text' "+"
+      , text' 1 "+"
       , struct 5 "G"
       ]
       # centerY
@@ -938,7 +944,7 @@ import SpeciesDiagrams
 theDia
   = hcat' with {sep=1}
     [ struct 5 "F•G"
-    , text' "="
+    , text' 1 "="
     , vcat' with {sep = 0.2}
       [ struct 2 "F"
       , struct 3 "G"
@@ -1020,9 +1026,9 @@ import SpeciesDiagrams
 theDia
   = hcat' with {sep = 1}
     [ struct 6 "F∘G"
-    , text' "="
+    , text' 1 "="
     , drawSpT
-      ( nd (text' "F")
+      ( nd (text' 1 "F")
         [ struct' 2 "G"
         , struct' 3 "G"
         , struct' 1 "G"
@@ -1047,54 +1053,84 @@ interesting.  We will not separately consider introduction forms for
 composition shapes, but study introduction forms for composition
 structures directly.
 
-At the simplest end of the spectrum, we can define |compP| as follows.
-|compP| is a sort of cartesian product, copying the provided $G$
-structure into every location of the $F$ structure and pairing up
-their labels and data:
+At the simplest end of the spectrum, we can define an operator
+$\compP$ as follows.  $\compP$ is a sort of cartesian product of
+structures, copying the provided $G$ structure into every location of
+the $F$ structure and pairing up their labels (and their data):
 \begin{equation*}
-  \cons{compP} : \LStr F {L_1} A \to \LStr G {L_2} B \to \LStr {F
+  - \compP - : \LStr F {L_1} A \to \LStr G {L_2} B \to \LStr {F
   \scomp G} {L_1 \times L_2} {A \times B}
 \end{equation*}
 
-  \begin{figure}
-    \centering
-    \begin{diagram}[width=250]
+\begin{figure}
+  \centering
+  \begin{diagram}[width=250]
 import SpeciesDiagrams
 
-theDia = drawSpT (nd (text' "F") (replicate 3 (struct' 2 "G")))
+theDia
+  = hcat' with {sep=1}
+    [ vcat' with {sep=0.2}
+      [ nd (text' 1 "F") (map (lf . Lab . Right . show) [3,2,1])
+        # drawSpT # centerX
+      , text' 1 "⊗"
+      , nd (text' 1 "G") (map (lf . Lab . Right . (:[])) "ba")
+        # drawSpT # centerX
+      ]
+      # centerY
+    , text' 1 "="
+    , nd (text' 1 "F")
+      [  nd (text' 1 "G") (map (lf . Lab . Right . (f:)) ["b","a"])
+      || f <- "321"
+      ]
+      # drawSpT
+    ]
 
 dia = theDia # centerXY # pad 1.1
-    \end{diagram}
-    \caption{Constructing a composition with |compP|}
-    \label{fig:compP}
-  \end{figure}
+  \end{diagram}
+  \caption{Constructing a composition with |compP|}
+  \label{fig:compP}
+\end{figure}
 
-\todo{explain this better, and add an illustration of |compP|}
-
-\todo{monoidal something-or-other. Like Applicative.  So we can
-  equivalently have:}
-
+Of course, this is far from being a general introduction form for
+$\scomp$, since it only allows us to construct composition structures
+of a special form, but is convenient when it suffices.  Note that we
+also have
 \begin{equation*}
-  \cons{compA} : \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
-  \scomp G} {L_1 \times L_2} B
+  - \compA - : \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
+    \scomp G} {L_1 \times L_2} B
 \end{equation*}
+which equivalent in power to $\compP$, assuming that we have a function
+$\cons{eval} : (A \to B) \times A \to B$.
 
-\todo{Can also have something like monadic join:}
-
+Just as $\compA$ is a generalization of the |(<*>)| method from
+Haskell's |Applicative| class, there is another introduction form for
+composition which is a generalization of the |join| method of a |Monad|:
 \begin{equation*}
-  \cons{compJ} : \LStr F {L_1} {\LStr G {L_2} A} \to \LStr {F \scomp
+  - \compJ - : \LStr F {L_1} {\LStr G {L_2} A} \to \LStr {F \scomp
   G} {L_1 \times L_2} A
 \end{equation*}
+$\compJ$ takes a labelled $F$-structure filled with labelled
+$G$-structures, and turns it into a labelled $(F \scomp G)$-structure.
 
-\todo{And finally, a dependent version something like monadic
-  bind. Note that $L_2 : L_1 \to \FinType$ is allowed to depend on $L_1$.}
+\todo{illustration for $\compJ$}
 
+$compJ$, unlike $\compP$ and $\compA$, allows constructing an $(F
+\scomp G)$-structure where the $G$-shapes are not all the same.  Note,
+however, that all the $G$-structures are restricted to use the same
+label set, $L_1$, so they still must all be equal in size.
+
+Most generally, of course, it should be possible to compose
+$G$-structures of different shapes and sizes inside an $F$-structure,
+which is made possible by the last and most general introduction form
+for $\scomp$, which can be seen as a generalization of a monadic bind
+operation |(>>=)|.
 \begin{equation*}
-  \cons{compB} : \LStr F {L_1} \TyOne \to ((l : L_1) \to \LStr G
-  {L_2\,l} A) \to \LStr {F \scomp G} {(l : L_1) \times L_2\,l} A
+  - \compB - : \LStr F {L_1} A \to ((l : L_1) \to A \to \LStr G
+  {L_2\,l} B) \to \LStr {F \scomp G} {(l : L_1) \times L_2\,l} B
 \end{equation*}
+Note that $L_2$ is allowed to depend on the $F$-labels of type $L_1$.
 
-\todo{add some pictures for the above}
+\todo{illustration for $\compB$}
 
 \paragraph{Cartesian product}
 
