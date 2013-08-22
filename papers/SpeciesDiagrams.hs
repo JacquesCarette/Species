@@ -128,17 +128,16 @@ drawSpT = drawSpT' (rotation (1/4 :: CircleFrac))
 
 drawSpN' :: Transformation R2 -> SpN -> Diagram Postscript R2
 drawSpN' _  (Lab (Left n))  = lab n # scale 0.5
-drawSpN' tr (Lab (Right t)) = (drawSpN' tr Leaf ||| strutX (labR/2) ||| text' 0.5 t) # transform tr
+drawSpN' tr (Lab (Right t)) = (drawSpN' tr Leaf ||| strutX (labR/2) ||| text' 0.3 t) # transform tr
 drawSpN' _  Leaf     = circle (labR/2) # fc black
 drawSpN' _  Hole     = circle (labR/2) # lw (labR / 10) # fc white
 drawSpN' tr Point    = drawSpN' tr Leaf <> drawSpN' tr Hole # scale 1.7
-drawSpN' tr (Sp s f) = ( arc (3/4 - f/2) (3/4 + f/2)
+drawSpN' tr (Sp s f) = ( arc (3/4 - f/2) (3/4 + f/2) # scale 0.3
                        |||
-                       strutX 0.2
+                       strutX 0.1
                        |||
                        s # transform tr
                        )
-                       # scale 0.3
 drawSpN' _  Bag     =
                 ( text' 1 "{" # scale 0.5 ||| strutX (labR/4)
                   ||| circle (labR/2) # fc black
