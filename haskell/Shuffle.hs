@@ -7,10 +7,13 @@ module Shuffle where
 
 import           Control.Lens
 import           Control.Monad.Writer
-import           Data.Key             (Key, TraversableWithKey)
-import qualified Data.Key             as K
-import           Data.Maybe           (fromJust)
-import           Data.Tuple           (swap)
+-- from 'representable-functors' package
+import           Data.Functor.Representable
+-- from 'keys' package
+import           Data.Key                   (Key, TraversableWithKey)
+import qualified Data.Key                   as K
+import           Data.Maybe                 (fromJust)
+import           Data.Tuple                 (swap)
 
 import           Finite
 import           SpeciesTypes
@@ -23,3 +26,9 @@ canonicalize (Struct (Shape fl) es) = (Struct (Shape fk) es, klIso)
     (fk, m) = runWriter (K.mapWithKeyM (\k l -> tell [(k,l)] >> return k) fl)
     klIso :: l <-> Key f
     klIso   = iso (fromJust . (lookup ?? map swap m)) (fromJust . (lookup ?? m))
+
+forgetShape :: Finite l => Sp f l a -> Sp E l a
+forgetShape (Struct _ es) = Struct eSh es
+
+reconstitute :: Representable f => Sp E (Key f) a -> Sp f (Key f) a
+reconstitute (Struct _ es) = Struct (Shape (tabulate id)) es
