@@ -22,7 +22,7 @@ import           SpeciesTypes
 
 canonicalize :: forall f l a. (TraversableWithKey f, Size (Key f) ~ Size l, Eq l, Eq (Key f))
              => Sp f l a -> (Sp f (Key f) a, l <-> Key f)
-canonicalize (Struct (Shape fl) es) = (Struct (Shape fk) es, klIso)
+canonicalize (Struct fl es) = (Struct fk es, klIso)
   where
     (fk, m) = runWriter (K.mapWithKeyM (\k l -> tell [(k,l)] >> return k) fl)
     klIso :: l <-> Key f
@@ -32,7 +32,7 @@ forgetShape :: Finite l => Sp f l a -> Sp E l a
 forgetShape (Struct _ es) = Struct eSh es
 
 reconstitute :: Representable f => Sp E (Key f) a -> Sp f (Key f) a
-reconstitute (Struct _ es) = Struct (Shape (tabulate id)) es
+reconstitute (Struct _ es) = Struct (tabulate id) es
 
 unCanonicalize :: (BFunctor f, Representable f, Finite l, Finite (Key f))
                => (Sp f (Key f) a, l <-> Key f) -> Sp f l a
