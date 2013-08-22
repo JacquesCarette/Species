@@ -15,6 +15,7 @@ import qualified Data.Key                   as K
 import           Data.Maybe                 (fromJust)
 import           Data.Tuple                 (swap)
 
+import           BFunctor
 import           Finite
 import           SpeciesTypes
 
@@ -32,3 +33,7 @@ forgetShape (Struct _ es) = Struct eSh es
 
 reconstitute :: Representable f => Sp E (Key f) a -> Sp f (Key f) a
 reconstitute (Struct _ es) = Struct (Shape (tabulate id)) es
+
+unCanonicalize :: (BFunctor f, Representable f, Finite l, Finite (Key f))
+               => (Sp f (Key f) a, l <-> Key f) -> Sp f l a
+unCanonicalize (sp, i) = relabel (from i) (reconstitute . forgetShape $ sp)
