@@ -1114,7 +1114,7 @@ $G$-structures, and turns it into a labelled $(F \scomp G)$-structure.
 
 \todo{illustration for $\compJ$}
 
-$compJ$, unlike $\compP$ and $\compA$, allows constructing an $(F
+$\compJ$, unlike $\compP$ and $\compA$, allows constructing an $(F
 \scomp G)$-structure where the $G$-shapes are not all the same.  Note,
 however, that all the $G$-structures are restricted to use the same
 label set, $L_1$, so they still must all be equal in size.
@@ -1137,7 +1137,7 @@ Note that $L_2$ is allowed to depend on the $F$-labels of type $L_1$.
 As we saw earlier, the definition of the standard product operation on
 species partitioned the set of labels between the two subshapes.
 However, there is nothing to stop us from defining a different
-product-like operation, known as \term{Cartesian product} which does
+product-like operation, known as \term{Cartesian product}, which does
 not partition the labels:\[ (F \scprod G)\ L = F\ L \times G\ L \]
 This is, of course, the ``na\"ive'' version of product that one might
 expect from experience with generic programming.
@@ -1147,11 +1147,11 @@ important to remember that we still only get to specify a single
 function of type $L \to A$ for the mapping from labels to data.  So
 each label is still associated to only a single data value, but labels
 can occur twice (or more) in an $(F \times G)$-shape.  This lets us
-\emph{explicitly} model sharing, that is, multiple parts of the same
-shape can all ``point to'' the same data.  In pure functional
-languages such as Haskell or Agda, sharing is a (mostly) unobservable
-operational detail; with a labelled structure we can directly model
-and observe it.
+\emph{explicitly} model value-level sharing, that is, multiple parts
+of the same shape can all ``point to'' the same data.  In pure
+functional languages such as Haskell or Agda, sharing is a (mostly)
+unobservable operational detail; with a labelled structure we can
+directly model and observe it.
 
 \todo{illustration}
 
@@ -1241,7 +1241,7 @@ isomorphism \[ \pt F \natiso \X \sprod F'. \] \todo{say more about
 
 Just as a ``na\"ive'' product gave us some interesting structures with
 value-level sharing, a ``na\"ive'' composition can do the same.  We
-define the \term{functor product} of two species as follows:
+define the \term{functor composition} of two species as follows:
 \[ (F \fcomp G)\ L = F\ (G\ L). \]
 
 Note that the label set given to $F$ is the set of \emph{all $(G\
