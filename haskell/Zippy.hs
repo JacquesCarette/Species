@@ -19,9 +19,6 @@ instance Zippy X where
 instance Zippy E where
   fzip x _ = x
 
-instance Zippy f => Zippy (Shape f) where
-  fzip (Shape shA) (Shape shB) = Shape (fzip shA shB)
-
 zipS :: Zippy f => Sp f l a -> Sp f l b -> Sp f l (a,b)
 zipS = zipWithS (,)
 

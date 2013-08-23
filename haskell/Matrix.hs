@@ -47,7 +47,7 @@ sum2 :: Num a => Matrix2 m n a -> Matrix2 m n a -> Matrix2 m n a
 sum2 = zipWithS (+)
 
 elimE :: Finite l => (a -> a -> a) -> a -> Sp E l a -> a
-elimE op e = (elim . Elim) (\(Shape (E s)) m -> elimSet (foldl' op e . map m) s)
+elimE op e = (elim . Elim) (\(E s) m -> elimSet (foldl' op e . map m) s)
 
 prod2' :: (Natural m, Natural n, Natural p)
        => (a -> a -> a) -> a -> (a -> a -> a)
@@ -67,9 +67,9 @@ prod2 = prod2' (+) 0 (*)
 
 >>> let m = mkMatrix2 (fin finToInt ((+1) .)) :: Matrix2 (S (S Z)) (S (S Z)) Int
 >>> m
-Struct {_shape = Shape {_shapeVal = E (Set [(FZ,FZ),(FZ,FS FZ),(FS FZ,FZ),(FS FZ,FS FZ)])}, _elts = VCons 0 (VCons 1 (VCons 1 (VCons 2 VNil)))}
+Struct {_shape = E (Set [(FZ,FZ),(FZ,FS FZ),(FS FZ,FZ),(FS FZ,FS FZ)]), _elts = VCons 0 (VCons 1 (VCons 1 (VCons 2 VNil)))}
 >>> prod2 m m
-Struct {_shape = Shape {_shapeVal = E (Set [(FZ,FZ),(FZ,FS FZ),(FS FZ,FZ),(FS FZ,FS FZ)])}, _elts = VCons 1 (VCons 2 (VCons 2 (VCons 5 VNil)))}
+Struct {_shape = E (Set [(FZ,FZ),(FZ,FS FZ),(FS FZ,FZ),(FS FZ,FS FZ)]}, _elts = VCons 1 (VCons 2 (VCons 2 (VCons 5 VNil)))}
 
 -}
 
