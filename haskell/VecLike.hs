@@ -31,7 +31,7 @@ take (Struct f i) n pf =
   case minus (size (Proxy :: Proxy l)) n pf of
     Minus (m :: N.SNat m) Refl -> 
       case plusComm m n of 
-        Refl -> Struct (cprodSh f (Shape k)) i
+        Refl -> Struct (cprodSh f k) i
           where k :: Part l
                 k = natty n $ natty m $ Part S.enumerate S.enumerate isom
                 isom :: Either (N.Fin n) (N.Fin m) <-> l
@@ -54,7 +54,7 @@ filter (Struct f i) p =
   let foo = fmap p i in
   case vpart foo of 
     VPart (v1 :: V.Vec n (N.Fin (Size l))) (v2 :: V.Vec m (N.Fin (Size l))) Refl 
-      -> Struct (cprodSh f (Shape k)) i
+      -> Struct (cprodSh f k) i
         where k :: Part l
               k = natty (V.vSize v1) $ natty (V.vSize v2) $ 
                   Part S.enumerate S.enumerate isom
