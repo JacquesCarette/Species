@@ -15,26 +15,26 @@ build-type:          Simple
 cabal-version:       >=1.8
 
 library
-  exposed-modules:     Data.Vec,
-                       Data.Finite,
+  exposed-modules:     Data.BFunctor,
                        Data.Fin,
-                       Data.BFunctor,
-                       Data.Species.Types,
+                       Data.Fin.Isos,
+                       Data.Finite,
+                       Data.Set.Abstract,
+                       Data.Species.Isos,
                        Data.Species.Matrix,
-                       Data.Species.Zippy,
                        Data.Species.Shuffle,
                        Data.Species.Traversal,
-                       Data.Species.VecLike,
+                       Data.Species.Types,
                        Data.Species.Unlabelled,
-                       Data.Species.Isos,
+                       Data.Species.VecLike,
+                       Data.Species.Zippy,
+                       Data.Type.Isos,
                        Data.Type.List,
                        Data.Type.Nat,
-                       Data.Type.Isos,
+                       Data.Type.Nat.Div,
                        Data.Type.Nat.Inequality,
                        Data.Type.Nat.Minus,
-                       Data.Type.Nat.Div,
-                       Data.Set.Abstract,
-                       Data.Fin.Isos
+                       Data.Vec
   -- other-modules:
   build-depends:       base ==4.6.*,
                        lens ==3.9.*,
