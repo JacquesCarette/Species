@@ -19,3 +19,4 @@ Shake
 papers/diagrams/*.pdf
 papers/diagrams/*.eps
 papers/diagrams/*.hs
+dist/
