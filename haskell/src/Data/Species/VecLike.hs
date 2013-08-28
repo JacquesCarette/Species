@@ -38,7 +38,7 @@ take (Struct f i) n pf =
           where k :: Part l
                 k = natty n $ natty m $ Part S.enumerate S.enumerate isom
                 isom :: Either (F.Fin n) (F.Fin m) <-> l
-                isom = iso (finSum n m) (finSumInv n m) . finite
+                isom = iso (finSum n m) (finSum' n m) . finite
 
 data VPart l where
   VPart :: V.Vec n l -> V.Vec m l -> N.Plus n m :=: Size l -> VPart l

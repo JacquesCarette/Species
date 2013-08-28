@@ -85,7 +85,7 @@ instance Finite Bool where
 instance (Finite a, Finite b) => Finite (Either a b) where
   type Size (Either a b) = Plus (Size a) (Size b)
   size _ = plus (size (Proxy :: Proxy a)) (size (Proxy :: Proxy b))
-  finite = iso ((fromFin +++ fromFin) . finSumInv szA szB)
+  finite = iso ((fromFin +++ fromFin) . finSum' szA szB)
                (finSum szA szB . (toFin +++ toFin))
     where
       szA = size (Proxy :: Proxy a)
@@ -94,8 +94,8 @@ instance (Finite a, Finite b) => Finite (Either a b) where
 instance (Finite a, Finite b) => Finite (a,b) where
   type Size (a,b) = Times (Size a) (Size b)
   size _ = times (size (Proxy :: Proxy a)) (size (Proxy :: Proxy b))
-  finite = iso ((fromFin *** fromFin) . finPairInv szA szB)
-               (finPair szA szB . (toFin *** toFin))
+  finite = iso ((fromFin *** fromFin) . finProd' szA szB)
+               (finProd szA szB . (toFin *** toFin))
     where
       szA = size (Proxy :: Proxy a)
       szB = size (Proxy :: Proxy b)
