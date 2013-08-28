@@ -559,7 +559,7 @@ mapElimShape q (Elim el) = Elim $ \s m -> el (q s) m
 -- Running eliminators
 
 elim :: (Finite l, Eq l) => Elim f a b -> Sp f l a -> b
-elim (Elim el) (Struct shp es) = el shp (V.vIndex es . view (from finite))
+elim (Elim el) (Struct shp es) = el shp (V.index es . view (from finite))
 
 elim' :: Elim f a b -> Sp' f a -> b
 elim' el (SpEx s) = elim el s

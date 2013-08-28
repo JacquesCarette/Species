@@ -49,7 +49,7 @@ vpart (V.VCons a v) = case vpart v of
   VPart ns ms Refl ->
     if a then VPart (V.VCons F.FZ (fmap F.FS ns)) (fmap F.FS ms) Refl
          else VPart (fmap F.FS ns) (V.VCons F.FZ (fmap F.FS ms))
-                    (case N.plusSuccR (V.vSize ns) (V.vSize ms) of Refl -> Refl)
+                    (case N.plusSuccR (V.size ns) (V.size ms) of Refl -> Refl)
 
 
 filter :: forall f l a. Finite l => Sp f l a -> (a -> Bool) -> Sp (f # Part) l a
@@ -59,15 +59,15 @@ filter (Struct f i) p =
     VPart (v1 :: V.Vec n (F.Fin (Size l))) (v2 :: V.Vec m (F.Fin (Size l))) Refl
       -> Struct (cprodSh f k) i
         where k :: Part l
-              k = natty (V.vSize v1) $ natty (V.vSize v2) $
+              k = natty (V.size v1) $ natty (V.size v2) $
                   Part S.enumerate S.enumerate isom
               isom :: Either (F.Fin n) (F.Fin m) <-> l
               isom = iso foo bar
-              foo (Left n) = V.vIndex v1' n
-              foo (Right m) = V.vIndex v2' m
-              bar l = case V.vLookup v1 (view (from finite) l) of
+              foo (Left n) = V.index v1' n
+              foo (Right m) = V.index v2' m
+              bar l = case V.lookup v1 (view (from finite) l) of
                         Just n1 -> Left n1
-                        Nothing -> case V.vLookup v2 (view (from finite) l) of
+                        Nothing -> case V.lookup v2 (view (from finite) l) of
                                       Just m1 -> Right m1
                                       Nothing -> error "this case cannot happen"
               v1' = fmap (view finite) v1

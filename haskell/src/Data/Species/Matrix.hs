@@ -14,7 +14,7 @@ import           Data.Species.Types
 import           Data.Species.Zippy
 import           Data.Type.Isos
 import           Data.Type.Nat
-import           Data.Vec           hiding (enumerate)
+import qualified Data.Vec           as V
 
 type MatrixSh = E
 
@@ -25,9 +25,9 @@ forget :: Finite l => Sp f l a -> Sp E l a
 forget = reshape forgetSh
 
 splitE :: forall l1 l2 a. (Finite l1, Finite l2) => Sp E (l1,l2) a -> Sp E l1 (Sp E l2 a)
-splitE (Struct _ as) = Struct eSh (mkV l1Sz $ \i ->
-                         Struct eSh (mkV l2Sz $ \j ->
-                           vIndex as (finPair l1Sz l2Sz (i, j))
+splitE (Struct _ as) = Struct eSh (V.mkV l1Sz $ \i ->
+                         Struct eSh (V.mkV l2Sz $ \j ->
+                           V.index as (finPair l1Sz l2Sz (i, j))
                          )
                        )
   where
