@@ -11,7 +11,7 @@ main = shake shakeOptions $ do
 
   "*.tex" *> \output -> do
       let input = replaceExtension output "lhs"
-      need [input]
+      need [input, "SpeciesDiagrams.hs"]
       system' lhs2TeX $ ["-o", output] ++ [input]
 
   "*.pdf" *> \output -> do

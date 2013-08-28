@@ -1,27 +1,27 @@
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE Rank2Types          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeOperators       #-}
 
 module Matrix where
 
-import ArithIsos
-import Data.List (foldl')
-import FinIsos
-import Finite
-import Nat
-import Proxy
-import Set
-import SpeciesTypes
-import Vec hiding (enumerate)
-import Zippy
+import           ArithIsos
+import           Data.List    (foldl')
+import           FinIsos
+import           Finite
+import           Nat
+import           Proxy
+import           Set
+import           SpeciesTypes
+import           Vec          hiding (enumerate)
+import           Zippy
 
 type MatrixSh = E
 
-joinE' :: Comp E E --> E
-joinE' (Comp _ _ _ _) = E enumerate
+forgetSh :: f --> E
+forgetSh _ = E enumerate
 
-joinE :: Finite l => Sp (Comp E E) l a -> Sp E l a
-joinE = reshape joinE'
+forget :: Finite l => Sp f l a -> Sp E l a
+forget = reshape forgetSh
 
 splitE :: forall l1 l2 a. (Finite l1, Finite l2) => Sp E (l1,l2) a -> Sp E l1 (Sp E l2 a)
 splitE (Struct _ as) = Struct eSh (mkV l1Sz $ \i ->
@@ -37,7 +37,7 @@ type Matrix2 m n = Sp MatrixSh (Fin m, Fin n)
 
 mkMatrix2 :: (Natural m, Natural n)
          => (Fin m -> Fin n -> a) -> Matrix2 m n a
-mkMatrix2 m = joinE $ compA (e m) (e id)
+mkMatrix2 m = forget $ compA (e m) (e id)
 
 transpose :: (Natural m, Natural n)
           => Matrix2 m n a -> Matrix2 n m a
@@ -47,13 +47,13 @@ sum2 :: Num a => Matrix2 m n a -> Matrix2 m n a -> Matrix2 m n a
 sum2 = zipWithS (+)
 
 elimE :: Finite l => (a -> a -> a) -> a -> Sp E l a -> a
-elimE op e = (elim . Elim) (\(Shape (E s)) m -> elimSet (foldl' op e . map m) s)
+elimE op e = (elim . Elim) (\(E s) m -> elimSet (foldl' op e . map m) s)
 
 prod2' :: (Natural m, Natural n, Natural p)
        => (a -> a -> a) -> a -> (a -> a -> a)
        -> Matrix2 m p a -> Matrix2 p n a -> Matrix2 m n a
 prod2' s e p m1 m2
-  = joinE
+  = forget
   . fmap (elimE s e . uncurry (zipWithS p))
   $ compAP (splitE m1) (splitE (transpose m2))
 
@@ -67,9 +67,9 @@ prod2 = prod2' (+) 0 (*)
 
 >>> let m = mkMatrix2 (fin finToInt ((+1) .)) :: Matrix2 (S (S Z)) (S (S Z)) Int
 >>> m
-Struct {_shape = Shape {_shapeVal = E (Set [(FZ,FZ),(FZ,FS FZ),(FS FZ,FZ),(FS FZ,FS FZ)])}, _elts = VCons 0 (VCons 1 (VCons 1 (VCons 2 VNil)))}
+Struct {_shape = E (Set [(FZ,FZ),(FZ,FS FZ),(FS FZ,FZ),(FS FZ,FS FZ)]), _elts = VCons 0 (VCons 1 (VCons 1 (VCons 2 VNil)))}
 >>> prod2 m m
-Struct {_shape = Shape {_shapeVal = E (Set [(FZ,FZ),(FZ,FS FZ),(FS FZ,FZ),(FS FZ,FS FZ)])}, _elts = VCons 1 (VCons 2 (VCons 2 (VCons 5 VNil)))}
+Struct {_shape = E (Set [(FZ,FZ),(FZ,FS FZ),(FS FZ,FZ),(FS FZ,FS FZ)]}, _elts = VCons 1 (VCons 2 (VCons 2 (VCons 5 VNil)))}
 
 -}
 

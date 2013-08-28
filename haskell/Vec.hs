@@ -13,6 +13,7 @@ module Vec where
 import Prelude hiding (concat, unzip, zip, zipWith)
 
 import Control.Lens
+import Data.Functor ((<$>))
 import Finite
 import Nat (Nat(..), Fin(..), SNat(..), Plus, Times)
 import Proxy
@@ -37,6 +38,10 @@ vnil' = SomeVec VNil
 vcons' :: a -> Vec' a -> Vec' a
 vcons' a (SomeVec v) = SomeVec (VCons a v)
 
+vSize :: Vec n a -> SNat n
+vSize VNil = SZ
+vSize (VCons _ v) = SS (vSize v)
+
 fromList :: [a] -> Vec' a
 fromList []     = vnil'
 fromList (a:as) = vcons' a (fromList as)
@@ -50,6 +55,12 @@ tail (VCons _ v) = v
 vIndex :: Vec n a -> Fin n -> a
 vIndex (VCons a _) FZ     = a
 vIndex (VCons _ v) (FS f) = vIndex v f
+
+vLookup :: Eq a => Vec n a -> a -> Maybe (Fin n)
+vLookup VNil _ = Nothing
+vLookup (VCons a v) x
+  | a == x    = Just FZ
+  | otherwise = FS <$> vLookup v x
 
 mkV :: SNat n -> (Fin n -> a) -> Vec n a
 mkV SZ     _ = VNil

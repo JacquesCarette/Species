@@ -15,13 +15,14 @@
 %format sumTys = "\cons{sumTys}"
 %format <->    = "\iso"
 %format compP  = "\cons{compP}"
+%format <*>    = "<\!\!*\!\!>"
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
 
 \usepackage{../species}
 
-% \usepackage{amsthm}
+%\usepackage{amsthm}  % LNCS already provides this?
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{latexsym}
@@ -42,6 +43,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Theorems etc.
+
+% Already provided by LNCS?
 
 % \newtheorem{theorem}{Theorem}
 % \newtheorem{proposition}[theorem]{Proposition}
@@ -84,7 +87,6 @@
 \DeclareMathOperator{\Species}{Species}
 \DeclareMathOperator{\FinType}{FinType}
 \DeclareMathOperator{\Type}{Type}
-\DeclareMathOperator{\LStr}{LStr}
 \DeclareMathOperator{\Fin}{Fin}
 \DeclareMathOperator{\IsFinite}{IsFinite}
 \DeclareMathOperator{\NatZ}{O}
@@ -115,6 +117,13 @@
 \newcommand{\scomp}{\boxcircle}
 \newcommand{\scprod}{\boxtimes}
 \newcommand{\fcomp}{\boxbox}
+
+\newcommand{\LStr}[3]{\langle #1 \rangle_{#2}(#3)}
+
+\newcommand{\compP}{\otimes}
+\newcommand{\compA}{\oast}
+\newcommand{\compJ}{\varovee}
+\newcommand{\compB}{\varogreaterthan}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -335,7 +344,7 @@ import Data.Tree
 import Diagrams.TwoD.Layout.Tree
 import SpeciesDiagrams
 
-mkL n = text' (show n) <> circle 0.7 # fc white
+mkL n = text' 1 (show n) <> circle 0.7 # fc white
 
 t = Node 2 [Node 1 [], Node 4 [Node 3 [], Node 0 [], Node 5 []]]
 
@@ -343,7 +352,7 @@ d = renderTree mkL (~~) (symmLayout' with { slHSep = 3.5, slVSep = 3.5 } t)
 
 mapping = centerY . vcat' with {sep = 0.3} $ zipWith mkMapping [0..5] "SNAILS" -- $
   where
-    mkMapping i c = mkL i .... hrule 1 .... (text' (show c) <> strutX 1)
+    mkMapping i c = mkL i .... hrule 1 .... (text' 1 (show c) <> strutX 1)
 
 dia = (d # centerY ... strutX 4 ... mapping)
     # centerXY # pad 1.1
@@ -626,12 +635,12 @@ or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 
 Formally, we may define families of labelled structures as follows.
 \begin{align*}
-   &\LStr : \Species \to \FinType \to \Type \to \Type \\
-   &\LStr\ F\ L\ A = F\ L \times (L \to A)
+   &\LStr - - - : \Species \to \FinType \to \Type \to \Type \\
+   &\LStr F L A = F\ L \times (L \to A)
 \end{align*}
-that is, a labelled structure over the species $F$, a
-constructively finite type $L$ of labels, and a type $A$ of
-data consists simply of
+that is, a labelled structure over the species $F$, parameterized a
+constructively finite type $L$ of labels and a type $A$ of data,
+consists of
 \begin{itemize}
 \item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape, and
 \item a mapping from labels to data, $m : L \to A$.
@@ -639,31 +648,30 @@ data consists simply of
 
 We can define the generic type of eliminators for labelled
 $F$-structures, $\Elim_F : \Type \to \Type \to \Type$, as
-\begin{multline*}
-  \Elim_F\ A\ R \defn (L : \Type) \to \\
-  \DecEq L \to F\ L \to (L \to A) \to R
-\end{multline*}
+\begin{equation*}
+  \Elim_F\ A\ R \defn (L : \Type) \to \DecEq L \to F\ L \to (L \to A) \to R
+\end{equation*}
 where $\DecEq L$ represents decidable equality for $L$. There are a
 few subtle issues here which are worth spelling out in detail. First,
 note that $\Elim_F$ is parameterized by $A$ (the type of data elements
 stored in the labelled structure being eliminated) and $R$ (the type
 of the desired result), but \emph{not} by $L$.  Rather, an eliminator
-of type $\Elim_F\ A\ R$ must be parametric in $L$; it is not allowed
-to define an eliminator which works only for certain label types.  The
-second point is that $L$ is a $\Type$ rather than a $\FinType$ as one
-might expect.  The reason is that one can observe an induced linear
-order on the elements of a $\FinType$, using the usual linear order on
-the associated natural numbers, but we do not want to allow this,
-since it would ``break'' the functoriality of species.  \bay{is this
-  the right way to say it?}  That is, an eliminator which was allowed
-to observe an implicit linear order on the labels could give different
-results for two labelled structures which differ only by a
+of type $\Elim_F\ A\ R$ must be parametric in $L$; defining an
+eliminator which works only for certain label types is not allowed.
+The second point is that $L$ is a $\Type$ rather than a $\FinType$ as
+one might expect.  The reason is that one can observe an induced
+linear order on the elements of a $\FinType$, using the usual linear
+order on the associated natural numbers, but we do not want to allow
+this, since it would ``break'' the functoriality of species.  \bay{is
+  this the right way to say it?}  That is, an eliminator which was
+allowed to observe an implicit linear order on the labels could give
+different results for two labelled structures which differ only by a
 relabelling, \bay{but this is bad... why?} Instead, we require only
 decidable equality for $L$ (of course, every $\FinType$ has decidable
 equality).
 
 We can ``run'' an eliminator,
-\[ \elim : \Elim_F\ A\ R \to ??? \to R, \] by simply taking apart the
+\[ \elim : \Elim_F\ A\ R \to \LStr F L A \to R, \] by simply taking apart the
 labelled structure and passing its components to the eliminator,
 projecting the label $\Type$ and its decidable equality from the
 $\FinType$.
@@ -731,8 +739,7 @@ labelled structures.  We discuss eliminators in~\pref{sec:elim}.
   $\top$, which creates a $\One$-shape using the canonical label set
   $\Fin\ 0$, that is, \[ \top : \One\ (\Fin\ 0). \] In a further abuse
   of notation we can also use $\top$ to denote an introduction form
-  for labelled $\One$-structures, \[ \top : \LStr\ \One\ (\Fin\ 0)\
-  A. \]
+  for labelled $\One$-structures, \[ \top : \LStr \One {\Fin\,0} A. \]
 
   Introducing a canonical label type will be standard for introduction
   forms; other label types may be obtained via relabelling.
@@ -754,7 +761,7 @@ labelled structures.  We discuss eliminators in~\pref{sec:elim}.
   $\X$-shapes, as with $\One$, have a trivial introduction form,
   \[ \cons{x} : \X\ (\Fin\ 1). \]  To introduce an $\X$-structure, one
   must provide the single value of type $A$ which is to be stored in
-  the single location: \[ \cons{x} : A \to \LStr\ \X\ (\Fin\ 1)\ A. \]
+  the single location: \[ \cons{x} : A \to \LStr \X {\Fin\,1} A. \]
 
 \paragraph{Sets}
 The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
@@ -770,7 +777,7 @@ are \emph{bags}: any particular data element may occur multiple times
 $\E$-shapes also have a trivial introduction form, $\cons{e} : \E\ L$,
 along with a corresponding introduction form for $\E$-structures
 which simply requires the mapping from labels to values: \[ \cons{e} :
-(L \to A) \to \LStr\ \E\ L\ A. \]
+(L \to A) \to \LStr \E L A. \]
 
 As a summary, \pref{fig:prims} contains a graphic showing $\Zero$-,
 $\One$-, $\X$-, and $\E$-shapes arranged by size (\ie, the size of the
@@ -784,7 +791,7 @@ import SpeciesDiagrams
 
 dot = circle 0.2 # fc black
 row p     = hcat' with {sep=0.1} . map (drawOne . p) $ [0..10]
-lRow x p  = (text' [x] <> phantom (square 1 :: D R2)) |||||| strutX 0.5 |||||| row p
+lRow x p  = hcat [text' 1 [x] <> phantom (square 1 :: D R2), strutX 0.5, row p]
 drawOne b = square 1 <> mconcat [dot||b]
 
 dia =
@@ -886,20 +893,17 @@ either a labelled $F$-shape or a labelled $G$-shape.
     \begin{diagram}[width=250]
 import SpeciesDiagrams
 
-theDia = struct 5 "F+G"
-         ||||||
-         strutX 1
-         ||||||
-         text' "="
-         ||||||
-         strutX 1
-         ||||||
-         ( struct 5 "F"
-           ===
-           text' "+"
-           ===
-           struct 5 "G"
-         ) # centerY
+theDia
+  = hcat' with {sep=1}
+    [ struct 5 "F+G"
+    , text' 1 "="
+    , vcat
+      [ struct 5 "F"
+      , text' 1 "+"
+      , struct 5 "G"
+      ]
+      # centerY
+    ]
 
 dia = theDia # centerXY # pad 1.1
     \end{diagram}
@@ -921,12 +925,12 @@ can define isomorphisms
 \end{align*}
 
 As expected, there are two introduction forms for $(F \ssum G)$-shapes
-and -structures:
+and \mbox{-structures}:
 \begin{align*}
 &\cons{inl} : F\ L \to (F \ssum G)\ L \\
 &\cons{inr} : G\ L \to (F \ssum G)\ L \\
-&\cons{inl} : \LStr\ F\ L\ A \to \LStr\ (F \ssum G)\ L\ A \\
-&\cons{inl} : \LStr\ G\ L\ A \to \LStr\ (F \ssum G)\ L\ A \\
+&\cons{inl} : \LStr F L A \to \LStr {F \ssum G} L A \\
+&\cons{inl} : \LStr G L A \to \LStr {F \ssum G} L A \\
 \end{align*}
 
 \paragraph{Product}
@@ -935,10 +939,9 @@ $G$-shapes, but with a twist: the label types $L_1$ and $L_2$ used for
 $F$ and $G$ are not necessarily the same as the label type $L$
 used for $(F \sprod G)$.  In fact, they must constitute a
 partition of $L$, in the sense that their sum is isomorphic to $L$.
-\begin{multline*}
-(F \sprod G)\ L = (L_1, L_2 : \FinType) \times (L_1 + L_2 \iso L)
-\\ \times F\ L_1 \times G\ L_2
-\end{multline*}
+\begin{equation*}
+  (F \sprod G)\ L = (L_1, L_2 : \FinType) \times (L_1 + L_2 \iso L) \times F\ L_1 \times G\ L_2
+\end{equation*}
 The intuition here is that each label represents a unique ``location''
 which can hold a data value, so the locations in the two paired
 shapes should be disjoint.
@@ -948,20 +951,16 @@ shapes should be disjoint.
     \begin{diagram}[width=250]
 import SpeciesDiagrams
 
-theDia = struct 5 "F•G"
-         ||||||
-         strutX 1
-         ||||||
-         text' "="
-         ||||||
-         strutX 1
-         ||||||
-         ( struct 2 "F"
-           ===
-           strutY 0.2
-           ===
-           struct 3 "G"
-         ) # centerY
+theDia
+  = hcat' with {sep=1}
+    [ struct 5 "F•G"
+    , text' 1 "="
+    , vcat' with {sep = 0.2}
+      [ struct 2 "F"
+      , struct 3 "G"
+      ]
+      # centerY
+    ]
 
 dia = theDia # centerXY # pad 1.1
     \end{diagram}
@@ -996,9 +995,8 @@ coproduct of the two label types:
 \begin{align*}
   &\langle - , - \rangle : F\ L_1 \to G\ L_2 \to (F \sprod G)\ (L_1 +
   L_2) \\
-  &\langle - , - \rangle : \LStr\ F\ L_1\ A \to \LStr\ G\ L_2\ A \to
-  \LStr\ (F \sprod G)\ (L_1 +
-  L_2)\ A
+  &\langle - , - \rangle : \LStr F {L_1} A \to \LStr G {L_2} A \to
+  \LStr {F \sprod G} {L_1 + L_2} A
 \end{align*}
 
 $(\sprod, \One)$ also forms a commutative monoid up to species
@@ -1017,10 +1015,10 @@ and treating the vector as a mapping from this canonical label set to
 labelled $G$-shapes. \todo{needs another picture} Finally, the label
 type for the overall $(F \scomp G)$-shape is the sum of all the
 individual label types used for the $G$-shapes.  Formally,
-\begin{multline*}
- (F \scomp G)\ L = (k : \N) \times (\mathit{Ls} : \Vect\ k\ \Type) \\
+\begin{equation*}
+ (F \scomp G)\ L = (k : \N) \times (\mathit{Ls} : \Vect\ k\ \Type)
  \times F\ (\Fin\ k) \times \sumTys\ (\map\ G\ \mathit{Ls})
-\end{multline*}
+\end{equation*}
 where $\sumTys$ constructs the sum of a collection of types, and is defined by
 \begin{spec}
   sumTys :  Vec n Type  ->   Type
@@ -1035,21 +1033,18 @@ $G$-shapes.
     \begin{diagram}[width=250]
 import SpeciesDiagrams
 
-theDia = struct 6 "F∘G"
-         ||||||
-         strutX 1
-         ||||||
-         text' "="
-         ||||||
-         strutX 1
-         ||||||
-         drawSpT
-         ( nd (text' "F")
-           [ struct' 2 "G"
-           , struct' 3 "G"
-           , struct' 1 "G"
-           ]
-         ) # centerY
+theDia
+  = hcat' with {sep = 1}
+    [ struct 6 "F∘G"
+    , text' 1 "="
+    , drawSpT
+      ( nd (text' 1 "F")
+        [ struct' 2 "G"
+        , struct' 3 "G"
+        , struct' 1 "G"
+        ]
+      ) # centerY
+    ]
 
 dia = theDia # centerXY # pad 1.1
     \end{diagram}
@@ -1068,48 +1063,91 @@ interesting.  We will not separately consider introduction forms for
 composition shapes, but study introduction forms for composition
 structures directly.
 
-At the simplest end of the spectrum, we can define |compP| as follows,
-which is a sort of cartesian product, copying the provided $G$
-structure into every location of the $F$ structure and pairing up
-their labels and data:
-\begin{multline*}
-  \cons{compP} : \LStr\ F\ L_1\ A \to \LStr\ G\ L_2\ B \\ \to \LStr\ (F
-  \scomp G)\ (L_1 \times L_2)\ (A \times B)
-\end{multline*}
+At the simplest end of the spectrum, we can define an operator
+$\compP$ as follows.  $\compP$ is a sort of cartesian product of
+structures, copying the provided $G$ structure into every location of
+the $F$ structure and pairing up their labels (and their data):
+\begin{equation*}
+  - \compP - : \LStr F {L_1} A \to \LStr G {L_2} B \to \LStr {F
+  \scomp G} {L_1 \times L_2} {A \times B}
+\end{equation*}
 
-\todo{explain this better, and add an illustration of |compP|}
+\begin{figure}
+  \centering
+  \begin{diagram}[width=250]
+import SpeciesDiagrams
 
-\todo{monoidal something-or-other. Like Applicative.  So we can
-  equivalently have:}
+theDia
+  = hcat' with {sep=1}
+    [ vcat' with {sep=0.2}
+      [ nd (text' 1 "F") (map (lf . Lab . Right . show) [3,2,1])
+        # drawSpT # centerX
+      , text' 1 "⊗"
+      , nd (text' 1 "G") (map (lf . Lab . Right . (:[])) "ba")
+        # drawSpT # centerX
+      ]
+      # centerY
+    , text' 1 "="
+    , nd (text' 1 "F")
+      [  nd (text' 1 "G") (map (lf . Lab . Right . (f:)) ["b","a"])
+      || f <- "321"
+      ]
+      # drawSpT
+    ]
 
-\begin{multline*}
-  \cons{compA} : \LStr\ F\ L_1\ (A \to B) \to \LStr\ G\ L_2\ A \\ \to \LStr\ (F
-  \scomp G)\ (L_1 \times L_2)\ B
-\end{multline*}
+dia = theDia # centerXY # pad 1.1
+  \end{diagram}
+  \caption{Constructing a composition with |compP|}
+  \label{fig:compP}
+\end{figure}
 
-\todo{Can also have something like monadic join:}
+Of course, this is far from being a general introduction form for
+$\scomp$, since it only allows us to construct composition structures
+of a special form, but is convenient when it suffices.  Note that we
+also have
+\begin{equation*}
+  - \compA - : \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
+    \scomp G} {L_1 \times L_2} B
+\end{equation*}
+which equivalent in power to $\compP$, assuming that we have a function
+$\cons{eval} : (A \to B) \times A \to B$.
 
-\begin{multline*}
-  \cons{compJ} : \LStr\ F\ L_1\ (\LStr\ G\ L_2\ A) \to \LStr\ (F \scomp
-  G)\ (L_1 \times L_2)\ A
-\end{multline*}
+Just as $\compA$ is a generalization of the |(<*>)| method from
+Haskell's |Applicative| class, there is another introduction form for
+composition which is a generalization of the |join| method of a |Monad|:
+\begin{equation*}
+  - \compJ - : \LStr F {L_1} {\LStr G {L_2} A} \to \LStr {F \scomp
+  G} {L_1 \times L_2} A
+\end{equation*}
+$\compJ$ takes a labelled $F$-structure filled with labelled
+$G$-structures, and turns it into a labelled $(F \scomp G)$-structure.
 
-\todo{And finally, a dependent version something like monadic
-  bind. Note that $L_2 : L_1 \to \FinType$ is allowed to depend on $L_1$.}
+\todo{illustration for $\compJ$}
 
-\begin{multline*}
-  \cons{compB} : \LStr\ F\ L_1\ \TyOne \to ((l : L_1) \to \LStr\ G\
-  (L_2\ l)\ A) \\ \to \LStr\ (F \scomp G)\ ((l : L_1) \times L_2\ l)\ A
-\end{multline*}
+$\compJ$, unlike $\compP$ and $\compA$, allows constructing an $(F
+\scomp G)$-structure where the $G$-shapes are not all the same.  Note,
+however, that all the $G$-structures are restricted to use the same
+label set, $L_1$, so they still must all be equal in size.
 
-\todo{add some pictures for the above}
+Most generally, of course, it should be possible to compose
+$G$-structures of different shapes and sizes inside an $F$-structure,
+which is made possible by the last and most general introduction form
+for $\scomp$, which can be seen as a generalization of a monadic bind
+operation |(>>=)|.
+\begin{equation*}
+  - \compB - : \LStr F {L_1} A \to ((l : L_1) \to A \to \LStr G
+  {L_2\,l} B) \to \LStr {F \scomp G} {(l : L_1) \times L_2\,l} B
+\end{equation*}
+Note that $L_2$ is allowed to depend on the $F$-labels of type $L_1$.
+
+\todo{illustration for $\compB$}
 
 \paragraph{Cartesian product}
 
 As we saw earlier, the definition of the standard product operation on
 species partitioned the set of labels between the two subshapes.
 However, there is nothing to stop us from defining a different
-product-like operation, known as \term{Cartesian product} which does
+product-like operation, known as \term{Cartesian product}, which does
 not partition the labels:\[ (F \scprod G)\ L = F\ L \times G\ L \]
 This is, of course, the ``na\"ive'' version of product that one might
 expect from experience with generic programming.
@@ -1119,11 +1157,11 @@ important to remember that we still only get to specify a single
 function of type $L \to A$ for the mapping from labels to data.  So
 each label is still associated to only a single data value, but labels
 can occur twice (or more) in an $(F \times G)$-shape.  This lets us
-\emph{explicitly} model sharing, that is, multiple parts of the same
-shape can all ``point to'' the same data.  In pure functional
-languages such as Haskell or Agda, sharing is a (mostly) unobservable
-operational detail; with a labelled structure we can directly model
-and observe it.
+\emph{explicitly} model value-level sharing, that is, multiple parts
+of the same shape can all ``point to'' the same data.  In pure
+functional languages such as Haskell or Agda, sharing is a (mostly)
+unobservable operational detail; with a labelled structure we can
+directly model and observe it.
 
 \todo{illustration}
 
@@ -1132,8 +1170,8 @@ and observe it.
 To introduce a Cartesian product shape, one simply pairs two shapes on
 the same set of labels.  Introducing a Cartesian product structure is
 more interesting. One way to do it is to overlay an additional shape
-on top of an existing structure: \[ \cons{cprodL} : F\ L \to \LStr\ G\ L\ A
-\to \LStr\ (F \scprod G)\ L\ A. \] There is also a corresponding
+on top of an existing structure: \[ \cons{cprodL} : F\ L \to \LStr G L A
+\to \LStr {F \scprod G} L A. \] There is also a corresponding
 $\cons{cprodR}$ which combines an $F$-structure and a $G$-shape.
 \todo{picture}
 
@@ -1173,7 +1211,7 @@ $\cons{OfSizeLT}$ and $\cons{OfSizeGT}$ representing these predicates,
 abbreviated as $F_{\leq n}$ and $F_{\geq n}$ respectively.
 
 The introduction form for $\OfSize$ is simple enough,
-\[ \cons{sized} : \LStr\ F\ L\ A \to \LStr\ (\OfSize\ F\ ||L||)\ L\ A, \]
+\[ \cons{sized} : \LStr F L A \to \LStr {\OfSize\ F\ ||L||} L A, \]
 where $||L||$ denotes the size of $L$ ($L$ is a $\FinType$ and
 therefore has a natural number size).
 
@@ -1195,15 +1233,15 @@ L$.
 
 To introduce a derivative structure, we require an input structure
 whose label type is already in the form $\TyOne + L$: \[ \cons{d} :
-\LStr\ F\ (\TyOne + L)\ A \to \LStr\ F'\ L\ A. \]
+\LStr F {\TyOne + L} A \to \LStr {F'} L A. \]
 
 A related, but constructively quite different operation is that of
 \term{pointing}.  A pointed $F$-shape is an $F$-shape with a
 particular label distinguished. \todo{picture} Formally,
 \[ \pt{F}\ L = L \times F\ L. \]
 Introducing a pointed structure requires simply specifying which label
-should be pointed: \[ \cons{p} : L \to \LStr\ F\ L\ A \to \LStr\
-(\pt{F})\ L\ A. \]
+should be pointed: \[ \cons{p} : L \to \LStr F L A \to \LStr
+{\pt{F}} L A. \]
 
 The relationship bewteen pointing and derivative is given by the
 isomorphism \[ \pt F \natiso \X \sprod F'. \] \todo{say more about
@@ -1213,7 +1251,7 @@ isomorphism \[ \pt F \natiso \X \sprod F'. \] \todo{say more about
 
 Just as a ``na\"ive'' product gave us some interesting structures with
 value-level sharing, a ``na\"ive'' composition can do the same.  We
-define the \term{functor product} of two species as follows:
+define the \term{functor composition} of two species as follows:
 \[ (F \fcomp G)\ L = F\ (G\ L). \]
 
 Note that the label set given to $F$ is the set of \emph{all $(G\
@@ -1576,6 +1614,10 @@ arrays as a data structure where the ordering of elements is
 significant).  But $Path(L_m \comp L_n) \sim (Fin m, Fin n)$, so we can convert
 between $(Sp (L_m \comp L_n) l a)$ and $(Sp E (Fin m, Fin n) a)$.
 
+\section{Partition stuff}
+\label{sec:partition}
+
+\todo{write about partition, filter, take...}
 
 \section{Related Work}
 \label{sec:related}
