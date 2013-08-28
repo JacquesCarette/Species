@@ -1,20 +1,21 @@
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE DataKinds     #-}
+{-# LANGUAGE GADTs         #-}
+{-# LANGUAGE PolyKinds     #-}
+{-# LANGUAGE RankNTypes    #-}
+{-# LANGUAGE TypeFamilies  #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE TypeFamilies #-}
 
-module Util where
+module Data.Type.List where
 
 -- Some utilities for working with type-level lists
 
-import ArithIsos
 import Control.Lens
-import Equality
-import Finite
-import Nat
-import Proxy
+import Data.Fin
+import Data.Finite
+import Data.Proxy
+import Data.Type.Equality
+import Data.Type.Isos
+import Data.Type.Nat
 
 type family Map (f :: k1 -> k2) (as :: [k1]) :: [k2]
 type instance Map f '[]       = '[]
@@ -36,7 +37,7 @@ lpRep :: SNat n -> Proxy l -> LProxy n (Replicate n l)
 lpRep SZ _ = LNil
 lpRep (SS n) p = LCons p (lpRep n p)
 
-mapRep :: SNat n -> Proxy g -> Proxy l -> Map g (Replicate n l) == Replicate n (g l)
+mapRep :: SNat n -> Proxy g -> Proxy l -> Map g (Replicate n l) :=: Replicate n (g l)
 mapRep SZ     _ _ = Refl
 mapRep (SS n) pg pl = case mapRep n pg pl of Refl -> Refl
 
@@ -76,3 +77,10 @@ sumRepIso' (SS m) = liftIso _Right _Right (sumRepIso' m)
    <->         { succFin }
        (Fin (S m), a)
   -}
+
+-- A variant of Proxy for type-level lists which gives us enough
+-- value-level structure to pattern match on.  Similar to HVec except
+-- we don't actually store any values of the given types.
+data LProxy :: Nat -> [*] -> * where
+  LNil  :: LProxy Z '[]
+  LCons :: Proxy l -> LProxy n ls -> LProxy (S n) (l ': ls)

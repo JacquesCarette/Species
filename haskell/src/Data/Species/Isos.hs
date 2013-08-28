@@ -1,17 +1,17 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE DataKinds     #-}
+{-# LANGUAGE Rank2Types    #-}
 {-# LANGUAGE TypeOperators #-}
 
-module SpeciesIsos where
+module Data.Species.Isos where
 
-import ArithIsos
-import BFunctor
-import Control.Lens
-import Finite
-import Nat
-import SpeciesTypes
+import           Control.Lens
 
-import Unsafe.Coerce -- for eliminating Zero
+import           Data.BFunctor
+import           Data.Finite
+import           Data.Species.Types
+import           Data.Type.Isos
+
+import           Unsafe.Coerce
 
 absurdS :: Zero l -> a
 absurdS = unsafeCoerce

@@ -1,23 +1,24 @@
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE DeriveFunctor       #-}
+{-# LANGUAGE GADTs               #-}
+{-# LANGUAGE KindSignatures      #-}
+{-# LANGUAGE PolyKinds           #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE GADTs          #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE DataKinds      #-}
+{-# LANGUAGE StandaloneDeriving  #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE TypeOperators       #-}
 
-module Vec where
+module Data.Vec where
 
 import Prelude hiding (concat, unzip, zip, zipWith)
 
 import Control.Lens
-import Data.Functor ((<$>))
-import Finite
-import Nat (Nat(..), Fin(..), SNat(..), Plus, Times)
-import Proxy
-import Util
+import Data.Fin        (Fin(..))
+import Data.Finite
+import Data.Functor    ((<$>))
+import Data.Proxy
+import Data.Type.List
+import Data.Type.Nat
 
 data Vec :: Nat -> * -> * where
   VNil :: Vec Z a

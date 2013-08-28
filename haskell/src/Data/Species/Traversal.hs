@@ -1,31 +1,22 @@
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE TypeOperators       #-}
 
 ------------------------------------------
 -- The point of this module is to show that Traversable is the same as
 -- Functor f => f # List.
 
-module Traversal where
+module Data.Species.Traversal where
 
-import SpeciesTypes
-import qualified Data.Traversable as T
-import qualified Data.Foldable as F
-import Control.Applicative
-import qualified Nat as N
-import Finite
-import qualified Vec as V
+import           Control.Monad.Supply
+import           Control.Monad.Writer
+import qualified Data.Foldable        as F
+import qualified Data.Traversable     as T
 
-import Control.Monad.Writer
-import Control.Monad.Supply
+import           Data.Finite
 
--- Use this orphan instance until
--- https://github.com/ghulette/monad-supply/pull/3 is merged and
--- released
-instance Applicative (Supply s) where
-  pure  = return
-  (<*>) = ap
+import           Data.Species.Types
 
 -- can get a L-structure from just Foldable
 fromFold :: F.Foldable f => f a -> Sp' L a
@@ -43,11 +34,11 @@ toL :: T.Traversable f => f a -> Sp' L a
 toL = fromList . execWriter . T.traverse rep'
   where
     rep' :: a -> Writer [a] ()
-    rep' a = do tell [a]; return () 
+    rep' a = do tell [a]; return ()
 
 fromTrav :: T.Traversable f => f a -> Sp' (f # L) a
 fromTrav fa = case fromFold fa of
-                SpEx sp@(Struct l v) -> 
+                SpEx sp@(Struct l v) ->
                   SpEx (Struct (CProd fl l) v)
                   where fl = fst . evalSupply m $ toList sp
                         m = runWriterT . T.traverse replace $ fa
@@ -70,11 +61,11 @@ instance F.Foldable (Sp' (f # L)) where
 
 {-
 
-Basic idea: get the 'L l' structure, traverse that, and use 
+Basic idea: get the 'L l' structure, traverse that, and use
 the resulting f [l] to decode what should be there.
 
 And fundamentally this is false, as there is no 'left to right'
-in g, not matter what the super-imposed L-structure says.  
+in g, not matter what the super-imposed L-structure says.
 
 instance T.Traversable (Sp' (g # L)) where
   -- traverse :: Applicative f => (a -> f b) -> t a -> f (t b)

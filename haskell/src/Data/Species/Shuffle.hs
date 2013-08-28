@@ -3,7 +3,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE TypeOperators       #-}
-module Shuffle where
+module Data.Species.Shuffle where
 
 import           Control.Lens
 import           Control.Monad.Writer
@@ -15,9 +15,9 @@ import qualified Data.Key                   as K
 import           Data.Maybe                 (fromJust)
 import           Data.Tuple                 (swap)
 
-import           BFunctor
-import           Finite
-import           SpeciesTypes
+import           Data.BFunctor
+import           Data.Finite
+import           Data.Species.Types
 
 
 canonicalize :: forall f l a. (TraversableWithKey f, Size (Key f) ~ Size l, Eq l, Eq (Key f))

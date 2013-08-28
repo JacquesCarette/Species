@@ -1,12 +1,13 @@
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds     #-}
+{-# LANGUAGE GADTs         #-}
 {-# LANGUAGE TypeOperators #-}
 
-module ArithIsos where
+module Data.Type.Isos where
 
-import Control.Lens
-import Finite
-import Nat
+import           Control.Lens
+import           Data.Fin
+import           Data.Finite
+import           Data.Type.Nat
 
 ------------------------------------------------------------
 -- Some arithmetic isomorphisms

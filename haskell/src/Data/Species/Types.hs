@@ -12,20 +12,19 @@
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE TypeOperators       #-}
 
-module SpeciesTypes where
+module Data.Species.Types where
 
-import           BFunctor
 import           Control.Lens hiding (cons)
+import           Data.BFunctor
+import           Data.Fin
+import           Data.Finite
 import           Data.Functor ((<$>))
-import           Equality
-import           Finite
-import           Nat
-import           Proxy
-import qualified Set          as S
-import           Util
-import qualified Vec          as V
-
--- import Data.Key
+import           Data.Proxy
+import qualified Data.Set.Abstract          as S
+import           Data.Type.Equality
+import           Data.Type.List
+import           Data.Type.Nat
+import qualified Data.Vec     as V
 
 import           Unsafe.Coerce
 

@@ -1,7 +1,7 @@
-module Zippy where
+module Data.Species.Zippy where
 
-import           SpeciesTypes
-import qualified Vec          as V
+import           Data.Species.Types
+import qualified Data.Vec          as V
 
 -- For labelled species, only things whose shape has no real content
 -- are zippy, since we need to be able to match up the shapes AND the

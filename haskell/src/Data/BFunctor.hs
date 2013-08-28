@@ -1,11 +1,11 @@
-{-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE Rank2Types        #-}
+{-# LANGUAGE TypeOperators     #-}
 
-module BFunctor where
+module Data.BFunctor where
 
 import Control.Lens
-import Finite
+import Data.Finite
 
 -- Functors in the category B of finite sets with isomorphisms as
 -- arrows.

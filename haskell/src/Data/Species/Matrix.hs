@@ -2,18 +2,19 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators       #-}
 
-module Matrix where
+module Data.Species.Matrix where
 
-import           ArithIsos
-import           Data.List    (foldl')
-import           FinIsos
-import           Finite
-import           Nat
-import           Proxy
-import           Set
-import           SpeciesTypes
-import           Vec          hiding (enumerate)
-import           Zippy
+import           Data.Fin
+import           Data.Fin.Isos
+import           Data.Finite
+import           Data.List          (foldl')
+import           Data.Proxy
+import           Data.Set.Abstract
+import           Data.Species.Types
+import           Data.Species.Zippy
+import           Data.Type.Isos
+import           Data.Type.Nat
+import           Data.Vec           hiding (enumerate)
 
 type MatrixSh = E
 

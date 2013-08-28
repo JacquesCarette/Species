@@ -3,17 +3,17 @@
 {-# LANGUAGE TypeFamilies       #-}
 {-# LANGUAGE TypeOperators      #-}
 
-module Unlabelled where
+module Data.Species.Unlabelled where
 
 import           Control.Lens
+import qualified Data.Foldable      as F
+import qualified Data.Key           as K
+import           Data.Maybe         (fromJust)
+import           Data.Tuple         (swap)
 
-import qualified Data.Foldable as F
-import qualified Data.Key      as K
-import           Data.Maybe    (fromJust)
-import           Data.Tuple    (swap)
-import           Finite
-import           SpeciesTypes
-import qualified Vec           as V
+import           Data.Finite
+import           Data.Species.Types
+import qualified Data.Vec           as V
 
 newtype USp f l a = USp { _usp :: Sp f l a }
 

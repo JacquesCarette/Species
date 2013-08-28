@@ -1,13 +1,13 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Set (Set, enumerate, elimSet) where
+module Data.Set.Abstract (Set, enumerate, elimSet) where
 
-import BFunctor
-import Control.Lens
-import Finite
-import Nat
-import Proxy
+import           Control.Lens
+import           Data.BFunctor
+import           Data.Fin
+import           Data.Finite
+import           Data.Proxy
 
 newtype Set a = Set [a]
   deriving Show

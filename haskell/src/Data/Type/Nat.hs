@@ -1,34 +1,22 @@
-{-# LANGUAGE ScopedTypeVariables  #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE GADTs                #-}
 {-# LANGUAGE KindSignatures       #-}
 {-# LANGUAGE Rank2Types           #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
 {-# LANGUAGE StandaloneDeriving   #-}
+{-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE UndecidableInstances #-}
 
+module Data.Type.Nat where
 
-module Nat where
-
-import Unsafe.Coerce  -- for eliminating Fin Z
+import Data.Type.Equality
 
 ------------------------------------------------------------
 -- Natural numbers
 
 data Nat = Z | S Nat
   deriving (Eq, Ord, Show)
-
-nat :: r -> (r -> r) -> Nat -> r
-nat z _ Z     = z
-nat z s (S n) = s (nat z s n)
-
-natToInt :: Nat -> Int
-natToInt = nat 0 succ
-
-intToNat :: Int -> Nat
-intToNat 0 = Z
-intToNat n = S (intToNat (n-1))
 
 ------------------------------------------------------------
 -- Singleton Nats
@@ -76,29 +64,26 @@ times :: SNat m -> SNat n -> SNat (Times m n)
 times SZ _     = SZ
 times (SS m) n = plus n (times m n)
 
-------------------------------------------------------------
--- Finite types
-
-data Fin :: Nat -> * where
-  FZ :: Fin (S n)
-  FS :: Fin n -> Fin (S n)
-
-deriving instance Show (Fin n)
-deriving instance Eq (Fin n)
-
-fin :: r -> (r -> r) -> Fin n -> r
-fin z _ FZ     = z
-fin z s (FS n) = s (fin z s n)
-
-finToInt :: Fin n -> Int
-finToInt = fin 0 succ
-
-absurd :: Fin Z -> a
-absurd = unsafeCoerce
-
 --------------------------------------------------
--- Enumerating all the elements of Fin n
+-- Properties of addition and multiplication
 
-fins :: SNat n -> [Fin n]
-fins SZ     = []
-fins (SS n) = FZ : map FS (fins n)
+plusZeroR :: SNat n -> Plus n Z :=: n
+plusZeroR SZ     = Refl
+plusZeroR (SS n) = case plusZeroR n of Refl -> Refl
+
+plusSuccR :: SNat m -> SNat n -> Plus m (S n) :=: S (Plus m n)
+plusSuccR SZ _     = Refl
+plusSuccR (SS m) n = case plusSuccR m n of Refl -> Refl
+
+plusAssoc :: SNat a -> SNat b -> SNat c -> (Plus (Plus a b) c) :=: Plus a (Plus b c)
+plusAssoc SZ _ _ = Refl
+plusAssoc (SS a) b c = case plusAssoc a b c of Refl -> Refl
+
+plusComm :: SNat a -> SNat b -> Plus a b :=: Plus b a
+plusComm SZ b = case plusZeroR b of Refl -> Refl
+plusComm (SS a) b = case (plusSuccR b a, plusComm a b) of (Refl, Refl) -> Refl
+
+mulZeroR :: SNat x -> Times x Z :=: Z
+mulZeroR SZ = Refl
+mulZeroR (SS x) = mulZeroR x
+
