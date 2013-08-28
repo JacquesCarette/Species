@@ -1,13 +1,22 @@
-{-# LANGUAGE Rank2Types #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE GADTs                #-}
+{-# LANGUAGE PolyKinds            #-}
+{-# LANGUAGE Rank2Types           #-}
+{-# LANGUAGE ScopedTypeVariables  #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 
-module Data.Finite where
+-- | Constructively finite types.
+module Data.Finite
+    ( -- * Isomorphisms and natural transformations
+
+     type (<->), liftIso, isoPresSize, type (-->), type (<-->)
+
+      -- * Constructively finite types
+    , Finite(..)
+    )
+    where
 
 import           Control.Arrow ((***), (+++))
 import           Control.Lens
@@ -23,26 +32,54 @@ import           Unsafe.Coerce (unsafeCoerce)
 ------------------------------------------------------------
 --  Isomorphisms
 
+-- | The type @a \<-\> b@ represents isomorphisms between @a@ and @b@.
+--
+--   * To construct one, you can pass a pair of inverse functions to
+--     'iso', or use 'liftIso' as described below.
+--
+--   * To invert an isomorphism, use @'from' :: (a \<-\> b) -> (b \<-\> a)@.
+--
+--   * To compose two isomorphisms, use the normal function
+--     composition operator '.' (though note it works \"backwards\",
+--     /i.e./ @(.) :: (a \<-\> b) -> (b \<-\> c) -> (a \<-\> c)@.
+--
+--   * To turn an isomorphism into a function, use @'view' :: (a \<-\>
+--     b) -> (a -> b)@.
 type (<->) a b = Iso' a b
 
+-- | Higher-order isomorphisms, /i.e./ natural isomorphisms, between
+--   two shapes.
 type (<-->) f g = forall l. (Eq l, Finite l) => f l <-> g l
 
--- Lift an iso on a field to an iso of the whole structure.
+-- | Lift an isomorphism on a particular field to an isomorphism of an
+--   entire structure.  Unfortunately, the field must be passed twice
+--   (this is simply due to a quirk of the way @lens@ is encoded).  For example,
+--
+--   > liftIso _1 _1 :: (a <-> b) -> ((a,c) <-> (b,c))
 liftIso :: Setter s t a b -> Setter t s b a -> (a <-> b) -> (s <-> t)
 liftIso l1 l2 ab = withIso ab $ \f g -> iso (l1 %~ f) (l2 %~ g)
 
 ------------------------------------------------------------
 --  Natural transformations
 
+-- | Natural transformations between two shapes.
 type (-->) f g = forall l. (Eq l, Finite l) => f l -> g l
 
 ------------------------------------------------------------
 --  Constructively finite types
 
+-- | Constructively finite types.
+--
+--   XXX talk about how this actually
+--   gives you a canonical ordering which is stronger than we would
+--   like.
 class Eq l => Finite l where
   type Size l :: Nat
+  -- ^ An associated type family giving the size of @l@.
   size        :: Proxy l -> SNat (Size l)
+  -- ^ Get the size of a finite type.
   finite      :: Fin (Size l) <-> l
+  -- ^ Isomorphism witnessing the finiteness of @l@.
   toFin       :: l -> Fin (Size l)
   toFin = view (from finite)
   fromFin     :: Fin (Size l) -> l
@@ -103,6 +140,9 @@ instance (Finite a, Finite b) => Finite (a,b) where
 ------------------------------------------------------------
 -- Miscellaneous proofs about size
 
+-- | We take as an axiom that isomorphisms preserve size
+--   (unfortunately it is not actually possible to prove this within
+--   Haskell).
 isoPresSize :: forall l1 l2. (Finite l1, Finite l2) =>
                (l1 <-> l2) -> (Size l1 :=: Size l2)
 isoPresSize _
