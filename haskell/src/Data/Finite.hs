@@ -7,7 +7,7 @@
 {-# LANGUAGE TypeOperators        #-}
 {-# LANGUAGE UndecidableInstances #-}
 
--- | Constructively finite types.
+-- | Natural transformations, isomorphisms, and constructively finite types.
 module Data.Finite
     ( -- * Isomorphisms and natural transformations
 
@@ -70,19 +70,33 @@ type (-->) f g = forall l. (Eq l, Finite l) => f l -> g l
 
 -- | Constructively finite types.
 --
---   XXX talk about how this actually
---   gives you a canonical ordering which is stronger than we would
---   like.
+--   Currently, a finite type is defined as a type @l@ for which there
+--   exists an isomorphism between @l@ and @Fin n@ for some natural
+--   number @n@.  However, this is a bit stronger than we would like:
+--   we can use the isomorphism to induce orderings on the inhabitants
+--   of @l@ from orderings of @Fin n@ (which are easy to compute).
+--   Abstractly, however, the notions of finiteness and linear
+--   orderings ought to be orthogonal.  We must be careful to note
+--   when we are taking advantage of this implicit ordering.
 class Eq l => Finite l where
+
   type Size l :: Nat
   -- ^ An associated type family giving the size of @l@.
+
   size        :: Proxy l -> SNat (Size l)
   -- ^ Get the size of a finite type.
+
   finite      :: Fin (Size l) <-> l
   -- ^ Isomorphism witnessing the finiteness of @l@.
+
   toFin       :: l -> Fin (Size l)
+  -- ^ One direction of the isomorphism as a function, provided for
+  --   convenience.
   toFin = view (from finite)
+
   fromFin     :: Fin (Size l) -> l
+  -- ^ The other direction of the isomorphism as a function, provided
+  --   for convenience.
   fromFin = view finite
 
 instance Natural n => Finite (Fin n) where
@@ -150,5 +164,3 @@ isoPresSize _
   | otherwise = error $ "isoPresSize: " ++ show s1 ++ " /= " ++ show s2
   where s1 = size (Proxy :: Proxy l1)
         s2 = size (Proxy :: Proxy l2)
-
-  -- Can we actually implement this in Haskell?  I don't think so.
