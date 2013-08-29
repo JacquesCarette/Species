@@ -7,22 +7,17 @@ module Data.Species.Matrix where
 import           Data.Fin
 import           Data.Fin.Isos
 import           Data.Finite
-import           Data.List          (foldl')
+import           Data.List            (foldl')
 import           Data.Proxy
 import           Data.Set.Abstract
+import           Data.Species.Shuffle
 import           Data.Species.Types
 import           Data.Species.Zippy
 import           Data.Type.Isos
 import           Data.Type.Nat
-import qualified Data.Vec           as V
+import qualified Data.Vec             as V
 
 type MatrixSh = E
-
-forgetSh :: f --> E
-forgetSh _ = E enumerate
-
-forget :: Finite l => Sp f l a -> Sp E l a
-forget = reshape forgetSh
 
 splitE :: forall l1 l2 a. (Finite l1, Finite l2) => Sp E (l1,l2) a -> Sp E l1 (Sp E l2 a)
 splitE (Struct _ as) = Struct eSh (V.mkV l1Sz $ \i ->
@@ -38,7 +33,7 @@ type Matrix2 m n = Sp MatrixSh (Fin m, Fin n)
 
 mkMatrix2 :: (Natural m, Natural n)
          => (Fin m -> Fin n -> a) -> Matrix2 m n a
-mkMatrix2 m = forget $ compA (e m) (e id)
+mkMatrix2 m = forgetShape $ compA (e m) (e id)
 
 transpose :: (Natural m, Natural n)
           => Matrix2 m n a -> Matrix2 n m a
@@ -54,7 +49,7 @@ prod2' :: (Natural m, Natural n, Natural p)
        => (a -> a -> a) -> a -> (a -> a -> a)
        -> Matrix2 m p a -> Matrix2 p n a -> Matrix2 m n a
 prod2' s e p m1 m2
-  = forget
+  = forgetShape
   . fmap (elimE s e . uncurry (zipWithS p))
   $ compAP (splitE m1) (splitE (transpose m2))
 
