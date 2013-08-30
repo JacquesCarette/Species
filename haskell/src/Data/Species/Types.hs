@@ -31,18 +31,15 @@ import           Unsafe.Coerce
 ------------------------------------------------------------
 --  Labelled shapes and data structures
 
--- A labelled shape is a shape filled with a finite set of labels
-type Shape f l = f l
-
 -- Shapes with an existentially quantified label type.
 data Shape' :: (* -> *) -> * where
-  Shape' :: (Eq l, Finite l) => Shape f l -> Shape' f
+  Shape' :: (Eq l, Finite l) => f l -> Shape' f
 
 -- A species is a labelled shape paired with a map from labels to data
 -- values.  Since label types are required to be constructively
 -- finite, that is, come with an isomorphism to Fin n for some n, we
 -- can represent the map as a length-n vector.
-data Sp f l a = Struct { _shape :: Shape f l, _elts :: V.Vec (Size l) a }
+data Sp f l a = Struct { _shape ::  f l, _elts :: V.Vec (Size l) a }
   deriving Show
 
 makeLenses ''Sp
@@ -51,11 +48,11 @@ makeLenses ''Sp
 --  Relabelling/functoriality
 
 relabelShape' :: (Finite l1, Finite l2, BFunctor f)
-              => (l1 <-> l2) -> (Shape f l1 <-> Shape f l2)
+              => (l1 <-> l2) -> (f l1 <-> f l2)
 relabelShape' = bmap
 
 relabelShape :: (Finite l1, Finite l2, BFunctor f)
-             => (l1 <-> l2) -> Shape f l1 -> Shape f l2
+             => (l1 <-> l2) -> f l1 -> f l2
 relabelShape = view . bmap
 
 -- Species structures can also be relabelled.
@@ -128,7 +125,7 @@ instance BFunctor One where
   bmap i = iso (\(One vl ) -> One (vl .i))
                (\(One vl') -> One (vl'.from i))
 
-oneSh :: Shape One (Fin Z)
+oneSh :: One (Fin Z)
 oneSh = One id
 
 one :: Sp One (Fin Z) a
@@ -148,7 +145,7 @@ instance BFunctor X where
   bmap i = iso (\(X ul ) -> X (ul .i))
                (\(X ul') -> X (ul'.from i))
 
-xSh :: Shape X (Fin (S Z))
+xSh :: X (Fin (S Z))
 xSh = X id
 
 x :: a -> Sp X (Fin (S Z)) a
@@ -162,7 +159,7 @@ x' = SpEx . x
 newtype E (l :: *) = E (S.Set l)
   deriving (BFunctor, Show)
 
-eSh :: Finite l => Shape E l
+eSh :: Finite l => E l
 eSh = E S.enumerate
 
 e :: Finite l => (l -> a) -> Sp E l a
@@ -174,7 +171,7 @@ e f = Struct eSh (fmap f V.enumerate)
 -- e' :: [a] -> Sp' E a
 -- e' as =
 --   case V.fromList as of
---     (V.SomeVec (v :: Vec n a)) -> SpEx (Struct (eSh :: Shape E (Fin n)) v)
+--     (V.SomeVec (v :: Vec n a)) -> SpEx (Struct (eSh :: E (Fin n)) v)
 
 -- Sum -------------------------------------------
 
@@ -191,7 +188,7 @@ instance (BFunctor f, BFunctor g) => BFunctor (f + g) where
       applyIso i' (Inl f) = Inl (view (bmap i') f)
       applyIso i' (Inr g) = Inr (view (bmap i') g)
 
-inlSh :: Shape f l -> Shape (f + g) l
+inlSh :: f l -> (f + g) l
 inlSh = Inl
 
 inl :: Sp f l a -> Sp (f + g) l a
@@ -200,7 +197,7 @@ inl = shape %~ inlSh
 inl' :: Sp' f a -> Sp' (f + g) a
 inl' (SpEx s) = SpEx (inl s)
 
-inrSh :: Shape g l -> Shape (f + g) l
+inrSh :: g l -> (f + g) l
 inrSh = Inr
 
 inr :: Sp g l a -> Sp (f + g) l a
@@ -222,8 +219,8 @@ instance (BFunctor f, BFunctor g) => BFunctor (f +? g) where
   bmap i = iso (\(ParSum fg pf) -> ParSum fg (pf.i))
                (\(ParSum fg pf) -> ParSum fg (pf.from i))
 
--- pInlSh :: Shape f l1 -> Shape (f +? g) (Either l1 l2)
--- pInlSh (Shape n f) = Shape n (ParSum (Left f) id)
+-- pInlSh :: f l1 -> (f +? g) (Either l1 l2)
+-- pInlSh (n f) = n (ParSum (Left f) id)
 
 -- pInl :: Sp f l1 a -> Sp (f +? g) (Either l1 l2) a
 -- pInl (Struct s es) = Struct (pInlSh s) (M.mapLabels Left es)
@@ -246,7 +243,7 @@ instance (BFunctor f, BFunctor g) => BFunctor (f * g) where
                (\(Prod f g pf) -> Prod f g (pf.from i))
 
 prodSh :: (Eq l1, Finite l1, Eq l2, Finite l2)
-       => Shape f l1 -> Shape g l2 -> Shape (f * g) (Either l1 l2)
+       => f l1 -> g l2 -> (f * g) (Either l1 l2)
 prodSh f g = Prod f g id
 
 prod :: (Eq l1, Finite l1, Eq l2, Finite l2)
@@ -272,15 +269,15 @@ instance (BFunctor f, BFunctor g) => BFunctor (f # g) where
 instance (Functor f, Functor g) => Functor (f # g) where
   fmap f (CProd f1 f2) = CProd (fmap f f1) (fmap f f2)
 
-cprodSh :: Shape f l -> Shape g l -> Shape (f # g) l
+cprodSh :: f l -> g l -> (f # g) l
 cprodSh f g = CProd f g
 
 -- Superimpose a new shape atop an existing structure from the left
-cprodL :: Shape f l -> Sp g l a -> Sp (f # g) l a
+cprodL :: f l -> Sp g l a -> Sp (f # g) l a
 cprodL sf (Struct sg es) = Struct (cprodSh sf sg) es
 
 -- Same thing from the right
-cprodR :: Sp f l a -> Shape g l -> Sp (f # g) l a
+cprodR :: Sp f l a -> g l -> Sp (f # g) l a
 cprodR (Struct sf es) sg = Struct (cprodSh sf sg) es
 
 -- Differentiation -------------------------------
@@ -295,7 +292,7 @@ instance BFunctor f => BFunctor (D f) where
 iMaybe :: (a <-> b) -> (Maybe a <-> Maybe b)
 iMaybe i = liftIso _Just _Just i
 
-dSh :: Shape f (Maybe l) -> Shape (D f) l
+dSh :: f (Maybe l) -> (D f) l
 dSh f = D f id
 
 d :: Sp f (Maybe l) a -> Sp (D f) l a
@@ -312,7 +309,7 @@ instance BFunctor f => BFunctor (P f) where
   bmap i = iso (\(P l f) -> P (view i l) (view (bmap i) f))
                (\(P l f) -> P (view (from i) l) (view (bmap (from i)) f))
 
-pSh :: l -> Shape f l -> Shape (P f) l
+pSh :: l -> f l -> (P f) l
 pSh l f = P l f
 
 p :: l -> Sp f l a -> Sp (P f) l a
@@ -326,7 +323,7 @@ p l (Struct s es) = Struct (pSh l s) es
 data Part l where
   Part :: (Finite l1, Finite l2) => S.Set l1 -> S.Set l2 -> (Either l1 l2 <-> l) -> Part l
 
-partSh :: (Finite l1, Finite l2) => (Either l1 l2 <-> l) -> Shape Part l
+partSh :: (Finite l1, Finite l2) => (Either l1 l2 <-> l) -> Part l
 partSh i = Part S.enumerate S.enumerate i
 
 -- the constraint that Plus (Size l1) (Size l2) ~ Size l
@@ -478,7 +475,7 @@ instance BFunctor f => BFunctor (OfSize n f) where
   bmap i = iso (\(OfSize n eq f) -> OfSize n (eq.i) (view (bmap i) f))
                (\(OfSize n eq f) -> OfSize n (eq.from i) (view (bmap (from i)) f))
 
-sizedSh :: forall f l. Finite l => Shape f l -> Shape (OfSize (Size l) f) l
+sizedSh :: forall f l. Finite l => f l -> (OfSize (Size l) f) l
 sizedSh sh = OfSize (size (Proxy :: Proxy l)) finite sh
 
 sized :: Finite l => Sp f l a -> Sp (OfSize (Size l) f) l a
@@ -503,7 +500,7 @@ instance BFunctor L where
 -- Haskell list to a Sp' L.  Ideally all of this would be generically
 -- derivable.
 
-listSh :: Finite l => Shape (One + X*L) l -> Shape L l
+listSh :: Finite l => (One + X*L) l -> L l
 listSh = view (from isoL)
 
 list :: Finite l => Sp (One + X*L) l a -> Sp L l a
@@ -543,7 +540,7 @@ elimList r f = mapElimShape (view isoL)
 -- Note that the difference between Elim f a b and (f a -> b) really
 -- only matters for structures with sharing, e.g. cartesian product.
 
-newtype Elim f a r = Elim (forall l. Eq l => Shape f l -> (l -> a) -> r)
+newtype Elim f a r = Elim (forall l. Eq l => f l -> (l -> a) -> r)
   deriving Functor
 
 -- Elim is a covariant functor in its final argument (witnessed by the
@@ -595,11 +592,11 @@ elimProd (Elim f) = Elim $ \(Prod fShp gShp pf) m ->
 haven't yet figured out how to convince the Haskell typechecker.
 
 elimComp :: Elim f x r -> Elim g a x -> Elim (Comp f g) a r
-elimComp (Elim ef) (Elim eg) = Elim $ \(Shape (Comp fl1 lp gs pf)) m ->
+elimComp (Elim ef) (Elim eg) = Elim $ \((Comp fl1 lp gs pf)) m ->
   let mSum = m . view pf
       -- mSum :: Sum ls -> a
   in
-      ef (Shape fl1) (\l1 -> eg (Shape (undefined {- gs ! l1 -})) (mSum . undefined))
+      ef (fl1) (\l1 -> eg ((undefined {- gs ! l1 -})) (mSum . undefined))
 -}
 
 ------------------------------------------------------------
@@ -610,7 +607,7 @@ elimComp (Elim ef) (Elim eg) = Elim $ \(Shape (Comp fl1 lp gs pf)) m ->
 
 -- canonicalize :: forall l f a. (Finite l, Finite (Key f), Keyed f)
 --              => Sp f l a -> (Sp E (Key f) a, l <-> Key f)
--- canonicalize (Struct (Shape fl) e)
+-- canonicalize (Struct (fl) e)
 --   = (Struct eSh (V.shuffle szL szK shuf e), i)
 --   where
 --     szL :: SNat (Size l)
