@@ -4,12 +4,15 @@
 
 module Data.Species.Matrix where
 
+import           Data.List            (foldl')
+import           Data.Proxy
+
 import           Data.Fin
 import           Data.Fin.Isos
 import           Data.Finite
-import           Data.List            (foldl')
-import           Data.Proxy
 import           Data.Set.Abstract
+import           Data.Species.Elim
+import           Data.Species.Shape
 import           Data.Species.Shuffle
 import           Data.Species.Types
 import           Data.Species.Zippy
@@ -20,8 +23,8 @@ import qualified Data.Vec             as V
 type MatrixSh = E
 
 splitE :: forall l1 l2 a. (Finite l1, Finite l2) => Sp E (l1,l2) a -> Sp E l1 (Sp E l2 a)
-splitE (Struct _ as) = Struct eSh (V.mkV l1Sz $ \i ->
-                         Struct eSh (V.mkV l2Sz $ \j ->
+splitE (Struct _ as) = Struct e_ (V.mkV l1Sz $ \i ->
+                         Struct e_ (V.mkV l2Sz $ \j ->
                            V.index as (finProd l1Sz l2Sz (i, j))
                          )
                        )

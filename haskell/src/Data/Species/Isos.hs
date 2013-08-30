@@ -16,7 +16,7 @@ import           Control.Lens
 
 import           Data.BFunctor
 import           Data.Finite
-import           Data.Species.Types
+import           Data.Species.Shape
 import           Data.Type.Isos
 
 -- XXX need to add a bunch more!

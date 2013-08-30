@@ -12,13 +12,15 @@
 module Data.Species.VecLike where
 
 import           Control.Lens
+import           Data.Proxy
+import           Data.Type.Equality
+
 import qualified Data.Fin                 as F
 import           Data.Fin.Isos
 import           Data.Finite
-import           Data.Proxy
 import qualified Data.Set.Abstract        as S
+import           Data.Species.Shape
 import           Data.Species.Types
-import           Data.Type.Equality
 import qualified Data.Type.Nat            as N
 import           Data.Type.Nat.Inequality
 import           Data.Type.Nat.Minus
@@ -34,7 +36,7 @@ take (Struct f i) n pf =
   case minus (size (Proxy :: Proxy l)) n pf of
     Minus (m :: N.SNat m) Refl ->
       case N.plusComm m n of
-        Refl -> Struct (cprodSh f k) i
+        Refl -> Struct (cprod_ f k) i
           where k :: Part l
                 k = natty n $ natty m $ Part S.enumerate S.enumerate isom
                 isom :: Either (F.Fin n) (F.Fin m) <-> l
@@ -57,7 +59,7 @@ filter (Struct f i) p =
   let foo = fmap p i in
   case vpart foo of
     VPart (v1 :: V.Vec n (F.Fin (Size l))) (v2 :: V.Vec m (F.Fin (Size l))) Refl
-      -> Struct (cprodSh f k) i
+      -> Struct (cprod_ f k) i
         where k :: Part l
               k = natty (V.size v1) $ natty (V.size v2) $
                   Part S.enumerate S.enumerate isom

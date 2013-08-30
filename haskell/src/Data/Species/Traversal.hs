@@ -15,7 +15,9 @@ import qualified Data.Foldable        as F
 import qualified Data.Traversable     as T
 
 import           Data.Finite
-
+import           Data.Species.Elim
+import           Data.Species.List
+import           Data.Species.Shape
 import           Data.Species.Types
 
 -- can get a L-structure from just Foldable

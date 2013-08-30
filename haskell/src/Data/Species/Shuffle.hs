@@ -17,6 +17,7 @@ import           Data.Tuple                 (swap)
 
 import           Data.BFunctor
 import           Data.Finite
+import           Data.Species.Shape
 import           Data.Species.Types
 
 
@@ -29,7 +30,7 @@ canonicalize (Struct fl es) = (Struct fk es, klIso)
     klIso   = iso (fromJust . (lookup ?? map swap m)) (fromJust . (lookup ?? m))
 
 forgetShape :: Finite l => Sp f l a -> Sp E l a
-forgetShape (Struct _ es) = Struct eSh es
+forgetShape (Struct _ es) = Struct e_ es
 
 reconstitute :: Representable f => Sp E (Key f) a -> Sp f (Key f) a
 reconstitute (Struct _ es) = Struct (tabulate id) es
