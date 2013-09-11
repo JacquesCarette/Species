@@ -43,3 +43,6 @@ prodComm :: (f * g) <--> (g * f)
 prodComm = iso swap swap
              where
                swap (Prod x y i) = Prod y x (commP . i)
+
+diffPoint :: (x * D f) <--> P f
+diffPoint = undefined  -- XXX implement me

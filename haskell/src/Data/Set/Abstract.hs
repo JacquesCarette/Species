@@ -23,7 +23,7 @@ instance BFunctor Set where
 enumerate :: forall l. Finite l => Set l
 enumerate = Set $ map (view finite) (fins (size (Proxy :: Proxy l)))
 
--- | Generic eliminator for 'Set'. Note that using @elimSet' incurs a
+-- | Generic eliminator for 'Set'. Note that using @elimSet@ incurs a
 --   proof obligation, namely, the first argument must be a function
 --   which yields the same result for any permutation of a given input
 --   list.

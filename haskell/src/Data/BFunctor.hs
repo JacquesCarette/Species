@@ -11,8 +11,8 @@ import Data.Finite
 --   arrows.
 --
 --   Note that @bmap@ has a default implementation in terms of 'fmap'
---   for @f@ which are also an instance of @Functor@ (however,
---   not all @BFunctor@s are @Functor@s.)
+--   for those types @f@ which are also an instance of @Functor@
+--   (however, not all @BFunctor@s are @Functor@s.)
 class BFunctor f where
   bmap :: (Finite a, Finite b) => (a <-> b) -> (f a <-> f b)
 

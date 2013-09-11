@@ -23,7 +23,7 @@ import Unsafe.Coerce
 ------------------------------------------------------------
 -- Finite types
 
--- | @Fin n@ is the canonical type with exactly @n@ (non-bottom)
+-- | @Fin n@ is the canonical type with exactly @n@ (non-partial)
 --   inhabitants.
 data Fin :: Nat -> * where
   FZ :: Fin (S n)
@@ -37,6 +37,7 @@ fin :: r -> (r -> r) -> Fin n -> r
 fin z _ FZ     = z
 fin z s (FS n) = s (fin z s n)
 
+-- | Convert a @Fin n@ value to an 'Int' in the range 0 to (n-1).
 finToInt :: Fin n -> Int
 finToInt = fin 0 succ
 
