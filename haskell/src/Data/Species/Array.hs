@@ -2,6 +2,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators       #-}
 
+-- | This module demonstrates computations with generalized arrays as
+--   an example application.
 module Data.Species.Array where
 
 import           Data.List            (foldl')
@@ -20,8 +22,12 @@ import           Data.Type.Isos
 import           Data.Type.Nat
 import qualified Data.Vec             as V
 
-type MatrixSh = E
+-- | Typically, we think of an array as an unstructured collection of
+--   elements.  If there is any structure it resides in the labels.
+type ArraySh = E
 
+-- | Given a bag structure with product labels, we may \"split\" it
+--   into a bag of bags.
 splitE :: forall l1 l2 a. (Finite l1, Finite l2) => Sp E (l1,l2) a -> Sp E l1 (Sp E l2 a)
 splitE (Struct _ as) = Struct e_ (V.mkV l1Sz $ \i ->
                          Struct e_ (V.mkV l2Sz $ \j ->
@@ -32,39 +38,51 @@ splitE (Struct _ as) = Struct e_ (V.mkV l1Sz $ \i ->
     l1Sz = size (Proxy :: Proxy l1)
     l2Sz = size (Proxy :: Proxy l2)
 
-type Matrix2 m n = Sp MatrixSh (Fin m, Fin n)
+-- | An @m x n@ array has labels which are pairs of type @(Fin m, Fin n)@.
+type Array2 m n = Sp ArraySh (Fin m, Fin n)
 
-mkMatrix2 :: (Natural m, Natural n)
-         => (Fin m -> Fin n -> a) -> Matrix2 m n a
-mkMatrix2 m = forgetShape $ compA (e m) (e id)
+-- | Introduction form for 2D arrays, taking a function specifying the
+--   array content.
+mkArray2 :: (Natural m, Natural n)
+         => (Fin m -> Fin n -> a) -> Array2 m n a
+mkArray2 m = forgetShape $ compA (e m) (e id)
 
+-- | Transposition is a simple relabelling.
 transpose :: (Natural m, Natural n)
-          => Matrix2 m n a -> Matrix2 n m a
+          => Array2 m n a -> Array2 n m a
 transpose = relabel commT
 
-sum2 :: Num a => Matrix2 m n a -> Matrix2 m n a -> Matrix2 m n a
-sum2 = zipWithS (+)
+-- | Sum two arrays elementwise.
+sumArray :: Num a => Sp ArraySh l a -> Sp ArraySh l a -> Sp ArraySh l a
+sumArray = zipWithS (+)
 
+-- | A generic eliminator for bag structures, taking a commutative,
+--   associative binary operator and a default value.
 elimE :: Finite l => (a -> a -> a) -> a -> Sp E l a -> a
-elimE op e = (elim . Elim) (\(E s) m -> elimSet (foldl' op e . map m) s)
+elimE op z = (elim . Elim) (\(E s) m -> elimSet (foldl' op z . map m) s)
 
+-- | Generalized product of 2D arrays.  The first two arguments define
+--   the additive structure (a commutative, associative binary
+--   operation and its identity) and the second argument defines a
+--   multiplicative structure.
 prod2' :: (Natural m, Natural n, Natural p)
        => (a -> a -> a) -> a -> (a -> a -> a)
-       -> Matrix2 m p a -> Matrix2 p n a -> Matrix2 m n a
-prod2' s e p m1 m2
+       -> Array2 m p a -> Array2 p n a -> Array2 m n a
+prod2' s z t m1 m2
   = forgetShape
-  . fmap (elimE s e . uncurry (zipWithS p))
+  . fmap (elimE s z . uncurry (zipWithS t))
   $ compAP (splitE m1) (splitE (transpose m2))
 
+-- | The usual product of 2D matrices.
 prod2 :: (Num a, Natural m, Natural n, Natural p)
-      => Matrix2 m p a -> Matrix2 p n a -> Matrix2 m n a
+      => Array2 m p a -> Array2 p n a -> Array2 m n a
 prod2 = prod2' (+) 0 (*)
 
 {-
 
    It works!!  Squaring the matrix [[0 1] [1 2]] in GHCi:
 
->>> let m = mkMatrix2 (fin finToInt ((+1) .)) :: Matrix2 (S (S Z)) (S (S Z)) Int
+>>> let m = mkArray2 (fin finToInt ((+1) .)) :: Array2 (S (S Z)) (S (S Z)) Int
 >>> m
 Struct {_shape = E (Set [(FZ,FZ),(FZ,FS FZ),(FS FZ,FZ),(FS FZ,FS FZ)]), _elts = VCons 0 (VCons 1 (VCons 1 (VCons 2 VNil)))}
 >>> prod2 m m
