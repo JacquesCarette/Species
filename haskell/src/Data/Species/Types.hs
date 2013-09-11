@@ -38,7 +38,7 @@ module Data.Species.Types
       -- ** Product
     , prod, prod'
       -- ** Cartesian product
-    , cprodL, cprodR
+    , cprodL, cprodR, decompL, decompR, projL, projR, editL
       -- ** Differentiation
     , d
       -- ** Pointing
@@ -52,6 +52,7 @@ module Data.Species.Types
     )
     where
 
+import           Control.Arrow (first, second)
 import           Control.Lens hiding (cons)
 import           Data.Proxy
 import           Data.Type.Equality
@@ -192,6 +193,21 @@ cprodL sf (Struct sg es) = Struct (cprod_ sf sg) es
 -- | Superimpose a new shape atop an existing structure from the right.
 cprodR :: Sp f l a -> g l -> Sp (f # g) l a
 cprodR (Struct sf es) sg = Struct (cprod_ sf sg) es
+
+decompL :: Sp (f # g) l a -> (Sp f l a, g l)
+decompL (Struct (CProd fl gl) es) = (Struct fl es, gl)
+
+decompR :: Sp (f # g) l a -> (f l, Sp g l a)
+decompR (Struct (CProd fl gl) es) = (fl, Struct gl es)
+
+projL ::  Sp (f # g) l a -> Sp f l a
+projL = fst . decompL
+
+projR ::  Sp (f # g) l a -> Sp g l a
+projR = snd . decompR
+
+editL :: (Sp f l a -> Sp f l b) -> (Sp (f # g) l a -> Sp (f # g) l b)
+editL f = uncurry cprodR . first f . decompL
 
 -- Differentiation -------------------------------
 
