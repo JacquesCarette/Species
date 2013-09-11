@@ -2,7 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeOperators       #-}
 
-module Data.Species.Matrix where
+module Data.Species.Array where
 
 import           Data.List            (foldl')
 import           Data.Proxy
