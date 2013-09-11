@@ -12,7 +12,45 @@
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
 
-module Data.Species.Types where
+module Data.Species.Types
+    ( -- * Labelled structures
+
+      Sp(..), shape, elts
+
+      -- * Relabelling and reshaping
+
+    , relabelI, relabel
+    , reshapeI, reshape
+
+      -- * Existentially quantified structures
+
+    , Sp'(..)
+
+      -- * Introduction forms
+      -- ** Unit
+    , one, one'
+      -- ** Singleton
+    , x, x'
+      -- ** Bags
+    , e
+      -- ** Sum
+    , inl, inr, inl', inr'
+      -- ** Product
+    , prod, prod'
+      -- ** Cartesian product
+    , cprodL, cprodR
+      -- ** Differentiation
+    , d
+      -- ** Pointing
+    , p
+      -- ** Partition
+    , part
+      -- ** Composition
+    , compA, compAP, compJ, compJ'
+      -- ** Cardinality restriction
+    , sized
+    )
+    where
 
 import           Control.Lens hiding (cons)
 import           Data.Proxy
@@ -30,10 +68,10 @@ import qualified Data.Vec     as V
 ------------------------------------------------------------
 -- Labelled structures
 
--- A species is a labelled shape paired with a map from labels to data
--- values.  Since label types are required to be constructively
--- finite, that is, come with an isomorphism to Fin n for some n, we
--- can represent the map as a length-n vector.
+-- | A species is a labelled shape paired with a map from labels to data
+--   values.  Since label types are required to be constructively
+--   finite, that is, come with an isomorphism to @'Fin' n@ for some n, we
+--   can represent the map as a length-@n@ vector.
 data Sp f l a = Struct { _shape ::  f l, _elts :: V.Vec (Size l) a }
   deriving Show
 
@@ -42,7 +80,8 @@ makeLenses ''Sp
 ------------------------------------------------------------
 --  Relabelling/functoriality
 
--- Species structures can also be relabelled.
+-- | Structures can be relabelled; /i.e./ isomorphisms between label
+--   sets induce isomorphisms between labelled structures.
 relabelI :: (Finite l1, Finite l2, BFunctor f)
          => (l1 <-> l2) -> (Sp f l1 a <-> Sp f l2 a)
 relabelI i =
@@ -50,6 +89,8 @@ relabelI i =
     Refl -> iso (\(Struct s es) -> Struct (view (bmap i) s) es)
                 (\(Struct s es) -> Struct (view (bmap (from i)) s) es)
 
+-- | A version of 'relabelI' which returns a function instead of an
+--   isomorphism, which is sometimes more convenient.
 relabel :: (Finite l1, Finite l2, BFunctor f)
         => (l1 <-> l2) -> Sp f l1 a -> Sp f l2 a
 relabel = view . relabelI
@@ -63,19 +104,23 @@ instance Functor (Sp' f) where
 ------------------------------------------------------------
 --  Reshaping
 
+-- | Structures can also be /reshaped/: isomorphisms between species
+--   induce isomorphisms between labelled structures.
 reshapeI :: Finite l => (f <--> g) -> (Sp f l a <-> Sp g l a)
 reshapeI i = liftIso shape shape i
 
+-- | A version of 'reshapeI' which returns a function instead of an
+--   isomorphism, which is sometimes more convenient.
 reshape :: Finite l => (f --> g) -> Sp f l a -> Sp g l a
 reshape r = over shape r
 
 ------------------------------------------------------------
 --  Existentially labelled structures
 
--- We need to package up an Eq constraint on the labels, otherwise we
--- can't really do anything with them and we might as well just not
--- have them at all.
-
+-- | Labelled structures whose label type has been existentially
+--   hidden.  Note that we need to package up an @Eq@ constraint on the
+--   labels, otherwise we can't really do anything with them and we
+--   might as well just not have them at all.
 data Sp' f a where
   SpEx :: (Finite l, Eq l) => Sp f l a -> Sp' f a
 
@@ -140,11 +185,11 @@ prod' (SpEx f) (SpEx g) = SpEx (prod f g)
 
 -- Cartesian product -----------------------------
 
--- Superimpose a new shape atop an existing structure from the left
+-- | Superimpose a new shape atop an existing structure from the left.
 cprodL :: f l -> Sp g l a -> Sp (f # g) l a
 cprodL sf (Struct sg es) = Struct (cprod_ sf sg) es
 
--- Same thing from the right
+-- | Superimpose a new shape atop an existing structure from the right.
 cprodR :: Sp f l a -> g l -> Sp (f # g) l a
 cprodR (Struct sf es) sg = Struct (cprod_ sf sg) es
 
@@ -181,25 +226,23 @@ part f g i = Struct (part_ i) (V.append v1 v2)
 
 -- Composition -----------------------------------
 
--- compA is a generalized version of (<*>). Unlike compJ, there is no
--- dependent variant of compA: we only get to provide a single
--- g-structure which is copied into all the locations of the
--- f-structure, so all the label types must be the same; they cannot
--- depend on the labels of the f-structure.
-
+-- | 'compA' can be seen as a generalized version of the 'Applicative'
+--   method '<*>'. Unlike 'compJ', there is no dependent variant of 'compA':
+--   we only get to provide a single @g@-structure which is copied into
+--   all the locations of the @f@-structure, so all the label types must
+--   be the same; they cannot depend on the labels of the @f@-structure.
 compA :: (Eq l1, Finite l1) => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
 compA spf spg = compJ ((<$> spg) <$> spf)
 
--- compAP is a generalized version of an alternate formulation of
--- Applicative.
-
+-- | A variant of 'compA', interdefinable with it.
 compAP :: (Eq l1, Finite l1) => Sp f l1 a -> Sp g l2 b -> Sp (Comp f g) (l1,l2) (a,b)
 compAP spf spg = compA (fmap (,) spf) spg
 
--- compJ and compJ' are like generalized versions of 'join'.
-
--- compJ is a restricted form of composition where the substructures
--- are constrained to all have the same label type.
+-- | 'compJ' and 'compJ'' are like generalized versions of the 'Monad'
+--   function 'join'.
+--
+--   'compJ' is a restricted form of composition where the substructures
+--   are constrained to all have the same label type.
 compJ :: forall f l1 g l2 a. (Eq l1, Finite l1) => Sp f l1 (Sp g l2 a) -> Sp (Comp f g) (l1,l2) a
 compJ (Struct f_ es)
     = case mapRep l1Size (Proxy :: Proxy g) (Proxy :: Proxy l2) of
@@ -214,11 +257,13 @@ compJ (Struct f_ es)
     pf                  :: Sum (Replicate (Size l1) l2) <-> (l1, l2)
     pf                  = sumRepIso (Proxy :: Proxy l1)
 
--- Ideally the type of compJ' would be a dependent version of the type
--- of compJ, where l2 can depend on l1.  Indeed, I expect that in a
--- true dependently typed language we can write that type directly.
--- However, we can't express that in Haskell, so instead we use
--- existential quantification.
+-- | 'compJ'' is a fully generalized version of 'join'.
+--
+--   Ideally the type of 'compJ'' would be a dependent version of the
+--   type of 'compJ', where @l2@ can depend on @l1@.  Indeed, I expect
+--   that in a true dependently typed language we can write that type
+--   directly.  However, we can't express that in Haskell, so instead
+--   we use existential quantification.
 compJ' :: forall f l g a. Eq l => Sp f l (Sp' g a) -> Sp' (Comp f g) a
 compJ' (Struct f_ es)
   = case unzipSpSp' es of
