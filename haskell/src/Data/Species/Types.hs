@@ -38,7 +38,7 @@ module Data.Species.Types
       -- ** Product
     , prod, prod'
       -- ** Cartesian product
-    , cprodL, cprodR, decompL, decompR, projL, projR, editL
+    , cprodL, cprodR, decompL, decompR, projL, projR, editL, editR
       -- ** Differentiation
     , d
       -- ** Pointing
@@ -186,28 +186,41 @@ prod' (SpEx f) (SpEx g) = SpEx (prod f g)
 
 -- Cartesian product -----------------------------
 
--- | Superimpose a new shape atop an existing structure from the left.
-cprodL :: f l -> Sp g l a -> Sp (f # g) l a
-cprodL sf (Struct sg es) = Struct (cprod_ sf sg) es
+-- | Superimpose a new shape atop an existing structure, with the
+--   structure on the left.
+cprodL :: Sp f l a -> g l -> Sp (f # g) l a
+cprodL (Struct sf es) sg = Struct (cprod_ sf sg) es
 
--- | Superimpose a new shape atop an existing structure from the right.
-cprodR :: Sp f l a -> g l -> Sp (f # g) l a
-cprodR (Struct sf es) sg = Struct (cprod_ sf sg) es
+-- | Superimpose a new shape atop an existing structure, with the
+--   structure on the right.
+cprodR :: f l -> Sp g l a -> Sp (f # g) l a
+cprodR sf (Struct sg es) = Struct (cprod_ sf sg) es
 
+-- | Decompose a Cartesian product structure.  Inverse to `cprodL`.
 decompL :: Sp (f # g) l a -> (Sp f l a, g l)
 decompL (Struct (CProd fl gl) es) = (Struct fl es, gl)
 
+-- | Decompose a Cartesian product structure.  Inverse to `cprodR`.
 decompR :: Sp (f # g) l a -> (f l, Sp g l a)
 decompR (Struct (CProd fl gl) es) = (fl, Struct gl es)
 
+-- | Project out the left structure from a Cartesian product.
 projL ::  Sp (f # g) l a -> Sp f l a
 projL = fst . decompL
 
+-- | Project out the right structure from a Cartesian product.
 projR ::  Sp (f # g) l a -> Sp g l a
 projR = snd . decompR
 
+-- | Apply a function to the left-hand structure of a Cartesian
+-- product.
 editL :: (Sp f l a -> Sp f l b) -> (Sp (f # g) l a -> Sp (f # g) l b)
-editL f = uncurry cprodR . first f . decompL
+editL f = uncurry cprodL . first f . decompL
+
+-- | Apply a function to the right-hand structure of a Cartesian
+-- product.
+editR :: (Sp g l a -> Sp g l b) -> (Sp (f # g) l a -> Sp (f # g) l b)
+editR f = uncurry cprodR . second f . decompR
 
 -- Differentiation -------------------------------
 
