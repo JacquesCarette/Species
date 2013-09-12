@@ -1,13 +1,16 @@
-{-# LANGUAGE DataKinds     #-}
-{-# LANGUAGE GADTs         #-}
-{-# LANGUAGE PolyKinds     #-}
-{-# LANGUAGE RankNTypes    #-}
-{-# LANGUAGE TypeFamilies  #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE DataKinds       #-}
+{-# LANGUAGE GADTs           #-}
+{-# LANGUAGE PolyKinds       #-}
+{-# LANGUAGE RankNTypes      #-}
+{-# LANGUAGE TypeFamilies    #-}
+{-# LANGUAGE TypeOperators   #-}
 
 module Data.Type.List where
 
 -- Some utilities for working with type-level lists
+
+import GHC.Exts (Constraint)
 
 import Control.Lens
 import Data.Fin
@@ -33,6 +36,10 @@ type family (!!) (as :: [*]) (n :: Nat) :: *
 type instance (a ': as) !! Z     = a
 type instance (a ': as) !! (S n) = as !! n
 
+type family All (p :: k -> Constraint) (ts :: [k]) :: Constraint
+type instance All p '[] = ()
+type instance All p (t ': ts) = (p t, All p ts)
+
 lpRep :: SNat n -> Proxy l -> LProxy n (Replicate n l)
 lpRep SZ _ = LNil
 lpRep (SS n) p = LCons p (lpRep n p)
@@ -40,6 +47,10 @@ lpRep (SS n) p = LCons p (lpRep n p)
 mapRep :: SNat n -> Proxy g -> Proxy l -> Map g (Replicate n l) :=: Replicate n (g l)
 mapRep SZ     _ _ = Refl
 mapRep (SS n) pg pl = case mapRep n pg pl of Refl -> Refl
+
+allRep :: p l => SNat n -> Proxy p -> Proxy l -> (All p (Replicate n l) => r) -> r
+allRep SZ     _ _ r = r
+allRep (SS n) p l r = allRep n p l r
 
 sumRepIso :: forall l1 l2. Finite l1
           => Proxy l1 -> Sum (Replicate (Size l1) l2) <-> (l1, l2)

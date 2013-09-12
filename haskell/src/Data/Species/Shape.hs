@@ -1,3 +1,4 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveFunctor              #-}
 {-# LANGUAGE EmptyDataDecls             #-}
@@ -275,7 +276,7 @@ part_ i = Part S.enumerate S.enumerate i
 --   "Data.Species.Types" for several introduction forms for @Comp@
 --   structures (/i.e./ shape + data).
 data Comp f g l where
-  Comp :: Eq l1
+  Comp :: (Eq l1, Finite l1, All Eq ls)
        => f l1
        -> LProxy (Size l1) ls
        -> V.HVec (Size l1) (Map g ls)

@@ -1,3 +1,4 @@
+{-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveFunctor              #-}
 {-# LANGUAGE EmptyDataDecls             #-}
@@ -260,11 +261,11 @@ part f g i = Struct (part_ i) (V.append v1 v2)
 --   we only get to provide a single @g@-structure which is copied into
 --   all the locations of the @f@-structure, so all the label types must
 --   be the same; they cannot depend on the labels of the @f@-structure.
-compA :: (Eq l1, Finite l1) => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
+compA :: (Eq l1, Finite l1, Eq l2) => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
 compA spf spg = compJ ((<$> spg) <$> spf)
 
 -- | A variant of 'compA', interdefinable with it.
-compAP :: (Eq l1, Finite l1) => Sp f l1 a -> Sp g l2 b -> Sp (Comp f g) (l1,l2) (a,b)
+compAP :: (Eq l1, Finite l1, Eq l2) => Sp f l1 a -> Sp g l2 b -> Sp (Comp f g) (l1,l2) (a,b)
 compAP spf spg = compA (fmap (,) spf) spg
 
 -- | 'compJ' and 'compJ'' are like generalized versions of the 'Monad'
@@ -272,10 +273,12 @@ compAP spf spg = compA (fmap (,) spf) spg
 --
 --   'compJ' is a restricted form of composition where the substructures
 --   are constrained to all have the same label type.
-compJ :: forall f l1 g l2 a. (Eq l1, Finite l1) => Sp f l1 (Sp g l2 a) -> Sp (Comp f g) (l1,l2) a
+compJ :: forall f l1 g l2 a. (Eq l1, Finite l1, Eq l2)
+      => Sp f l1 (Sp g l2 a) -> Sp (Comp f g) (l1,l2) a
 compJ (Struct f_ es)
     = case mapRep l1Size (Proxy :: Proxy g) (Proxy :: Proxy l2) of
         Refl ->
+          allRep l1Size (Proxy :: Proxy Eq) (Proxy :: Proxy l2) $
           Struct (Comp f_ (lpRep l1Size (Proxy :: Proxy l2)) gShps' pf)
                  (V.concat gElts)
   where
@@ -293,7 +296,7 @@ compJ (Struct f_ es)
 --   that in a true dependently typed language we can write that type
 --   directly.  However, we can't express that in Haskell, so instead
 --   we use existential quantification.
-compJ' :: forall f l g a. Eq l => Sp f l (Sp' g a) -> Sp' (Comp f g) a
+compJ' :: forall f l g a. (Eq l, Finite l) => Sp f l (Sp' g a) -> Sp' (Comp f g) a
 compJ' (Struct f_ es)
   = case unzipSpSp' es of
       UZSS ls gShps gElts ->
@@ -316,7 +319,7 @@ compJ' (Struct f_ es)
 -- of g-structures paired with a vector of element vectors, with the
 -- list of label types existentially hidden.
 data UnzippedSpSp' n g a where
-  UZSS :: (Eq (Sum ls), Finite (Sum ls))
+  UZSS :: (Eq (Sum ls), Finite (Sum ls), All Eq ls)
        => LProxy n ls    -- We need an LProxy so the typechecker can
                          -- actually infer the label types (the only
                          -- other occurrences of ls are buried inside

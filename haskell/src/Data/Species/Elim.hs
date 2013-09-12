@@ -1,3 +1,5 @@
+{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE RankNTypes    #-}
 {-# LANGUAGE TypeOperators #-}
@@ -37,6 +39,7 @@ module Data.Species.Elim
     , elimX
     , elimSum
     , elimProd
+    , elimComp
 
     )
     where
@@ -47,6 +50,7 @@ import           Data.Fin
 import           Data.Finite
 import           Data.Species.Shape
 import           Data.Species.Types
+import           Data.Type.List
 import qualified Data.Vec           as V
 
 -- | The type of eliminators for labelled structures.  A value of type
@@ -114,14 +118,19 @@ elimProd (Elim f) = Elim $ \(Prod fShp gShp pf) m ->
     case f fShp mf of
       Elim g -> g gShp mg
 
-{-
--- XXX finish me!!  I know exactly how this is "supposed" to work but
-haven't yet figured out how to convince the Haskell typechecker.
-
+-- | Create an eliminator for @(Comp f g)@-structures containing @a@'s
+--   from a way to eliminate @g@-structures containing @a@'s to some
+--   intermediate type @x@, and then @f@-structures containing @x@'s
+--   to the final result type @r@.
 elimComp :: Elim f x r -> Elim g a x -> Elim (Comp f g) a r
-elimComp (Elim ef) (Elim eg) = Elim $ \((Comp fl1 lp gs pf)) m ->
-  let mSum = m . view pf
-      -- mSum :: Sum ls -> a
-  in
-      ef (fl1) (\l1 -> eg ((undefined {- gs ! l1 -})) (mSum . undefined))
--}
+elimComp (Elim ef) (Elim eg)
+  = Elim $ \((Comp fl1 lp gs pf)) m ->
+      ef fl1 $ \l1 ->
+        case hlookup (toFin l1) gs lp of
+          HLResult gli inj -> eg gli (m . view pf . inj)
+
+data HLResult g ls where
+  HLResult :: Eq l => g l -> (l -> Sum ls) -> HLResult g ls
+
+hlookup :: All Eq ls => Fin n -> V.HVec n (Map g ls) -> LProxy n ls -> HLResult g ls
+hlookup FZ (V.HCons gl _) (LCons _ _) = HLResult gl Left
