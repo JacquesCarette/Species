@@ -302,7 +302,14 @@ instance BFunctor f => BFunctor (OfSize n f) where
 sized_ :: forall f l. Finite l => f l -> (OfSize (Size l) f) l
 sized_ sh = OfSize (size (Proxy :: Proxy l)) finite sh
 
+-- Functor composition --------------------------
 
+-- | Functor composition. XXX write more.
+data FComp f g l = FComp (f (g l))
+
+-- | Introduction form for functor composition.  XXX more.
+fcomp_ :: (BFunctor f, Finite l1, Finite (g l2)) => f l1 -> (l1 <-> g l2) -> FComp f g l2
+fcomp_ f g = FComp (view (bmap g) f)
 
 -- parallel sum? ---------------------------------
 
