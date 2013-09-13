@@ -55,6 +55,9 @@ module Data.Species.Shape
       -- * Composition
     , Comp(..)
 
+      -- * Functor composition
+    , FComp(..), fcomp_
+
       -- * Cardinality restriction
     , OfSize(..), sized_
     )
@@ -308,7 +311,9 @@ sized_ sh = OfSize (size (Proxy :: Proxy l)) finite sh
 data FComp f g l = FComp (f (g l))
 
 -- | Introduction form for functor composition.  XXX more.
-fcomp_ :: (BFunctor f, Finite l1, Finite (g l2)) => f l1 -> (l1 <-> g l2) -> FComp f g l2
+fcomp_
+  :: (BFunctor f, Finite l1, Finite (g l2))
+  => f l1 -> (l1 <-> g l2) -> FComp f g l2
 fcomp_ f g = FComp (view (bmap g) f)
 
 -- parallel sum? ---------------------------------
