@@ -47,5 +47,6 @@ library
                        mtl ==2.1.*,
                        representable-functors ==3.1.*,
                        keys ==3.0.*,
-                       monad-supply ==0.4.*
+                       monad-supply ==0.4.*,
+                       transformers >= 0.3 && < 0.4
   hs-source-dirs:      src

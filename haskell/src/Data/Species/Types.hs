@@ -27,9 +27,6 @@ module Data.Species.Types
 
     , Sp'(..)
 
-      -- * Converting between containers and labelled structures
-    , Labelled(..)
-
       -- * Introduction forms
       -- ** Unit
     , one, one'
@@ -134,16 +131,6 @@ data Sp' f a where
 
 data LSp' f a where
   LSpEx :: Ord l => Sp f l a -> LSp' f a
-
-------------------------------------------------------------
--- Converting between containers and labelled structures
-------------------------------------------------------------
-
-class Labelled c where
-  type EltType c :: *
-  type ShapeOf c :: * -> *
-  toLabelled   :: c -> Sp' (ShapeOf c) (EltType c)
-  fromLabelled :: (Eq l, Finite l) => Sp (ShapeOf c) l (EltType c) -> c
 
 -- One -------------------------------------------
 
