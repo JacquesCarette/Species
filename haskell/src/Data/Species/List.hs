@@ -88,7 +88,8 @@ elimList r f = mapElimShape (view isoL)
                  (elimOne r)
                  (elimProd . elimX $ \a -> fmap (f a) (elimList r f))
 
-instance Labelled [] where
-  type ShapeOf [] = L
-  toLabelled      = fromList
-  fromLabelled    = elim (elimList [] (:))
+instance Labelled [a] where
+  type EltType [a] = a
+  type ShapeOf [a] = L
+  toLabelled       = fromList
+  fromLabelled     = elim (elimList [] (:))
