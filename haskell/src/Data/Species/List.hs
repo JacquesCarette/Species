@@ -31,6 +31,7 @@ import           Data.Finite
 import           Data.Species.Elim
 import           Data.Species.Shape
 import           Data.Species.Types
+import           Data.Species.Convert
 import           Data.Type.Nat
 import qualified Data.Vec           as V
 
@@ -92,4 +93,4 @@ instance Labelled [a] where
   type EltType [a] = a
   type ShapeOf [a] = L
   toLabelled       = fromList
-  fromLabelled     = elim (elimList [] (:))
+  fromLabelled     = elimList [] (:)
