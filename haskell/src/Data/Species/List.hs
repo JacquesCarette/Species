@@ -1,5 +1,8 @@
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE TypeOperators #-}
+
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- | An example showing how to build up more complex (possibly recursive)
 --   structures.
@@ -84,3 +87,8 @@ elimList r f = mapElimShape (view isoL)
              $ elimSum
                  (elimOne r)
                  (elimProd . elimX $ \a -> fmap (f a) (elimList r f))
+
+instance Labelled [] where
+  type ShapeOf [] = L
+  toLabelled      = fromList
+  fromLabelled    = elim (elimList [] (:))

@@ -50,6 +50,9 @@ module Data.Species.Types
     , compA, compAP, compJ, compJ'
       -- ** Cardinality restriction
     , sized
+
+      -- * Converting between containers and labelled structures
+    , Labelled(..)
     )
     where
 
@@ -345,3 +348,12 @@ unzipSpSp' (V.VCons (SpEx (Struct (gl :: g l) v)) sps) =
 
 sized :: Finite l => Sp f l a -> Sp (OfSize (Size l) f) l a
 sized (Struct s es) = Struct (sized_ s) es
+
+------------------------------------------------------------
+-- Converting between containers and labelled structures
+------------------------------------------------------------
+
+class Labelled (t :: * -> *) where
+  type ShapeOf t :: * -> *
+  toLabelled   :: t a -> Sp' (ShapeOf t) a
+  fromLabelled :: (Eq l, Finite l) => Sp (ShapeOf t) l a -> t a
