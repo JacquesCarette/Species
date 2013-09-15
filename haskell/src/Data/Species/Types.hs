@@ -155,11 +155,18 @@ e f = Struct e_ (fmap f V.enumerate)
 
 -- Argh, this needs a Natural constraint, but adding one to SomeVec
 -- ends up infecting everything in a very annoying way.
+-- JC: can't we pull a 'natty' here too?
 
 -- e' :: [a] -> Sp' E a
 -- e' as =
 --   case V.fromList as of
 --     (V.SomeVec (v :: Vec n a)) -> SpEx (Struct (e_ :: E (Fin n)) v)
+
+-- u ---------------------------------------------
+
+-- Note how this is essentially the Store Comonad.
+u :: Finite l => (l -> a) -> l -> Sp U l a
+u f x = Struct (u_ x) (fmap f V.enumerate)
 
 -- Sum -------------------------------------------
 

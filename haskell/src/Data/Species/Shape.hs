@@ -34,6 +34,9 @@ module Data.Species.Shape
       -- * E
     , E(..), e_
 
+      -- * U
+    , U(..), u_
+
       -- * Sum
     , (+)(..), inl_, inr_
 
