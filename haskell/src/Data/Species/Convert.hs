@@ -21,6 +21,8 @@ import           Data.Species.Elim
 import           Data.Species.Shape
 import           Data.Species.Types
 
+import           Data.Species.List
+
 ------------------------------------------------------------
 -- Converting between containers and labelled structures
 ------------------------------------------------------------
@@ -91,3 +93,9 @@ instance ( Functor f, Labelled (g a)
   -- fromLabelled :: Elim (Comp ...) a (Compose f g a)
   fromLabelled
     = elimComp undefined undefined -- XXX still working on this one
+
+instance Labelled [a] where
+  type EltType [a] = a
+  type ShapeOf [a] = L
+  toLabelled = fromList
+  fromLabelled = elimList [] (:)
