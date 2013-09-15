@@ -13,6 +13,9 @@ import           Data.Functor.Compose
 import           Data.Functor.Constant
 import           Data.Functor.Identity
 import           Data.Functor.Product
+import           Data.Functor.Coproduct
+
+import           Data.Void
 
 import           Data.Species.Elim
 import           Data.Species.Shape
@@ -34,6 +37,18 @@ instance Labelled (Identity a) where
   toLabelled   = x' . runIdentity
   fromLabelled = elimX Identity
 
+instance Labelled Void where
+  type EltType Void = Void
+  type ShapeOf Void = Zero
+  toLabelled _ = undefined
+  fromLabelled = elimZero
+
+instance Labelled () where
+  type EltType () = ()
+  type ShapeOf () = One
+  toLabelled () = one'
+  fromLabelled = elimOne ()
+
 instance ( Labelled (f a), Labelled (g a)
          , EltType (f a) ~ a, EltType (g a) ~ a
          )
@@ -46,6 +61,18 @@ instance ( Labelled (f a), Labelled (g a)
 infixr 4 <#>
 (<#>) :: Functor f => f a -> (a -> b) -> f b
 (<#>) = flip fmap
+
+instance ( Labelled (f a), Labelled (g a)
+         , EltType (f a) ~ a, EltType (g a) ~ a
+         )
+    => Labelled (Coproduct f g a) where
+  type EltType (Coproduct f g a) = a
+  type ShapeOf (Coproduct f g a) = (ShapeOf (f a)) + (ShapeOf (g a))
+  toLabelled (Coproduct (Left a)) = inl' $ toLabelled a
+  toLabelled (Coproduct (Right a)) = inr' $ toLabelled a
+  fromLabelled = elimSum (fromLabelled <#> left)
+                         (fromLabelled <#> right)
+
 
 -- XXX ugh, these constraints can't be right
 instance ( Functor f, Labelled (g a)
