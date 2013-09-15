@@ -154,6 +154,16 @@ newtype E (l :: *) = E (S.Set l)
 e_ :: Finite l => E l
 e_ = E S.enumerate
 
+-- U ---------------------------------------------
+data U l = U l deriving Show
+
+instance BFunctor U where
+  bmap i = iso (\(U ul) -> U (view i $ ul))
+               (\(U ul') -> U (view (from i) $ ul'))
+
+u_ :: l -> U l
+u_ = U
+
 -- Sum -------------------------------------------
 
 infixl 6 +
