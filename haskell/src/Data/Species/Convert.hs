@@ -10,7 +10,6 @@ module Data.Species.Convert where
 
 import           Data.Functor            ((<$>))
 import           Data.Functor.Compose
-import           Data.Functor.Constant
 import           Data.Functor.Identity
 import           Data.Functor.Product
 import           Data.Functor.Coproduct
@@ -75,8 +74,6 @@ instance ( Labelled (f a), Labelled (g a)
   fromLabelled = elimSum (fromLabelled <#> left)
                          (fromLabelled <#> right)
 
-
--- XXX ugh, these constraints can't be right
 instance ( Functor f
          , Labelled (g a)
          , Labelled (f (g a))
