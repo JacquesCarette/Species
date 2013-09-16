@@ -1,8 +1,8 @@
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE DeriveFunctor #-}
-{-# LANGUAGE RankNTypes    #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DeriveFunctor   #-}
+{-# LANGUAGE GADTs           #-}
+{-# LANGUAGE RankNTypes      #-}
+{-# LANGUAGE TypeOperators   #-}
 
 -- | This module defines /eliminators/ for labelled structures.
 --
