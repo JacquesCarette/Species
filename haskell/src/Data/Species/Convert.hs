@@ -8,7 +8,7 @@
 -- | Convert back and forth between containers and labelled structures.
 module Data.Species.Convert where
 
-import           Data.Functor
+import           Data.Functor            ((<$>))
 import           Data.Functor.Compose
 import           Data.Functor.Constant
 import           Data.Functor.Identity
@@ -77,10 +77,23 @@ instance ( Labelled (f a), Labelled (g a)
 
 
 -- XXX ugh, these constraints can't be right
-instance ( Functor f, Labelled (g a)
-         , Labelled (f (Sp' (ShapeOf (g a)) (EltType (g a))))
-         , EltType (f (Sp' (ShapeOf (g a)) (EltType (g a))))
-           ~ Sp' (ShapeOf (g a)) a
+instance ( Functor f
+         , Labelled (g a)
+         , Labelled (f (g a))
+         , EltType (f (g a)) ~ g a
+         , EltType    (g a)  ~   a
+
+           {- we really want a constraint like
+
+                forall x y. ShapeOf (f x) ~ ShapeOf (f y)
+
+              but Haskell doesn't currently support such
+              universally quantified constraints, so we
+              have to make do with enumerating the
+              necessary instantiations.
+           -}
+         , ShapeOf (f (g a)) ~ ShapeOf (f (Sp' (ShapeOf (g a)) a))
+
          )
     => Labelled (Compose f g a) where
   type EltType (Compose f g a) = a
@@ -88,11 +101,10 @@ instance ( Functor f, Labelled (g a)
     = Comp (ShapeOf (f (Sp' (ShapeOf (g a)) (EltType (g a)))))
            (ShapeOf (g a))
   toLabelled (Compose fga)
-    = case toLabelled (fmap toLabelled fga) of
+    = case fmap toLabelled (toLabelled fga) of
         SpEx sp -> compJ' sp
-  -- fromLabelled :: Elim (Comp ...) a (Compose f g a)
   fromLabelled
-    = elimComp undefined undefined -- XXX still working on this one
+    = elimComp (Compose <$> fromLabelled) fromLabelled
 
 instance Labelled [a] where
   type EltType [a] = a
