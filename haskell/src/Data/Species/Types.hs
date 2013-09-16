@@ -25,7 +25,7 @@ module Data.Species.Types
 
       -- * Existentially quantified structures
 
-    , Sp'(..)
+    , Sp'(..), withSp
 
       -- * Introduction forms
       -- ** Unit
@@ -100,9 +100,6 @@ relabel = view . relabelI
 instance Functor (Sp f l) where
   fmap = over (elts . mapped)
 
-instance Functor (Sp' f) where
-  fmap f (SpEx s) = SpEx (fmap f s)
-
 ------------------------------------------------------------
 --  Reshaping
 
@@ -125,6 +122,12 @@ reshape r = over shape r
 --   might as well just not have them at all.
 data Sp' f a where
   SpEx :: (Finite l, Eq l) => Sp f l a -> Sp' f a
+
+withSp :: (forall l. Sp f l a -> Sp g l b) -> Sp' f a -> Sp' g b
+withSp q sp' = case sp' of SpEx sp -> SpEx (q sp)
+
+instance Functor (Sp' f) where
+  fmap f = withSp (fmap f)
 
 -- Or we can package up an Ord constraint and get L-species
 -- structures.
@@ -174,13 +177,13 @@ inl :: Sp f l a -> Sp (f + g) l a
 inl = shape %~ inl_
 
 inl' :: Sp' f a -> Sp' (f + g) a
-inl' (SpEx s) = SpEx (inl s)
+inl' = withSp inl
 
 inr :: Sp g l a -> Sp (f + g) l a
 inr = shape %~ inr_
 
 inr' :: Sp' g a -> Sp' (f + g) a
-inr' (SpEx s) = SpEx (inr s)
+inr' = withSp inr
 
 -- Product ---------------------------------------
 
