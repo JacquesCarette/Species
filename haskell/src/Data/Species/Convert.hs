@@ -101,8 +101,7 @@ instance ( Functor f
     = Comp (ShapeOf (f (Sp' (ShapeOf (g a)) (EltType (g a)))))
            (ShapeOf (g a))
   toLabelled (Compose fga)
-    = case fmap toLabelled (toLabelled fga) of
-        SpEx sp -> compJ' sp
+    = compJ'' (fmap toLabelled (toLabelled fga))
   fromLabelled
     = elimComp (Compose <$> fromLabelled) fromLabelled
 

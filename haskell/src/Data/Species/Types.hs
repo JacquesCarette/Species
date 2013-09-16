@@ -47,7 +47,7 @@ module Data.Species.Types
       -- ** Partition
     , part
       -- ** Composition
-    , compA, compAP, compJ, compJ'
+    , compA, compAP, compJ, compJ', compJ''
       -- ** Cardinality restriction
     , sized
     )
@@ -321,6 +321,13 @@ compJ' (Struct f_ es)
   -- compJ', we have to work to maintain existentially-quantified
   -- heterogeneous lists of types and carefully preserve knowledge
   -- about which types are equal.
+
+-- | For convenience, a variant of 'compJ'' which takes an
+--   existentially labelled structure as input.
+compJ'' :: forall f g a. Sp' f (Sp' g a) -> Sp' (Comp f g) a
+compJ'' sp' =
+  case sp' of
+    SpEx sp -> compJ' sp
 
 -- A data structure to represent an "unzipped" Sp(Sp')-thing: a vector
 -- of g-structures paired with a vector of element vectors, with the
