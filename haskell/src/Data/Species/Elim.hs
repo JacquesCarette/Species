@@ -133,4 +133,7 @@ data HLResult g ls where
   HLResult :: Eq l => g l -> (l -> Sum ls) -> HLResult g ls
 
 hlookup :: All Eq ls => Fin n -> V.HVec n (Map g ls) -> LProxy n ls -> HLResult g ls
-hlookup FZ (V.HCons gl _) (LCons _ _) = HLResult gl Left
+hlookup FZ     (V.HCons gl _) (LCons _ _ ) = HLResult gl Left
+hlookup (FS f) (V.HCons _  h) (LCons _ ls) =
+  case hlookup f h ls of
+    HLResult gl s -> HLResult gl (Right . s)
