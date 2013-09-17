@@ -16,6 +16,7 @@ import           Data.Functor.Coproduct
 
 import           Data.Void
 
+import           Data.Finite
 import           Data.Species.Elim
 import           Data.Species.Shape
 import           Data.Species.Types
@@ -30,25 +31,29 @@ class Labelled c where
   type EltType c :: *
   type ShapeOf c :: * -> *
   toLabelled   :: c -> Sp' (ShapeOf c) (EltType c)
-  fromLabelled :: Elim (ShapeOf c) (EltType c) c
+  elimLabelled :: Elim (ShapeOf c) (EltType c) c
+  fromLabelled :: Finite l => Sp (ShapeOf c) l (EltType c) -> c
+  fromLabelled = elim elimLabelled
+  fromLabelled' :: Sp' (ShapeOf c) (EltType c) -> c
+  fromLabelled' = elim' elimLabelled
 
 instance Labelled (Identity a) where
   type EltType (Identity a) = a
   type ShapeOf (Identity a) = X
   toLabelled   = x' . runIdentity
-  fromLabelled = elimX Identity
+  elimLabelled = elimX Identity
 
 instance Labelled Void where
   type EltType Void = Void
   type ShapeOf Void = Zero
   toLabelled _ = undefined
-  fromLabelled = elimZero
+  elimLabelled = elimZero
 
 instance Labelled () where
   type EltType () = ()
   type ShapeOf () = One
   toLabelled () = one'
-  fromLabelled = elimOne ()
+  elimLabelled = elimOne ()
 
 instance ( Labelled (f a), Labelled (g a)
          , EltType (f a) ~ a, EltType (g a) ~ a
@@ -57,7 +62,7 @@ instance ( Labelled (f a), Labelled (g a)
   type EltType (Product f g a) = a
   type ShapeOf (Product f g a) = ShapeOf (f a) * ShapeOf (g a)
   toLabelled (Pair a b) = prod' (toLabelled a) (toLabelled b)
-  fromLabelled = elimProd $ fromLabelled <#> \fa -> fromLabelled <#> \ga -> Pair fa ga
+  elimLabelled = elimProd $ elimLabelled <#> \fa -> elimLabelled <#> \ga -> Pair fa ga
 
 infixr 4 <#>
 (<#>) :: Functor f => f a -> (a -> b) -> f b
@@ -71,8 +76,8 @@ instance ( Labelled (f a), Labelled (g a)
   type ShapeOf (Coproduct f g a) = (ShapeOf (f a)) + (ShapeOf (g a))
   toLabelled (Coproduct (Left a)) = inl' $ toLabelled a
   toLabelled (Coproduct (Right a)) = inr' $ toLabelled a
-  fromLabelled = elimSum (fromLabelled <#> left)
-                         (fromLabelled <#> right)
+  elimLabelled = elimSum (elimLabelled <#> left)
+                         (elimLabelled <#> right)
 
 instance ( Functor f
          , Labelled (g a)
@@ -99,11 +104,11 @@ instance ( Functor f
            (ShapeOf (g a))
   toLabelled (Compose fga)
     = compJ'' (fmap toLabelled (toLabelled fga))
-  fromLabelled
-    = elimComp (Compose <$> fromLabelled) fromLabelled
+  elimLabelled
+    = elimComp (Compose <$> elimLabelled) elimLabelled
 
 instance Labelled [a] where
   type EltType [a] = a
   type ShapeOf [a] = L
-  toLabelled = fromList
-  fromLabelled = elimList [] (:)
+  toLabelled       = fromList
+  elimLabelled     = elimList [] (:)
