@@ -20,3 +20,5 @@ papers/diagrams/*.pdf
 papers/diagrams/*.eps
 papers/diagrams/*.hs
 dist/
+.hsenv*
+dist*
