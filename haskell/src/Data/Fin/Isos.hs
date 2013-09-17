@@ -3,8 +3,7 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE TypeOperators  #-}
 
--- | Some isomorphisms of finite sets.  Each comes as an inverse pair
---   of functions, in both a version on 'Fin' and a version on 'FinN'.
+-- | Some isomorphisms of finite sets.
 --
 --   Note that these isomorphisms have real computational content,
 --   specifying canonical mappings which are used to determine indices
@@ -13,12 +12,10 @@ module Data.Fin.Isos
     ( -- * Disjoint union of finite sets
       -- $disjoint
 
-      finNSum, finNSum'
-    , finSum,  finSum'
+      finSum,  finSum'
 
       -- * Cartesian product of finite sets
 
-    , finNProd, finNProd'
     , finProd, finProd'
     )
     where
@@ -42,8 +39,13 @@ finNSum :: SNat m -> SNat n -> Either (FinN m) (FinN n) -> FinN (Plus m n)
 finNSum m n (Left (FinN i iLTm))  = FinN (plus i n) (plusMono m iLTm (lteRefl n))
 finNSum m _ (Right (FinN j jLTn)) = FinN j (ltePlus m jLTn)
 
+-- | An isomorphism witnessing that the disjoint union of sets of
+--   sizes m and n is a set of size (m + n).  In particular, given
+--   sets {0..m-1} and {0..n-1}, it maps @Left i@ to @i@ and @Right j@
+--   to @m + j@.
 finSum :: SNat m -> SNat n -> Either (Fin m) (Fin n) -> Fin (Plus m n)
-finSum m n = finNToFin . finNSum m n . (finToFinN +++ finToFinN)
+finSum m n = case plusComm m n of
+               Refl -> finNToFin . finNSum n m . swapEither . (finToFinN +++ finToFinN)
 
 -- backward direction
 
@@ -54,7 +56,12 @@ finNSum' m n (FinN x xLTmn) =
     Right (Minus j Refl) -> Left (FinN j (lteCancelPlusR (SS j) m n xLTmn))
 
 finSum' :: SNat m -> SNat n -> Fin (Plus m n) -> Either (Fin m) (Fin n)
-finSum' m n = (finNToFin +++ finNToFin) . finNSum' m n . finToFinN
+finSum' m n = case plusComm m n of
+                Refl -> (finNToFin +++ finNToFin) . swapEither . finNSum' n m . finToFinN
+
+swapEither :: Either a b -> Either b a
+swapEither (Left a)  = Right a
+swapEither (Right b) = Left b
 
 --------------------------------------------------
 -- Product of Fins: Fin (m * n) <-> (Fin m, Fin n)
