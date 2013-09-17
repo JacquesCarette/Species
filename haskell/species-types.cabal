@@ -21,6 +21,7 @@ library
                        Data.Finite,
                        Data.Set.Abstract,
                        Data.Species.Array,
+                       Data.Species.Convert,
                        Data.Species.Elim,
                        Data.Species.Isos,
                        Data.Species.List,
