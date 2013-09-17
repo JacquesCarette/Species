@@ -69,16 +69,16 @@ elimRose f =
     elimProd (elimX (\a -> elimComp (f a <$> elimList [] (:)) (elimRose f)))
 
 toRose :: Finite l => Sp Rose l a -> Tree a
-toRose = elim fromLabelled
+toRose = fromLabelled
 
 toRose' :: Sp' Rose a -> Tree a
-toRose' = elim' fromLabelled
+toRose' = fromLabelled'
 
 instance Labelled (Tree a) where
   type EltType (Tree a) = a
   type ShapeOf (Tree a) = Rose
   toLabelled            = fromRose
-  fromLabelled          = elimRose Node
+  elimLabelled          = elimRose Node
 
 {-
 

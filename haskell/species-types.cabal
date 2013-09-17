@@ -24,6 +24,7 @@ library
                        Data.Species.Elim,
                        Data.Species.Isos,
                        Data.Species.List,
+                       Data.Species.Rose,
                        Data.Species.Shape,
                        Data.Species.Shuffle,
                        Data.Species.Traversal,
