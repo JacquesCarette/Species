@@ -52,9 +52,9 @@ allRep :: p l => SNat n -> Proxy p -> Proxy l -> (All p (Replicate n l) => r) ->
 allRep SZ     _ _ r = r
 allRep (SS n) p l r = allRep n p l r
 
-sumRepIso :: forall l1 l2. Finite l1
-          => Proxy l1 -> Sum (Replicate (Size l1) l2) <-> (l1, l2)
-sumRepIso p = sumRepIso' (size p) . liftIso _1 _1 finite
+sumRepIso :: forall l1 l2. HasSize l1
+          => Finite l1 -> Sum (Replicate (Size l1) l2) <-> (l1, l2)
+sumRepIso p@(F f) = sumRepIso' (size p) . liftIso _1 _1 f
 
 -- For finite m, a + ... + a (m times) = m*a
 sumRepIso' :: SNat m -> (Sum (Replicate m a) <-> (Fin m, a))

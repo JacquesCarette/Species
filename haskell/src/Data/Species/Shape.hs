@@ -154,8 +154,8 @@ newtype E (l :: *) = E (S.Set l)
 
 -- | Trivial introduction form for the canonical @E@-shape of any set
 --   of labels.
-e_ :: Finite l => E l
-e_ = E S.enumerate
+e_ :: Finite l -> E l
+e_ = E . S.enumerate
 
 -- U ---------------------------------------------
 data U l = U l deriving Show
@@ -179,7 +179,7 @@ data (f + g) (l :: *) = Inl (f l)
 instance (BFunctor f, BFunctor g) => BFunctor (f + g) where
   bmap i = iso (applyIso i) (applyIso (from i))
     where
-      applyIso :: (BFunctor f, BFunctor g, Finite l, Finite l')
+      applyIso :: (BFunctor f, BFunctor g)
                => (l <-> l') -> (f + g) l -> (f + g) l'
       applyIso i' (Inl f) = Inl (view (bmap i') f)
       applyIso i' (Inr g) = Inr (view (bmap i') g)
@@ -200,7 +200,7 @@ infixl 7 *
 --   g)@-shape partitions the set of labels between the @f@-shape and
 --   the @g@-shape.
 data (f * g) l where
-  Prod :: (Eq l1, Finite l1, Eq l2, Finite l2)
+  Prod :: (Eq l1, Eq l2)
        => f l1 -> g l2 -> (Either l1 l2 <-> l) -> (f * g) l
 
 instance (BFunctor f, BFunctor g) => BFunctor (f * g) where
@@ -210,7 +210,7 @@ instance (BFunctor f, BFunctor g) => BFunctor (f * g) where
 -- | Introduction form for making an @(f * g)@-shape by pairing an
 --   @f@-shape and a @g@-shape.  The resulting set of labels is the
 --   disjoin union of those used for the @f@- and @g@-shapes.
-prod_ :: (Eq l1, Finite l1, Eq l2, Finite l2)
+prod_ :: (Eq l1, Eq l2)
        => f l1 -> g l2 -> (f * g) (Either l1 l2)
 prod_ f g = Prod f g id
 
@@ -224,7 +224,7 @@ data (f # g) l where
 instance (BFunctor f, BFunctor g) => BFunctor (f # g) where
   bmap i = iso (applyIso i) (applyIso (from i))
     where
-      applyIso :: (BFunctor f, BFunctor g, Finite l, Finite l')
+      applyIso :: (BFunctor f, BFunctor g)
                => (l <-> l') -> (f # g) l -> (f # g) l'
       applyIso i' (CProd f g) = CProd (view (bmap i') f) (view (bmap i') g)
 
@@ -273,14 +273,14 @@ p_ l f = P l f
 -- This can be see as 'just' E * E, but it is useful to give it a name
 
 data Part l where
-  Part :: (Finite l1, Finite l2) => S.Set l1 -> S.Set l2 -> (Either l1 l2 <-> l) -> Part l
+  Part :: S.Set l1 -> S.Set l2 -> (Either l1 l2 <-> l) -> Part l
 
 instance BFunctor Part where
   bmap i = iso (\(Part s1 s2 pf) -> Part s1 s2 (pf.i))
                (\(Part s1 s2 pf) -> Part s1 s2 (pf.from i))
 
-part_ :: (Finite l1, Finite l2) => (Either l1 l2 <-> l) -> Part l
-part_ i = Part S.enumerate S.enumerate i
+part_ :: Finite l1 -> Finite l2 -> (Either l1 l2 <-> l) -> Part l
+part_ f1 f2 i = Part (S.enumerate f1) (S.enumerate f2) i
 
 -- Composition -----------------------------------
 
@@ -292,16 +292,17 @@ part_ i = Part S.enumerate S.enumerate i
 --   "Data.Species.Types" for several introduction forms for @Comp@
 --   structures (/i.e./ shape + data).
 data Comp f g l where
-  Comp :: (Eq l1, Finite l1, All Eq ls)
-       => f l1
+  Comp :: (Eq l1, All Eq ls)
+       => Finite l1
+       -> f l1
        -> LProxy (Size l1) ls
        -> V.HVec (Size l1) (Map g ls)
        -> (Sum ls <-> l)
        -> Comp f g l
 
 instance BFunctor f => BFunctor (Comp f g) where
-  bmap i = iso (\(Comp fl lp gs pf) -> Comp fl lp gs (pf.i))
-               (\(Comp fl lp gs pf) -> Comp fl lp gs (pf.from i))
+  bmap i = iso (\(Comp finl1 fl lp gs pf) -> Comp finl1 fl lp gs (pf.i))
+               (\(Comp finl1 fl lp gs pf) -> Comp finl1 fl lp gs (pf.from i))
 
 -- Cardinality restriction -----------------------
 
@@ -315,8 +316,8 @@ instance BFunctor f => BFunctor (OfSize n f) where
                (\(OfSize n eq f) -> OfSize n (eq.from i) (view (bmap (from i)) f))
 
 -- | Introduction form for cardinality restriction.
-sized_ :: forall f l. Finite l => f l -> (OfSize (Size l) f) l
-sized_ sh = OfSize (size (Proxy :: Proxy l)) finite sh
+sized_ :: Finite l -> f l -> (OfSize (Size l) f) l
+sized_ (F fin) sh = OfSize (size sh) fin sh
 
 -- Functor composition --------------------------
 
@@ -325,7 +326,7 @@ data FComp f g l = FComp (f (g l))
 
 -- | Introduction form for functor composition.  XXX more.
 fcomp_
-  :: (BFunctor f, Finite l1, Finite (g l2))
+  :: (BFunctor f)
   => f l1 -> (l1 <-> g l2) -> FComp f g l2
 fcomp_ f g = FComp (view (bmap g) f)
 

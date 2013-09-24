@@ -6,7 +6,7 @@
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE PolyKinds                  #-}
-{-# LANGUAGE Rank2Types                 #-}
+{-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE StandaloneDeriving         #-}
 {-# LANGUAGE TemplateHaskell            #-}
@@ -74,8 +74,7 @@ import qualified Data.Vec     as V
 --   values.  Since label types are required to be constructively
 --   finite, that is, come with an isomorphism to @'Fin' n@ for some n, we
 --   can represent the map as a length-@n@ vector.
-data Sp f l a = Struct { _shape ::  f l, _elts :: V.Vec (Size l) a }
-  deriving Show
+data Sp f l a = Struct { _shape ::  f l, _elts :: V.Vec (Size l) a, _finpf :: Finite l }
 
 makeLenses ''Sp
 
@@ -84,16 +83,16 @@ makeLenses ''Sp
 
 -- | Structures can be relabelled; /i.e./ isomorphisms between label
 --   sets induce isomorphisms between labelled structures.
-relabelI :: (Finite l1, Finite l2, BFunctor f)
+relabelI :: (BFunctor f, HasSize l1, HasSize l2, Eq l1, Eq l2)
          => (l1 <-> l2) -> (Sp f l1 a <-> Sp f l2 a)
 relabelI i =
   case isoPresSize i of
-    Refl -> iso (\(Struct s es) -> Struct (view (bmap i) s) es)
-                (\(Struct s es) -> Struct (view (bmap (from i)) s) es)
+    Refl -> iso (\(Struct s es pf) -> Struct (view (bmap i) s) es (finConv i pf))
+                (\(Struct s es pf) -> Struct (view (bmap (from i)) s) es (finConv (from i) pf))
 
 -- | A version of 'relabelI' which returns a function instead of an
 --   isomorphism, which is sometimes more convenient.
-relabel :: (Finite l1, Finite l2, BFunctor f)
+relabel :: (BFunctor f, HasSize l1, HasSize l2, Eq l1, Eq l2)
         => (l1 <-> l2) -> Sp f l1 a -> Sp f l2 a
 relabel = view . relabelI
 
@@ -105,12 +104,12 @@ instance Functor (Sp f l) where
 
 -- | Structures can also be /reshaped/: isomorphisms between species
 --   induce isomorphisms between labelled structures.
-reshapeI :: Finite l => (f <--> g) -> (Sp f l a <-> Sp g l a)
+reshapeI :: Eq l => (f <--> g) -> (Sp f l a <-> Sp g l a)
 reshapeI i = liftIso shape shape i
 
 -- | A version of 'reshapeI' which returns a function instead of an
 --   isomorphism, which is sometimes more convenient.
-reshape :: Finite l => (f --> g) -> Sp f l a -> Sp g l a
+reshape :: Eq l => (f --> g) -> Sp f l a -> Sp g l a
 reshape r = over shape r
 
 ------------------------------------------------------------
@@ -121,7 +120,7 @@ reshape r = over shape r
 --   labels, otherwise we can't really do anything with them and we
 --   might as well just not have them at all.
 data Sp' f a where
-  SpEx :: (Finite l, Eq l) => Sp f l a -> Sp' f a
+  SpEx :: (HasSize l, Eq l) => Sp f l a -> Sp' f a
 
 withSp :: (forall l. Sp f l a -> Sp g l b) -> Sp' f a -> Sp' g b
 withSp q sp' = case sp' of SpEx sp -> SpEx (q sp)
@@ -138,7 +137,7 @@ data LSp' f a where
 -- One -------------------------------------------
 
 one :: Sp One (Fin Z) a
-one = Struct one_ V.VNil
+one = Struct one_ V.VNil finite_Fin
 
 one' :: Sp' One a
 one' = SpEx one
@@ -146,15 +145,15 @@ one' = SpEx one
 -- X ---------------------------------------------
 
 x :: a -> Sp X (Fin (S Z)) a
-x a = Struct x_ (V.singleton a)
+x a = Struct x_ (V.singleton a) finite_Fin
 
 x' :: a -> Sp' X a
 x' = SpEx . x
 
 -- E ---------------------------------------------
 
-e :: Finite l => (l -> a) -> Sp E l a
-e f = Struct e_ (fmap f V.enumerate)
+e :: Finite l -> (l -> a) -> Sp E l a
+e fin f = Struct (e_ fin) (fmap f $ V.enumerate fin) fin
 
 -- Argh, this needs a Natural constraint, but adding one to SomeVec
 -- ends up infecting everything in a very annoying way.
@@ -168,8 +167,8 @@ e f = Struct e_ (fmap f V.enumerate)
 -- u ---------------------------------------------
 
 -- Note how this is essentially the Store Comonad.
-u :: Finite l => (l -> a) -> l -> Sp U l a
-u f x = Struct (u_ x) (fmap f V.enumerate)
+u :: Finite l -> (l -> a) -> l -> Sp U l a
+u fin f x = Struct (u_ x) (fmap f $ V.enumerate fin) fin
 
 -- Sum -------------------------------------------
 
@@ -187,10 +186,10 @@ inr' = withSp inr
 
 -- Product ---------------------------------------
 
-prod :: (Eq l1, Finite l1, Eq l2, Finite l2)
+prod :: (Eq l1, Eq l2)
      => Sp f l1 a -> Sp g l2 a -> Sp (f * g) (Either l1 l2) a
-prod (Struct sf esf) (Struct sg esg) = Struct (prod_ sf sg)
-                                              (V.append esf esg)
+prod (Struct sf esf finf) (Struct sg esg fing) = 
+    Struct (prod_ sf sg) (V.append esf esg) (finite_Either finf fing)
 
 prod' :: Sp' f a -> Sp' g a -> Sp' (f * g) a
 prod' (SpEx f) (SpEx g) = SpEx (prod f g)
@@ -200,20 +199,20 @@ prod' (SpEx f) (SpEx g) = SpEx (prod f g)
 -- | Superimpose a new shape atop an existing structure, with the
 --   structure on the left.
 cprodL :: Sp f l a -> g l -> Sp (f # g) l a
-cprodL (Struct sf es) sg = Struct (cprod_ sf sg) es
+cprodL (Struct sf es finf) sg = Struct (cprod_ sf sg) es finf
 
 -- | Superimpose a new shape atop an existing structure, with the
 --   structure on the right.
 cprodR :: f l -> Sp g l a -> Sp (f # g) l a
-cprodR sf (Struct sg es) = Struct (cprod_ sf sg) es
+cprodR sf (Struct sg es finf) = Struct (cprod_ sf sg) es finf
 
 -- | Decompose a Cartesian product structure.  Inverse to `cprodL`.
 decompL :: Sp (f # g) l a -> (Sp f l a, g l)
-decompL (Struct (CProd fl gl) es) = (Struct fl es, gl)
+decompL (Struct (CProd fl gl) es finf) = (Struct fl es finf, gl)
 
 -- | Decompose a Cartesian product structure.  Inverse to `cprodR`.
 decompR :: Sp (f # g) l a -> (f l, Sp g l a)
-decompR (Struct (CProd fl gl) es) = (fl, Struct gl es)
+decompR (Struct (CProd fl gl) es fing) = (fl, Struct gl es fing)
 
 -- | Project out the left structure from a Cartesian product.
 projL ::  Sp (f # g) l a -> Sp f l a
@@ -236,14 +235,14 @@ editR f = uncurry cprodR . second f . decompR
 -- Differentiation -------------------------------
 
 d :: Sp f (Maybe l) a -> Sp (D f) l a
-d (Struct s es) = Struct (d_ s) (V.tail es)
+d (Struct s es finf) = Struct (d_ s) (V.tail es) (finite_predMaybe finf)
 
 -- No d' operation since it really does depend on the labels
 
 -- Pointing --------------------------------------
 
 p :: l -> Sp f l a -> Sp (P f) l a
-p l (Struct s es) = Struct (p_ l s) es
+p l (Struct s es finf) = Struct (p_ l s) es finf
 
 -- No p' operation---it again depends on the labels
 
@@ -252,14 +251,15 @@ p l (Struct s es) = Struct (p_ l s) es
 -- the constraint that Plus (Size l1) (Size l2) ~ Size l
 -- should follow from having an iso between Either l1 l2 and l, but
 -- it is unclear to me (JC) how to derive that
-part :: forall l1 l2 l a . (Finite l1, Finite l2, Plus (Size l1) (Size l2) ~ Size l) =>
+part :: forall l1 l2 l a . (Eq l, HasSize l, Plus (Size l1) (Size l2) ~ Size l) =>
+    Finite l1 -> Finite l2 ->
     (l1 -> a) -> (l2 -> a) -> (Either l1 l2 <-> l) -> Sp Part l a
-part f g i = Struct (part_ i) (V.append v1 v2)
-              where
-                v1 :: V.Vec (Size l1) a
-                v1 = fmap f $ V.enumerate
-                v2 :: V.Vec (Size l2) a
-                v2 = fmap g $ V.enumerate
+part finf fing f g i = Struct (part_ finf fing i) (V.append v1 v2) (finConv i $ finite_Either finf fing)
+                         where
+                           v1 :: V.Vec (Size l1) a
+                           v1 = fmap f $ V.enumerate finf
+                           v2 :: V.Vec (Size l2) a
+                           v2 = fmap g $ V.enumerate fing
 
 -- It is not clear that we can create a part' because this witnesses a subset
 -- relation on labels, which seems difficult to abstract
@@ -271,11 +271,11 @@ part f g i = Struct (part_ i) (V.append v1 v2)
 --   we only get to provide a single @g@-structure which is copied into
 --   all the locations of the @f@-structure, so all the label types must
 --   be the same; they cannot depend on the labels of the @f@-structure.
-compA :: (Eq l1, Finite l1, Eq l2) => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
+compA :: (Eq l1, Eq l2, HasSize l1, HasSize l2) => Sp f l1 (a -> b) -> Sp g l2 a -> Sp (Comp f g) (l1,l2) b
 compA spf spg = compJ ((<$> spg) <$> spf)
 
 -- | A variant of 'compA', interdefinable with it.
-compAP :: (Eq l1, Finite l1, Eq l2) => Sp f l1 a -> Sp g l2 b -> Sp (Comp f g) (l1,l2) (a,b)
+compAP :: (Eq l1, Eq l2, HasSize l1, HasSize l2) => Sp f l1 a -> Sp g l2 b -> Sp (Comp f g) (l1,l2) (a,b)
 compAP spf spg = compA (fmap (,) spf) spg
 
 -- | 'compJ' and 'compJ'' are like generalized versions of the 'Monad'
@@ -283,21 +283,24 @@ compAP spf spg = compA (fmap (,) spf) spg
 --
 --   'compJ' is a restricted form of composition where the substructures
 --   are constrained to all have the same label type.
-compJ :: forall f l1 g l2 a. (Eq l1, Finite l1, Eq l2)
+
+-- FIXME: really need to 'zip' together all of the finiteness proofs in
+-- the g-structures to get the overall finiteness proof
+compJ :: forall f l1 g l2 a. (Eq l1, Eq l2, HasSize l1, HasSize l2)
       => Sp f l1 (Sp g l2 a) -> Sp (Comp f g) (l1,l2) a
-compJ (Struct f_ es)
+compJ (Struct f_ es finl1)
     = case mapRep l1Size (Proxy :: Proxy g) (Proxy :: Proxy l2) of
         Refl ->
           allRep l1Size (Proxy :: Proxy Eq) (Proxy :: Proxy l2) $
-          Struct (Comp f_ (lpRep l1Size (Proxy :: Proxy l2)) gShps' pf)
-                 (V.concat gElts)
+          Struct (Comp finl1 f_ (lpRep l1Size (Proxy :: Proxy l2)) gShps' pf)
+                 (V.concat gElts) (undefined :: Finite (l1,l2))
   where
-    l1Size              = size (Proxy :: Proxy l1)
+    l1Size              = size finl1
     (gShps, gElts)      = V.unzip (fmap unSp es)
     gShps'              = V.toHVec gShps
-    unSp (Struct sh es') = (sh, es')
+    unSp (Struct sh es' _) = (sh, es')
     pf                  :: Sum (Replicate (Size l1) l2) <-> (l1, l2)
-    pf                  = sumRepIso (Proxy :: Proxy l1)
+    pf                  = sumRepIso finl1
 
 -- | 'compJ'' is a fully generalized version of 'join'.
 --
@@ -306,13 +309,14 @@ compJ (Struct f_ es)
 --   that in a true dependently typed language we can write that type
 --   directly.  However, we can't express that in Haskell, so instead
 --   we use existential quantification.
-compJ' :: forall f l g a. (Eq l, Finite l) => Sp f l (Sp' g a) -> Sp' (Comp f g) a
-compJ' (Struct f_ es)
+compJ' :: forall f l g a. (Eq l) => Sp f l (Sp' g a) -> Sp' (Comp f g) a
+compJ' (Struct f_ es finl)
   = case unzipSpSp' es of
       UZSS ls gShps gElts ->
         SpEx (Struct
-               (Comp f_ ls gShps id)
+               (Comp finl f_ ls gShps id)
                (V.hconcat (Proxy :: Proxy g) ls gElts)
+               (undefined)  -- FIXME (same zip as above)
              )
 
   -- If you squint really hard, you can see that the implementations
@@ -336,7 +340,7 @@ compJ'' sp' =
 -- of g-structures paired with a vector of element vectors, with the
 -- list of label types existentially hidden.
 data UnzippedSpSp' n g a where
-  UZSS :: (Eq (Sum ls), Finite (Sum ls), All Eq ls)
+  UZSS :: (Eq (Sum ls), HasSize (Sum ls), All Eq ls)
        => LProxy n ls    -- We need an LProxy so the typechecker can
                          -- actually infer the label types (the only
                          -- other occurrences of ls are buried inside
@@ -349,7 +353,7 @@ data UnzippedSpSp' n g a where
 
 unzipSpSp' :: V.Vec n (Sp' g a) -> UnzippedSpSp' n g a
 unzipSpSp' V.VNil = UZSS LNil V.HNil V.HNil
-unzipSpSp' (V.VCons (SpEx (Struct (gl :: g l) v)) sps) =
+unzipSpSp' (V.VCons (SpEx (Struct (gl :: g l) v _)) sps) =
   case unzipSpSp' sps of
     UZSS prox gls evs
       -> UZSS (LCons (Proxy :: Proxy l) prox) (V.HCons gl gls) (V.HCons v evs)
@@ -360,6 +364,6 @@ unzipSpSp' (V.VCons (SpEx (Struct (gl :: g l) v)) sps) =
 
 -- Cardinality restriction -----------------------
 
-sized :: Finite l => Sp f l a -> Sp (OfSize (Size l) f) l a
-sized (Struct s es) = Struct (sized_ s) es
+sized :: Sp f l a -> Sp (OfSize (Size l) f) l a
+sized (Struct s es finl) = Struct (sized_ finl s) es finl
 

@@ -30,17 +30,19 @@ natty :: N.SNat n -> (N.Natural n => r) -> r
 natty N.SZ r     = r
 natty (N.SS n) r = natty n r
 
-take :: forall f l a n . (Finite l) => Sp f l a -> N.SNat n -> (n <= Size l) ->
+{- FIXME
+take :: forall f l a n . HasSize l => Sp f l a -> N.SNat n -> (n <= Size l) ->
   Sp (f # Part) l a
-take (Struct f i) n pf =
-  case minus (size (Proxy :: Proxy l)) n pf of
+take (Struct f i finl) n pf =
+  case minus (size finl) n pf of
     Minus (m :: N.SNat m) Refl ->
       case N.plusComm m n of
-        Refl -> Struct (cprod_ f k) i
+        Refl -> Struct (cprod_ f k) i finl
           where k :: Part l
-                k = natty n $ natty m $ Part S.enumerate S.enumerate isom
+                k = natty n $ natty m $ Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
                 isom :: Either (F.Fin n) (F.Fin m) <-> l
-                isom = iso (finSum n m) (finSum' n m) . finite
+                isom = iso (finSum n m) (finSum' n m)
+-}
 
 data VPart l where
   VPart :: V.Vec n l -> V.Vec m l -> N.Plus n m :=: Size l -> VPart l
@@ -54,23 +56,23 @@ vpart (V.VCons a v) = case vpart v of
                     (case N.plusSuccR (V.size ns) (V.size ms) of Refl -> Refl)
 
 
-filter :: forall f l a. Finite l => Sp f l a -> (a -> Bool) -> Sp (f # Part) l a
-filter (Struct f i) p =
+filter :: forall f l a. Sp f l a -> (a -> Bool) -> Sp (f # Part) l a
+filter (Struct f i finl) p =
   let foo = fmap p i in
   case vpart foo of
     VPart (v1 :: V.Vec n (F.Fin (Size l))) (v2 :: V.Vec m (F.Fin (Size l))) Refl
-      -> Struct (cprod_ f k) i
+      -> Struct (cprod_ f k) i finl
         where k :: Part l
               k = natty (V.size v1) $ natty (V.size v2) $
-                  Part S.enumerate S.enumerate isom
+                  Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
               isom :: Either (F.Fin n) (F.Fin m) <-> l
               isom = iso foo bar
               foo (Left n) = V.index v1' n
               foo (Right m) = V.index v2' m
-              bar l = case V.lookup v1 (view (from finite) l) of
+              bar l = case V.lookup v1 (view (from finl) l) of
                         Just n1 -> Left n1
-                        Nothing -> case V.lookup v2 (view (from finite) l) of
+                        Nothing -> case V.lookup v2 (view (from finite_Fin) l) of
                                       Just m1 -> Right m1
                                       Nothing -> error "this case cannot happen"
-              v1' = fmap (view finite) v1
-              v2' = fmap (view finite) v2
+              v1' = fmap (view finite_Fin) v1
+              v2' = fmap (view finite_Fin) v2

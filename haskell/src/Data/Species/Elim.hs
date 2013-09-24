@@ -77,8 +77,8 @@ mapElimShape q (Elim el) = Elim $ \s m -> el (q s) m
 -- Running eliminators
 
 -- | Run an eliminator.
-elim :: (Finite l, Eq l) => Elim f a b -> Sp f l a -> b
-elim (Elim el) (Struct shp es) = el shp (V.index es . view (from finite))
+elim :: (Eq l) => Elim f a b -> Sp f l a -> b
+elim (Elim el) (Struct shp es (F finl)) = el shp (V.index es . view (from finl))
 
 -- | Run an eliminator over existentially quantified structures.
 elim' :: Elim f a b -> Sp' f a -> b
@@ -124,9 +124,9 @@ elimProd (Elim f) = Elim $ \(Prod fShp gShp pf) m ->
 --   to the final result type @r@.
 elimComp :: Elim f x r -> Elim g a x -> Elim (Comp f g) a r
 elimComp (Elim ef) (Elim eg)
-  = Elim $ \((Comp fl1 lp gs pf)) m ->
+  = Elim $ \((Comp finl1 fl1 lp gs pf)) m ->
       ef fl1 $ \l1 ->
-        case hlookup (toFin l1) gs lp of
+        case hlookup (toFin finl1 l1) gs lp of
           HLResult gli inj -> eg gli (m . view pf . inj)
 
 data HLResult g ls where

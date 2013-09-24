@@ -26,8 +26,8 @@ makeLenses ''USp
 -- label types.
 zipU :: (K.Zip f, F.Foldable f, Size l1 ~ Size l2, Eq l1, Eq l2)
      => (a -> b -> c) -> USp f l1 a -> USp f l2 b -> (USp f l1 c, l1 <-> l2)
-zipU f (USp (Struct fl1 es1)) (USp (Struct fl2 es2))
-  = ( USp (Struct fl1 (V.zipWith f es1 es2))
+zipU f (USp (Struct fl1 es1 finl1)) (USp (Struct fl2 es2 finl2))
+  = ( USp (Struct fl1 (V.zipWith f es1 es2) finl1)
     , iso (fromJust . (lookup ?? ls)) (fromJust . (lookup ?? map swap ls))
     )
   where

@@ -3,6 +3,8 @@ module Data.Species.Zippy where
 import           Data.Species.Shape
 import           Data.Species.Types
 import qualified Data.Vec           as V
+import           Data.Finite
+import           Control.Lens
 
 -- For labelled species, only things whose shape has no real content
 -- are zippy, since we need to be able to match up the shapes AND the
@@ -20,8 +22,10 @@ instance Zippy X where
 instance Zippy E where
   fzip x _ = x
 
-zipS :: Zippy f => Sp f l a -> Sp f l b -> Sp f l (a,b)
+zipS :: (Zippy f, HasSize l) => Sp f l a -> Sp f l b -> Sp f l (a,b)
 zipS = zipWithS (,)
 
-zipWithS :: Zippy f => (a -> b -> c) -> Sp f l a -> Sp f l b -> Sp f l c
-zipWithS f (Struct shA as) (Struct shB bs) = Struct (fzip shA shB) (V.zipWith f as bs)
+zipWithS :: (Zippy f, HasSize l) => (a -> b -> c) -> Sp f l a -> Sp f l b -> Sp f l c
+zipWithS f (Struct shA as finA@(F isoA)) (Struct shB bs finB@(F isoB)) = 
+    Struct (fzip shA shB) (V.zipWith f as bs') finA
+    where bs' = V.permute (size finA) (isoA . from isoB) bs

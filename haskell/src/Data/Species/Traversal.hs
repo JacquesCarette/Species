@@ -40,26 +40,26 @@ toL = fromList . execWriter . T.traverse rep'
 
 fromTrav :: T.Traversable f => f a -> Sp' (f # L) a
 fromTrav fa = case fromFold fa of
-                SpEx sp@(Struct l v) ->
-                  SpEx (Struct (CProd fl l) v)
+                SpEx sp@(Struct l v finl) ->
+                  SpEx (Struct (CProd fl l) v finl)
                   where fl = fst . evalSupply m $ toList sp
                         m = runWriterT . T.traverse replace $ fa
 
 toList :: Eq l => Sp L l a -> [l]
-toList (Struct shp _) = case elimList [] (:) of Elim f -> f shp id
+toList (Struct shp _ _) = case elimList [] (:) of Elim f -> f shp id
 
 -- All of these are valid:
-instance Finite l => F.Foldable (Sp L l) where
-  foldr f b (Struct f2 elts) =
-    elim (elimList b f) (Struct f2 elts)
+instance Eq l => F.Foldable (Sp L l) where
+  foldr f b s =
+    elim (elimList b f) s
 
-instance Finite l => F.Foldable (Sp (f # L) l) where
-  foldr f b (Struct (CProd _ f2) elts) =
-    elim (elimList b f) (Struct f2 elts)
+instance Eq l => F.Foldable (Sp (f # L) l) where
+  foldr f b (Struct (CProd _ f2) elts finl) =
+    elim (elimList b f) (Struct f2 elts finl)
 
 instance F.Foldable (Sp' (f # L)) where
-  foldr f b (SpEx (Struct (CProd _ f2) elts)) =
-    elim (elimList b f) (Struct f2 elts)
+  foldr f b (SpEx (Struct (CProd _ f2) elts finl)) =
+    elim (elimList b f) (Struct f2 elts finl)
 
 {-
 

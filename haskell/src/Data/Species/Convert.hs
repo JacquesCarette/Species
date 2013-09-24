@@ -16,7 +16,7 @@ import           Data.Functor.Coproduct
 
 import           Data.Void
 
-import           Data.Finite
+-- import           Data.Finite
 import           Data.Species.Elim
 import           Data.Species.Shape
 import           Data.Species.Types
@@ -32,7 +32,7 @@ class Labelled c where
   type ShapeOf c :: * -> *
   toLabelled   :: c -> Sp' (ShapeOf c) (EltType c)
   elimLabelled :: Elim (ShapeOf c) (EltType c) c
-  fromLabelled :: Finite l => Sp (ShapeOf c) l (EltType c) -> c
+  fromLabelled :: Eq l => Sp (ShapeOf c) l (EltType c) -> c
   fromLabelled = elim elimLabelled
   fromLabelled' :: Sp' (ShapeOf c) (EltType c) -> c
   fromLabelled' = elim' elimLabelled

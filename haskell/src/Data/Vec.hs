@@ -3,6 +3,7 @@
 {-# LANGUAGE GADTs               #-}
 {-# LANGUAGE KindSignatures      #-}
 {-# LANGUAGE PolyKinds           #-}
+{-# LANGUAGE Rank2Types          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving  #-}
 {-# LANGUAGE TypeFamilies        #-}
@@ -20,8 +21,8 @@ module Data.Vec
 
       -- ** Operations on length-indexed vectors
 
-    , size, head, tail, index, lookup, append, append', concat, concat', zip, zipWith, unzip, shuffle
-    , fins, enumerate
+    , size, head, tail, index, lookup, append, append', concat, concat'
+    , zip, zipWith, unzip, shuffle , permute, fins, enumerate
 
       -- * Length-indexed, type-indexed heterogeneous vectors
 
@@ -31,13 +32,13 @@ module Data.Vec
 
 import           Prelude hiding (concat, unzip, zip, zipWith, lookup, head, tail)
 
-import           Control.Lens    (view)
+import           Control.Lens    (view,from)
 import           Data.Functor    ((<$>))
 import           Data.Proxy
 
 import           Data.Fin        (Fin(..))
 import qualified Data.Finite     as Finite
-import           Data.Finite     (Finite, Size)
+import           Data.Finite     (Finite, Size, type (<->))
 import           Data.Type.List
 import           Data.Type.Nat
 
@@ -125,8 +126,8 @@ fins (SS n) = VCons FZ (fmap FS (fins n))
 
 -- | Construct a vector containing the complete list of values of any
 --   'Finite' type.
-enumerate :: forall l. Finite l => Vec (Size l) l
-enumerate = fmap (view Finite.finite) (fins (Finite.size (Proxy :: Proxy l)))
+enumerate :: Finite l -> Vec (Size l) l
+enumerate p@(Finite.F f) = fmap (view f) (fins (Finite.size p))
 
 append :: Vec k l -> Vec k' l -> Vec (Plus k k') l
 append VNil v = v
@@ -152,6 +153,11 @@ concat' (VCons v vs) = append' v (concat' vs)
 --   the new vector onto indices of the old.
 shuffle :: SNat m -> SNat n -> (Fin n -> Fin m) -> (Vec m a -> Vec n a)
 shuffle _ n f v = mkV n (index v . f)
+
+-- | Uses forward direction of an isomorphism to 'shuffle' a set of indicies
+-- from a source order to a target order 
+permute :: SNat n -> (Fin n <-> Fin n) -> (Vec n a -> Vec n a)
+permute n f v = shuffle n n (view (from f)) v
 
 ------------------------------------------------------------
 -- HVec: Length-indexed, type-indexed heterogeneous vectors

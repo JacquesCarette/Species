@@ -14,7 +14,7 @@ import Data.Finite
 --   for those types @f@ which are also an instance of @Functor@
 --   (however, not all @BFunctor@s are @Functor@s.)
 class BFunctor f where
-  bmap :: (Finite a, Finite b) => (a <-> b) -> (f a <-> f b)
+  bmap :: (a <-> b) -> (f a <-> f b)
 
   default bmap :: Functor f => (a <-> b) -> (f a <-> f b)
   bmap g = mapping g

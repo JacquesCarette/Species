@@ -24,7 +24,7 @@ import           Data.Functor       ((<$>))
 import           Data.Tree
 
 import           Data.BFunctor
-import           Data.Finite
+import           Data.Finite (liftIso)
 import           Data.Species.Convert
 import           Data.Species.Elim
 import           Data.Species.List
@@ -44,11 +44,11 @@ instance BFunctor Rose where
   bmap g = liftIso isoRose isoRose (bmap g)
 
 -- | Introduce a rose tree shape.
-rose_ :: Finite l => (X*(Comp L Rose)) l -> Rose l
+rose_ :: (X*(Comp L Rose)) l -> Rose l
 rose_ = view (from isoRose)
 
 -- | Introduce a list structure.
-rose :: Finite l => Sp (X*(Comp L Rose)) l a -> Sp Rose l a
+rose :: Eq l => Sp (X*(Comp L Rose)) l a -> Sp Rose l a
 rose = reshape (view (from isoRose))
 
 rose' :: Sp' (X*(Comp L Rose)) a -> Sp' Rose a
@@ -68,7 +68,7 @@ elimRose f =
   mapElimShape (view isoRose) $
     elimProd (elimX (\a -> elimComp (f a <$> elimList [] (:)) (elimRose f)))
 
-toRose :: Finite l => Sp Rose l a -> Tree a
+toRose :: Eq l => Sp Rose l a -> Tree a
 toRose = fromLabelled
 
 toRose' :: Sp' Rose a -> Tree a

@@ -58,11 +58,11 @@ instance BFunctor L where
 -- derivable.
 
 -- | Introduce a list shape.
-list_ :: Finite l => (One + X*L) l -> L l
+list_ :: (One + X*L) l -> L l
 list_ = view (from isoL)
 
 -- | Introduce a list structure.
-list :: Finite l => Sp (One + X*L) l a -> Sp L l a
+list :: Eq l => Sp (One + X*L) l a -> Sp L l a
 list = reshape (view (from isoL))
 
 -- | The empty list structure.
@@ -70,8 +70,8 @@ nil :: Sp L (Fin Z) a
 nil = list $ inl one
 
 -- | Cons for list structures.
-cons :: (Eq l, Finite l) => a -> Sp L l a -> Sp L (Either (Fin (S Z)) l) a
-cons a (Struct shp es) = Struct (list_ (inr_ (prod_ x_ shp))) (V.VCons a es)
+cons :: (Eq l) => a -> Sp L l a -> Sp L (Either (Fin (S Z)) l) a
+cons a (Struct shp es finl) = Struct (list_ (inr_ (prod_ x_ shp))) (V.VCons a es) (finite_Either finite_Fin finl)
 
 -- | Convert a Haskell list to a labelled list structure.
 fromList :: [a] -> Sp' L a

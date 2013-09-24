@@ -15,7 +15,10 @@ module Data.Finite
 
       -- * Constructively finite types
     , HasSize(..), Finite(..)
-    , toFin, fromFin
+    , toFin, fromFin, finConv
+
+      -- * Finiteness proofs
+    , finite_Fin, finite_Either, finite_predMaybe, finite_splitProduct
     )
     where
 
@@ -50,7 +53,7 @@ type (<->) a b = Iso' a b
 
 -- | Higher-order isomorphisms, /i.e./ natural isomorphisms, between
 --   two shapes.
-type (<-->) f g = forall l. (Eq l, Finite l) => f l <-> g l
+type (<-->) f g = forall l. Eq l => f l <-> g l
 
 -- | Lift an isomorphism on a particular field to an isomorphism of an
 --   entire structure.  Unfortunately, the field must be passed twice
@@ -64,7 +67,7 @@ liftIso l1 l2 ab = withIso ab $ \f g -> iso (l1 %~ f) (l2 %~ g)
 --  Natural transformations
 
 -- | Natural transformations between two shapes.
-type (-->) f g = forall l. (Eq l, Finite l) => f l -> g l
+type (-->) f g = forall l. (Eq l) => f l -> g l
 
 ------------------------------------------------------------
 --  Constructively finite types
@@ -73,7 +76,7 @@ class HasSize l where
   type Size l :: Nat
   -- ^ An type family giving the size of @l@.
 
-  size        :: Proxy l -> SNat (Size l)
+  size        :: p l -> SNat (Size l)
   -- ^ Get the size of a finite type.
 
 -- | Constructively finite types.
@@ -86,86 +89,101 @@ class HasSize l where
 --   Abstractly, however, the notions of finiteness and linear
 --   orderings ought to be orthogonal.  We must be careful to note
 --   when we are taking advantage of this implicit ordering.
-class (Eq l, HasSize l) => Finite l where
-
-  finite      :: Fin (Size l) <-> l
+data Finite l where
+  F :: (Eq l, HasSize l) => Fin (Size l) <-> l -> Finite l
   -- ^ Isomorphism witnessing the finiteness of @l@.
 
-toFin       :: Finite l => l -> Fin (Size l)
+toFin       :: Finite l -> l -> Fin (Size l)
 -- ^ One direction of the isomorphism as a function, provided for
 --   convenience.
-toFin = view (from finite)
+toFin (F finite) = view (from finite)
 
-fromFin     :: Finite l => Fin (Size l) -> l
+fromFin     :: Finite l -> Fin (Size l) -> l
 -- ^ The other direction of the isomorphism as a function, provided
 --   for convenience.
-fromFin = view finite
+fromFin (F finite) = view finite
 
 instance Natural n => HasSize (Fin n) where
   type Size (Fin n) = n
   size _ = toSNat
 
-instance Natural n => Finite (Fin n) where
-  finite = id
+finite_Fin :: Natural n => Finite (Fin n)
+finite_Fin = F id
 
 instance HasSize DV.Void where
   type Size DV.Void = Z
   size _ = SZ
 
-instance Finite DV.Void where
-  finite = iso absurd DV.absurd
+finite_Void :: Finite DV.Void
+finite_Void = F $ iso absurd DV.absurd
 
 instance HasSize () where
   type Size () = S Z
   size _ = SS SZ
 
-instance Finite () where
-  finite = iso (const ()) (const FZ)
+finite_Unit :: Finite ()
+finite_Unit = F $ iso (const ()) (const FZ)
 
 instance HasSize a => HasSize (Maybe a) where
   type Size (Maybe a) = S (Size a)
   size _ = SS (size (Proxy :: Proxy a))
 
-instance Finite a => Finite (Maybe a) where
-  finite = iso toM fromM
+finite_Maybe :: Finite a -> Finite (Maybe a)
+finite_Maybe a@(F{}) = F $ iso toM fromM
     where
-      toM :: Fin (S (Size a)) -> Maybe a
       toM FZ         = Nothing
-      toM (FS n)     = Just $ fromFin n
+      toM (FS n)     = Just $ fromFin a n
 
-      fromM :: Maybe a -> Fin (S (Size a))
       fromM Nothing  = FZ
-      fromM (Just l) = FS (toFin l)
+      fromM (Just l) = FS (toFin a l)
+
+finite_predMaybe :: Finite (Maybe a) -> Finite a
+finite_predMaybe a@(F{}) = undefined
+  -- see where the iso sends Nothing, and remove that index.
 
 instance HasSize Bool where
   type Size (Bool) = S (S Z)
   size _ = SS (SS SZ)
 
-instance Finite Bool where
-  finite = iso (\s -> case s of FZ -> False; FS FZ -> True)
-               (\b -> case b of False -> FZ; True -> FS FZ)
+finite_Bool :: Finite Bool
+finite_Bool = F$ iso (\s -> case s of FZ -> False; FS FZ -> True)
+                     (\b -> case b of False -> FZ; True -> FS FZ)
 
 instance (HasSize a, HasSize b) => HasSize (Either a b) where
   type Size (Either a b) = Plus (Size a) (Size b)
   size _ = plus (size (Proxy :: Proxy a)) (size (Proxy :: Proxy b))
 
-instance (Finite a, Finite b) => Finite (Either a b) where
-  finite = iso ((fromFin +++ fromFin) . finSum' szA szB)
-               (finSum szA szB . (toFin +++ toFin))
-    where
-      szA = size (Proxy :: Proxy a)
-      szB = size (Proxy :: Proxy b)
+finite_Either :: forall a b. Finite a -> Finite b -> Finite (Either a b)
+finite_Either a@(F{}) b@(F{}) =
+    F $ iso ((fromFin a +++ fromFin b) . finSum' szA szB)
+           (finSum szA szB . (toFin a +++ toFin b))
+      where
+        szA = size a
+        szB = size b
 
 instance (HasSize a, HasSize b) => HasSize (a,b) where
   type Size (a,b) = Times (Size a) (Size b)
   size _ = times (size (Proxy :: Proxy a)) (size (Proxy :: Proxy b))
 
-instance (Finite a, Finite b) => Finite (a,b) where
-  finite = iso ((fromFin *** fromFin) . finProd' szA szB)
-               (finProd szA szB . (toFin *** toFin))
-    where
-      szA = size (Proxy :: Proxy a)
-      szB = size (Proxy :: Proxy b)
+finite_Product :: Finite a -> Finite b -> Finite (a,b)
+finite_Product a@(F{}) b@(F{}) =
+    F $ iso ((fromFin a *** fromFin b) . finProd' szA szB)
+               (finProd szA szB . (toFin a *** toFin b))
+      where
+        szA = size a
+        szB = size b
+
+finite_splitProduct :: Finite (a,b) -> (Finite a, Finite b)
+finite_splitProduct _ = undefined -- FIXME
+
+-- Finite is almost a BFunctor...
+-- instance BFunctor Finite where
+--   bmap i = iso (\(F f) -> F (f . i))
+--                (\(F f) -> F (f . from i))
+
+finConv :: (Eq l2, HasSize l2) => (l1 <-> l2) -> Finite l1 -> Finite l2
+finConv i (F f) = 
+  case isoPresSize i of Refl -> F (f . i) 
 
 ------------------------------------------------------------
 -- Miscellaneous proofs about size
@@ -173,7 +191,7 @@ instance (Finite a, Finite b) => Finite (a,b) where
 -- | We take as an axiom that isomorphisms preserve size
 --   (unfortunately it is not actually possible to prove this within
 --   Haskell).
-isoPresSize :: forall l1 l2. (Finite l1, Finite l2) =>
+isoPresSize :: forall l1 l2. (HasSize l1, HasSize l2) =>
                (l1 <-> l2) -> (Size l1 :=: Size l2)
 isoPresSize _
   | snatEq s1 s2 = unsafeCoerce Refl
