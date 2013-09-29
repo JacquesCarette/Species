@@ -1,4 +1,3 @@
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE TypeOperators #-}
 
@@ -27,8 +26,8 @@ import           Control.Lens       (Iso, from, iso, view)
 
 import           Data.BFunctor
 import           Data.Iso
-import           Data.Fin
-import           Data.Finite
+import           Data.Fin (Fin)
+import           Data.Finite (finite_Either, finite_Fin)
 import           Data.Type.Nat
 import           Data.Species.Elim
 import           Data.Species.Shape

@@ -1,4 +1,4 @@
-{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE ConstraintKinds            #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveFunctor              #-}
 {-# LANGUAGE EmptyDataDecls             #-}
@@ -71,8 +71,8 @@ import           Data.Proxy
 
 import           Data.Iso
 import           Data.BFunctor
-import           Data.Fin
-import           Data.Finite
+import           Data.Fin (Fin(..))
+import           Data.Finite (Finite(..), Size(..))
 import qualified Data.Set.Abstract as S
 import           Data.Type.List
 import           Data.Type.Nat

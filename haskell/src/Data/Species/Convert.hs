@@ -16,7 +16,6 @@ import           Data.Functor.Coproduct
 
 import           Data.Void
 
--- import           Data.Finite
 import           Data.Species.Elim
 import           Data.Species.Shape
 import           Data.Species.Types

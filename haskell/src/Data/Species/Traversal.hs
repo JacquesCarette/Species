@@ -4,7 +4,7 @@
 {-# LANGUAGE TypeOperators       #-}
 
 ------------------------------------------
--- The point of this module is to show that Traversable is the same as
+-- The point of this module is to show that Traversable implies
 -- Functor f => f # List.
 
 module Data.Species.Traversal where
@@ -14,7 +14,6 @@ import           Control.Monad.Writer
 import qualified Data.Foldable        as F
 import qualified Data.Traversable     as T
 
-import           Data.Finite
 import           Data.Species.Elim
 import           Data.Species.List
 import           Data.Species.Shape

@@ -17,7 +17,7 @@ import           Data.Type.Equality
 
 import qualified Data.Fin                 as F
 import           Data.Fin.Isos
-import           Data.Finite
+-- import           Data.Finite
 import qualified Data.Set.Abstract        as S
 import           Data.Species.Shape
 import           Data.Species.Types

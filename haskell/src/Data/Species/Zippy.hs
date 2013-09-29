@@ -3,7 +3,7 @@ module Data.Species.Zippy where
 import           Data.Species.Shape
 import           Data.Species.Types
 import qualified Data.Vec           as V
-import           Data.Finite
+import           Data.Finite        (Size(..),Finite(..))
 import           Control.Lens
 
 -- For labelled species, only things whose shape has no real content
