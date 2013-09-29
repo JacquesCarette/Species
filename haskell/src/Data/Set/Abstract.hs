@@ -8,7 +8,6 @@ import           Control.Lens
 import           Data.BFunctor
 import           Data.Fin
 import           Data.Finite
-import           Data.Proxy
 
 -- | A set is an unordered collection of elements in which each
 --   element occurs at most once.
@@ -21,7 +20,7 @@ instance BFunctor Set where
 
 -- | The set of elements of a 'Finite' type.
 enumerate :: forall l. Finite l -> Set l
-enumerate (F finite) = Set $ map (view finite) (fins (size (Proxy :: Proxy l)))
+enumerate f@(F finite) = Set $ map (view finite) (fins (size f))
 
 -- | Generic eliminator for 'Set'. Note that using @elimSet@ incurs a
 --   proof obligation, namely, the first argument must be a function
