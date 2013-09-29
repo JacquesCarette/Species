@@ -15,7 +15,7 @@ module Data.Species.Isos
 import           Control.Lens
 
 import           Data.BFunctor
-import           Data.Finite
+import           Data.Iso
 import           Data.Species.Shape
 import           Data.Type.Isos
 

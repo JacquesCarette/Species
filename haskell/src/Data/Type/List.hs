@@ -13,6 +13,7 @@ module Data.Type.List where
 import GHC.Exts (Constraint)
 
 import Control.Lens
+import Data.Iso
 import Data.Fin
 import Data.Finite
 import Data.Proxy

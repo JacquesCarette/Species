@@ -38,7 +38,8 @@ import           Data.Proxy
 
 import           Data.Fin        (Fin(..))
 import qualified Data.Finite     as Finite
-import           Data.Finite     (Finite, Size, type (<->))
+import           Data.Iso        (type (<->))
+import           Data.Finite     (Finite, Size)
 import           Data.Type.List
 import           Data.Type.Nat
 

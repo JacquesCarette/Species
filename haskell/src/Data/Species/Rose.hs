@@ -24,7 +24,7 @@ import           Data.Functor       ((<$>))
 import           Data.Tree
 
 import           Data.BFunctor
-import           Data.Finite (liftIso)
+import           Data.Iso (liftIso)
 import           Data.Species.Convert
 import           Data.Species.Elim
 import           Data.Species.List

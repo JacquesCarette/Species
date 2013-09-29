@@ -26,12 +26,13 @@ module Data.Species.List
 import           Control.Lens       (Iso, from, iso, view)
 
 import           Data.BFunctor
+import           Data.Iso
 import           Data.Fin
 import           Data.Finite
+import           Data.Type.Nat
 import           Data.Species.Elim
 import           Data.Species.Shape
 import           Data.Species.Types
-import           Data.Type.Nat
 import qualified Data.Vec           as V
 
 -- | @L@ represents the shape of (finite) lists. It is defined

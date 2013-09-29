@@ -5,8 +5,8 @@
 module Data.Type.Isos where
 
 import           Control.Lens
+import           Data.Iso
 import           Data.Fin
-import           Data.Finite
 import           Data.Type.Nat
 
 ------------------------------------------------------------

@@ -4,8 +4,8 @@
 
 module Data.BFunctor where
 
-import Control.Lens
-import Data.Finite
+import Control.Lens (mapping)
+import Data.Iso (type (<->))
 
 -- | Functors in the category B of finite sets with isomorphisms as
 --   arrows.

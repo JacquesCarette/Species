@@ -69,6 +69,7 @@ module Data.Species.Shape
 import           Control.Lens
 import           Data.Proxy
 
+import           Data.Iso
 import           Data.BFunctor
 import           Data.Fin
 import           Data.Finite

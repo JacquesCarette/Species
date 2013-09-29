@@ -58,6 +58,7 @@ import           Control.Lens hiding (cons)
 import           Data.Proxy
 import           Data.Type.Equality
 
+import           Data.Iso
 import           Data.BFunctor
 import           Data.Fin
 import           Data.Finite

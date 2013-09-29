@@ -16,6 +16,7 @@ import           Data.Maybe                 (fromJust)
 import           Data.Tuple                 (swap)
 
 import           Data.BFunctor
+import           Data.Iso
 import           Data.Finite
 import           Data.Species.Shape
 import           Data.Species.Types

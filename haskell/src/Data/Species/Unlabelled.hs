@@ -11,7 +11,8 @@ import qualified Data.Key           as K
 import           Data.Maybe         (fromJust)
 import           Data.Tuple         (swap)
 
-import           Data.Finite
+import           Data.Iso
+import           Data.Finite        (Size)
 import           Data.Species.Types
 import qualified Data.Vec           as V
 
