@@ -17,7 +17,8 @@ import           Data.Type.Equality
 
 import qualified Data.Fin                 as F
 import           Data.Fin.Isos
--- import           Data.Finite
+import           Data.Iso
+import           Data.Finite
 import qualified Data.Set.Abstract        as S
 import           Data.Species.Shape
 import           Data.Species.Types
@@ -30,7 +31,9 @@ natty :: N.SNat n -> (N.Natural n => r) -> r
 natty N.SZ r     = r
 natty (N.SS n) r = natty n r
 
-{- FIXME
+{-
+   This fails, as it REQUIRES l ~ F.Fin (N.Plus n j))
+
 take :: forall f l a n . HasSize l => Sp f l a -> N.SNat n -> (n <= Size l) ->
   Sp (f # Part) l a
 take (Struct f i finl) n pf =
@@ -44,6 +47,18 @@ take (Struct f i finl) n pf =
                 isom = iso (finSum n m) (finSum' n m)
 -}
 
+-- This works, but because it relies on knowing a specific label set iso:
+take :: forall f a q n. N.Natural q => Sp f (F.Fin q) a -> N.SNat n -> (n <= q) ->
+  Sp (f # Part) (F.Fin q) a
+take (Struct f i finq) n pf =
+  case minus (size finq) n pf of
+    Minus (m :: N.SNat m) Refl ->
+      case N.plusComm m n of
+        Refl -> Struct (cprod_ f k) i finq
+          where k :: Part (F.Fin q)
+                k = natty n $ natty m $ Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
+                isom :: Either (F.Fin n) (F.Fin m) <-> F.Fin q
+                isom = iso (finSum n m) (finSum' n m)
 data VPart l where
   VPart :: V.Vec n l -> V.Vec m l -> N.Plus n m :=: Size l -> VPart l
 
@@ -55,9 +70,9 @@ vpart (V.VCons a v) = case vpart v of
          else VPart (fmap F.FS ns) (V.VCons F.FZ (fmap F.FS ms))
                     (case N.plusSuccR (V.size ns) (V.size ms) of Refl -> Refl)
 
-
+{- This is still not right
 filter :: forall f l a. Sp f l a -> (a -> Bool) -> Sp (f # Part) l a
-filter (Struct f i finl) p =
+filter (Struct f i finl@(F isof)) p =
   let foo = fmap p i in
   case vpart foo of
     VPart (v1 :: V.Vec n (F.Fin (Size l))) (v2 :: V.Vec m (F.Fin (Size l))) Refl
@@ -67,12 +82,12 @@ filter (Struct f i finl) p =
                   Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
               isom :: Either (F.Fin n) (F.Fin m) <-> l
               isom = iso foo bar
-              foo (Left n) = V.index v1' n
-              foo (Right m) = V.index v2' m
-              bar l = case V.lookup v1 (view (from finl) l) of
+              foo :: Either (F.Fin n) (F.Fin m) -> l
+              foo (Left n) = V.index v1 n
+              foo (Right m) = V.index v2 m
+              bar l = case V.lookup v1 (view finl l) of
                         Just n1 -> Left n1
-                        Nothing -> case V.lookup v2 (view (from finite_Fin) l) of
+                        Nothing -> case V.lookup v2 l of
                                       Just m1 -> Right m1
                                       Nothing -> error "this case cannot happen"
-              v1' = fmap (view finite_Fin) v1
-              v2' = fmap (view finite_Fin) v2
+-}
