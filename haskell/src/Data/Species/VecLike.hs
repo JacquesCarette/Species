@@ -27,10 +27,6 @@ import           Data.Type.Nat.Inequality
 import           Data.Type.Nat.Minus
 import qualified Data.Vec                 as V
 
-natty :: N.SNat n -> (N.Natural n => r) -> r
-natty N.SZ r     = r
-natty (N.SS n) r = natty n r
-
 {-
    This fails, as it REQUIRES l ~ F.Fin (N.Plus n j))
 
@@ -42,7 +38,7 @@ take (Struct f i finl) n pf =
       case N.plusComm m n of
         Refl -> Struct (cprod_ f k) i finl
           where k :: Part l
-                k = natty n $ natty m $ Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
+                k = N.natty n $ N.natty m $ Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
                 isom :: Either (F.Fin n) (F.Fin m) <-> l
                 isom = iso (finSum n m) (finSum' n m)
 -}
@@ -56,7 +52,7 @@ take (Struct f i finq) n pf =
       case N.plusComm m n of
         Refl -> Struct (cprod_ f k) i finq
           where k :: Part (F.Fin q)
-                k = natty n $ natty m $ Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
+                k = N.natty n $ N.natty m $ Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
                 isom :: Either (F.Fin n) (F.Fin m) <-> F.Fin q
                 isom = iso (finSum n m) (finSum' n m)
 data VPart l where
@@ -78,7 +74,7 @@ filter (Struct f i finl@(F isof)) p =
     VPart (v1 :: V.Vec n (F.Fin (Size l))) (v2 :: V.Vec m (F.Fin (Size l))) Refl
       -> Struct (cprod_ f k) i finl
         where k :: Part l
-              k = natty (V.size v1) $ natty (V.size v2) $
+              k = N.natty (V.size v1) $ N.natty (V.size v2) $
                   Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
               isom :: Either (F.Fin n) (F.Fin m) <-> l
               isom = iso foo bar

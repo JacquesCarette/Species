@@ -64,6 +64,10 @@ times :: SNat m -> SNat n -> SNat (Times m n)
 times SZ _     = SZ
 times (SS m) n = plus n (times m n)
 
+natty :: SNat n -> (Natural n => r) -> r
+natty SZ r     = r
+natty (SS n) r = natty n r
+
 --------------------------------------------------
 -- Properties of addition and multiplication
 
