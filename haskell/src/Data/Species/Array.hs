@@ -28,14 +28,16 @@ type ArraySh = E
 
 -- | Given a bag structure with product labels, we may \"split\" it
 --   into a bag of bags.
-splitE :: (HasSize l1, HasSize l2) => Sp E (l1,l2) a -> Sp E l1 (Sp E l2 a)
+splitE :: forall l1 l2 a. (HasSize l1, HasSize l2) => Sp E (l1,l2) a -> Sp E l1 (Sp E l2 a)
 splitE (Struct _ as fin12) = Struct (e_ finl1) (V.mkV l1Sz $ \i ->
                                Struct (e_ finl2) (V.mkV l2Sz $ \j ->
                                  V.index as (finProd l1Sz l2Sz (i, j))
                                ) finl2
                              ) finl1
   where
-    (finl1,finl2) = finite_splitProduct fin12
+    finl1 :: Finite l1
+    finl2 :: Finite l2
+    (finl1,finl2) = undefined -- XXX fixme
     l1Sz = size finl1
     l2Sz = size finl2
 

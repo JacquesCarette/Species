@@ -14,7 +14,7 @@ module Data.Finite
     , toFin, fromFin, finConv
 
       -- * Finiteness proofs
-    , finite_Fin, finite_Either, finite_predMaybe, finite_splitProduct
+    , finite_Fin, finite_Either, finite_predMaybe
     , isoPresSize
     )
     where
@@ -135,8 +135,13 @@ finite_Product a@(F{}) b@(F{}) =
         szA = size a
         szB = size b
 
-finite_splitProduct :: Finite (a,b) -> (Finite a, Finite b)
-finite_splitProduct _ = undefined -- FIXME
+{- NOTE, it is actually not possible to make a reasonable implementation of
+
+  finite_splitProduct :: Finite (a,b) -> (Finite a, Finite b)
+
+because there is no guarantee that there is any sort of regularity in
+the way the pairs are distributed.
+-}
 
 -- Finite is almost a BFunctor...
 -- instance BFunctor Finite where
@@ -144,8 +149,8 @@ finite_splitProduct _ = undefined -- FIXME
 --                (\(F f) -> F (f . from i))
 
 finConv :: (Eq l2, HasSize l2) => (l1 <-> l2) -> Finite l1 -> Finite l2
-finConv i (F f) = 
-  case isoPresSize i of Refl -> F (f . i) 
+finConv i (F f) =
+  case isoPresSize i of Refl -> F (f . i)
 
 ------------------------------------------------------------
 -- Miscellaneous proofs about size
