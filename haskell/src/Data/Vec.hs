@@ -22,15 +22,19 @@ module Data.Vec
       -- ** Operations on length-indexed vectors
 
     , size, head, tail, index, lookup, append, append', concat, concat'
-    , zip, zipWith, unzip, shuffle , permute, fins, enumerate
+    , zip, zipWith, unzip, unzip3, shuffle , permute, fins, enumerate
 
       -- * Length-indexed, type-indexed heterogeneous vectors
 
     , HVec(..), toHVec, hProxy, hconcat, VecsOfSize
+
+      -- * Miscellaneous
+
+    , finite_cat
     )
     where
 
-import           Prelude hiding (concat, unzip, zip, zipWith, lookup, head, tail)
+import           Prelude hiding (concat, unzip, unzip3, zip, zipWith, lookup, head, tail)
 
 import           Control.Lens    (view,from)
 import           Data.Functor    ((<$>))
@@ -112,6 +116,11 @@ unzip VNil = (VNil, VNil)
 unzip (VCons (a,b) v) = (VCons a va, VCons b vb)
   where (va,vb) = unzip v
 
+unzip3 :: Vec n (a,b,c) -> (Vec n a, Vec n b, Vec n c)
+unzip3 VNil = (VNil, VNil, VNil)
+unzip3 (VCons (a,b,c) v) = (VCons a va, VCons b vb, VCons c vc)
+  where (va,vb,vc) = unzip3 v
+
 zip :: Vec n a -> Vec n b -> Vec n (a,b)
 zip = zipWith (,)
 
@@ -156,7 +165,7 @@ shuffle :: SNat m -> SNat n -> (Fin n -> Fin m) -> (Vec m a -> Vec n a)
 shuffle _ n f v = mkV n (index v . f)
 
 -- | Uses forward direction of an isomorphism to 'shuffle' a set of indicies
--- from a source order to a target order 
+-- from a source order to a target order
 permute :: SNat n -> (Fin n <-> Fin n) -> (Vec n a -> Vec n a)
 permute n f v = shuffle n n (view (from f)) v
 
@@ -196,3 +205,9 @@ hconcat p (LCons _ ls) (HCons v vs) = append v (hconcat p ls vs)
 type family VecsOfSize (ls :: [*]) (a :: *) :: [*]
 type instance VecsOfSize '[] a         = '[]
 type instance VecsOfSize (l ': ls) a = (Vec (Size l) a ': VecsOfSize ls a)
+
+------------------------------------------------------------
+
+-- Finite cat is finite
+finite_cat :: Vec n (Finite l) -> Finite (Fin n, l)
+finite_cat = undefined -- TODO

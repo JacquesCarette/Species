@@ -285,23 +285,23 @@ compAP spf spg = compA (fmap (,) spf) spg
 --   'compJ' is a restricted form of composition where the substructures
 --   are constrained to all have the same label type.
 
--- FIXME: really need to 'zip' together all of the finiteness proofs in
--- the g-structures to get the overall finiteness proof
 compJ :: forall f l1 g l2 a. (Eq l1, Eq l2, HasSize l1, HasSize l2)
       => Sp f l1 (Sp g l2 a) -> Sp (Comp f g) (l1,l2) a
-compJ (Struct f_ es finl1)
+compJ (Struct f_ es finl1@(F isol1))
     = case mapRep l1Size (Proxy :: Proxy g) (Proxy :: Proxy l2) of
         Refl ->
           allRep l1Size (Proxy :: Proxy Eq) (Proxy :: Proxy l2) $
           Struct (Comp finl1 f_ (lpRep l1Size (Proxy :: Proxy l2)) gShps' pf)
-                 (V.concat gElts) (undefined :: Finite (l1,l2))
+                 (V.concat gElts) finl1l2
   where
-    l1Size              = size finl1
-    (gShps, gElts)      = V.unzip (fmap unSp es)
-    gShps'              = V.toHVec gShps
-    unSp (Struct sh es' _) = (sh, es')
-    pf                  :: Sum (Replicate (Size l1) l2) <-> (l1, l2)
-    pf                  = sumRepIso finl1
+    l1Size                 = size finl1
+    (gShps, gElts, finPfs) = V.unzip3 (fmap unSp es)
+    gShps'                 = V.toHVec gShps
+    unSp (Struct sh es' f) = (sh, es', f)
+    pf                     :: Sum (Replicate (Size l1) l2) <-> (l1, l2)
+    pf                     = sumRepIso finl1
+    finl1l2 :: Finite (l1,l2)
+    finl1l2 = finConv (liftIso _1 _1 isol1) (V.finite_cat finPfs)
 
 -- | 'compJ'' is a fully generalized version of 'join'.
 --

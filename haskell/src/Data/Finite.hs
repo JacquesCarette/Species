@@ -100,7 +100,7 @@ finite_Maybe a@(F{}) = F $ iso toM fromM
       fromM (Just l) = FS (toFin a l)
 
 finite_predMaybe :: Finite (Maybe a) -> Finite a
-finite_predMaybe a@(F{}) = undefined
+finite_predMaybe a@(F{}) = undefined   -- TODO
   -- see where the iso sends Nothing, and remove that index.
 
 instance HasSize Bool where
