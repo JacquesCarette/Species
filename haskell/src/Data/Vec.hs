@@ -36,14 +36,16 @@ module Data.Vec
 
 import           Prelude hiding (concat, unzip, unzip3, zip, zipWith, lookup, head, tail)
 
-import           Control.Lens    (view,from)
+import           Control.Lens    (view,from,_Left,_Right, iso)
 import           Data.Functor    ((<$>))
 import           Data.Proxy
 
 import           Data.Fin        (Fin(..))
+import           Data.Fin.Isos   (finSumI)
 import qualified Data.Finite     as Finite
-import           Data.Iso        (type (<->))
-import           Data.Finite     (Finite, Size)
+import           Data.Finite     (Size, Finite(..), HasSize)
+import           Data.Iso        (type (<->), liftIso)
+import           Data.Type.Isos
 import           Data.Type.List
 import           Data.Type.Nat
 
@@ -137,7 +139,7 @@ fins (SS n) = VCons FZ (fmap FS (fins n))
 -- | Construct a vector containing the complete list of values of any
 --   'Finite' type.
 enumerate :: Finite l -> Vec (Size l) l
-enumerate p@(Finite.F f) = fmap (view f) (fins (Finite.size p))
+enumerate p@(F f) = fmap (view f) (fins (Finite.size p))
 
 append :: Vec k l -> Vec k' l -> Vec (Plus k k') l
 append VNil v = v
@@ -209,5 +211,56 @@ type instance VecsOfSize (l ': ls) a = (Vec (Size l) a ': VecsOfSize ls a)
 ------------------------------------------------------------
 
 -- Finite cat is finite
-finite_cat :: Vec n (Finite l) -> Finite (Fin n, l)
-finite_cat = undefined -- TODO
+finite_cat :: forall l n. (Eq l, HasSize l) => Vec n (Finite l) -> Finite (Fin n, l)
+finite_cat VNil = F (from zeroTL :: Fin Z <-> (Fin Z, l))
+
+-- See comments below
+finite_cat (VCons finl@(F isol) fins')
+  = natty (size fins')
+  $ F ( from (finSumI (Finite.size finl) (Finite.size fin'))
+      . liftIso _Left _Left isol
+      . liftIso _Right _Right iso'
+      . iso there back
+      )
+      :: Finite (Fin n, l)
+  where
+    fin'@(F iso') = finite_cat fins'
+    there :: Either l (Fin m, l) -> (Fin (S m), l)
+    there (Left l)       = (FZ, l)
+    there (Right (f, l)) = (FS f, l)
+    back :: (Fin (S m), l) -> Either l (Fin m, l)
+    back (FZ, l)   = Left l
+    back (FS f, l) = Right (f, l)
+
+{-
+
+For VCons case:
+
+finl  :: Finite l
+isol  :: Fin (Size l) <-> l
+fins' :: Vec n (Finite l)
+fin'  :: Finite (Fin n, l)
+iso'  :: Fin (Times n (Size l)) <-> (Fin n, l)
+---------------------------------------------
+Finite (Fin (S n), l)
+
+applying the F constructor, we must show
+
+  (Fin (Times (S n) (Size l)) <-> (Fin (S n), l))
+
+which we construct as follows:
+
+    Fin (Times (S n) (Size l))
+=                    { definition of Times }
+    Fin (Plus (Size l) (Times n (Size l)))
+<->                  { from finSumI }
+    Either (Fin (Size l)) (Fin (Times n (Size l)))
+<->                  { isol }
+    Either l (Fin (Times n (Size l)))
+<->                  { iso' }
+    Either l (Fin n, l)
+<->                  { see there and back, defined above }
+    (Fin (S n), l)
+
+-}
+
