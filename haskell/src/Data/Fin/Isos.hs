@@ -1,3 +1,4 @@
+{-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE DataKinds      #-}
 {-# LANGUAGE GADTs          #-}
 {-# LANGUAGE KindSignatures #-}
@@ -12,16 +13,18 @@ module Data.Fin.Isos
     ( -- * Disjoint union of finite sets
       -- $disjoint
 
-      finSum,  finSum'
+      finSum,  finSum', finSumI
 
       -- * Cartesian product of finite sets
 
-    , finProd, finProd'
+    , finProd, finProd', finProdI
     )
     where
 
 import           Control.Arrow            ((***), (+++))
+import           Control.Lens (iso)
 
+import           Data.Iso
 import           Data.Fin
 import           Data.Type.Equality
 import           Data.Type.Nat
@@ -63,8 +66,15 @@ swapEither :: Either a b -> Either b a
 swapEither (Left a)  = Right a
 swapEither (Right b) = Left b
 
+-- iso
+
+finSumI :: SNat m -> SNat n -> (Either (Fin m) (Fin n) <-> Fin (Plus m n))
+finSumI m n = iso (finSum m n) (finSum' m n)
+
 --------------------------------------------------
 -- Product of Fins: Fin (m * n) <-> (Fin m, Fin n)
+
+-- XXX TODO: check which isomorphism this actually is!
 
 -- forward direction
 
@@ -77,6 +87,8 @@ finNProd (SS _) n (FinN i iLTm, FinN j jLTn)
 
 finProd :: SNat m -> SNat n -> (Fin m, Fin n) -> Fin (Times m n)
 finProd m n = finNToFin . finNProd m n . (finToFinN *** finToFinN)
+
+-- backward direction
 
 finNProd' :: SNat m -> SNat n -> FinN (Times m n) -> (FinN m, FinN n)
 finNProd' m n (FinN x xlt) = case divisionAlg x n of
@@ -92,3 +104,8 @@ finNProd' m n (FinN x xlt) = case divisionAlg x n of
 
 finProd' :: SNat m -> SNat n -> Fin (Times m n) -> (Fin m, Fin n)
 finProd' m n = (finNToFin *** finNToFin) . finNProd' m n . finToFinN
+
+-- iso
+
+finProdI :: SNat m -> SNat n -> ((Fin m, Fin n) <-> Fin (Times m n))
+finProdI m n = iso (finProd m n) (finProd' m n)
