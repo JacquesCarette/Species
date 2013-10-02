@@ -37,10 +37,16 @@ splitE (Struct _ as fin12) = Struct (e_ finl1) (V.mkV l1Sz $ \i ->
   where
     finl1 :: Finite l1
     finl2 :: Finite l2
-    (finl1,finl2) = undefined -- XXX fixme
+    (finl1,finl2) = undefined -- XXX this is impossible. See below.
     l1Sz = size finl1
     l2Sz = size finl2
 
+-- Really unsure about what to do with splitE.  We could just require
+-- the user to pass in Finite proofs for l1 and l2, but that would
+-- result in a lot of data shuffling.  It would be much nicer if we
+-- had a nice story for doing things in-place as much as possible.  In
+-- any case, implementing a function of type Finite (l1,l2) -> (Finite
+-- l1, Finite l2) is a non-starter.
 
 -- | An @m x n@ array has labels which are pairs of type @(Fin m, Fin n)@.
 type Array2 m n = Sp ArraySh (Fin m, Fin n)
