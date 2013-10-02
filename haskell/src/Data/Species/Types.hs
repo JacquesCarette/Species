@@ -313,11 +313,11 @@ compJ (Struct f_ es finl1@(F isol1))
 compJ' :: forall f l g a. (Eq l) => Sp f l (Sp' g a) -> Sp' (Comp f g) a
 compJ' (Struct f_ es finl)
   = case unzipSpSp' es of
-      UZSS ls gShps gElts ->
+      UZSS ls gShps gElts finPfs ->
         SpEx (Struct
                (Comp finl f_ ls gShps id)
                (V.hconcat (Proxy :: Proxy g) ls gElts)
-               (undefined)  -- FIXME (same zip as above)
+               (V.finite_hcat ls finPfs)
              )
 
   -- If you squint really hard, you can see that the implementations
@@ -350,14 +350,15 @@ data UnzippedSpSp' n g a where
                          -- over the vectors.
        -> V.HVec n (Map g ls)           -- vector of g-structures
        -> V.HVec n (V.VecsOfSize ls a)  -- vector of element vectors
+       -> V.HVec n (Map Finite ls)
        -> UnzippedSpSp' n g a
 
 unzipSpSp' :: V.Vec n (Sp' g a) -> UnzippedSpSp' n g a
-unzipSpSp' V.VNil = UZSS LNil V.HNil V.HNil
-unzipSpSp' (V.VCons (SpEx (Struct (gl :: g l) v _)) sps) =
+unzipSpSp' V.VNil = UZSS LNil V.HNil V.HNil V.HNil
+unzipSpSp' (V.VCons (SpEx (Struct (gl :: g l) v finl)) sps) =
   case unzipSpSp' sps of
-    UZSS prox gls evs
-      -> UZSS (LCons (Proxy :: Proxy l) prox) (V.HCons gl gls) (V.HCons v evs)
+    UZSS prox gls evs finPfs
+      -> UZSS (LCons (Proxy :: Proxy l) prox) (V.HCons gl gls) (V.HCons v evs) (V.HCons finl finPfs)
 
 -- Functor composition ---------------------------
 
