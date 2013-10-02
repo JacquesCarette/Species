@@ -30,7 +30,7 @@ module Data.Vec
 
       -- * Miscellaneous
 
-    , finite_cat
+    , finite_cat, finite_hcat
     )
     where
 
@@ -43,7 +43,7 @@ import           Data.Proxy
 import           Data.Fin        (Fin(..))
 import           Data.Fin.Isos   (finSumI)
 import qualified Data.Finite     as Finite
-import           Data.Finite     (Size, Finite(..), HasSize)
+import           Data.Finite     (Size, Finite(..), HasSize, finite_Fin, finite_Either)
 import           Data.Iso        (type (<->), liftIso)
 import           Data.Type.Isos
 import           Data.Type.List
@@ -264,3 +264,14 @@ which we construct as follows:
 
 -}
 
+finite_hcat :: LProxy n ls -> HVec n (Map Finite ls) -> Finite (Sum ls)
+finite_hcat LNil HNil = finite_Fin
+finite_hcat (LCons _ ls) (HCons finl finls) = finite_Either finl (finite_hcat ls finls)
+  {- ls :: LProxy n ls
+     finl :: Finite l
+     finls :: HVec n (Map Finite ls)
+     -------------------------------
+     Finite (Sum (l : ls)) = Finite (Either l (Sum ls))
+
+     finite_hcat ls finls :: Finite (Sum ls)
+ -}
