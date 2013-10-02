@@ -36,6 +36,8 @@ import           Data.Type.Nat.Minus
 -- Sum of Fins: Either (Fin m) (Fin n) <-> Fin (m + n)
 ------------------------------------------------------------
 
+-- XXX TODO: document this better.
+
 -- forward direction
 
 finNSum :: SNat m -> SNat n -> Either (FinN m) (FinN n) -> FinN (Plus m n)
@@ -74,7 +76,7 @@ finSumI m n = iso (finSum m n) (finSum' m n)
 --------------------------------------------------
 -- Product of Fins: Fin (m * n) <-> (Fin m, Fin n)
 
--- XXX TODO: check which isomorphism this actually is!
+-- XXX TODO: document this better.
 
 -- forward direction
 
