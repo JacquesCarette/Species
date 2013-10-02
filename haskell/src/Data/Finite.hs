@@ -26,6 +26,7 @@ import qualified Data.Void     as DV
 import           Data.Type.Equality
 import           Data.Fin
 import           Data.Fin.Isos
+import           Data.Type.Isos
 import           Data.Type.Nat
 import           Data.Proxy
 
@@ -99,9 +100,17 @@ finite_Maybe a@(F{}) = F $ iso toM fromM
       fromM Nothing  = FZ
       fromM (Just l) = FS (toFin a l)
 
-finite_predMaybe :: Finite (Maybe a) -> Finite a
-finite_predMaybe a@(F{}) = undefined   -- TODO
-  -- see where the iso sends Nothing, and remove that index.
+finite_predMaybe :: forall a. (Eq a, HasSize a) => Finite (Maybe a) -> Finite a
+finite_predMaybe (F isoM) =
+  F $ subtractIso id (succFin . isoM . maybeEither)
+  -- This is neat but it may not be the isomorphism one would
+  -- "expect".  On the other hand, it is nice "memory-wise": instead
+  -- of shifting everything after the Nothing to the left, it
+  -- essentially takes the element that used to correspond to 0 and
+  -- sticks it where the Nothing was, followed by re-indexing
+  -- everything so index 0 is now where index 1 used to be.
+  --
+  -- XXX draw some pictures.
 
 instance HasSize Bool where
   type Size (Bool) = S (S Z)
@@ -134,6 +143,7 @@ finite_Product a@(F{}) b@(F{}) =
       where
         szA = size a
         szB = size b
+
 
 {- NOTE, it is actually not possible to make a reasonable implementation of
 

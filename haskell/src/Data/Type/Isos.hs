@@ -73,3 +73,11 @@ assocLT = iso shuffleRight shuffleLeft
           where
             shuffleRight (a,(b,c)) = ((a,b),c)
             shuffleLeft ((a,b),c) = (a,(b,c))
+
+maybeEither :: Maybe a <-> Either () a
+maybeEither = iso me1 me2
+  where
+    me1 Nothing   = Left ()
+    me1 (Just a)  = Right a
+    me2 (Left ()) = Nothing
+    me2 (Right a) = Just a
