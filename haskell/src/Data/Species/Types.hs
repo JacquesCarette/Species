@@ -75,9 +75,16 @@ import qualified Data.Vec     as V
 --   values.  Since label types are required to be constructively
 --   finite, that is, come with an isomorphism to @'Fin' n@ for some n, we
 --   can represent the map as a length-@n@ vector.
-data Sp f l a = Struct { _shape ::  f l, _elts :: V.Vec (Size l) a, _finpf :: Finite l }
+data Sp :: (* -> *) -> * -> * -> * where
+  Struct :: Eq l' => (l <-?> l') -> f l' -> V.Vec (Size l') a -> Finite l -> Sp f l a
 
-makeLenses ''Sp
+-- | A version of 'reshapeI' which returns a function instead of an
+--   isomorphism, which is sometimes more convenient.
+reshape :: (f --> g) -> Sp f l a -> Sp g l a
+reshape h (Struct sb shp es pf) = Struct sb (h shp) es pf
+
+onElts :: (forall n. V.Vec n a -> V.Vec n b) -> Sp f l a -> Sp f l b
+onElts h (Struct sb shp es pf) = Struct sb shp (h es) pf
 
 ------------------------------------------------------------
 --  Relabelling/functoriality
@@ -88,8 +95,8 @@ relabelI :: (BFunctor f, HasSize l1, HasSize l2, Eq l1, Eq l2)
          => (l1 <-> l2) -> (Sp f l1 a <-> Sp f l2 a)
 relabelI i =
   case isoPresSize i of
-    Refl -> iso (\(Struct s es pf) -> Struct (view (bmap i) s) es (finConv i pf))
-                (\(Struct s es pf) -> Struct (view (bmap (from i)) s) es (finConv (from i) pf))
+    Refl -> iso (\(Struct sb s es pf) -> Struct (from i . sb) s es (finConv       i  pf))
+                (\(Struct sb s es pf) -> Struct (     i . sb) s es (finConv (from i) pf))
 
 -- | A version of 'relabelI' which returns a function instead of an
 --   isomorphism, which is sometimes more convenient.
@@ -98,7 +105,7 @@ relabel :: (BFunctor f, HasSize l1, HasSize l2, Eq l1, Eq l2)
 relabel = view . relabelI
 
 instance Functor (Sp f l) where
-  fmap = over (elts . mapped)
+  fmap f = onElts (fmap f)
 
 ------------------------------------------------------------
 --  Reshaping
@@ -106,12 +113,7 @@ instance Functor (Sp f l) where
 -- | Structures can also be /reshaped/: isomorphisms between species
 --   induce isomorphisms between labelled structures.
 reshapeI :: Eq l => (f <--> g) -> (Sp f l a <-> Sp g l a)
-reshapeI i = liftIso shape shape i
-
--- | A version of 'reshapeI' which returns a function instead of an
---   isomorphism, which is sometimes more convenient.
-reshape :: Eq l => (f --> g) -> Sp f l a -> Sp g l a
-reshape r = over shape r
+reshapeI i = iso (reshape (view i)) (reshape (view (from i)))
 
 ------------------------------------------------------------
 --  Existentially labelled structures
@@ -138,7 +140,7 @@ data LSp' f a where
 -- One -------------------------------------------
 
 one :: Sp One (Fin Z) a
-one = Struct one_ V.VNil finite_Fin
+one = Struct id one_ V.VNil finite_Fin
 
 one' :: Sp' One a
 one' = SpEx one
@@ -146,15 +148,15 @@ one' = SpEx one
 -- X ---------------------------------------------
 
 x :: a -> Sp X (Fin (S Z)) a
-x a = Struct x_ (V.singleton a) finite_Fin
+x a = Struct id x_ (V.singleton a) finite_Fin
 
 x' :: a -> Sp' X a
 x' = SpEx . x
 
 -- E ---------------------------------------------
 
-e :: Finite l -> (l -> a) -> Sp E l a
-e fin f = Struct (e_ fin) (fmap f $ V.enumerate fin) fin
+e :: Eq l => Finite l -> (l -> a) -> Sp E l a
+e fin f = Struct id (e_ fin) (fmap f $ V.enumerate fin) fin
 
 -- Argh, this needs a Natural constraint, but adding one to SomeVec
 -- ends up infecting everything in a very annoying way.
@@ -168,19 +170,19 @@ e fin f = Struct (e_ fin) (fmap f $ V.enumerate fin) fin
 -- u ---------------------------------------------
 
 -- Note how this is essentially the Store Comonad.
-u :: Finite l -> (l -> a) -> l -> Sp U l a
-u fin f x = Struct (u_ x) (fmap f $ V.enumerate fin) fin
+u :: Eq l => Finite l -> (l -> a) -> l -> Sp U l a
+u fin f x = Struct undefined (u_ x) (fmap f $ V.enumerate fin) fin  -- XXX todo
 
 -- Sum -------------------------------------------
 
 inl :: Sp f l a -> Sp (f + g) l a
-inl = shape %~ inl_
+inl = reshape inl_
 
 inl' :: Sp' f a -> Sp' (f + g) a
 inl' = withSp inl
 
 inr :: Sp g l a -> Sp (f + g) l a
-inr = shape %~ inr_
+inr = reshape inr_
 
 inr' :: Sp' g a -> Sp' (f + g) a
 inr' = withSp inr
@@ -189,8 +191,11 @@ inr' = withSp inr
 
 prod :: (Eq l1, Eq l2)
      => Sp f l1 a -> Sp g l2 a -> Sp (f * g) (Either l1 l2) a
-prod (Struct sf esf finf) (Struct sg esg fing) = 
-    Struct (prod_ sf sg) (V.append esf esg) (finite_Either finf fing)
+prod (Struct sbf sf esf finf) (Struct sbg sg esg fing) =
+    Struct (foo sbf sbg) (prod_ sf sg) (V.append esf esg) (finite_Either finf fing)
+
+foo :: (a <-?> b) -> (c <-?> d) -> (Either a c <-?> Either b d)
+foo = undefined -- XXX todo
 
 prod' :: Sp' f a -> Sp' g a -> Sp' (f * g) a
 prod' (SpEx f) (SpEx g) = SpEx (prod f g)
@@ -368,4 +373,3 @@ unzipSpSp' (V.VCons (SpEx (Struct (gl :: g l) v finl)) sps) =
 
 sized :: Sp f l a -> Sp (OfSize (Size l) f) l a
 sized (Struct s es finl) = Struct (sized_ finl s) es finl
-
