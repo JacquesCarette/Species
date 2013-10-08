@@ -1,11 +1,11 @@
 {-# LANGUAGE Rank2Types           #-}
 {-# LANGUAGE TypeOperators        #-}
 
--- | Natural transformations and isomorphisms.
+-- | Natural transformations, isomorphisms, and partial isomorphisms.
 module Data.Iso
     ( -- * Isomorphisms and natural transformations
 
-     type (<->), liftIso, type (-->), type (<-->)
+     type (<->), liftIso, type (<-?>), type (-->), type (<-->)
 
     , subtractIso
     )
@@ -30,6 +30,36 @@ import           Control.Lens
 --   * To turn an isomorphism into a function, use @'view' :: (a \<-\>
 --     b) -> (a -> b)@.
 type (<->) a b = Iso' a b
+
+-- | The type @a \<-?\> b@ represents /partial isomorphisms/ between
+--   @a@ and @b@.  In particular, every value of type @b@ has a
+--   corresponding value of type @a@, but the converse is not
+--   necessarily true: some values of @a@ may have no corresponding
+--   @b@ value.  Intuitively, @a \<-?\> b@ may be thought of as
+--   providing computational evidence witnessing the fact that "@a@ is
+--   a superset of @b@".
+--
+--   * To construct one, use @prism' :: (b -\> a) -\> (a -\> Maybe b)
+--     -\> (a \<-?\> b)@, being careful to satisfy the laws: for @prism'
+--     f g@ we should have (1) @g . f === Just@, and (2) if @g a = Just
+--     b@ then @f b = a@.
+--
+--   * Any isomorphism may be used directly as a partial isomorphism.
+--
+--   * To turn a partial isomorphism into a function in the forward
+--     (partial) direction, use 'preview'.
+--
+--   * To turn a partial isomorphism into a function in the backwards
+--     (total) direction, use 'review'.
+--
+--   * Unlike with isomorphisms, it does not make sense to invert
+--     partial isomorphisms, since they have an inherent directionality.
+--
+--   * To compose two partial isomorphisms (or an isomorphism and a
+--     partial isomorphism), use the normal function composition
+--     operator '.' (though note it works \"backwards\", /i.e./ @(.)
+--     :: (a \<-?\> b) -> (b \<-?\> c) -> (a \<-?\> c)@.
+type (<-?>) a b = Prism' a b
 
 -- | Higher-order isomorphisms, /i.e./ natural isomorphisms, between
 --   two shapes.
