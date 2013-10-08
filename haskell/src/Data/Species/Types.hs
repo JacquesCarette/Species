@@ -235,7 +235,7 @@ editR f = uncurry cprodR . second f . decompR
 
 -- Differentiation -------------------------------
 
-d :: Sp f (Maybe l) a -> Sp (D f) l a
+d :: (Eq l, HasSize l) => Sp f (Maybe l) a -> Sp (D f) l a
 d (Struct s es finf) = Struct (d_ s) (V.tail es) (finite_predMaybe finf)
 
 -- No d' operation since it really does depend on the labels
