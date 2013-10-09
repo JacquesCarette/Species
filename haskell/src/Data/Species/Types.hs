@@ -236,7 +236,12 @@ editR f = uncurry cprodR . second f . decompR
 -- Differentiation -------------------------------
 
 d :: (Eq l, HasSize l) => Sp f (Maybe l) a -> Sp (D f) l a
-d (Struct s es finf) = Struct (d_ s) (V.tail es) (finite_predMaybe finf)
+d (Struct s (V.VCons eHead es) finf@(F i))
+  = Struct (d_ s) es' (finite_predMaybe finf)
+  where
+    es' = case view (from i) Nothing of
+             FZ     -> es
+             FS idx -> V.replace idx eHead es
 
 -- No d' operation since it really does depend on the labels
 

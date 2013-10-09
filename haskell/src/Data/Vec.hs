@@ -21,7 +21,7 @@ module Data.Vec
 
       -- ** Operations on length-indexed vectors
 
-    , size, head, tail, index, lookup, append, append', concat, concat'
+    , size, head, tail, index, lookup, replace, append, append', concat, concat'
     , zip, zipWith, unzip, unzip3, shuffle , permute, fins, enumerate
 
       -- * Length-indexed, type-indexed heterogeneous vectors
@@ -108,6 +108,11 @@ lookup VNil _ = Nothing
 lookup (VCons a v) x
   | a == x    = Just FZ
   | otherwise = FS <$> lookup v x
+
+replace :: Fin n -> a -> Vec n a -> Vec n a
+replace _ _ VNil = VNil
+replace FZ a'     (VCons _ as) = VCons a' as
+replace (FS f) a' (VCons a as) = VCons a (replace f a' as)
 
 mkV :: SNat n -> (Fin n -> a) -> Vec n a
 mkV SZ     _ = VNil
