@@ -241,7 +241,7 @@ d (Struct s (V.VCons eHead es) finf@(F i))
   where
     es' = case view (from i) Nothing of
              FZ     -> es
-             FS idx -> V.replace idx eHead es
+             FS idx -> snd (V.replace idx eHead es)
 
 -- No d' operation since it really does depend on the labels
 

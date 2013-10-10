@@ -109,10 +109,11 @@ lookup (VCons a v) x
   | a == x    = Just FZ
   | otherwise = FS <$> lookup v x
 
-replace :: Fin n -> a -> Vec n a -> Vec n a
-replace _ _ VNil = VNil
-replace FZ a'     (VCons _ as) = VCons a' as
-replace (FS f) a' (VCons a as) = VCons a (replace f a' as)
+replace :: Fin n -> a -> Vec n a -> (a, Vec n a)
+replace FZ     a' (VCons a as) = (a, VCons a' as)
+replace (FS f) a' (VCons a as) =
+  case replace f a' as of
+    (olda, as') -> (olda, VCons a as')
 
 mkV :: SNat n -> (Fin n -> a) -> Vec n a
 mkV SZ     _ = VNil
