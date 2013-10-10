@@ -36,14 +36,14 @@ module Data.Vec
 
 import           Prelude hiding (concat, unzip, unzip3, zip, zipWith, lookup, head, tail)
 
-import           Control.Lens    (view,from,_Left,_Right, iso)
+import           Control.Lens    (view,from,_Left,_Right, iso, Prism', prism')
 import           Data.Functor    ((<$>))
 import           Data.Proxy
 
 import           Data.Fin        (Fin(..))
 import           Data.Fin.Isos   (finSumI)
 import qualified Data.Finite     as Finite
-import           Data.Finite     (Size, Finite(..), HasSize, finite_Fin, finite_Either)
+import           Data.Finite     (Size, Finite(..), SubFinite(..), HasSize, finite_Fin, finite_Either)
 import           Data.Iso        (type (<->), liftIso)
 import           Data.Type.Isos
 import           Data.Type.List
@@ -281,3 +281,15 @@ finite_hcat (LCons _ ls) (HCons finl finls) = finite_Either finl (finite_hcat ls
 
      finite_hcat ls finls :: Finite (Sum ls)
  -}
+
+
+------------------------------------------------------------
+
+-- this should go somewhere else
+finite_splitProd
+  :: (HasSize l1, HasSize l2, Eq l1, Eq l2, n ~ Size (l1,l2))
+  => Finite l1 -> Finite (l1,l2) -> Vec (Size l1) (SubFinite l2 n)
+finite_splitProd fin1 (F i12) = fmap (\l1 -> (SF $ i12 . fstIs l1)) (enumerate fin1)
+
+fstIs :: Eq a => a -> Prism' (a,b) b
+fstIs a = prism' ((,) a) (\(a',b) -> if a == a' then Just b else Nothing)
