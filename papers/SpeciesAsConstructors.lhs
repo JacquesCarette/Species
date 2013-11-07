@@ -29,11 +29,11 @@
 \usepackage{amssymb}
 \usepackage{stmaryrd}
 % \usepackage{proof}
-\usepackage{comment}
+% \usepackage{comment}
 \usepackage{url}
 \usepackage{xspace}
 \usepackage{xcolor}
-\usepackage[all]{xy}
+% \usepackage[all]{xy}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Page size
@@ -75,7 +75,9 @@
 \newcommand{\iso}{\leftrightarrow}
 \newcommand{\mkIso}{\rightleftharpoons}
 
-\newcommand{\impl}[1]{\ensuremath{\{#1\}}} % implicit arguments
+% \newcommand{\impl}[1]{\ensuremath{\{#1\}}} % implicit arguments
+\newcommand{\impl}[1]{\ensuremath{(#1)}}   % not notating implicit
+                                           % arguments at the moment
 \newcommand{\defn}{\vcentcolon\equiv}
 
 \newcommand{\TyZero}{\ensuremath{\bot}}
@@ -156,7 +158,7 @@
 
 % big, top-level (verbatim) comments
 
-\specialcomment{todoP}{\begingroup\color{red}TODO: }{\endgroup}
+% \specialcomment{todoP}{\begingroup\color{red}TODO: }{\endgroup}
 
 % quick (inline) comments
 
@@ -537,26 +539,32 @@ serviceable in the context of classical combinatorics, but in order to
 use it as a foundation for data structures, it is necessary to first
 ``port'' the definition from set theory to constructive type theory.
 
-\todo{this section is too dense}
-In the remainder of this paper, we work within a standard variant of
-Martin-L\"of dependent type theory \cite{martin-lof} (precisely
-\emph{which} variant we use probably does not matter very much),
-equipped with an empty type \TyZero, unit type \TyOne, coproducts,
-dependent pairs, dependent functions, a universe $\Type$ of types, and
-a notion of propositional equality. For convenience, instead of
-writing the traditional $\sum_{x : A} B(x)$ and $\prod_{x:A} B(x)$ for
-dependent pair and function types, we will use the Agda-like
-\cite{Agda} notations $(x:A) \times B(x)$ and $(x:A) \to B(x)$,
-respectively.  We continue to use the standard abbreviations $A \times
-B$ and $A \to B$ for non-dependent pair and function types, that is,
-when $x$ does not appear free in $B$.  We write $\impl{x:A} \to B$ for
-the type of functions taking $x$ as an \emph{implicit} argument, and
-omit implicit arguments when applying such functions.  For example, if
-$f : \impl{A:\Type} \to A \to A$ then we write simply $f\ 3$ instead of
-$f\ \N\ 3$.  When an implicit argument needs to be provided explicitly
-we use a subscript, as in $f_{\N}\ 3$.  Free type variables should be
-understood as implicit arguments, for example, the type $A \to A$ is
-shorthand for $\impl{A:\Type} \to A \to A$.
+In the remainder of this paper, we work within homotopy type
+theory~\cite{hott} as a convenient and well-developed dependent type
+theory.  In particular we do not need any complex machinery from the
+theory (exploring deeper connections between homotopy type theory and
+the theory of species is left to future work), and we summarize the
+most important ideas and notation here.
+
+The type theory is equipped with an empty type \TyZero, a unit type
+\TyOne, coproducts, dependent pairs, dependent functions, a universe
+$\Type$ of types, and a notion of propositional equality. For
+convenience, instead of writing the traditional $\sum_{x : A} B(x)$
+for the type of dependent pairs and $\prod_{x:A} B(x)$ for dependent
+functions, we will use the Agda-like \cite{Agda} notations $(x:A)
+\times B(x)$ and $(x:A) \to B(x)$, respectively.  We continue to use
+the standard abbreviations $A \times B$ and $A \to B$ for
+non-dependent pair and function types, that is, when $x$ does not
+appear free in $B$.
+
+% We write $\impl{x:A} \to B$ for the type of
+% functions taking $x$ as an \emph{implicit} argument, and omit implicit
+% arguments when applying such functions.  For example, if $f :
+% \impl{A:\Type} \to A \to A$ then we write simply $f\ 3$ instead of $f\
+% \N\ 3$.  When an implicit argument needs to be provided explicitly we
+% use a subscript, as in $f_{\N}\ 3$.  Free type variables should be
+% understood as implicit arguments, for example, the type $A \to A$ is
+% shorthand for $\impl{A:\Type} \to A \to A$.
 
 We use $\N : \Type$ to denote the usual inductively defined type of
 natural numbers, with constructors $\NatZ : \N$ and $\NatS : \N \to
@@ -834,15 +842,15 @@ where $\Natural\ \varphi$ is the proposition which states that $\varphi$ is
 all $\sigma : L \iso L'$.
 
 \begin{figure}[h!]
-  \centering
-  \centerline{
-    \xymatrix{
-      F\ L \ar[d]_{\varphi_L} \ar[r]^{F\ \sigma} & F\ L' \ar[d]^{\varphi_{L'}} \\
-      G\ L                    \ar[r]_{G\ \sigma} & G\ L'
-    }
-  }
-  \caption{Naturality for species morphisms}
-  \label{fig:species-morphism}
+  % \centering
+  % \centerline{
+  %   \xymatrix{
+  %     F\ L \ar[d]_{\varphi_L} \ar[r]^{F\ \sigma} & F\ L' \ar[d]^{\varphi_{L'}} \\
+  %     G\ L                    \ar[r]_{G\ \sigma} & G\ L'
+  %   }
+  % }
+  % \caption{Naturality for species morphisms}
+  % \label{fig:species-morphism}
 \end{figure}
 
 Intuitively, $\varphi$ is natural if it does not depend on the type of
