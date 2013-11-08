@@ -13,11 +13,8 @@ module Data.Finite
       HasSize(..), Finite(..)
     , toFin, fromFin, finConv
 
-    , SubFinite(..)
-
       -- * Finiteness proofs
     , finite_Fin, finite_Either, finite_predMaybe
-    , finite_splitSum
     , isoPresSize
     )
     where
@@ -68,11 +65,6 @@ fromFin     :: Finite l -> Fin (Size l) -> l
 -- ^ The other direction of the isomorphism as a function, provided
 --   for convenience.
 fromFin (F finite) = view finite
-
--- | A type @l@ is "subfinite" if there is a partial isomorphism from
---   some @Fin n@ onto @l@.
-data SubFinite l n where
-  SF :: (HasSize l, Eq l) => (Fin n <-?> l) -> SubFinite l n
 
 ------------------------------------------------------------
 
@@ -170,15 +162,7 @@ finConv i (F f) =
 
 because there is no guarantee that there is any sort of regularity in
 the way the pairs are distributed.
-
-However, we can implement finite_splitSum and finite_splitProduct as
-below.
 -}
-
-finite_splitSum
-  :: (HasSize l1, HasSize l2, Eq l1, Eq l2, n ~ Size (Either l1 l2))
-  => Finite (Either l1 l2) -> (SubFinite l1 n, SubFinite l2 n)
-finite_splitSum (F i) = (SF $ i . _Left, SF $ i . _Right)
 
 ------------------------------------------------------------
 -- Miscellaneous proofs about size
