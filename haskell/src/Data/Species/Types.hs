@@ -163,7 +163,7 @@ e fin f = Struct (e_ fin) (fmap f $ V.enumerate fin) fin
 -- e' :: [a] -> Sp' E a
 -- e' as =
 --   case V.fromList as of
---     (V.SomeVec (v :: Vec n a)) -> SpEx (Struct (e_ :: E (Fin n)) v)
+--     (V.SomeVec (v :: V.Vec n a)) -> SpEx (Struct (e_ (finite_Fin) :: E (Fin n)) v finite_Fin)
 
 -- u ---------------------------------------------
 
