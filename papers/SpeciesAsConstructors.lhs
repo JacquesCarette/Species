@@ -95,7 +95,7 @@
 \DeclareMathOperator{\NatS}{S}
 \DeclareMathOperator{\FinZ}{fO}
 \DeclareMathOperator{\FinS}{fS}
-\DeclareMathOperator{\Vect}{Vec}
+\DeclareMathOperator{\VectOp}{Vec}
 \DeclareMathOperator{\id}{id}
 \DeclareMathOperator{\shapes}{shapes}
 \DeclareMathOperator{\relabel}{relabel}
@@ -127,6 +127,8 @@
 \newcommand{\compA}{\oast}
 \newcommand{\compJ}{\varovee}
 \newcommand{\compB}{\varogreaterthan}
+
+\newcommand{\Vect}[2]{\VectOp\ #1\ #2}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -668,16 +670,30 @@ or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 
 Formally, we may define families of labelled structures as follows.
 \begin{align*}
-   &\LStr - - - : \Species \to \FinType \to \Type \to \Type \\
-   &\LStr F L A = \IsFinite L \times F\ L \times \Vec{\size L}{A}
+   &\LStr - - - : \Species \to \Type \to \Type \to \Type \\
+   &\LStr F L A = \IsFinite L \times F\ L \times \Vect{(\size L)}{A}
 \end{align*}
 that is, a labelled structure over the species $F$, parameterized a
-constructively finite type $L$ of labels and a type $A$ of data,
+type $L$ of labels and a type $A$ of data,
 consists of
 \begin{itemize}
-\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape, and
-\item a mapping from labels to data, $m : L \to A$.
+\item a (constructive) proof that $L$ is finite;
+\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape; and
+\item a vector containing $(\size L)$-many data elements.
 \end{itemize}
+
+Note that we can think of the vector as a mapping from labels $L$ to
+data values $A$, because we have a bijection between $L$ and $\Fin
+(\size L)$. Given a label $l : L$, we can send it through the bijection
+to find an index into the vector.  Here is one concrete place where we
+really do care about the computational content of an $\IsFinite$
+proof: it tells us how to interpret the vector of elements.  As we
+will see, being forced to always keep the data elements in some
+canonical order in the vector simply wouldn't do.
+
+In light of this observation, however, why not just store a function
+$(L \to A)$ instead of a vector $\Vect{(\size L)}{A}$? \todo{explain
+  why}
 
 We can define the generic type of eliminators for labelled
 $F$-structures, $\Elim_F : \Type \to \Type \to \Type$, as
@@ -1049,7 +1065,7 @@ labelled $G$-shapes. \todo{needs another picture} Finally, the label
 type for the overall $(F \scomp G)$-shape is the sum of all the
 individual label types used for the $G$-shapes.  Formally,
 \begin{equation*}
- (F \scomp G)\ L = (k : \N) \times (\mathit{Ls} : \Vect\ k\ \Type)
+ (F \scomp G)\ L = (k : \N) \times (\mathit{Ls} : \Vect{k}{\Type})
  \times F\ (\Fin\ k) \times \sumTys\ (\map\ G\ \mathit{Ls})
 \end{equation*}
 where $\sumTys$ constructs the sum of a collection of types, and is defined by
