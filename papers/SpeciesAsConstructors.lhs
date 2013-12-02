@@ -200,8 +200,7 @@
 % Hamilton, Ontario, Canada}
 % {carette@@mcmaster.ca}
 
-\author{Brent A. Yorgey\inst{1} \and Stephanie Weirich\inst{1} \and
-  Jacques Carette\inst{2}}
+\author{Brent A. Yorgey\inst{1} \and Jacques Carette\inst{2} \and Stephanie Weirich\inst{1}}
 
 \institute{Dept. of Computer and Information Science\\
 The University of Pennsylvania\\
@@ -589,22 +588,36 @@ $\sigma \times (\sigma \to C) : A \times (A \to C) \iso B \times (B
 (\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso (\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
 
 With the preliminaries out of the way, the first concept we need to
-port is that of a finite set. What does it mean for a set $A$ to be
-finite?  Here are some possibilities:
-\begin{itemize}
-\item $A$ is not in bijection with any infinite set.
-\item There is a natural number $n$ for which $A$ is isomorphic to $\Fin\ n$.
-\item \dots but we don't necessarily know what $n$ is.
-\item ?
-\end{itemize}
-Classically, these are all equivalent, but in a constructive setting
-the distinctions are important.  We choose the second: a finite set is
-one with a (known) natural number size.  That is,
-\[ \IsFinite A \defn (n : \N) \times (\Fin n \iso A). \] There are
-other constructive notions of finiteness
-(\url{http://ncatlab.org/nlab/show/finite+set}) but this is the most
-standard, and the one we will need.  Given $\IsFinite$, we can now
-define \[ \FinType \defn (A : \Type) \times \IsFinite A \] as the
+port is that of a finite set. There are many possible constructive
+interpretations of finiteness There are other constructive notions of
+finiteness (\url{http://ncatlab.org/nlab/show/finite+set}); to start,
+we choose the simplest: a finite set is one which is in bijection to a
+canonical set of a known size. That is,
+\[ \IsFinite A \defn (n : \N) \times (\Fin n \iso A). \]
+
+It is tempting to use Haskell's \emph{type class} mechanism, or
+something similar, to record the finiteness of types.  That is, we
+could imagine defining a type class
+\begin{spec}
+class Finite a where
+  isFinite :: IsFinite a
+\end{spec}
+The idea is that the statement ``the type |T| is finite'' translates
+to ``|T| is an instance of the |Finite| class''.
+
+This is not, in fact, what we want.  The bare statement ``the type |T|
+is finite'' intuitively corresponds to the \emph{propositional
+  truncation} $\|||IsFinite T|\||$, that is, the knowledge simply that
+|IsFinite T| is inhabited, without knowing anything specific about the
+inhabitant.  This is a rather different beast than a type class
+instance |IsFinite T|, which corresponds to a \emph{canonical choice}
+of an inhabitant of |Finite T|.  Inhabitants of |Finite T|, however,
+have nontrivial \emph{computational content}; it really matters
+\emph{which} inhabitant we have.  Thus, instead of simply passing
+around types and requiring them to have an implicit, canonical
+finiteness proof, we will in general pass around types \emph{together
+  with} some specific finiteness proof.  We can encapsulate this by
+defining \[ \FinType \defn (A : \Type) \times \IsFinite A \] as the
 universe of finite types.
 
 \todo{need some nice notation for dependent $n$-tuples, \ie\ records.}
