@@ -5,7 +5,7 @@
 module Data.Iso
     ( -- * Isomorphisms and natural transformations
 
-     type (<->), liftIso, type (-->), type (<-->)
+     type (<->), type (≅), liftIso, type (-->), type (<-->)
 
     , subtractIso
 
@@ -32,6 +32,9 @@ import           Control.Lens
 --   * To turn an isomorphism into a function, use @'view' :: (a \<-\>
 --     b) -> (a -> b)@.
 type (<->) a b = Iso' a b
+
+-- XXX comment me
+type (≅) a b = AnIso' a b
 
 -- | Higher-order isomorphisms, /i.e./ natural isomorphisms, between
 --   two shapes.

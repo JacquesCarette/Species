@@ -1,4 +1,4 @@
-{-# LANGUAGE ConstraintKinds #-}
+{-# LANGUAGE ConstraintKinds            #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveFunctor              #-}
 {-# LANGUAGE EmptyDataDecls             #-}
@@ -59,6 +59,7 @@ import           Data.Proxy
 import           Data.Type.Equality
 
 import           Data.Iso
+import           Data.Subset
 import           Data.BFunctor
 import           Data.Fin
 import           Data.Finite
@@ -75,9 +76,11 @@ import qualified Data.Vec     as V
 --   values.  Since label types are required to be constructively
 --   finite, that is, come with an isomorphism to @'Fin' n@ for some n, we
 --   can represent the map as a length-@n@ vector.
-data Sp f l a = Struct { _shape ::  f l, _elts :: V.Vec (Size l) a, _finpf :: Finite l }
+data Sp :: (* -> *) -> * -> * -> * where
+  Struct :: f l -> V.Vec (Size s) a -> s <-?> l -> Finite l -> Sp f l a
 
-makeLenses ''Sp
+shape :: Lens (Sp f l a) (Sp g l a) (f l) (g l)
+shape f (Struct shp elts sub fn) = (\shp' -> Struct shp' elts sub fn) <$> f shp
 
 ------------------------------------------------------------
 --  Relabelling/functoriality
@@ -88,8 +91,8 @@ relabelI :: (BFunctor f, HasSize l1, HasSize l2, Eq l1, Eq l2)
          => (l1 <-> l2) -> (Sp f l1 a <-> Sp f l2 a)
 relabelI i =
   case isoPresSize i of
-    Refl -> iso (\(Struct s es pf) -> Struct (view (bmap i) s) es (finConv i pf))
-                (\(Struct s es pf) -> Struct (view (bmap (from i)) s) es (finConv (from i) pf))
+    Refl -> iso (\(Struct s es sub pf) -> Struct (view (bmap i) s) es (sub . i) (finConv i pf))
+                (\(Struct s es sub pf) -> Struct (view (bmap (from i)) s) es (sub . from i) (finConv (from i) pf))
 
 -- | A version of 'relabelI' which returns a function instead of an
 --   isomorphism, which is sometimes more convenient.
@@ -98,7 +101,7 @@ relabel :: (BFunctor f, HasSize l1, HasSize l2, Eq l1, Eq l2)
 relabel = view . relabelI
 
 instance Functor (Sp f l) where
-  fmap = over (elts . mapped)
+  fmap f (Struct shp elts sub fn) = Struct shp (fmap f elts) sub fn
 
 ------------------------------------------------------------
 --  Reshaping
@@ -138,7 +141,7 @@ data LSp' f a where
 -- One -------------------------------------------
 
 one :: Sp One (Fin Z) a
-one = Struct one_ V.VNil finite_Fin
+one = Struct one_ V.VNil id finite_Fin
 
 one' :: Sp' One a
 one' = SpEx one
@@ -146,7 +149,7 @@ one' = SpEx one
 -- X ---------------------------------------------
 
 x :: a -> Sp X (Fin (S Z)) a
-x a = Struct x_ (V.singleton a) finite_Fin
+x a = Struct x_ (V.singleton a) id finite_Fin
 
 x' :: a -> Sp' X a
 x' = SpEx . x
@@ -154,7 +157,7 @@ x' = SpEx . x
 -- E ---------------------------------------------
 
 e :: Finite l -> (l -> a) -> Sp E l a
-e fin f = Struct (e_ fin) (fmap f $ V.enumerate fin) fin
+e fin f = Struct (e_ fin) (fmap f $ V.enumerate fin) id fin
 
 -- Argh, this needs a Natural constraint, but adding one to SomeVec
 -- ends up infecting everything in a very annoying way.
@@ -169,7 +172,7 @@ e fin f = Struct (e_ fin) (fmap f $ V.enumerate fin) fin
 
 -- Note how this is essentially the Store Comonad.
 u :: Finite l -> (l -> a) -> l -> Sp U l a
-u fin f x = Struct (u_ x) (fmap f $ V.enumerate fin) fin
+u fin f x = Struct (u_ x) (fmap f $ V.enumerate fin) id fin
 
 -- Sum -------------------------------------------
 
@@ -189,8 +192,8 @@ inr' = withSp inr
 
 prod :: (Eq l1, Eq l2)
      => Sp f l1 a -> Sp g l2 a -> Sp (f * g) (Either l1 l2) a
-prod (Struct sf esf finf) (Struct sg esg fing) = 
-    Struct (prod_ sf sg) (V.append esf esg) (finite_Either finf fing)
+prod (Struct sf esf subf finf) (Struct sg esg subg fing) =
+    Struct (prod_ sf sg) (V.append esf esg) undefined (finite_Either finf fing)
 
 prod' :: Sp' f a -> Sp' g a -> Sp' (f * g) a
 prod' (SpEx f) (SpEx g) = SpEx (prod f g)
@@ -373,4 +376,3 @@ unzipSpSp' (V.VCons (SpEx (Struct (gl :: g l) v finl)) sps) =
 
 sized :: Sp f l a -> Sp (OfSize (Size l) f) l a
 sized (Struct s es finl) = Struct (sized_ finl s) es finl
-

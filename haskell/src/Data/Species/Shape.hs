@@ -7,6 +7,7 @@
 {-# LANGUAGE KindSignatures             #-}
 {-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
 
 -- | This module defines a number of primitive species and species
@@ -67,9 +68,9 @@ module Data.Species.Shape
     where
 
 import           Control.Lens
-import           Data.Proxy
 
 import           Data.Iso
+import           Data.Subset
 import           Data.BFunctor
 import           Data.Fin (Fin(..))
 import           Data.Finite (Finite(..), Size(..))
@@ -159,7 +160,8 @@ e_ :: Finite l -> E l
 e_ = E . S.enumerate
 
 -- U ---------------------------------------------
-data U l = U l deriving Show
+
+newtype U l = U l deriving Show
 
 instance BFunctor U where
   bmap i = iso (\(U ul) -> U (view i $ ul))
