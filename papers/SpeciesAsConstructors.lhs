@@ -101,6 +101,7 @@
 \DeclareMathOperator{\relabel}{relabel}
 \DeclareMathOperator{\Natural}{Natural}
 \DeclareMathOperator{\OfSize}{OfSize}
+\DeclareMathOperator{\size}{size}
 
 \DeclareMathOperator{\map}{map}
 \DeclareMathOperator{\sumTys}{sumTys}
@@ -602,16 +603,16 @@ could imagine defining a type class
 class Finite a where
   isFinite :: IsFinite a
 \end{spec}
-The idea is that the statement ``the type |T| is finite'' translates
-to ``|T| is an instance of the |Finite| class''.
+The idea is that the statement ``the type $A$ is finite'' translates
+to ``$A$ is an instance of the |Finite| class''.
 
-This is not, in fact, what we want.  The bare statement ``the type |T|
+This is not, in fact, what we want.  The bare statement ``the type $A$
 is finite'' intuitively corresponds to the \emph{propositional
-  truncation} $\|||IsFinite T|\||$, that is, the knowledge simply that
-|IsFinite T| is inhabited, without knowing anything specific about the
+  truncation} $\||\IsFinite A\||$, that is, the knowledge simply that
+$|IsFinite|\ A$ is inhabited, without knowing anything specific about the
 inhabitant.  This is a rather different beast than a type class
-instance |IsFinite T|, which corresponds to a \emph{canonical choice}
-of an inhabitant of |Finite T|.  Inhabitants of |Finite T|, however,
+instance $|Finite|\ A$, which corresponds to a \emph{canonical choice}
+of an inhabitant of $\IsFinite A$.  Inhabitants of $\IsFinite A$, however,
 have nontrivial \emph{computational content}; it really matters
 \emph{which} inhabitant we have.  Thus, instead of simply passing
 around types and requiring them to have an implicit, canonical
@@ -619,6 +620,17 @@ finiteness proof, we will in general pass around types \emph{together
   with} some specific finiteness proof.  We can encapsulate this by
 defining \[ \FinType \defn (A : \Type) \times \IsFinite A \] as the
 universe of finite types.
+
+It is not hard to see that the size of a finite type is determined
+uniquely. That is, if $f_1, f_2 : \IsFinite A$ are any two proofs that
+$A$ is finite, then $\pi_1 f_1 = \pi_1 f_2$.  (As proof, note that if
+$f_1 = (n_1, i_1)$ and $f_2 = (n_2, i_2)$, then $i_2^{-1} \comp i_1 :
+\Fin{n_1} \iso \Fin{n_2}$.) In a slight abuse of
+notation, we therefore write $\size A$ to denote this size.
+Computationally, this corresponds to applying $\pi_1$ to some
+finiteness proof in scope; but since it does not matter which proof we
+use, we simply leave it implicit, being careful to only use $\size$ in
+a context where a suitable finiteness proof could be obtained.
 
 \todo{need some nice notation for dependent $n$-tuples, \ie\ records.}
 
@@ -657,7 +669,7 @@ or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 Formally, we may define families of labelled structures as follows.
 \begin{align*}
    &\LStr - - - : \Species \to \FinType \to \Type \to \Type \\
-   &\LStr F L A = F\ L \times (L \to A)
+   &\LStr F L A = \IsFinite L \times F\ L \times \Vec{\size L}{A}
 \end{align*}
 that is, a labelled structure over the species $F$, parameterized a
 constructively finite type $L$ of labels and a type $A$ of data,
