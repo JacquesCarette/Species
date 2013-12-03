@@ -72,7 +72,7 @@
 
 \newcommand{\lam}[2]{\lambda #1 . #2}
 
-\newcommand{\iso}{\leftrightarrow}
+\newcommand{\iso}{\simeq}
 \newcommand{\mkIso}{\rightleftharpoons}
 
 % \newcommand{\impl}[1]{\ensuremath{\{#1\}}} % implicit arguments
@@ -90,7 +90,7 @@
 \DeclareMathOperator{\FinType}{FinType}
 \DeclareMathOperator{\Type}{Type}
 \DeclareMathOperator{\Fin}{Fin}
-\DeclareMathOperator{\IsFinite}{IsFinite}
+\DeclareMathOperator{\Finite}{Finite}
 \DeclareMathOperator{\NatZ}{O}
 \DeclareMathOperator{\NatS}{S}
 \DeclareMathOperator{\FinZ}{fO}
@@ -544,9 +544,10 @@ use it as a foundation for data structures, it is necessary to first
 In the remainder of this paper, we work within homotopy type
 theory~\cite{hott} as a convenient and well-developed dependent type
 theory.  In particular we do not need any complex machinery from the
-theory (exploring deeper connections between homotopy type theory and
-the theory of species is left to future work), and we summarize the
-most important ideas and notation here.
+theory, and simply summarize the most important ideas and notation
+here.  It seems likely that there are deeper connections between
+homotopy type theory and the theory of species, but exploring these
+connections is left to future work.
 
 The type theory is equipped with an empty type \TyZero, a unit type
 \TyOne, coproducts, dependent pairs, dependent functions, a universe
@@ -575,20 +576,21 @@ sets $\Fin : \N \to \Type$, with constructors $\FinZ : \impl{n :
 \N} \to \Fin (\NatS n)$ and $\FinS : \impl {n : \N} \to \Fin n \to \Fin
 (\NatS n)$.
 
-$A \iso B$ is the type of isomorphisms between $A$ and $B$, \ie\ pairs
-of inverse functions $f : A \to B$ and $g : B \to A$.  We overload the
-notations $\id$ and $\comp$ to denote the identity isomorphism and
-isomorphism composition respectively; we also allow isomorphisms of
-type $A \iso B$ to be implicitly used as functions $A \to B$ where it
-does not cause confusion.  We use the notation $\mkIso$ for
-constructing isomorphisms from a pair of functions. That is, if $f : A
-\to B$ and $g : B \to A$ are inverse, then $f \mkIso g : A \iso B$;
-the proof that $f$ and $g$ are inverse is left implicit.  For
-admissible $T : \Type \to \Type$ and $\sigma : A \iso B$ we can also
-construct the isomorphism $T\ \sigma : T\ A \iso T\ B$. For example,
-$\sigma \times (\sigma \to C) : A \times (A \to C) \iso B \times (B
-\to C)$, given by \[ \sigma \times (\sigma \to C) =
-(\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso (\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
+$A \iso B$ is the type of \term{equivalences} between $A$ and $B$
+(intuitively, pairs of inverse functions $f : A \to B$ and $g : B \to
+A$).  We overload the notations $\id$ and $\comp$ to denote the
+identity equivalence and equivalence composition respectively; we also
+allow equivalences of type $A \iso B$ to be implicitly used as
+functions $A \to B$ where it does not cause confusion.  We use the
+notation $\mkIso$ for constructing equivalences from a pair of
+functions. That is, if $f : A \to B$ and $g : B \to A$ are inverse,
+then $f \mkIso g : A \iso B$; the proof that $f$ and $g$ are inverse
+is left implicit.  For $T : \Type \to \Type$ and $\sigma : A \iso B$
+we can also construct the equivalence $T\ \sigma : T\ A \iso T\
+B$. For example, $\sigma \times (\sigma \to C) : A \times (A \to C)
+\iso B \times (B \to C)$, given by \[ \sigma \times (\sigma \to C) =
+(\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso
+(\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
 
 With the preliminaries out of the way, the first concept we need to
 port is that of a finite set. There are many possible constructive
@@ -596,43 +598,44 @@ interpretations of finiteness There are other constructive notions of
 finiteness (\url{http://ncatlab.org/nlab/show/finite+set}); to start,
 we choose the simplest: a finite set is one which is in bijection to a
 canonical set of a known size. That is,
-\[ \IsFinite A \defn (n : \N) \times (\Fin n \iso A). \]
+\[ \Finite A \defn (n : \N) \times (\Fin n \iso A). \]
 
 It is tempting to use Haskell's \emph{type class} mechanism, or
 something similar, to record the finiteness of types.  That is, we
 could imagine defining a type class
 \begin{spec}
-class Finite a where
-  isFinite :: IsFinite a
+class IsFinite a where
+  isFinite :: Finite a
 \end{spec}
 The idea is that the statement ``the type $A$ is finite'' translates
-to ``$A$ is an instance of the |Finite| class''.
+to ``$A$ is an instance of the |IsFinite| class''.
 
 This is not, in fact, what we want.  The bare statement ``the type $A$
 is finite'' intuitively corresponds to the \emph{propositional
-  truncation} $\||\IsFinite A\||$, that is, the knowledge simply that
-$|IsFinite|\ A$ is inhabited, without knowing anything specific about the
+  truncation} $\||\Finite A\||$, that is, the knowledge simply that
+$\Finite A$ is inhabited, without knowing anything specific about the
 inhabitant.  This is a rather different beast than a type class
-instance $|Finite|\ A$, which corresponds to a \emph{canonical choice}
-of an inhabitant of $\IsFinite A$.  Inhabitants of $\IsFinite A$, however,
-have nontrivial \emph{computational content}; it really matters
+instance $|IsFinite|\ A$, which corresponds to a \emph{canonical choice}
+of an inhabitant of $\Finite A$.  Inhabitants of $\Finite A$, however,
+have nontrivial computational content; it really matters
 \emph{which} inhabitant we have.  Thus, instead of simply passing
 around types and requiring them to have an implicit, canonical
 finiteness proof, we will in general pass around types \emph{together
   with} some specific finiteness proof.  We can encapsulate this by
-defining \[ \FinType \defn (A : \Type) \times \IsFinite A \] as the
+defining \[ \FinType \defn (L : \Type) \times \Finite L \] as the
 universe of finite types.
 
 It is not hard to see that the size of a finite type is determined
-uniquely. That is, if $f_1, f_2 : \IsFinite A$ are any two proofs that
-$A$ is finite, then $\pi_1 f_1 = \pi_1 f_2$.  (As proof, note that if
+uniquely. That is, if $f_1, f_2 : \Finite L$ are any two proofs that
+$L$ is finite, then $\pi_1 f_1 = \pi_1 f_2$.  (As proof, note that if
 $f_1 = (n_1, i_1)$ and $f_2 = (n_2, i_2)$, then $i_2^{-1} \comp i_1 :
-\Fin{n_1} \iso \Fin{n_2}$.) In a slight abuse of
-notation, we therefore write $\size A$ to denote this size.
-Computationally, this corresponds to applying $\pi_1$ to some
-finiteness proof in scope; but since it does not matter which proof we
-use, we simply leave it implicit, being careful to only use $\size$ in
-a context where a suitable finiteness proof could be obtained.
+\Fin{n_1} \iso \Fin{n_2}$, from which we can derive $n_1 = n_2$ by
+double induction.) In a slight abuse of notation, we therefore write
+$\size L$ to denote this size.  Computationally, this corresponds to
+applying $\pi_1$ to some finiteness proof; but since it does not
+matter which proof we use, we simply leave it implicit, being careful
+to only use $\size$ in a context where a suitable finiteness proof
+could be obtained.
 
 \todo{need some nice notation for dependent $n$-tuples, \ie\ records.}
 
@@ -668,10 +671,10 @@ or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 \subsection{Labelled structures, formally}
 \label{sec:labelled-formal}
 
-Formally, we may define families of labelled structures as follows.
+Formally, we may define families of labelled structures as follows:
 \begin{align*}
    &\LStr - - - : \Species \to \Type \to \Type \to \Type \\
-   &\LStr F L A = \IsFinite L \times F\ L \times \Vect{(\size L)}{A}
+   &\LStr F L A = \Finite L \times F\ L \times \Vect{(\size L)}{A}
 \end{align*}
 that is, a labelled structure over the species $F$, parameterized a
 type $L$ of labels and a type $A$ of data,
@@ -683,22 +686,39 @@ consists of
 \end{itemize}
 
 Note that we can think of the vector as a mapping from labels $L$ to
-data values $A$, because we have a bijection between $L$ and $\Fin
-(\size L)$. Given a label $l : L$, we can send it through the bijection
-to find an index into the vector.  Here is one concrete place where we
-really do care about the computational content of an $\IsFinite$
-proof: it tells us how to interpret the vector of elements.  As we
-will see, being forced to always keep the data elements in some
-canonical order in the vector simply wouldn't do.
+data values $A$, because we have a bijection between $L$ and $\Fin\
+(\size L)$: given a label $l : L$, we can send it through the
+bijection to find an index into the vector.  Here is one concrete
+place where we really do care about the computational content of an
+$\Finite$ proof, since it tells us how to interpret the vector of
+elements.  As we will see, being forced to always keep the data
+elements in some canonical order in the vector simply wouldn't do.
 
 In light of this observation, however, why not just store a function
-$(L \to A)$ instead of a vector $\Vect{(\size L)}{A}$? \todo{explain
-  why}
+$(L \to A)$ instead of a vector $\Vect{(\size L)}{A}$? Such a
+representation would certainly streamline the presentation from a
+theoretical point of view.  From a practical point of view, however,
+decomposing $(L \to A)$ as $\Finite L \times \Vect{(\size L)}{A}$
+allows us more flexibility to explicitly represent and reason about
+the ways that data structures are actually stored in memory.
+
+The downside of this representation is that a given labelled structure
+can have multiple distinct representations. \todo{picture here
+  illustrating two different representations of the same structure} We
+must be careful not to expose extraneous representation detail to
+users, which we address in the next section.  On the other hand, data
+structures ultimately have to be stored in memory somehow, and this
+gives us a nice ``end-to-end'' theory that is able to talk about
+actual implementations and whether they are faithful to the intended
+semantics.
+
+\subsection{Labelled eliminators}
+\label{sec:labelled-eliminators}
 
 We can define the generic type of eliminators for labelled
 $F$-structures, $\Elim_F : \Type \to \Type \to \Type$, as
 \begin{equation*}
-  \Elim_F\ A\ R \defn (L : \Type) \to \DecEq L \to F\ L \to (L \to A) \to R
+  \Elim_F\ A\ R \defn (L : \Type) \to F\ L \to \DecEq L \to (L \to A) \to R
 \end{equation*}
 where $\DecEq L$ represents decidable equality for $L$. There are a
 few subtle issues here which are worth spelling out in detail. First,
@@ -707,26 +727,61 @@ stored in the labelled structure being eliminated) and $R$ (the type
 of the desired result), but \emph{not} by $L$.  Rather, an eliminator
 of type $\Elim_F\ A\ R$ must be parametric in $L$; defining an
 eliminator which works only for certain label types is not allowed.
-The second point is that $L$ is a $\Type$ rather than a $\FinType$ as
-one might expect.  The reason is that one can observe an induced
-linear order on the elements of a $\FinType$, using the usual linear
-order on the associated natural numbers, but we do not want to allow
-this, since it would ``break'' the functoriality of species.  \bay{is
-  this the right way to say it?}  That is, an eliminator which was
-allowed to observe an implicit linear order on the labels could give
-different results for two labelled structures which differ only by a
-relabelling, \bay{but this is bad... why?} Instead, we require only
-decidable equality for $L$ (of course, every $\FinType$ has decidable
-equality).
+The second point is that instead of being provided with $\Finite L
+\times \Vect{(\size L)}{A}$ as one might expect, an eliminator is
+instead provided with $\DecEq L \times (L \to A)$, which contains
+slightly less information: in particular, given the former, one can
+observe an induced linear order on the elements of $L$, using the
+usual linear order on the associated natural numbers. However, we do
+not want to allow this. Labelled structures should be equivalent up to
+mere reordering of the data storage, so eliminators should not be able
+to observe the difference.  Given only $\DecEq L \times (L \to A)$,
+there is no way to enumerate the elements of $L$ or observe any order
+relation on them.  One can only traverse the shape $F\ L$ and feed
+encountered $L$ values into the $(L \to A)$ function to learn the
+associated data values, possibly consulting the provided decidable
+equality to find out which labels are shared.
+
+Note that if $\DecEq L$ is left out, we have \[ (L : \Type) \to F\ L
+\to (L \to A) \to R, \] which by parametricity is equivalent to \[ F\
+A \to R. \] The point is that \todo{explain: labels allow us to talk
+  about sharing. If we don't observe the sharing then it makes no
+  difference; might as well just fill in the shape with data first.}
+
+% Including this here for reference (probably doesn't need to actually
+% go in the paper):
+%
+% Free theorem for
+%
+%   elim :: forall l. f l -> (l -> a) -> r
+%
+% is
+%
+%   forall l l', g :: l -> l', x :: f l, p :: l -> a, q :: l' -> a,
+%     (forall y :: l. p y = q (g y)) => (f x p = f (fmap g x) q)
+%
+% Define
+%
+%   to :: (forall l. f l -> (l -> a) -> r) -> (f a -> r)
+%   to f x = f x id
+%
+%   from :: (f a -> r) -> (forall l. f l -> (l -> a) -> r)
+%   from g s p = g (fmap p s)
+%
+% Then to . from = id  is trivial.  For the other direction,
+%
+%   from (to f) s p = to f (fmap p s) = f (fmap p s) id = f s p,
+%
+% where the last step follows from the free theorem, taking l' = a, q =
+% id, and g = p.
 
 We can ``run'' an eliminator,
-\[ \elim : \Elim_F\ A\ R \to \LStr F L A \to R, \] by simply taking apart the
-labelled structure and passing its components to the eliminator,
-projecting the label $\Type$ and its decidable equality from the
-$\FinType$.
-
-\todo{Note all the stuff with $L$ really only makes a difference for
-  things with sharing\dots}
+\[ \elim : \Elim_F\ A\ R \to \LStr F L A \to R, \] by taking apart the
+labelled structure and using it to construct the proper arguments to
+the eliminator.  In particular, any $\Finite$ type $L$ has decidable
+equality, by converting to $\Fin\ (\size L)$ and comparing, and we
+construct an $(L \to A)$ function which converts $L$ to an index
+before doing a lookup in the element vector.
 
 \subsection{Species, algebraically}
 \label{sec:algebraic}
