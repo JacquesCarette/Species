@@ -1253,10 +1253,10 @@ species partitioned the set of labels between the two subshapes.
 However, there is nothing to stop us from defining a different
 product-like operation, known as \term{Cartesian product}, which does
 not partition the labels:\[ (F \scprod G)\ L = F\ L \times G\ L \]
-This is, of course, the ``na\"ive'' version of product that one might
-expect from experience with generic programming.
+This is the ``na\"ive'' version of product that one might expect from
+experience with generic programming.
 
-With labelled shapes, of course, this works very differently.  It is
+With labelled shapes, however, this works very differently.  It is
 important to remember that we still only get to specify a single
 function of type $L \to A$ for the mapping from labels to data.  So
 each label is still associated to only a single data value, but labels
