@@ -1,6 +1,8 @@
 %% -*- LaTeX -*-
 
-\documentclass{llncs}
+\documentclass[adraft,copyright,creativecommons]{eptcs}
+\providecommand{\event}{MSFP 2014}
+\usepackage{breakurl}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% lhs2TeX
@@ -22,7 +24,7 @@
 
 \usepackage{../species}
 
-%\usepackage{amsthm}  % LNCS already provides this?
+\usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{latexsym}
@@ -33,7 +35,9 @@
 \usepackage{url}
 \usepackage{xspace}
 \usepackage{xcolor}
-% \usepackage[all]{xy}
+\usepackage[all]{xy}
+
+% \usepackage{mathpazo}  % Looks nicer but doesn't conform to EPTCS style
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Page size
@@ -44,14 +48,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Theorems etc.
 
-% Already provided by LNCS?
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
 
-% \newtheorem{theorem}{Theorem}
-% \newtheorem{proposition}[theorem]{Proposition}
-% \newtheorem{lemma}[theorem]{Lemma}
-
-% \theoremstyle{definition}
-% \newtheorem{definition}[theorem]{Definition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Diagrams
@@ -189,10 +191,11 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{document}
+\def\titlerunning{Combinatorial species and labelled types}
 
-\title{Programming with species and labelled types}
+\title{\titlerunning}
 
+%% SIGPLAN
 % \authorinfo{Brent A. Yorgey \\ Stephanie Weirich}
 % {Dept. of Computer and Information Science\\ The University of Pennsylvania\\
 % Philadelphia, Pennsylvania, USA}
@@ -203,14 +206,34 @@
 % Hamilton, Ontario, Canada}
 % {carette@@mcmaster.ca}
 
-\author{Brent A. Yorgey\inst{1} \and Jacques Carette\inst{2} \and Stephanie Weirich\inst{1}}
+%% LNCS
+% \author{Brent A. Yorgey\inst{1} \and Jacques Carette\inst{2} \and Stephanie Weirich\inst{1}}
+% \institute{Dept. of Computer and Information Science\\
+% The University of Pennsylvania\\
+% Philadelphia, Pennsylvania, USA
+% \and
+% Dept. of Computing and Software\\ McMaster University\\
+% Hamilton, Ontario, Canada}
 
-\institute{Dept. of Computer and Information Science\\
-The University of Pennsylvania\\
-Philadelphia, Pennsylvania, USA
-\and
-Dept. of Computing and Software\\ McMaster University\\
-Hamilton, Ontario, Canada}
+%% EPTCS
+\author{
+  Brent A. Yorgey \quad\quad Stephanie Weirich
+  \institute{
+    Dept. of Computer and Information Science\\
+    The University of Pennsylvania\\
+    Philadelphia, Pennsylvania, USA
+  }
+  \and
+  Jacques Carette
+  \institute{
+    Dept. of Computing and Software\\ McMaster University\\
+    Hamilton, Ontario, Canada
+  }
+}
+
+\def\authorrunning{B. Yorgey, J. Carette, S. Weirich}
+
+\begin{document}
 
 \maketitle
 
