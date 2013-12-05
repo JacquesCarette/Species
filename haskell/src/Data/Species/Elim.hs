@@ -44,12 +44,13 @@ module Data.Species.Elim
     )
     where
 
-import           Control.Lens
+import           Control.Lens (view)
 
 import           Data.Fin (Fin(..))
 import           Data.Finite (Finite(..), toFin)
 import           Data.Species.Shape
 import           Data.Species.Types
+import           Data.Storage
 import           Data.Type.List
 import qualified Data.Vec           as V
 
@@ -77,11 +78,11 @@ mapElimShape q (Elim el) = Elim $ \s m -> el (q s) m
 -- Running eliminators
 
 -- | Run an eliminator.
-elim :: (Eq l) => Elim f a b -> Sp f l a -> b
-elim (Elim el) (Struct shp es (F finl)) = el shp (V.index es . view (from finl))
+elim :: (Eq l, Storage s l) => Elim f a b -> Sp f s l a -> b
+elim (Elim el) (Struct shp es _) = el shp (index es)
 
 -- | Run an eliminator over existentially quantified structures.
-elim' :: Elim f a b -> Sp' f a -> b
+elim' :: Elim f a b -> Sp' f s a -> b
 elim' el (SpEx s) = elim el s
 
 -- Combinators for building eliminators
