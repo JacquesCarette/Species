@@ -13,6 +13,8 @@ TAGS
 *.bbl
 *.blg
 *.ptb
+*.out
+*.pag
 Shake
 .shake.database
 .diagrams_cache
