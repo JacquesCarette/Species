@@ -137,6 +137,9 @@
 
 \newcommand{\Path}{\lightning}
 
+\newcommand{\StoreNP}[2]{\ensuremath{#1 \Mapsto #2}}
+\newcommand{\Store}[2]{(\StoreNP{#1}{#2})}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
 
@@ -702,42 +705,56 @@ or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 Formally, we may define families of labelled structures as follows:
 \begin{align*}
    &\LStr - - - : \Species \to \Type \to \Type \to \Type \\
-   &\LStr F L A = \Finite L \times F\ L \times \Vect{(\size L)}{A}
+   &\LStr F L A = F\ L \times \Store L A
 \end{align*}
 that is, a labelled structure over the species $F$, parameterized a
-type $L$ of labels and a type $A$ of data,
-consists of
+type $L$ of labels and a type $A$ of data, consists of
 \begin{itemize}
-\item a (constructive) proof that $L$ is finite;
 \item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape; and
-\item a vector containing $(\size L)$-many data elements.
+\item an abstract mapping from labels to data values.
 \end{itemize}
 
-Note that we can think of the vector as a mapping from labels $L$ to
-data values $A$, because we have a bijection between $L$ and $\Fin\
-(\size L)$: given a label $l : L$, we can send it through the
-bijection to find an index into the vector.  Here is one concrete
-place where we really do care about the computational content of an
-$\Finite$ proof, since it tells us how to interpret the vector of
-elements.  As we will see, being forced to always keep the data
-elements in some canonical order in the vector simply wouldn't do.
+$\Store L A$ is an abstract type; we require that it come
+equipped with the following operations:
+\begin{align*}
+  |allocate| &: \Finite L \to (L \to A) \to \Store L A \\
+  |reindex|  &: (L' \subseteq L) \to \Store L A \to \Store {L'} A \\
+  |index|  &: \Store L A \to L \to A \\
+  |replace| &: \DecEq L \to L \to A \to \Store L A \to A \times \Store L A \\
+  |map| &: (A \to B) \to \Store L A \to \Store L B \\
+  |ap| &: \Store L {(A \to B)} \to \Store L A \to \Store L B
+  |append| &: \Store {L_1} A \to \Store {L_2} A \to \Store {(L_1 + L_2)} A \\
+  |concat| &: \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times L_2)} A
+\end{align*}
 
-In light of this observation, however, why not just store a function
-$(L \to A)$ instead of a vector $\Vect{(\size L)}{A}$? Such a
-representation would certainly streamline the presentation from a
-theoretical point of view.  From a practical point of view, however,
-decomposing $(L \to A)$ as $\Finite L \times \Vect{(\size L)}{A}$
-allows us more flexibility to explicitly represent and reason about
-the ways that data structures are actually stored in memory.
+% Note that we can think of the vector as a mapping from labels $L$ to
+% data values $A$, because we have a bijection between $L$ and $\Fin\
+% (\size L)$: given a label $l : L$, we can send it through the
+% bijection to find an index into the vector.  Here is one concrete
+% place where we really do care about the computational content of an
+% $\Finite$ proof, since it tells us how to interpret the vector of
+% elements.  As we will see, being forced to always keep the data
+% elements in some canonical order in the vector simply wouldn't do.
 
-The downside of this representation is that a given labelled structure
-can have multiple distinct representations. \todo{picture here
-  illustrating two different representations of the same structure} We
-must be careful not to expose extraneous representation detail to
-users, which we address in the next section.  On the other hand, data
-structures ultimately have to be stored in memory somehow, and this
-gives us a nice ``end-to-end'' theory that is able to talk about
-actual implementations and whether they are faithful to the intended
+% In light of this observation, however, why not just store a function
+% $(L \to A)$ instead of a vector $\Vect{(\size L)}{A}$? Such a
+% representation would certainly streamline the presentation from a
+% theoretical point of view.  From a practical point of view, however,
+% decomposing $(L \to A)$ as $\Finite L \times \Vect{(\size L)}{A}$
+% allows us more flexibility to explicitly represent and reason about
+% the ways that data structures are actually stored in memory.
+
+
+
+Depending on the representation used for the map type $\Store L A$, a given
+labelled structure can have multiple distinct
+representations. \todo{picture here illustrating two different
+  representations of the same structure} We must be careful not to
+expose extraneous representation detail to users, which we address in
+the next section.  On the other hand, data structures ultimately have
+to be stored in memory somehow, and this gives us a nice
+``end-to-end'' theory that is able to talk about actual
+implementations and whether they are faithful to the intended
 semantics.
 
 \subsection{Labelled eliminators}
