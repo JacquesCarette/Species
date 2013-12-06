@@ -45,7 +45,7 @@ module Data.Species.Types
       -- ** Pointing
     , p
       -- ** Partition
-    -- , part
+    , part
       -- ** Composition
     , compA, compAP, compJ, compJ', compJ''
       -- ** Cardinality restriction
@@ -241,15 +241,6 @@ d :: (Storage s, HasSize l, Eq l) => Sp f s (Maybe l) a -> (a, Sp (D f) s l a)
 d (Struct s es)
   = (index es Nothing, Struct (d_ s) (reindex subsetMaybe es))
 
--- old version, for comparison
--- d :: (Eq l, HasSize l) => Sp f s (Maybe l) a -> Sp (D f) s l a
--- d (Struct s (V.VCons eHead es) finf@(F i))
---   = Struct (d_ s) es' (finite_predMaybe finf)
---   where
---     es' = case view (from i) Nothing of
---              FZ     -> es
---              FS idx -> snd (V.replace idx eHead es)
-
 -- No d' operation since it really does depend on the labels
 
 -- Pointing --------------------------------------
@@ -261,20 +252,11 @@ p l (Struct s es) = Struct (p_ l s) es
 
 -- Partition   -----------------------------------
 
--- the constraint that Plus (Size l1) (Size l2) ~ Size l
--- should follow from having an iso between Either l1 l2 and l, but
--- it is unclear to me (JC) how to derive that
-
--- XXX rederive with Storage!
--- part :: forall s l1 l2 l a . (Eq l, HasSize l, Plus (Size l1) (Size l2) ~ Size l) =>
---     Finite l1 -> Finite l2 ->
---     (l1 -> a) -> (l2 -> a) -> (Either l1 l2 <-> l) -> Sp Part s l a
--- part finf fing f g i = Struct (part_ finf fing i) (V.append v1 v2) (finConv i $ finite_Either finf fing)
---                          where
---                            v1 :: V.Vec (Size l1) a
---                            v1 = fmap f $ V.enumerate finf
---                            v2 :: V.Vec (Size l2) a
---                            v2 = fmap g $ V.enumerate fing
+part
+  :: (Storage s)
+  => Finite l1 -> Finite l2
+  -> (l1 -> a) -> (l2 -> a) -> (Either l1 l2 <-> l) -> Sp Part s l a
+part finf fing f g i = Struct (part_ finf fing i) (reindex i $ append (allocate finf f) (allocate fing g))
 
 -- It is not clear that we can create a part' because this witnesses a subset
 -- relation on labels, which seems difficult to abstract
