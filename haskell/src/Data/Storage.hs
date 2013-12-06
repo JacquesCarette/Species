@@ -7,7 +7,6 @@
 module Data.Storage
     ( Storage(..)
     , emptyStorage
-    , AppendStorage(..)
     )
     where
 
@@ -21,14 +20,9 @@ import Data.Fin
 import Data.Finite
 import Data.Subset
 
--- Note, we have Storage s l instead of just Storage s so that (1) we
--- can express the Functor (s l) constraint, and (2) instances can put
--- constraints on l, e.g. a Map-based instance might need an Ord
--- constraint.
-
 -- | Instances of @Storage@ represent \"memory\" which can be indexed by
 --   arbitrary labels.
-class Functor (s l) => Storage s l where
+class Storage s where
 
   -- | Allocate a finite block of storage with some initial content.
   allocate :: Finite l -> (l -> a) -> s l a
@@ -46,16 +40,15 @@ class Functor (s l) => Storage s l where
 
   -- | Replace the value associated to a given label, returning the
   --   old value and the updated storage.
-  replace :: l -> a -> s l a -> (a, s l a)
+  replace :: Eq l => l -> a -> s l a -> (a, s l a)
+
+  -- | Map over the contents of the storage.
+  smap :: (a -> b) -> s l a -> s l b
+  -- Ideally we would have a unversally quantified constraint (forall
+  -- l. Functor (s l)), but Haskell doesn't let us express that.
 
   -- | Zip together two storage blocks with the same label type.
   zipWith :: (a -> b -> c) -> s l a -> s l b -> s l c
-
--- | A storage block of zero size.
-emptyStorage :: Storage s (Fin Z) => s (Fin Z) a
-emptyStorage = allocate finite_Fin absurd
-
-class AppendStorage s l1 l2 where
 
   -- | Combine two storage blocks into one, taking the disjoint union
   --   of their label types.
@@ -65,14 +58,18 @@ class AppendStorage s l1 l2 where
   --   their label types.
   concat :: s l1 (s l2 a) -> s (l1,l2) a
 
-instance Eq l => Storage (->) l where
+-- | A storage block of zero size.
+emptyStorage :: Storage s => s (Fin Z) a
+emptyStorage = allocate finite_Fin absurd
+
+
+instance Storage (->) where
   allocate _ f          = f
   reindex sub f         = f . review (asPIso sub)
   index                 = id
   replace l a f         = (f l, \l' -> if l == l' then a else f l')
   zipWith               = liftA2
-
-instance AppendStorage (->) l1 l2 where
+  smap                  = (.)
   append f _ (Left l1)  = f l1
   append _ g (Right l2) = g l2
   concat                = uncurry

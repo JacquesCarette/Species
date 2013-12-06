@@ -5,7 +5,7 @@ module Data.Subset
     (
       -- * Partial isomorphism
 
-      type (<-?>), type (⊆), asPIso, subsetLeft, subsetRight, splitProd
+      type (<-?>), type (⊆), asPIso, subsetMaybe, subsetLeft, subsetRight, splitProd
 
     )
     where
@@ -55,6 +55,9 @@ type (⊆) a b = APrism' b a
 -- | Convert a subset proof into a partial isomorphism.
 asPIso :: (a ⊆ b) -> (b <-?> a)
 asPIso = clonePrism
+
+subsetMaybe :: l ⊆ Maybe l
+subsetMaybe = _Just
 
 subsetLeft :: l1 ⊆ Either l1 l2
 subsetLeft = _Left

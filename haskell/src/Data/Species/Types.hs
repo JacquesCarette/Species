@@ -37,11 +37,11 @@ module Data.Species.Types
       -- ** Sum
     , inl, inr, inl', inr'
       -- ** Product
-    , prod -- , prod'
+    , prod, prod'
       -- ** Cartesian product
     , cprodL, cprodR, decompL, decompR, projL, projR, editL, editR
       -- ** Differentiation
-    -- , d
+    , d
       -- ** Pointing
     , p
       -- ** Partition
@@ -54,7 +54,7 @@ module Data.Species.Types
     where
 
 import           Control.Arrow (first, second)
-import           Control.Lens hiding (cons)
+import           Control.Lens (makeLenses, iso, view, from, over, mapped, (%~))
 import           Data.Proxy
 import           Data.Type.Equality
 
@@ -65,6 +65,7 @@ import           Data.Finite
 import           Data.Functor ((<$>))
 import           Data.Species.Shape
 import           Data.Storage
+import           Data.Subset
 import           Data.Type.List
 import           Data.Type.Nat
 import qualified Data.Vec     as V
@@ -85,7 +86,7 @@ makeLenses ''Sp
 
 -- | Structures can be relabelled; /i.e./ isomorphisms between label
 --   sets induce isomorphisms between labelled structures.
-relabelI :: (BFunctor f, Storage s l1, Storage s l2, HasSize l1, HasSize l2, Eq l1, Eq l2)
+relabelI :: (BFunctor f, Storage s, HasSize l1, HasSize l2, Eq l1, Eq l2)
          => (l1 <-> l2) -> (Sp f s l1 a <-> Sp f s l2 a)
 relabelI i =
   case isoPresSize i of
@@ -94,7 +95,7 @@ relabelI i =
 
 -- | A version of 'relabelI' which returns a function instead of an
 --   isomorphism, which is sometimes more convenient.
-relabel :: (BFunctor f, Storage s l1, Storage s l2, HasSize l1, HasSize l2, Eq l1, Eq l2)
+relabel :: (BFunctor f, Storage s, HasSize l1, HasSize l2, Eq l1, Eq l2)
         => (l1 <-> l2) -> Sp f s l1 a -> Sp f s l2 a
 relabel = view . relabelI
 
@@ -122,7 +123,7 @@ reshape r = over shape r
 --   labels, otherwise we can't really do anything with them and we
 --   might as well just not have them at all.
 data Sp' f s a where
-  SpEx :: (HasSize l, Eq l, Storage s l) => Sp f s l a -> Sp' f s a
+  SpEx :: (HasSize l, Eq l, Storage s) => Sp f s l a -> Sp' f s a
 
 withSp :: (forall l. Sp f s l a -> Sp g s l b) -> Sp' f s a -> Sp' g s b
 withSp q sp' = case sp' of SpEx sp -> SpEx (q sp)
@@ -138,23 +139,23 @@ data LSp' f s a where
 
 -- One -------------------------------------------
 
-one :: Storage s (Fin Z) => Sp One s (Fin Z) a
+one :: Storage s => Sp One s (Fin Z) a
 one = Struct one_ emptyStorage finite_Fin
 
-one' :: Storage s (Fin Z) => Sp' One s a
+one' :: Storage s => Sp' One s a
 one' = SpEx one
 
 -- X ---------------------------------------------
 
-x :: Storage s (Fin (S Z)) => a -> Sp X s (Fin (S Z)) a
+x :: Storage s => a -> Sp X s (Fin (S Z)) a
 x a = Struct x_ (allocate finite_Fin (const a)) finite_Fin
 
-x' :: Storage s (Fin (S Z)) => a -> Sp' X s a
+x' :: Storage s => a -> Sp' X s a
 x' = SpEx . x
 
 -- E ---------------------------------------------
 
-e :: Storage s l => Finite l -> (l -> a) -> Sp E s l a
+e :: Storage s => Finite l -> (l -> a) -> Sp E s l a
 e fin f = Struct (e_ fin) (allocate fin f) fin
 
 -- Argh, this needs a Natural constraint, but adding one to SomeVec
@@ -169,7 +170,7 @@ e fin f = Struct (e_ fin) (allocate fin f) fin
 -- u ---------------------------------------------
 
 -- Note how this is essentially the Store Comonad.
-u :: Storage s l => Finite l -> (l -> a) -> l -> Sp U s l a
+u :: Storage s => Finite l -> (l -> a) -> l -> Sp U s l a
 u fin f x = Struct (u_ x) (allocate fin f) fin
 
 -- Sum -------------------------------------------
@@ -188,14 +189,13 @@ inr' = withSp inr
 
 -- Product ---------------------------------------
 
-prod :: (AppendStorage s l1 l2, Eq l1, Eq l2)
+prod :: (Storage s, Eq l1, Eq l2)
      => Sp f s l1 a -> Sp g s l2 a -> Sp (f * g) s (Either l1 l2) a
 prod (Struct sf esf finf) (Struct sg esg fing) =
     Struct (prod_ sf sg) (append esf esg) (finite_Either finf fing)
 
--- XXX what to do with this?
--- prod' :: Sp' f s a -> Sp' g s a -> Sp' (f * g) s a
--- prod' (SpEx f) (SpEx g) = SpEx (prod f g)
+prod' :: Sp' f s a -> Sp' g s a -> Sp' (f * g) s a
+prod' (SpEx f) (SpEx g) = SpEx (prod f g)
 
 -- Cartesian product -----------------------------
 
@@ -237,7 +237,11 @@ editR f = uncurry cprodR . second f . decompR
 
 -- Differentiation -------------------------------
 
--- XXX todo: figure out right way to implement this with Storage
+d :: (Storage s, HasSize l, Eq l) => Sp f s (Maybe l) a -> (a, Sp (D f) s l a)
+d (Struct s es finf@(F i))
+  = (index es Nothing, Struct (d_ s) (reindex subsetMaybe es) (finite_predMaybe finf))
+
+-- old version, for comparison
 -- d :: (Eq l, HasSize l) => Sp f s (Maybe l) a -> Sp (D f) s l a
 -- d (Struct s (V.VCons eHead es) finf@(F i))
 --   = Struct (d_ s) es' (finite_predMaybe finf)
