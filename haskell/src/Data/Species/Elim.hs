@@ -78,8 +78,8 @@ mapElimShape q (Elim el) = Elim $ \s m -> el (q s) m
 -- Running eliminators
 
 -- | Run an eliminator.
-elim :: (Eq l, Storage s l) => Elim f a b -> Sp f s l a -> b
-elim (Elim el) (Struct shp es _) = el shp (index es)
+elim :: (Eq l, Storage s) => Elim f a b -> Sp f s l a -> b
+elim (Elim el) (Struct shp es) = el shp (index es)
 
 -- | Run an eliminator over existentially quantified structures.
 elim' :: Elim f a b -> Sp' f s a -> b

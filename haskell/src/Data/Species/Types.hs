@@ -49,7 +49,7 @@ module Data.Species.Types
       -- ** Composition
     , compA, compAP, compJ, compJ', compJ''
       -- ** Cardinality restriction
-    , sized
+    -- , sized
     )
     where
 
@@ -77,7 +77,7 @@ import qualified Data.Vec     as V
 --   values.  Since label types are required to be constructively
 --   finite, that is, come with an isomorphism to @'Fin' n@ for some n, we
 --   can represent the map as a length-@n@ vector.
-data Sp (f :: * -> *) (s :: * -> * -> *) (l :: *) (a :: *) = Struct { _shape ::  f l, _elts :: s l a, _finpf :: Finite l }
+data Sp (f :: * -> *) (s :: * -> * -> *) (l :: *) (a :: *) = Struct { _shape ::  f l, _elts :: s l a }
 
 makeLenses ''Sp
 
@@ -90,8 +90,8 @@ relabelI :: (BFunctor f, Storage s, HasSize l1, HasSize l2, Eq l1, Eq l2)
          => (l1 <-> l2) -> (Sp f s l1 a <-> Sp f s l2 a)
 relabelI i =
   case isoPresSize i of
-    Refl -> iso (\(Struct s es pf) -> Struct (view (bmap i       ) s) (reindex i        es) (finConv i        pf))
-                (\(Struct s es pf) -> Struct (view (bmap (from i)) s) (reindex (from i) es) (finConv (from i) pf))
+    Refl -> iso (\(Struct s es) -> Struct (view (bmap i       ) s) (reindex i        es))
+                (\(Struct s es) -> Struct (view (bmap (from i)) s) (reindex (from i) es))
 
 -- | A version of 'relabelI' which returns a function instead of an
 --   isomorphism, which is sometimes more convenient.
@@ -140,7 +140,7 @@ data LSp' f s a where
 -- One -------------------------------------------
 
 one :: Storage s => Sp One s (Fin Z) a
-one = Struct one_ emptyStorage finite_Fin
+one = Struct one_ emptyStorage
 
 one' :: Storage s => Sp' One s a
 one' = SpEx one
@@ -148,7 +148,7 @@ one' = SpEx one
 -- X ---------------------------------------------
 
 x :: Storage s => a -> Sp X s (Fin (S Z)) a
-x a = Struct x_ (allocate finite_Fin (const a)) finite_Fin
+x a = Struct x_ (allocate finite_Fin (const a))
 
 x' :: Storage s => a -> Sp' X s a
 x' = SpEx . x
@@ -156,7 +156,7 @@ x' = SpEx . x
 -- E ---------------------------------------------
 
 e :: Storage s => Finite l -> (l -> a) -> Sp E s l a
-e fin f = Struct (e_ fin) (allocate fin f) fin
+e fin f = Struct (e_ fin) (allocate fin f)
 
 -- Argh, this needs a Natural constraint, but adding one to SomeVec
 -- ends up infecting everything in a very annoying way.
@@ -171,7 +171,7 @@ e fin f = Struct (e_ fin) (allocate fin f) fin
 
 -- Note how this is essentially the Store Comonad.
 u :: Storage s => Finite l -> (l -> a) -> l -> Sp U s l a
-u fin f x = Struct (u_ x) (allocate fin f) fin
+u fin f x = Struct (u_ x) (allocate fin f)
 
 -- Sum -------------------------------------------
 
@@ -191,8 +191,8 @@ inr' = withSp inr
 
 prod :: (Storage s, Eq l1, Eq l2)
      => Sp f s l1 a -> Sp g s l2 a -> Sp (f * g) s (Either l1 l2) a
-prod (Struct sf esf finf) (Struct sg esg fing) =
-    Struct (prod_ sf sg) (append esf esg) (finite_Either finf fing)
+prod (Struct sf esf) (Struct sg esg) =
+    Struct (prod_ sf sg) (append esf esg)
 
 prod' :: Sp' f s a -> Sp' g s a -> Sp' (f * g) s a
 prod' (SpEx f) (SpEx g) = SpEx (prod f g)
@@ -202,20 +202,20 @@ prod' (SpEx f) (SpEx g) = SpEx (prod f g)
 -- | Superimpose a new shape atop an existing structure, with the
 --   structure on the left.
 cprodL :: Sp f s l a -> g l -> Sp (f # g) s l a
-cprodL (Struct sf es finf) sg = Struct (cprod_ sf sg) es finf
+cprodL (Struct sf es) sg = Struct (cprod_ sf sg) es
 
 -- | Superimpose a new shape atop an existing structure, with the
 --   structure on the right.
 cprodR :: f l -> Sp g s l a -> Sp (f # g) s l a
-cprodR sf (Struct sg es finf) = Struct (cprod_ sf sg) es finf
+cprodR sf (Struct sg es) = Struct (cprod_ sf sg) es
 
 -- | Decompose a Cartesian product structure.  Inverse to `cprodL`.
 decompL :: Sp (f # g) s l a -> (Sp f s l a, g l)
-decompL (Struct (CProd fl gl) es finf) = (Struct fl es finf, gl)
+decompL (Struct (CProd fl gl) es) = (Struct fl es, gl)
 
 -- | Decompose a Cartesian product structure.  Inverse to `cprodR`.
 decompR :: Sp (f # g) s l a -> (f l, Sp g s l a)
-decompR (Struct (CProd fl gl) es fing) = (fl, Struct gl es fing)
+decompR (Struct (CProd fl gl) es) = (fl, Struct gl es)
 
 -- | Project out the left structure from a Cartesian product.
 projL ::  Sp (f # g) s l a -> Sp f s l a
@@ -238,8 +238,8 @@ editR f = uncurry cprodR . second f . decompR
 -- Differentiation -------------------------------
 
 d :: (Storage s, HasSize l, Eq l) => Sp f s (Maybe l) a -> (a, Sp (D f) s l a)
-d (Struct s es finf@(F i))
-  = (index es Nothing, Struct (d_ s) (reindex subsetMaybe es) (finite_predMaybe finf))
+d (Struct s es)
+  = (index es Nothing, Struct (d_ s) (reindex subsetMaybe es))
 
 -- old version, for comparison
 -- d :: (Eq l, HasSize l) => Sp f s (Maybe l) a -> Sp (D f) s l a
@@ -255,7 +255,7 @@ d (Struct s es finf@(F i))
 -- Pointing --------------------------------------
 
 p :: l -> Sp f s l a -> Sp (P f) s l a
-p l (Struct s es finf) = Struct (p_ l s) es finf
+p l (Struct s es) = Struct (p_ l s) es
 
 -- No p' operation---it again depends on the labels
 
@@ -387,6 +387,6 @@ data UnzippedSpSp' n g a where
 
 -- Cardinality restriction -----------------------
 
-sized :: Sp f s l a -> Sp (OfSize (Size l) f) s l a
-sized (Struct s es finl) = Struct (sized_ finl s) es finl
+-- sized :: Sp f s l a -> Sp (OfSize (Size l) f) s l a
+-- sized (Struct s es finl) = Struct (sized_ finl s) es finl
 
