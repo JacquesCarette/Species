@@ -47,7 +47,7 @@ module Data.Species.Elim
 import           Control.Lens (view)
 
 import           Data.Fin (Fin(..))
-import           Data.Finite (Finite(..), toFin)
+import           Data.Finite (toFin)
 import           Data.Species.Shape
 import           Data.Species.Types
 import           Data.Storage
