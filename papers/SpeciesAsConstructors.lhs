@@ -137,7 +137,8 @@
 
 \newcommand{\Path}{\lightning}
 
-\newcommand{\StoreNP}[2]{\ensuremath{#1 \Mapsto #2}}
+\newcommand{\StoreSym}{\Mapsto}
+\newcommand{\StoreNP}[2]{\ensuremath{#1 \StoreSym #2}}
 \newcommand{\Store}[2]{(\StoreNP{#1}{#2})}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -590,7 +591,45 @@ could be obtained.
 \subsection{Partial isomorphisms}
 \label{sec:subsets}
 
-\todo{write about partial isos, i.e. constructive subset relations}
+In what follows we will often have cause to make use of constructive
+evidence that one type is a ``subset'' of another type, written $A
+\subseteq B$.  Of course there is no subtyping in our type theory, so
+there is no literal set-theoretic sense in which one type can be a
+subset of another.
+
+However, we can model this situation with a \term{partial
+  isomorphism}. \todo{cite Tillmann Rendel and Klaus
+  Ostermann. Invertible Syntax Descriptions: Unifying Parsing and
+  Pretty Printing. In Proc. of Haskell Symposium, 2010. ? Not sure if
+  it's really about the same thing, though it may be related somehow.}
+A partial isomorphism $A \subseteq B$ is given by:
+\begin{itemize}
+\item a function $|embed| : A \to B$,
+\item a function $|project| : B \to 1+A$,
+\item a proof that $|project . embed| = \cons{inr}$, and
+\item a proof that for all $b : B$, if $|project b| = \cons{inr}(a)$
+  then |embed a = b|.
+\end{itemize}
+
+The situation can be visualized as follows:
+
+\todo{picture}
+
+Note that an isomorphism $f \mkIso g : A \iso B$ can be made into a
+partial isomorphism trivially by setting $|embed| = f$ and $|project|
+= \cons{inr} \comp g$.  We will not bother to note the conversion,
+simply using equivalences as if they were partial isomorphisms when
+convenient.  In addition, note that partial isomorphisms compose, that
+is, we have $- \comp - : (B \subseteq C) \to (A \subseteq B) \to (A
+\subseteq C)$ implemented in the obvious way.  Combining the two
+previous observations, we can compose an isomorphism with a partial
+isomorphism (or the other way around) to obtain another partial
+isomorphism.\footnote{Happily, using the Haskell \texttt{lens}
+  library, this all works out automatically: the representations of
+  isomorphisms and partial isomorphisms (which \texttt{lens} calls
+  \emph{prisms}) are such that isomorphisms simply \emph{are} partial
+  isomorphisms, and they compose as one would expect, using the
+  standard function composition operator.}
 
 \section{Combinatorial Species}
 \label{sec:species}
@@ -711,7 +750,7 @@ arrows. That is, if $F : \Species$, instead of writing $F.\shapes\ L$
 or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 \sigma$.
 
-\subsection{Labelled structures, formally}
+\subsection{Labelled structures and mappings}
 \label{sec:labelled-formal}
 
 Formally, we may define families of labelled structures as follows:
@@ -719,12 +758,104 @@ Formally, we may define families of labelled structures as follows:
    &\LStr - - - : \Species \to \Type \to \Type \to \Type \\
    &\LStr F L A = F\ L \times \Store L A
 \end{align*}
-that is, a labelled structure over the species $F$, parameterized a
+that is, a labelled structure over the species $F$, parameterized by a
 type $L$ of labels and a type $A$ of data, consists of
 \begin{itemize}
 \item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape; and
-\item a mapping from labels to data values.
+\item a mapping $\Store L A$ from labels to data values (defined
+  below).
 \end{itemize}
+
+This formal definition matches well with the intuition that we are
+taking labelled shapes corresponding to a species and simply adding
+some associated data.  The interesting point, however, is that we
+leave the type $\Store L A$ intentionally abstract.  In particular,
+we require only that it come equipped with the following operations:
+\begin{align*}
+  |allocate| &: \Finite L \to (L \to A) \to \Store L A \\
+  |index|  &: \Store L A \to L \to A \\
+  |append| &: \Store {L_1} A \to \Store {L_2} A \to \Store {(L_1 + L_2)} A \\
+  |concat| &: \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times
+    L_2)} A \\
+%  |replace| &: \DecEq L \to L \to A \to \Store L A \to A \times \Store L A \\
+  |map| &: (A \to B) \to \Store L A \to \Store L B \\
+  |ap| &: \Store L {(A \to B)} \to \Store L A \to \Store L B \\
+  |reindex|  &: (L' \subseteq L) \to \Store L A \to \Store {L'} A
+\end{align*}
+\todo{not sure if we need |replace|}
+
+It's worth walking through these operations in some detail.
+
+\begin{itemize}
+\item First, |allocate| is the sole means of constructing $\Store L A$
+  values. It takes not only a function $L \to A$ but also a
+  constructive proof that $L$ is finite.  Intuitively, the finiteness
+  proof is necessary because allocation may require some intensional
+  knowledge about the type $L$.  For example, as explained below we
+  may implement $\Store L A$ using a vector of $A$ values; allocating
+  such a vector requires knowing the size of $L$.
+\item |index| allows looking up data by label.
+\item |append| and |concat| are ``structural'' operations, allowing us
+  to combine two mappings into one, or collapse nested mappings,
+  respectively.
+\item |map| ensures that $\Store L -$ is functorial; |ap| requires it
+  to be ``applicative'' (allowing one to implement, \eg, $|zipWith| :
+  (A \to B \to C) \to \Store L A \to \Store L B \to \Store L
+  C$).
+\item $|reindex| : (L' \subseteq L) \to \Store L A \to \Store {L'} A$
+  expresses the functoriality of $\Store - A$.  In particular, it is
+  contravariant as one might expect, and lifts not just isomorphisms
+  but \emph{partial} isomorphisms between labels.  When given an
+  isomorphism, |reindex| corresponds to a straightforward relabelling.
+  When given a nontrivially partial isomorphism, however, |reindex|
+  has the effect of ``forgetting'' part of the mapping: data
+  associated with labels in $L$ which have no corresponding label in
+  $L'$ are no longer accessible.
+\end{itemize}
+
+We can give a particularly simple implementation using a function
+arrow to represent $\StoreSym$ (presented here using Haskell-like
+notation):
+
+\begin{spec}
+  allocate _   = id
+  index        = id
+  append f g   = either f g
+  concat       = curry
+  map          = (.)
+  ap f g l     = f l (g l)
+  reindex s f  = f . s
+\end{spec}
+
+Note that the implementation of |allocate| does not make use of the
+$\Finite L$ argument at all, and the implementation of |reindex| uses a
+slight abuse of notation to treat $s : L' \subseteq L$ as a function
+$L' \to L$.  This instance is simple but \todo{finish}
+
+A more interesting implementation uses finite vectors to store the $A$
+values.  In particular, we assume a type $|Vec| : \N \to \Type \to
+\Type$ of length-indexed vectors, supporting operations \todo{list
+  operations we need}.
+\begin{align*}
+  allocateV : (n : \N) \to (\Fin n \to A) \to \Vect n A
+\end{align*}
+
+We then define \[ \Store L A \defn \sum_{n :
+  \N} (L \subseteq \Fin n) \times \Vect n A \] Note, in particular,
+that the underying vector might have \emph{more} slots than necessary,
+as the result of |reindex| operations.  Our implementation of
+|reindex| does not allocate a new, smaller vector, but simply
+remembers which indices are still in use.
+
+%format pi = "\pi"
+%format pi1
+%format pi2
+
+\begin{spec}
+  allocate fin f = (n, fin, allocateV n (f . pi2 fin))
+    where n = pi1 fin
+\end{spec}
+\todo{finish this?  What are the particularly interesting parts?}
 
 % Note that we can think of the vector as a mapping from labels $L$ to
 % data values $A$, because we have a bijection between $L$ and $\Fin\
@@ -734,32 +865,6 @@ type $L$ of labels and a type $A$ of data, consists of
 % $\Finite$ proof, since it tells us how to interpret the vector of
 % elements.  As we will see, being forced to always keep the data
 % elements in some canonical order in the vector simply wouldn't do.
-
-% In light of this observation, however, why not just store a function
-% $(L \to A)$ instead of a vector $\Vect{(\size L)}{A}$? Such a
-% representation would certainly streamline the presentation from a
-% theoretical point of view.  From a practical point of view, however,
-% decomposing $(L \to A)$ as $\Finite L \times \Vect{(\size L)}{A}$
-% allows us more flexibility to explicitly represent and reason about
-% the ways that data structures are actually stored in memory.
-
-\subsection{Storage}
-\label{sec:storage}
-
-$\Store L A$ is an abstract type; we require that it come
-equipped with the following operations:
-\begin{align*}
-  |allocate| &: \Finite L \to (L \to A) \to \Store L A \\
-  |reindex|  &: (L' \subseteq L) \to \Store L A \to \Store {L'} A \\
-  |index|  &: \Store L A \to L \to A \\
-  |replace| &: \DecEq L \to L \to A \to \Store L A \to A \times \Store L A \\
-  |map| &: (A \to B) \to \Store L A \to \Store L B \\
-  |ap| &: \Store L {(A \to B)} \to \Store L A \to \Store L B
-  |append| &: \Store {L_1} A \to \Store {L_2} A \to \Store {(L_1 + L_2)} A \\
-  |concat| &: \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times L_2)} A
-\end{align*}
-
-\todo{explain function instance}
 
 \todo{explain vector instance}
 
