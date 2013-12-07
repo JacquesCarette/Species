@@ -363,7 +363,7 @@ Informally, a \term{labelled structure} is specified by:
 \item a finite type of labels $L$;
 \item a type of data elements $A$;
 \item some sort of ``labelled shape''; and
-\item a (total) function $m : L \to A$ which maps labels to data values.
+\item a mapping from labels to data values.
 \end{itemize}
 See~\pref{fig:labelled-structure-example} for an abstract example
 showing a labelled tree shape paired with a mapping from (integer)
@@ -482,6 +482,116 @@ can we do graphs?
 %   Enough background just-in-time.
 % }
 
+\section{Preliminaries}
+\label{sec:prelim}
+
+We begin with some necessary preliminaries.
+
+\subsection{Homotopy type theory}
+\label{sec:HoTT}
+
+In the remainder of this paper, we work within homotopy type
+theory~\cite{hott} as a convenient and well-developed dependent type
+theory.  We do not actually need much complex machinery from the
+theory, and simply summarize the most important ideas and notation
+here.  It seems likely that there are deeper connections between
+homotopy type theory and the theory of species, but exploring these
+connections is left to future work.
+
+The type theory is equipped with an empty type \TyZero, a unit type
+\TyOne, coproducts, dependent pairs, dependent functions, a universe
+$\Type$ of types, and a notion of propositional equality.  Instead of
+writing the traditional $\sum_{x : A} B(x)$ for the type of dependent
+pairs and $\prod_{x:A} B(x)$ for dependent functions, we will use the
+Agda-like \cite{Agda} notations $(x:A) \times B(x)$ and $(x:A) \to
+B(x)$, respectively.  We continue to use the standard abbreviations $A
+\times B$ and $A \to B$ for non-dependent pair and function types,
+that is, when $x$ does not appear free in $B$.  \todo{Remark that to
+  reduce clutter we sometimes make use of implicit arguments.
+  e.g. free variables are implicitly quantified.}
+
+% We write $\impl{x:A} \to B$ for the type of
+% functions taking $x$ as an \emph{implicit} argument, and omit implicit
+% arguments when applying such functions.  For example, if $f :
+% \impl{A:\Type} \to A \to A$ then we write simply $f\ 3$ instead of $f\
+% \N\ 3$.  When an implicit argument needs to be provided explicitly we
+% use a subscript, as in $f_{\N}\ 3$.  Free type variables should be
+% understood as implicit arguments, for example, the type $A \to A$ is
+% shorthand for $\impl{A:\Type} \to A \to A$.
+
+We use $\N : \Type$ to denote the usual inductively defined type of
+natural numbers, with constructors $\NatZ : \N$ and $\NatS : \N \to
+\N$.  We also make use of the usual indexed type of canonical finite
+sets $\Fin : \N \to \Type$, with constructors $\FinZ : \impl{n :
+\N} \to \Fin (\NatS n)$ and $\FinS : \impl {n : \N} \to \Fin n \to \Fin
+(\NatS n)$.
+
+$A \iso B$ is the type of \term{equivalences} between $A$ and $B$
+(intuitively, pairs of inverse functions $f : A \to B$ and $g : B \to
+A$).  We overload the notations $\id$ and $\comp$ to denote the
+identity equivalence and equivalence composition respectively; we also
+allow equivalences of type $A \iso B$ to be implicitly used as
+functions $A \to B$ where it does not cause confusion.  We use the
+notation $\mkIso$ for constructing equivalences from a pair of
+functions. That is, if $f : A \to B$ and $g : B \to A$ are inverse,
+then $f \mkIso g : A \iso B$; the proof that $f$ and $g$ are inverse
+is left implicit.  For $T : \Type \to \Type$ and $\sigma : A \iso B$
+we can also construct the equivalence $T\ \sigma : T\ A \iso T\
+B$. For example, $\sigma \times (\sigma \to C) : A \times (A \to C)
+\iso B \times (B \to C)$, given by \[ \sigma \times (\sigma \to C) =
+(\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso
+(\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
+
+\subsection{Finiteness}
+\label{sec:finiteness}
+
+The concept of \term{finiteness} plays a central role in the theory of
+species. There are many possible constructive interpretations of
+finiteness (\url{http://ncatlab.org/nlab/show/finite+set}); to start,
+we choose the simplest: a finite set is one which is in bijection to a
+canonical set of a known size. That is,
+\[ \Finite A \defn (n : \N) \times (\Fin n \iso A). \]
+
+It is tempting to use Haskell's \emph{type class} mechanism, or
+something similar, to record the finiteness of types.  That is, we
+could imagine defining a type class
+\begin{spec}
+class IsFinite a where
+  isFinite :: Finite a
+\end{spec}
+The idea is that the statement ``the type $A$ is finite'' translates
+to ``$A$ is an instance of the |IsFinite| class''.  However, this is
+not what we want.  The bare statement ``the type $A$ is finite''
+intuitively corresponds to the \emph{propositional truncation}
+$\||\Finite A\||$, that is, the knowledge simply that $\Finite A$ is
+inhabited, without knowing anything specific about the inhabitant.
+This is a rather different beast than a type class instance
+$|IsFinite|\ A$, which corresponds to a \emph{canonical choice} of an
+inhabitant of $\Finite A$.  Inhabitants of $\Finite A$, however, have
+nontrivial computational content; it really matters \emph{which}
+inhabitant we have.  Thus, instead of simply passing around types and
+requiring them to have an implicit, canonical finiteness proof, we
+will in general pass around types \emph{together with} some specific
+finiteness proof.  We can encapsulate this by defining \[ \FinType
+\defn (L : \Type) \times \Finite L \] as the universe of finite types.
+
+It is not hard to see that the size of a finite type is determined
+uniquely. That is, if $f_1, f_2 : \Finite L$ are any two proofs that
+$L$ is finite, then $\pi_1 f_1 = \pi_1 f_2$.  (As proof, note that if
+$f_1 = (n_1, i_1)$ and $f_2 = (n_2, i_2)$, then $i_2^{-1} \comp i_1 :
+\Fin{n_1} \iso \Fin{n_2}$, from which we can derive $n_1 = n_2$ by
+double induction.) In a slight abuse of notation, we therefore write
+$\size L$ to denote this size.  Computationally, this corresponds to
+applying $\pi_1$ to some finiteness proof; but since it does not
+matter which proof we use, we simply leave it implicit, being careful
+to only use $\size$ in a context where a suitable finiteness proof
+could be obtained.
+
+\subsection{Partial isomorphisms}
+\label{sec:subsets}
+
+\todo{write about partial isos, i.e. constructive subset relations}
+
 \section{Combinatorial Species}
 \label{sec:species}
 
@@ -498,12 +608,6 @@ give a brief introduction to it here; the reader interested in a
 fuller treatment should consult \cite{bll}.  \todo{point the reader
   to our own prior work on species + FP?}
 
-It is worth noting, in passing, that much of the power of the theory
-of species---at least in the context of combinatorics---can be traced
-to fruitful homomorphisms between algebraic descriptions of species
-and rings of formal power series.  However, we will not make use of
-that aspect of the theory in this paper.
-
 \subsection{Species, set-theoretically}
 \label{sec:set-species}
 
@@ -518,7 +622,7 @@ A \term{species} $F$ is a pair of mappings which
 \begin{itemize}
 \item sends any finite set $L$ (of \term{labels}) to a finite set
   $F(L)$ (of \term{shapes}), and
-\item sends any bijection on finite sets $\sigma : L \iso L'$ (a
+\item sends any bijection on finite sets $\sigma : L \leftrightarrow L'$ (a
   \term{relabelling}) to a function $F(\sigma) : F(L) \to F(L')$
   (illustrated in \pref{fig:relabelling}),
 \end{itemize}
@@ -573,100 +677,6 @@ serviceable in the context of classical combinatorics, but in order to
 use it as a foundation for data structures, it is necessary to first
 ``port'' the definition from set theory to constructive type theory.
 
-In the remainder of this paper, we work within homotopy type
-theory~\cite{hott} as a convenient and well-developed dependent type
-theory.  In particular we do not need any complex machinery from the
-theory, and simply summarize the most important ideas and notation
-here.  It seems likely that there are deeper connections between
-homotopy type theory and the theory of species, but exploring these
-connections is left to future work.
-
-The type theory is equipped with an empty type \TyZero, a unit type
-\TyOne, coproducts, dependent pairs, dependent functions, a universe
-$\Type$ of types, and a notion of propositional equality.  Instead of
-writing the traditional $\sum_{x : A} B(x)$ for the type of dependent
-pairs and $\prod_{x:A} B(x)$ for dependent functions, we will use the
-Agda-like \cite{Agda} notations $(x:A) \times B(x)$ and $(x:A) \to
-B(x)$, respectively.  We continue to use the standard abbreviations $A
-\times B$ and $A \to B$ for non-dependent pair and function types,
-that is, when $x$ does not appear free in $B$.  \todo{Remark that to
-  reduce clutter we sometimes make use of implicit arguments.
-  e.g. free variables are implicitly quantified.}
-
-% We write $\impl{x:A} \to B$ for the type of
-% functions taking $x$ as an \emph{implicit} argument, and omit implicit
-% arguments when applying such functions.  For example, if $f :
-% \impl{A:\Type} \to A \to A$ then we write simply $f\ 3$ instead of $f\
-% \N\ 3$.  When an implicit argument needs to be provided explicitly we
-% use a subscript, as in $f_{\N}\ 3$.  Free type variables should be
-% understood as implicit arguments, for example, the type $A \to A$ is
-% shorthand for $\impl{A:\Type} \to A \to A$.
-
-We use $\N : \Type$ to denote the usual inductively defined type of
-natural numbers, with constructors $\NatZ : \N$ and $\NatS : \N \to
-\N$.  We also make use of the usual indexed type of canonical finite
-sets $\Fin : \N \to \Type$, with constructors $\FinZ : \impl{n :
-\N} \to \Fin (\NatS n)$ and $\FinS : \impl {n : \N} \to \Fin n \to \Fin
-(\NatS n)$.
-
-$A \iso B$ is the type of \term{equivalences} between $A$ and $B$
-(intuitively, pairs of inverse functions $f : A \to B$ and $g : B \to
-A$).  We overload the notations $\id$ and $\comp$ to denote the
-identity equivalence and equivalence composition respectively; we also
-allow equivalences of type $A \iso B$ to be implicitly used as
-functions $A \to B$ where it does not cause confusion.  We use the
-notation $\mkIso$ for constructing equivalences from a pair of
-functions. That is, if $f : A \to B$ and $g : B \to A$ are inverse,
-then $f \mkIso g : A \iso B$; the proof that $f$ and $g$ are inverse
-is left implicit.  For $T : \Type \to \Type$ and $\sigma : A \iso B$
-we can also construct the equivalence $T\ \sigma : T\ A \iso T\
-B$. For example, $\sigma \times (\sigma \to C) : A \times (A \to C)
-\iso B \times (B \to C)$, given by \[ \sigma \times (\sigma \to C) =
-(\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso
-(\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
-
-With the preliminaries out of the way, the first concept we need to
-port is that of a finite set. There are many possible constructive
-interpretations of finiteness There are other constructive notions of
-finiteness (\url{http://ncatlab.org/nlab/show/finite+set}); to start,
-we choose the simplest: a finite set is one which is in bijection to a
-canonical set of a known size. That is,
-\[ \Finite A \defn (n : \N) \times (\Fin n \iso A). \]
-
-It is tempting to use Haskell's \emph{type class} mechanism, or
-something similar, to record the finiteness of types.  That is, we
-could imagine defining a type class
-\begin{spec}
-class IsFinite a where
-  isFinite :: Finite a
-\end{spec}
-The idea is that the statement ``the type $A$ is finite'' translates
-to ``$A$ is an instance of the |IsFinite| class''.  However, this is
-not what we want.  The bare statement ``the type $A$ is finite''
-intuitively corresponds to the \emph{propositional truncation}
-$\||\Finite A\||$, that is, the knowledge simply that $\Finite A$ is
-inhabited, without knowing anything specific about the inhabitant.
-This is a rather different beast than a type class instance
-$|IsFinite|\ A$, which corresponds to a \emph{canonical choice} of an
-inhabitant of $\Finite A$.  Inhabitants of $\Finite A$, however, have
-nontrivial computational content; it really matters \emph{which}
-inhabitant we have.  Thus, instead of simply passing around types and
-requiring them to have an implicit, canonical finiteness proof, we
-will in general pass around types \emph{together with} some specific
-finiteness proof.  We can encapsulate this by defining \[ \FinType
-\defn (L : \Type) \times \Finite L \] as the universe of finite types.
-
-It is not hard to see that the size of a finite type is determined
-uniquely. That is, if $f_1, f_2 : \Finite L$ are any two proofs that
-$L$ is finite, then $\pi_1 f_1 = \pi_1 f_2$.  (As proof, note that if
-$f_1 = (n_1, i_1)$ and $f_2 = (n_2, i_2)$, then $i_2^{-1} \comp i_1 :
-\Fin{n_1} \iso \Fin{n_2}$, from which we can derive $n_1 = n_2$ by
-double induction.) In a slight abuse of notation, we therefore write
-$\size L$ to denote this size.  Computationally, this corresponds to
-applying $\pi_1$ to some finiteness proof; but since it does not
-matter which proof we use, we simply leave it implicit, being careful
-to only use $\size$ in a context where a suitable finiteness proof
-could be obtained.
 
 \todo{need some nice notation for dependent $n$-tuples, \ie\ records.}
 
@@ -682,6 +692,8 @@ could be obtained.
   may actually depend on the finiteness, but it's hard to be sure.
   Would be interesting to try to port the theorems and proofs as well
   as the definition.}
+
+\todo{motivate/explain this}
 
 \begin{align*}
 \Species & \defn (\shapes : \FinType \to \Type) \\
@@ -711,21 +723,8 @@ that is, a labelled structure over the species $F$, parameterized a
 type $L$ of labels and a type $A$ of data, consists of
 \begin{itemize}
 \item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape; and
-\item an abstract mapping from labels to data values.
+\item a mapping from labels to data values.
 \end{itemize}
-
-$\Store L A$ is an abstract type; we require that it come
-equipped with the following operations:
-\begin{align*}
-  |allocate| &: \Finite L \to (L \to A) \to \Store L A \\
-  |reindex|  &: (L' \subseteq L) \to \Store L A \to \Store {L'} A \\
-  |index|  &: \Store L A \to L \to A \\
-  |replace| &: \DecEq L \to L \to A \to \Store L A \to A \times \Store L A \\
-  |map| &: (A \to B) \to \Store L A \to \Store L B \\
-  |ap| &: \Store L {(A \to B)} \to \Store L A \to \Store L B
-  |append| &: \Store {L_1} A \to \Store {L_2} A \to \Store {(L_1 + L_2)} A \\
-  |concat| &: \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times L_2)} A
-\end{align*}
 
 % Note that we can think of the vector as a mapping from labels $L$ to
 % data values $A$, because we have a bijection between $L$ and $\Fin\
@@ -744,14 +743,27 @@ equipped with the following operations:
 % allows us more flexibility to explicitly represent and reason about
 % the ways that data structures are actually stored in memory.
 
+\subsection{Storage}
+\label{sec:storage}
 
+$\Store L A$ is an abstract type; we require that it come
+equipped with the following operations:
+\begin{align*}
+  |allocate| &: \Finite L \to (L \to A) \to \Store L A \\
+  |reindex|  &: (L' \subseteq L) \to \Store L A \to \Store {L'} A \\
+  |index|  &: \Store L A \to L \to A \\
+  |replace| &: \DecEq L \to L \to A \to \Store L A \to A \times \Store L A \\
+  |map| &: (A \to B) \to \Store L A \to \Store L B \\
+  |ap| &: \Store L {(A \to B)} \to \Store L A \to \Store L B
+  |append| &: \Store {L_1} A \to \Store {L_2} A \to \Store {(L_1 + L_2)} A \\
+  |concat| &: \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times L_2)} A
+\end{align*}
 
-Depending on the representation used for the map type $\Store L A$, a given
-labelled structure can have multiple distinct
-representations. \todo{picture here illustrating two different
-  representations of the same structure} We must be careful not to
-expose extraneous representation detail to users, which we address in
-the next section.  On the other hand, data structures ultimately have
+\todo{explain function instance}
+
+\todo{explain vector instance}
+
+On the other hand, data structures ultimately have
 to be stored in memory somehow, and this gives us a nice
 ``end-to-end'' theory that is able to talk about actual
 implementations and whether they are faithful to the intended
@@ -759,6 +771,12 @@ semantics.
 
 \subsection{Labelled eliminators}
 \label{sec:labelled-eliminators}
+
+Depending on the representation used for the map type $\Store L A$, a
+given labelled structure can have multiple distinct
+representations. \todo{picture here illustrating two different
+  representations of the same structure} This extra representation
+detail should not be observable
 
 We can define the generic type of eliminators for labelled
 $F$-structures, $\Elim_F : \Type \to \Type \to \Type$, as
@@ -1784,7 +1802,7 @@ shapes would be much more difficult to work with).
 
 \todo{write about partition, filter, take...}
 
-\section{Related Work}
+\section{Related work}
 \label{sec:related}
 
 \begin{itemize}
@@ -1792,6 +1810,15 @@ shapes would be much more difficult to work with).
 \item shapely types
 \item HoTT?
 \end{itemize}
+
+\section{Future work}
+\label{sec:future}
+
+It is worth noting that much of the power of the theory of
+species---at least in the context of combinatorics---can be traced to
+fruitful homomorphisms between algebraic descriptions of species and
+rings of formal power series. \todo{future work making connections to
+  computation?}
 
 \section{Conclusion}
 \label{sec:conclusion}
