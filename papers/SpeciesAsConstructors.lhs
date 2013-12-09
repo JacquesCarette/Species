@@ -19,6 +19,16 @@
 %format compP  = "\cons{compP}"
 %format <*>    = "<\!\!*\!\!>"
 
+%format pi = "\pi"
+%format pi1
+%format pi2
+%format n1
+%format n2
+%format sub1
+%format sub2
+%format v1
+%format v2
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
 
@@ -588,6 +598,8 @@ matter which proof we use, we simply leave it implicit, being careful
 to only use $\size$ in a context where a suitable finiteness proof
 could be obtained.
 
+\todo{extend to $\cons{Countable}\ L = \Finite L + L \iso \N$?}
+
 \subsection{Partial isomorphisms}
 \label{sec:subsets}
 
@@ -782,9 +794,8 @@ we require only that it come equipped with the following operations:
   |ap| &: \Store L {(A \to B)} \to \Store L A \to \Store L B \\
   |reindex|  &: (L' \subseteq L) \to \Store L A \to \Store {L'} A
 \end{align*}
-\todo{not sure if we need |replace|}
-
-It's worth walking through these operations in some detail.
+\todo{not sure if we need |replace|} It's worth walking through
+some informal descriptions of the semantics of these operations.
 
 \begin{itemize}
 \item First, |allocate| is the sole means of constructing $\Store L A$
@@ -799,7 +810,7 @@ It's worth walking through these operations in some detail.
   to combine two mappings into one, or collapse nested mappings,
   respectively.
 \item |map| ensures that $\Store L -$ is functorial; |ap| requires it
-  to be ``applicative'' (allowing one to implement, \eg, $|zipWith| :
+  to be ``applicative'' (allowing us to implement, \eg, $|zipWith| :
   (A \to B \to C) \to \Store L A \to \Store L B \to \Store L
   C$).
 \item $|reindex| : (L' \subseteq L) \to \Store L A \to \Store {L'} A$
@@ -812,6 +823,12 @@ It's worth walking through these operations in some detail.
   associated with labels in $L$ which have no corresponding label in
   $L'$ are no longer accessible.
 \end{itemize}
+These intuitions can be formalized by various unsurprising laws (for
+example, |allocate| followed by |index| should recover the original
+function; |index| and |reindex| commute with other operations in the
+appropriate ways; and so on). \todo{is it worth actually
+  formulating/spelling out the laws?  are any of them particularly
+  interesting? are there any interesting choices to be made?}
 
 We can give a particularly simple implementation using a function
 arrow to represent $\StoreSym$ (presented here using Haskell-like
@@ -834,45 +851,95 @@ $L' \to L$.  This instance is simple but \todo{finish}
 
 A more interesting implementation uses finite vectors to store the $A$
 values.  In particular, we assume a type $|Vec| : \N \to \Type \to
-\Type$ of length-indexed vectors, supporting operations \todo{list
-  operations we need}.
+\Type$ of length-indexed vectors, supporting standard operations
 \begin{align*}
-  allocateV : (n : \N) \to (\Fin n \to A) \to \Vect n A
+  allocateV &: (n : \N) \to (\Fin n \to A) \to \Vect n A \\
+  indexV    &: \Vect n A \to \Fin n \to A \\
+  appendV   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \\
+  concatV   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \\
+  mapV      &: (A \to B) \to (\Vect n A \to \Vect n B) \\
+  imapV     &: (\Fin n \to A \to B) \to (\Vec n A \to \Vect n B) \\
+  apV       &: \Vect n {(A \to B)} \to \Vect n A \to \Vect n B
 \end{align*}
 
-We then define \[ \Store L A \defn \sum_{n :
-  \N} (L \subseteq \Fin n) \times \Vect n A \] Note, in particular,
-that the underying vector might have \emph{more} slots than necessary,
-as the result of |reindex| operations.  Our implementation of
-|reindex| does not allocate a new, smaller vector, but simply
-remembers which indices are still in use.
+We then define \[ \Store L A \defn \sum_{n : \N} (L \subseteq \Fin n)
+\times \Vect n A, \] and implement the required operations as follows:
 
-%format pi = "\pi"
-%format pi1
-%format pi2
+\begin{itemize}
+\item The implementation of |allocate| uses the provided $\Finite L$
+  proof to determine the size of the vector to be allocated, as well
+  as the initial layout of the values.
+  \begin{spec}
+    allocate fin f = (n, fin, allocateV n (f . pi2 fin))
+      where n = pi1 fin
+  \end{spec}
 
-\begin{spec}
-  allocate fin f = (n, fin, allocateV n (f . pi2 fin))
-    where n = pi1 fin
-\end{spec}
-\todo{finish this?  What are the particularly interesting parts?}
+\item Note that the underying vector might have \emph{more} slots than
+  necessary, which is crucial to be able to implement |reindex|
+  efficiently.  The implementation of |reindex| does not allocate a
+  new, smaller vector; in fact, it does not have to modify the vector
+  at all, but simply composes the given subset proof with the stored
+  one.
+  \begin{spec}
+    reindex sub' (n, sub, v) = (n, sub . sub', v)
+  \end{spec}
 
-% Note that we can think of the vector as a mapping from labels $L$ to
-% data values $A$, because we have a bijection between $L$ and $\Fin\
-% (\size L)$: given a label $l : L$, we can send it through the
-% bijection to find an index into the vector.  Here is one concrete
-% place where we really do care about the computational content of an
-% $\Finite$ proof, since it tells us how to interpret the vector of
-% elements.  As we will see, being forced to always keep the data
-% elements in some canonical order in the vector simply wouldn't do.
+\item |index| is implemented in terms of |indexV|, using the stored
+  subset proof to convert an external label $L$ into an internal index
+  of type $\Fin n$.
+  % \begin{spec}
+  %   index (_, sub, v) l = indexV v (sub l)
+  % \end{spec}
 
-\todo{explain vector instance}
+\item |map| is implemented straightforwardly in terms of |mapV|; since
+  the type $L$ and the length of the underlying vector is not
+  affected, the proof $(L \subseteq \Fin n)$ can be carried through
+  unchanged.
 
-On the other hand, data structures ultimately have
+\item At first blush it may seem that |ap| is equally straightforward
+  to implement in terms of |apV|, but it is much more subtle.  In
+  fact, we cannot directly use |apV|, for two reasons. First, two
+  $\Store L A$ values may have underlying vectors of different
+  lengths, so an application of |apV| would not even be well-typed!
+  Second, even if the underlying vectors did have the same length, the
+  $(L \subseteq \Fin n)$ proofs have real computational content:
+  zipping on labels and zipping on indices may not coincide.
+
+  \todo{Explain solution.  Could go via |allocateV| and then |apV|.
+    More efficient solution that avoids allocation makes use of
+    |imapV| and does reverse lookup using a partial iso.}
+
+\item |append| is almost straightforward to implement via |appendV|:
+  \begin{spec}
+    append (n1, sub1, v1) (n2, sub2, v2) = (n1+n2, sub1 + sub2, appendV v1 v2)
+  \end{spec}
+  but what is meant by |sub1 + sub2|?  We need to appropriately
+  combine two subset proofs, that is, we need \[ -+- : (L_1 \subseteq
+  \Fin {n_1}) \to (L_2 \subseteq \Fin {n_2}) \to (L_1 + L_2) \subseteq
+  \Fin {(n_1 + n_2)}. \] It is straightforward to derive $(A_1
+  \subseteq B_1) \to (A_2 \subseteq B_2) \to (A_1 + A_2) \subseteq
+  (B_1 + B_2)$, so all that remains is to prove $\Fin{n_1} + \Fin{n_2}
+  \subseteq \Fin {(n_1 + n_2)}$.  In fact, we actually have the
+  stronger property $\Fin{n_1} + \Fin{n_2} \iso \Fin {(n_1 +
+    n_2)}$---but there are many such equivalences, and it matters
+  which one we pick!  In particular, the correct implementation is
+  determined by the behavior of |appendV|.
+  \todo{explain more, maybe a picture?}
+
+\item |concat| \todo{finish}
+
+\end{itemize}
+
+\todo{compaction using Gordon complementary bijection principle?}
+
+\todo{On the other hand, data structures ultimately have
 to be stored in memory somehow, and this gives us a nice
 ``end-to-end'' theory that is able to talk about actual
 implementations and whether they are faithful to the intended
-semantics.
+semantics.}
+
+\todo{note that |appendV| and |concatV| probably have to allocate.
+  Fixing that leads to an implementation using generalized tries---cf Hinze.}
 
 \subsection{Labelled eliminators}
 \label{sec:labelled-eliminators}
@@ -881,12 +948,12 @@ Depending on the representation used for the map type $\Store L A$, a
 given labelled structure can have multiple distinct
 representations. \todo{picture here illustrating two different
   representations of the same structure} This extra representation
-detail should not be observable
+detail should not be observable \todo{finish}
 
 We can define the generic type of eliminators for labelled
 $F$-structures, $\Elim_F : \Type \to \Type \to \Type$, as
 \begin{equation*}
-  \Elim_F\ A\ R \defn (L : \Type) \to F\ L \to \DecEq L \to (L \to A) \to R
+  \Elim_F\ A\ R \defn (L : \Type) \to F\ L \to \DecEq L \to \Store L A \to R
 \end{equation*}
 where $\DecEq L$ represents decidable equality for $L$. There are a
 few subtle issues here which are worth spelling out in detail. First,
@@ -895,23 +962,25 @@ stored in the labelled structure being eliminated) and $R$ (the type
 of the desired result), but \emph{not} by $L$.  Rather, an eliminator
 of type $\Elim_F\ A\ R$ must be parametric in $L$; defining an
 eliminator which works only for certain label types is not allowed.
-The second point is that instead of being provided with $\Finite L
-\times \Vect{(\size L)}{A}$ as one might expect, an eliminator is
-instead provided with $\DecEq L \times (L \to A)$, which contains
-slightly less information: in particular, given the former, one can
-observe an induced linear order on the elements of $L$, using the
-usual linear order on the associated natural numbers. However, we do
-not want to allow this. Labelled structures should be equivalent up to
-mere reordering of the data storage, so eliminators should not be able
-to observe the difference.  Given only $\DecEq L \times (L \to A)$,
-there is no way to enumerate the elements of $L$ or observe any order
-relation on them.  One can only traverse the shape $F\ L$ and feed
-encountered $L$ values into the $(L \to A)$ function to learn the
-associated data values, possibly consulting the provided decidable
-equality to find out which labels are shared.
+The second point is that we assume that $\Store L A$ is held abstract;
+an eliminator cannot make use of any details of a particular
+implementation for $\Store L A$, but only its abstract interface (in
+particular, the |index| function).
+
+\todo{rewrite: in particular, given the former, one can observe an
+  induced linear order on the elements of $L$, using the usual linear
+  order on the associated natural numbers. However, we do not want to
+  allow this. Labelled structures should be equivalent up to mere
+  reordering of the data storage, so eliminators should not be able to
+  observe the difference.  Given only $\DecEq L \times (L \to A)$,
+  there is no way to enumerate the elements of $L$ or observe any
+  order relation on them.  One can only traverse the shape $F\ L$ and
+  feed encountered $L$ values into the $(L \to A)$ function to learn
+  the associated data values, possibly consulting the provided
+  decidable equality to find out which labels are shared.}
 
 Note that if $\DecEq L$ is left out, we have \[ (L : \Type) \to F\ L
-\to (L \to A) \to R, \] which by parametricity is equivalent to \[ F\
+\to \Store L A \to R, \] which by parametricity is equivalent to \[ F\
 A \to R. \] The point is that labels allow us to describe and observe
 (value-level) \emph{sharing}.  If we do not observe the sharing (\ie\
 if we do not consult the decidable equality on $L$, to see which
@@ -926,6 +995,9 @@ of data.
 
 % Including this here for reference (probably doesn't need to actually
 % go in the paper):
+%
+% First note that given an (L |=> A) without knowing anything about L,
+% the only thing we can do is apply |index| to turn it into a function.
 %
 % Free theorem for
 %
@@ -1572,17 +1644,17 @@ labels ($\X^2 \sprod \E$).
 $(\fcomp, \pt{\E})$ forms a (non-commutative) monoid up to species
 isomorphism.
 
-\section{Unlabelled structures}
+% \section{Unlabelled structures}
 
-\bay{``unlabelled'' is a terrible name for this, we need to come up
-  with a better one.  In any case, the definition is equivalence
-  classes of labelled structures.  Concretely, we always have to work
-  with specific representatives of equivalence classes, and there is
-  not always a nice way to choose a ``canonical'' representative.
-  Instead, we can build relabelling into operations like zip so that
-  some ``conversion'' is done in order to first relabel things so they
-  match.  Such conversion is allowed when working with an equivalence
-  class since it doesn't matter which representative we use.}
+% \bay{``unlabelled'' is a terrible name for this, we need to come up
+%   with a better one.  In any case, the definition is equivalence
+%   classes of labelled structures.  Concretely, we always have to work
+%   with specific representatives of equivalence classes, and there is
+%   not always a nice way to choose a ``canonical'' representative.
+%   Instead, we can build relabelling into operations like zip so that
+%   some ``conversion'' is done in order to first relabel things so they
+%   match.  Such conversion is allowed when working with an equivalence
+%   class since it doesn't matter which representative we use.}
 
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
@@ -1845,8 +1917,7 @@ shapes would be much more difficult to work with).
 % generalized in some way, but I haven't thought carefully yet about
 % what that might look like.
 
-\todo{explain matrix multiplication.  Need to first finish writing
-  about introduction forms for composition.}
+\todo{explain matrix multiplication.}
 
 % Here's how matrix product works.  Recall that 2-dimensional matrices
 % have the shape (E . E), where . represents composition.  So I will
@@ -1905,7 +1976,7 @@ shapes would be much more difficult to work with).
 \section{Partition stuff}
 \label{sec:partition}
 
-\todo{write about partition, filter, take...}
+\todo{write about partition, filter, take...?}
 
 \section{Related work}
 \label{sec:related}
@@ -1913,7 +1984,7 @@ shapes would be much more difficult to work with).
 \begin{itemize}
 \item containers, naturally
 \item shapely types
-\item HoTT?
+\item HoTT
 \end{itemize}
 
 \section{Future work}
@@ -1924,6 +1995,8 @@ species---at least in the context of combinatorics---can be traced to
 fruitful homomorphisms between algebraic descriptions of species and
 rings of formal power series. \todo{future work making connections to
   computation?}
+
+\todo{assumptions on categories needed for various operations.}
 
 \section{Conclusion}
 \label{sec:conclusion}
