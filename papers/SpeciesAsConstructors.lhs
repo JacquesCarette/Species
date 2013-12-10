@@ -1644,6 +1644,9 @@ labels ($\X^2 \sprod \E$).
 $(\fcomp, \pt{\E})$ forms a (non-commutative) monoid up to species
 isomorphism.
 
+\todo{Give some examples.  Show that we can use recursion from the
+  host language.}
+
 % \section{Unlabelled structures}
 
 % \bay{``unlabelled'' is a terrible name for this, we need to come up
