@@ -655,6 +655,40 @@ by induction on $n$, running the |project| component of $(L \subseteq
 \Fin n)$ on each inhabitant of $\Fin n$ and counting how many map to a
 value in $L$.
 
+\todo{Actually, there are some interesting choices in how we implement
+  |subToEquiv|.  It corresponds in some sense to ``compaction'' or
+  ``defragmentation'' if you will, and one might wish to do it with as
+  little copying as possible.  The ``naive'' approach, to just ``shift
+  everything left'' to fill unused slots may do a lot of unnecessary
+  copying.  We can do better using the Gordon Complementary Bijection
+  Principle (with type $(A \iso A') \to (A + B \iso A' + B')
+  \to (B \iso B')$).  The idea is to prove that for all $s : \N$,
+\begin{multline*}
+  \left( \sum_{\substack{k : \Fin
+        n \\ l : L}} |project|(k) = \cons{inr}(l) \right) + \left(
+    \sum_{k : \Fin n} |project|(k) = \cons{inl}(\star) \right) \iso
+  \Fin n
+  \iso \Fin s + \Fin (n - s)
+\end{multline*}
+where $\Fin (n - s)$ is an abbreviation for $\sum_{j : \N} (j + s = n)
+\times \Fin j$; the left-hand equivalence is unique, and for the
+right-hand equivalence we want the ``obvious'' implementation which
+simply concatenates the elements of $\Fin {(n-s)}$ after those of
+$\Fin s$. Then we write a function |Lsize| which simultaneously
+computes the size of $L$ and an enumeration of the elements of $\Fin
+n$ which do not correspond to elements of $L$: \[ |Lsize| : (n : \N)
+\to (L \subseteq \Fin n) \to \sum_{s:\N} \left[ \left( \sum_{k : \Fin
+      n} |project|(k) = \cons{inl}(\star) \right) \iso \Fin (n - s)
+\right] \] Applying the GCBP now gives us an equivalence \[ \left(
+  \sum_{\substack{k : \Fin n \\ l : L}} |project|(k) = \cons{inr}(l)
+\right) \iso \Fin s. \] To complete the construction we note that \[ L
+\iso \left( \sum_{\substack{k : \Fin n \\ l : L}} |project|(k) =
+  \cons{inr}(l) \right) \] by properties of $\subseteq$.  So in the
+end we have an equivalence $L \iso \Fin s$ as desired, but one which
+``does as little copying as possible'' (it should be possible to
+formalize this).
+}
+
 On the other hand, we could drop |project|, that is, we could take
 something like \[ \cons{SubFinite} L \defn (n : \N) \times (|embed| :
 L \to \Fin n) \times \cons{Injective}\ |embed|. \] This certainly
