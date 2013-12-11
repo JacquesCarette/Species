@@ -643,6 +643,25 @@ isomorphism.\footnote{Happily, using the Haskell \texttt{lens}
   isomorphisms, and they compose as one would expect, using the
   standard function composition operator.}
 
+The type $(n : \N) \times (L \subseteq \Fin n)$ can also be thought of
+as a witness of the finiteness of $L$; intuitively, it states that $L$
+has size \emph{at most} $n$, which sounds like it would contain
+\emph{less} information than a proof $\Finite L$.  However, there is a
+lot of information contained in a value of $(L \subseteq \Fin n)$. In
+particular, we may use the |project| function to compute the precise
+size of $L$.  We can define a function \[ |subToEquiv| : ((n : \N)
+\times (L \subseteq \Fin n)) \to ((m : \N) \times (L \iso \Fin m)) \]
+by induction on $n$, running the |project| component of $(L \subseteq
+\Fin n)$ on each inhabitant of $\Fin n$ and counting how many map to a
+value in $L$.
+
+On the other hand, we could drop |project|, that is, we could take
+something like \[ \cons{SubFinite} L \defn (n : \N) \times (|embed| :
+L \to \Fin n) \times \cons{Injective}\ |embed|. \] This certainly
+implies that $L$ is finite in a classical sense (\ie not infinite),
+but it does not allow us to construct a $\Finite L$ value.  At the
+moment we are not sure where (or if) this concept might be useful.
+
 \section{Combinatorial Species}
 \label{sec:species}
 
