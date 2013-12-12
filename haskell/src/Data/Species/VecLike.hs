@@ -43,10 +43,11 @@ take (Struct f i finl) n pf =
                 isom = iso (finSum n m) (finSum' n m)
 -}
 
--- This works, but because it relies on knowing a specific label set iso:
-take :: forall f a q n. N.Natural q => Sp f s (F.Fin q) a -> N.SNat n -> (n <= q) ->
+{-
+-- This used to work, but is now entirely impossible
+take :: forall f a q n s. N.Natural q => Sp f s (F.Fin q) a -> N.SNat n -> (n <= q) ->
   Sp (f # Part) s (F.Fin q) a
-take (Struct f i finq) n pf =
+take (Struct f i) n pf =
   case minus (size finq) n pf of
     Minus (m :: N.SNat m) Refl ->
       case N.plusComm m n of
@@ -65,6 +66,7 @@ vpart (V.VCons a v) = case vpart v of
     if a then VPart (V.VCons F.FZ (fmap F.FS ns)) (fmap F.FS ms) Refl
          else VPart (fmap F.FS ns) (V.VCons F.FZ (fmap F.FS ms))
                     (case N.plusSuccR (V.size ns) (V.size ms) of Refl -> Refl)
+-}
 
 {- This is still not right
 filter :: forall f l a. Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a

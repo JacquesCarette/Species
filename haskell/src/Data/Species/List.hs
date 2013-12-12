@@ -32,7 +32,7 @@ import           Data.Type.Nat
 import           Data.Species.Elim
 import           Data.Species.Shape
 import           Data.Species.Types
-import qualified Data.Vec           as V
+import           Data.Storage
 
 -- | @L@ represents the shape of (finite) lists. It is defined
 --   directly according to the recurrence @L = One + X * L@.
@@ -66,15 +66,17 @@ list :: Eq l => Sp (One + X*L) s l a -> Sp L s l a
 list = reshape (view (from isoL))
 
 -- | The empty list structure.
-nil :: Sp L s (Fin Z) a
+nil :: Storage s => Sp L s (Fin Z) a
 nil = list $ inl one
 
 -- | Cons for list structures.
-cons :: (Eq l) => a -> Sp L s l a -> Sp L s (Either (Fin (S Z)) l) a
-cons a (Struct shp es finl) = Struct (list_ (inr_ (prod_ x_ shp))) (V.VCons a es) (finite_Either finite_Fin finl)
+cons :: (Storage s, Eq l) => a -> Sp L s l a -> Sp L s (Either (Fin (S Z)) l) a
+cons a (Struct shp es) = 
+  Struct (list_ (inr_ (prod_ x_ shp))) 
+         (append (allocate finite_Fin (const a)) es)
 
 -- | Convert a Haskell list to a labelled list structure.
-fromList :: [a] -> Sp' L a
+fromList :: Storage s => [a] -> Sp' L s a
 fromList [] = SpEx nil
 fromList (a:as) =
   case fromList as of

@@ -18,9 +18,10 @@ import           Data.Species.Elim
 import           Data.Species.List
 import           Data.Species.Shape
 import           Data.Species.Types
+import qualified Data.Storage         as S
 
 -- can get a L-structure from just Foldable
-fromFold :: F.Foldable f => f a -> Sp' L a
+fromFold :: (F.Foldable f, S.Storage s) => f a -> Sp' L s a
 fromFold f = fromList $ F.foldr (:) [] f
 
 -- useful utility routine for below
@@ -31,34 +32,34 @@ replace a = do
   return l
 
 -- so of course, it can be done from Traversable too:
-toL :: T.Traversable f => f a -> Sp' L a
+toL :: (T.Traversable f, S.Storage s) => f a -> Sp' L s a
 toL = fromList . execWriter . T.traverse rep'
   where
     rep' :: a -> Writer [a] ()
     rep' a = do tell [a]; return ()
 
-fromTrav :: T.Traversable f => f a -> Sp' (f # L) a
+fromTrav :: (T.Traversable f, S.Storage s) => f a -> Sp' (f # L) s a
 fromTrav fa = case fromFold fa of
-                SpEx sp@(Struct l v finl) ->
-                  SpEx (Struct (CProd fl l) v finl)
+                SpEx sp@(Struct l v) ->
+                  SpEx (Struct (CProd fl l) v)
                   where fl = fst . evalSupply m $ toList sp
                         m = runWriterT . T.traverse replace $ fa
 
-toList :: Eq l => Sp L l a -> [l]
-toList (Struct shp _ _) = case elimList [] (:) of Elim f -> f shp id
+toList :: (Eq l, S.Storage s) => Sp L s l a -> [l]
+toList (Struct shp _) = case elimList [] (:) of Elim f -> f shp id
 
 -- All of these are valid:
-instance Eq l => F.Foldable (Sp L l) where
+instance (Eq l, S.Storage s) => F.Foldable (Sp L s l) where
   foldr f b s =
     elim (elimList b f) s
 
-instance Eq l => F.Foldable (Sp (f # L) l) where
-  foldr f b (Struct (CProd _ f2) elts finl) =
-    elim (elimList b f) (Struct f2 elts finl)
+instance (Eq l, S.Storage s) => F.Foldable (Sp (f # L) s l) where
+  foldr f b (Struct (CProd _ f2) elts) =
+    elim (elimList b f) (Struct f2 elts)
 
-instance F.Foldable (Sp' (f # L)) where
-  foldr f b (SpEx (Struct (CProd _ f2) elts finl)) =
-    elim (elimList b f) (Struct f2 elts finl)
+instance F.Foldable (Sp' (f # L) s) where
+  foldr f b (SpEx (Struct (CProd _ f2) elts)) =
+    elim (elimList b f) (Struct f2 elts)
 
 {-
 

@@ -25,7 +25,7 @@ import           Data.Species.Types
 
 canonicalize :: forall f s l a. (TraversableWithKey f, Size (Key f) ~ Size l, Eq l, Eq (Key f), HasSize (Key f), Storage s)
              => Sp f s l a -> (Sp f s (Key f) a, l <-> Key f)
-canonicalize (Struct fl es) = (Struct fk es, klIso)
+canonicalize (Struct fl es) = (Struct fk (reindex klIso es), klIso)
   where
     (fk, m) = runWriter (K.mapWithKeyM (\k l -> tell [(k,l)] >> return k) fl)
     klIso :: l <-> Key f
