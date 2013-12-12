@@ -1,4 +1,4 @@
-%% -*- LaTeX -*-
+%% -*- mode: LaTeX; compile-command: "mk" -*-
 
 \documentclass[adraft,copyright,creativecommons]{eptcs}
 \providecommand{\event}{MSFP 2014}
@@ -279,7 +279,7 @@ for programming.
 \label{sec:intro}
 
 The theory of combinatorial species, as it relates to the theory and
-practice of programming languages, has seemed to the authors ``an
+practice of programming languages, has long seemed to the authors ``an
 answer looking for a question'': the theory is too beautiful, and too
 ``obviously'' related to algebraic data types, to have no applications
 whatsoever.  Teasing out the precise relationship between species and
@@ -294,35 +294,66 @@ described in ways that are \emph{untyped} and \emph{nonconstructive},
 both of which hinder adoption and understanding in a computational
 context.
 
+\todo{sprinkle some forward references to the rest of the paper
+  through the following}
+
 Initially, we thought that the benefits of the theory of species would
 lie primarily in its ability to describe data types with
-\term{symmetry} (\ie\ quotient types).  For example, the type of
-(oriented) \term{cycles}---nonempty lists considered equivalent up to
-cyclic rotation of the elements---cannot be described as a traditional
-algebraic data type, but does correspond to a species.  Though that
-promise has not gone away, as we took a close look at the definitions,
-we were surprised to see the notion of \term{labels} coming to the
-fore, playing a much more prominent---and promising---role than we had
-previously imagined. \jc{Already mention here the idea of a theory of 
-memory?}
+\term{symmetry} (\ie\ quotient types \cite{quotient types?}).  For
+example, the type of (oriented) \term{cycles}---nonempty lists
+considered equivalent up to cyclic rotation of the elements---cannot
+be described as a traditional algebraic data type, but do correspond
+to a species.  That promise has not gone away, but as we took a close
+look at the definitions, we were surprised to see the notion of
+\term{labels} coming to the fore, playing a much more prominent---and
+promising---role than previously imagined.
 
-The essential idea is to decompose data structures as \emph{shapes}
-filled with \emph{data}, with labels mediating between the two. Of
-course, the idea of separating shapes and data is not at all new
-\todo{citations: containers, shapely types, etc.}.  However, previous
-approaches have left the labels \emph{implicit}.  Bringing the
-mediating labels to the fore is, to our knowledge, novel, and leads to
-some interesting benefits, namely
+After working with the definitions for a while, it becomes clear that
+species structures should be regarded as \emph{labelled shapes}---in
+particular, they should \emph{not} be thought of as containing
+data. \todo{justify previous statement a bit more?  why is this true,
+  beyond ``it just feels right''?}  To recover a notion of data
+structures, one must associate mappings from labels to data.  This
+leads to the familiar idea of decomposing data structures as shapes
+plus data \todo{citations: containers, shapely types, etc.}, with
+labels mediating between the two.  The crucial difference, however, is
+that previous approaches have used a fixed, canonical set of labels
+(or left the labels entirely implicit), whereas species naturally lead
+one to work \emph{parametrically} over labels, giving them a much more
+prominent role.  Bringing the mediating labels to the fore in this way
+is, to our knowledge, novel, and leads to some interesting benefits.
+For example:
 \begin{itemize}
-\item the ability to unify heretofore disparate notions such as
-  algebraic data types and arrays under the same framework
-\item \todo{let us talk about relabelling as a separate
-  operation}
-\item \todo{put structure on the labels themselves, e.g. L-species}
-\item \todo{more?}
+\item It allows us to unify ``implicitly labeled'' structures (such as
+  algebraic data types) and ``explicitly labeled'' structures (such as
+  arrays or finite maps) under the same framework.
+\item Some operations (for example, taking the transpose of a 2D
+  array) can be more naturally described as \emph{operations on
+    labels}, leading to benefits in both reasoning and efficiency.
+\item Value-level \emph{sharing} can be easily modelled via shared
+  labels.
+\item In fact, labels share some of the properties of memory
+  addresses, \ie\ pointers, and taking this analogy seriously lets us
+  reason about memory allocation and layout for stored data
+  structures.
+\item It opens the possibility of imposing additional structure on
+  the labels themselves (as is done, for example, with
+  $\mathbb{L}$-species \cite{BLL, chapter 5}).  We conjecture that
+  this has benefits in a computational setting, \todo{and give some
+    justification for this conjecture in section XXX?}, though
+  exploring this idea in more detail is left to future work.
 \end{itemize}
 
-In particular, our contributions are as follows:
+In addition, species are defined over \emph{finite} sets of labels.
+In a classical setting, this is little more than a footnote; when
+ported to a constructive setting, however, the notion of finiteness
+takes on nontrivial computational content and significance.  In
+particular, we are naturally led to work up to computationally
+relevant \emph{equivalences} (and \emph{partial equivalences}) on
+labels.  Working up to equivalence in this way gives us additional
+expressive power, \todo{finish}
+
+Our contributions are as follows: \todo{finish}
 \begin{itemize}
 \item We describe a ``port'' of combinatorial species from set theory
   to constructive type theory, making the theory more directly
@@ -399,7 +430,7 @@ t = Node 2 [Node 1 [], Node 4 [Node 3 [], Node 0 [], Node 5 []]]
 
 d = renderTree mkL (~~) (symmLayout' with { slHSep = 3.5, slVSep = 3.5 } t)
 
-mapping = centerY . vcat' with {sep = 0.3} $ zipWith mkMapping [0..5] "SNAILS" -- $
+mapping = centerY . vcat' (with & sep .~ 0.3) $ zipWith mkMapping [0..5] "SNAILS" -- $
   where
     mkMapping i c = mkL i .... hrule 1 .... (text' 1 (show c) <> strutX 1)
 
@@ -512,16 +543,17 @@ homotopy type theory and the theory of species, but exploring these
 connections is left to future work.
 
 The type theory is equipped with an empty type \TyZero, a unit type
-\TyOne, coproducts, dependent pairs, dependent functions, a universe
-$\Type$ of types, and a notion of propositional equality.  Instead of
-writing the traditional $\sum_{x : A} B(x)$ for the type of dependent
-pairs and $\prod_{x:A} B(x)$ for dependent functions, we will use the
-Agda-like \cite{Agda} notations $(x:A) \times B(x)$ and $(x:A) \to
-B(x)$, respectively.  We continue to use the standard abbreviations $A
-\times B$ and $A \to B$ for non-dependent pair and function types,
-that is, when $x$ does not appear free in $B$.  \todo{Remark that to
-  reduce clutter we sometimes make use of implicit arguments.
-  e.g. free variables are implicitly quantified.}
+\TyOne with inhabitant $\unit$, coproducts, dependent pairs, dependent
+functions, a universe $\Type$ of types, and a notion of propositional
+equality.  Instead of writing the traditional $\sum_{x : A} B(x)$ for
+the type of dependent pairs and $\prod_{x:A} B(x)$ for dependent
+functions, we will use the Agda-like \cite{Agda} notations $(x:A)
+\times B(x)$ and $(x:A) \to B(x)$, respectively.  We continue to use
+the standard abbreviations $A \times B$ and $A \to B$ for
+non-dependent pair and function types, that is, when $x$ does not
+appear free in $B$.  \todo{Remark that to reduce clutter we sometimes
+  make use of implicit arguments.  e.g. free variables are implicitly
+  quantified.}
 
 % We write $\impl{x:A} \to B$ for the type of
 % functions taking $x$ as an \emph{implicit} argument, and omit implicit
@@ -1211,14 +1243,14 @@ the size of the label type increases from left to right.
 import SpeciesDiagrams
 
 dot = circle 0.2 # fc black
-row p     = hcat' with {sep=0.1} . map (drawOne . p) $ [0..10]
+row p     = hcat' (with & sep .~ 0.1) . map (drawOne . p) $ [0..10]
 lRow x p  = hcat [text' 1 [x] <> phantom (square 1 :: D R2), strutX 0.5, row p]
 drawOne b = square 1 <> mconcat [dot||b]
 
 dia =
   pad 1.1 .
   centerXY .
-  vcat' with {sep = 0.3} $
+  vcat' (with & sep .~ 0.3) $
   [ lRow '0' (const False)
   , lRow '1' (==0)
   , lRow 'X' (==1)
@@ -1315,7 +1347,7 @@ either a labelled $F$-shape or a labelled $G$-shape.
 import SpeciesDiagrams
 
 theDia
-  = hcat' with {sep=1}
+  = hcat' (with & sep .~ 1)
     [ struct 5 "F+G"
     , text' 1 "="
     , vcat
@@ -1373,10 +1405,10 @@ shapes should be disjoint.
 import SpeciesDiagrams
 
 theDia
-  = hcat' with {sep=1}
+  = hcat' (with & sep .~ 1)
     [ struct 5 "F•G"
     , text' 1 "="
-    , vcat' with {sep = 0.2}
+    , vcat' (with & sep .~ 0.2)
       [ struct 2 "F"
       , struct 3 "G"
       ]
@@ -1455,7 +1487,7 @@ $G$-shapes.
 import SpeciesDiagrams
 
 theDia
-  = hcat' with {sep = 1}
+  = hcat' (with & sep .~ 1)
     [ struct 6 "F∘G"
     , text' 1 "="
     , drawSpT
@@ -1499,8 +1531,8 @@ the $F$ structure and pairing up their labels (and their data):
 import SpeciesDiagrams
 
 theDia
-  = hcat' with {sep=1}
-    [ vcat' with {sep=0.2}
+  = hcat' (with & sep.~1)
+    [ vcat' (with & sep.~0.2)
       [ nd (text' 1 "F") (map (lf . Lab . Right . show) [3,2,1])
         # drawSpT # centerX
       , text' 1 "⊗"
