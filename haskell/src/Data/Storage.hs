@@ -3,6 +3,8 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeOperators         #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE ConstraintKinds       #-}
 
 module Data.Storage
     ( Storage(..)
@@ -11,6 +13,7 @@ module Data.Storage
     where
 
 import Prelude hiding (zip, zipWith, concat)
+import GHC.Exts
 
 import Control.Lens (review)
 import Control.Applicative (liftA2)
@@ -23,6 +26,7 @@ import Data.Subset
 -- | Instances of @Storage@ represent \"memory\" which can be indexed by
 --   arbitrary labels.
 class Storage s where
+  type LabelConstraint s l :: Constraint
 
   -- | Allocate a finite block of storage with some initial content.
   allocate :: Finite l -> (l -> a) -> s l a
@@ -40,7 +44,7 @@ class Storage s where
 
   -- | Replace the value associated to a given label, returning the
   --   old value and the updated storage.
-  replace :: Eq l => l -> a -> s l a -> (a, s l a)
+  replace :: LabelConstraint s l => l -> a -> s l a -> (a, s l a)
 
   -- | Map over the contents of the storage.
   smap :: (a -> b) -> s l a -> s l b
@@ -64,6 +68,7 @@ emptyStorage = allocate finite_Fin absurd
 
 
 instance Storage (->) where
+  type LabelConstraint (->) l = Eq l
   allocate _ f          = f
   reindex sub f         = f . review (asPIso sub)
   index                 = id
