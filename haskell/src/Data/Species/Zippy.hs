@@ -22,10 +22,10 @@ instance Zippy X where
 instance Zippy E where
   fzip x _ = x
 
-zipS :: (Zippy f, HasSize l) => Sp f l a -> Sp f l b -> Sp f l (a,b)
+zipS :: (Zippy f, HasSize l) => Sp f s l a -> Sp f s l b -> Sp f s l (a,b)
 zipS = zipWithS (,)
 
-zipWithS :: (Zippy f, HasSize l) => (a -> b -> c) -> Sp f l a -> Sp f l b -> Sp f l c
+zipWithS :: (Zippy f, HasSize l) => (a -> b -> c) -> Sp f s l a -> Sp f s l b -> Sp f s l c
 zipWithS f (Struct shA as finA@(F isoA)) (Struct shB bs finB@(F isoB)) = 
     Struct (fzip shA shB) (V.zipWith f as bs') finA
     where bs' = V.permute (size finA) (isoA . from isoB) bs

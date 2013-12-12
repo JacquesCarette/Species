@@ -156,7 +156,7 @@ x' = SpEx . x
 -- E ---------------------------------------------
 
 e :: Storage s => Finite l -> (l -> a) -> Sp E s l a
-e fin f = Struct (e_ fin) (allocate fin f)
+e fin f = Struct e_ (allocate fin f)
 
 -- Argh, this needs a Natural constraint, but adding one to SomeVec
 -- ends up infecting everything in a very annoying way.

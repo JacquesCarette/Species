@@ -18,24 +18,25 @@ import           Data.Tuple                 (swap)
 import           Data.BFunctor
 import           Data.Iso
 import           Data.Finite                (Size(..),finConv)
+import           Data.Storage
 import           Data.Species.Shape
 import           Data.Species.Types
 
 
-canonicalize :: forall f l a. (TraversableWithKey f, Size (Key f) ~ Size l, Eq l, Eq (Key f), HasSize (Key f))
-             => Sp f l a -> (Sp f (Key f) a, l <-> Key f)
-canonicalize (Struct fl es fin) = (Struct fk es (finConv klIso fin), klIso)
+canonicalize :: forall f s l a. (TraversableWithKey f, Size (Key f) ~ Size l, Eq l, Eq (Key f), HasSize (Key f), Storage s)
+             => Sp f s l a -> (Sp f s (Key f) a, l <-> Key f)
+canonicalize (Struct fl es) = (Struct fk es, klIso)
   where
     (fk, m) = runWriter (K.mapWithKeyM (\k l -> tell [(k,l)] >> return k) fl)
     klIso :: l <-> Key f
     klIso   = iso (fromJust . (lookup ?? map swap m)) (fromJust . (lookup ?? m))
 
-forgetShape :: Sp f l a -> Sp E l a
-forgetShape (Struct _ es finl) = Struct (e_ finl) es finl
+forgetShape :: Sp f s l a -> Sp E s l a
+forgetShape (Struct _ es) = Struct e_ es
 
-reconstitute :: Representable f => Sp E (Key f) a -> Sp f (Key f) a
-reconstitute (Struct _ es finl) = Struct (tabulate id) es finl
+reconstitute :: Representable f => Sp E s (Key f) a -> Sp f s (Key f) a
+reconstitute (Struct _ es) = Struct (tabulate id) es
 
-unCanonicalize :: (BFunctor f, Representable f, HasSize l, HasSize (Key f), Eq l, Eq (Key f))
-               => (Sp f (Key f) a, l <-> Key f) -> Sp f l a
+unCanonicalize :: (BFunctor f, Representable f, HasSize l, HasSize (Key f), Eq l, Eq (Key f), Storage s)
+               => (Sp f s (Key f) a, l <-> Key f) -> Sp f s l a
 unCanonicalize (sp, i) = relabel (from i) (reconstitute . forgetShape $ sp)

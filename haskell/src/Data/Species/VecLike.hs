@@ -44,8 +44,8 @@ take (Struct f i finl) n pf =
 -}
 
 -- This works, but because it relies on knowing a specific label set iso:
-take :: forall f a q n. N.Natural q => Sp f (F.Fin q) a -> N.SNat n -> (n <= q) ->
-  Sp (f # Part) (F.Fin q) a
+take :: forall f a q n. N.Natural q => Sp f s (F.Fin q) a -> N.SNat n -> (n <= q) ->
+  Sp (f # Part) s (F.Fin q) a
 take (Struct f i finq) n pf =
   case minus (size finq) n pf of
     Minus (m :: N.SNat m) Refl ->
@@ -67,7 +67,7 @@ vpart (V.VCons a v) = case vpart v of
                     (case N.plusSuccR (V.size ns) (V.size ms) of Refl -> Refl)
 
 {- This is still not right
-filter :: forall f l a. Sp f l a -> (a -> Bool) -> Sp (f # Part) l a
+filter :: forall f l a. Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
 filter (Struct f i finl@(F isof)) p =
   let foo = fmap p i in
   case vpart foo of
