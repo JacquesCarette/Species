@@ -9,7 +9,7 @@ import           Data.List                           (intersperse)
 import           Data.Tree
 import           Diagrams.Backend.Postscript.CmdLine
 import           Diagrams.Core.Points
-import           Diagrams.Prelude
+import           Diagrams.Prelude                    hiding (arrow)
 import           Diagrams.TwoD.Layout.Tree
 import           Graphics.SVGFonts.ReadFont
 
@@ -79,7 +79,7 @@ instance Drawable a => Drawable (Cyc a) where
   draw (Cyc ls) = cyc' (map draw ls # sized (Width (labR*2))) 1
 
 instance Drawable a => Drawable [a] where
-  draw ls = centerX . hcat' with {sep = 0.1}
+  draw ls = centerX . hcat' (with & sep .~ 0.1)
           $ intersperse (arrow 0.5 mempty) (map draw ls)
 
 instance Drawable a => Drawable (Pointed a) where
@@ -124,7 +124,7 @@ drawSpT' tr slopts
 
 drawSpT :: Tree SpN -> Diagram Postscript R2
 drawSpT = drawSpT' (rotation (1/4 :: CircleFrac))
-                   with {slHSep = 0.5, slVSep = 2}
+                   (with { slHSep = 0.5, slVSep = 2})
 
 drawSpN' :: Transformation R2 -> SpN -> Diagram Postscript R2
 drawSpN' _  (Lab (Left n))  = lab n # scale 0.5
@@ -180,7 +180,7 @@ struct'' n d = nd d (replicate n (lf Leaf))
 linOrd :: [Int] -> Diagram Postscript R2
 linOrd ls =
     connect
-  . hcat' with {sep = 0.5}
+  . hcat' (with & sep .~ 0.5)
   $ map labT ls & _head %~ named "head" & _last %~ named "last"
   where
     connect =
@@ -192,7 +192,7 @@ unord [] = circle 1 # lw 0.1 # lc gray
 unord ds = elts # centerXY
            <> roundedRect w (mh + s*2) ((mh + s*2) / 5)
   where
-    elts  = hcat' with {sep = s} ds
+    elts  = hcat' (with & sep .~ s) ds
     mw    = maximum' 0 . map width  $ ds
     s     = mw * 0.5
     mh    = maximum' 0 . map height $ ds
@@ -200,6 +200,6 @@ unord ds = elts # centerXY
     maximum' d [] = d
     maximum' _ xs = maximum xs
 
-enRect :: (Semigroup a, TrailLike a, Alignable a, Enveloped a, V a ~ R2) => a -> a
+enRect :: (Semigroup a, TrailLike a, Alignable a, Enveloped a, HasOrigin a, V a ~ R2) => a -> a
 enRect d = roundedRect (w+0.5) (h+0.5) 0.5 <> d # centerXY
   where (w,h) = size2D d

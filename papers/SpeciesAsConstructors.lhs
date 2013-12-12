@@ -1,4 +1,4 @@
-%% -*- LaTeX -*-
+%% -*- mode: LaTeX; compile-command: "mk" -*-
 
 \documentclass[adraft,copyright,creativecommons]{eptcs}
 \providecommand{\event}{MSFP 2014}
@@ -397,7 +397,7 @@ t = Node 2 [Node 1 [], Node 4 [Node 3 [], Node 0 [], Node 5 []]]
 
 d = renderTree mkL (~~) (symmLayout' with { slHSep = 3.5, slVSep = 3.5 } t)
 
-mapping = centerY . vcat' with {sep = 0.3} $ zipWith mkMapping [0..5] "SNAILS" -- $
+mapping = centerY . vcat' (with & sep .~ 0.3) $ zipWith mkMapping [0..5] "SNAILS" -- $
   where
     mkMapping i c = mkL i .... hrule 1 .... (text' 1 (show c) <> strutX 1)
 
@@ -1209,14 +1209,14 @@ the size of the label type increases from left to right.
 import SpeciesDiagrams
 
 dot = circle 0.2 # fc black
-row p     = hcat' with {sep=0.1} . map (drawOne . p) $ [0..10]
+row p     = hcat' (with & sep .~ 0.1) . map (drawOne . p) $ [0..10]
 lRow x p  = hcat [text' 1 [x] <> phantom (square 1 :: D R2), strutX 0.5, row p]
 drawOne b = square 1 <> mconcat [dot||b]
 
 dia =
   pad 1.1 .
   centerXY .
-  vcat' with {sep = 0.3} $
+  vcat' (with & sep .~ 0.3) $
   [ lRow '0' (const False)
   , lRow '1' (==0)
   , lRow 'X' (==1)
@@ -1313,7 +1313,7 @@ either a labelled $F$-shape or a labelled $G$-shape.
 import SpeciesDiagrams
 
 theDia
-  = hcat' with {sep=1}
+  = hcat' (with & sep .~ 1)
     [ struct 5 "F+G"
     , text' 1 "="
     , vcat
@@ -1371,10 +1371,10 @@ shapes should be disjoint.
 import SpeciesDiagrams
 
 theDia
-  = hcat' with {sep=1}
+  = hcat' (with & sep .~ 1)
     [ struct 5 "F•G"
     , text' 1 "="
-    , vcat' with {sep = 0.2}
+    , vcat' (with & sep .~ 0.2)
       [ struct 2 "F"
       , struct 3 "G"
       ]
@@ -1453,7 +1453,7 @@ $G$-shapes.
 import SpeciesDiagrams
 
 theDia
-  = hcat' with {sep = 1}
+  = hcat' (with & sep .~ 1)
     [ struct 6 "F∘G"
     , text' 1 "="
     , drawSpT
@@ -1497,8 +1497,8 @@ the $F$ structure and pairing up their labels (and their data):
 import SpeciesDiagrams
 
 theDia
-  = hcat' with {sep=1}
-    [ vcat' with {sep=0.2}
+  = hcat' (with & sep.~1)
+    [ vcat' (with & sep.~0.2)
       [ nd (text' 1 "F") (map (lf . Lab . Right . show) [3,2,1])
         # drawSpT # centerX
       , text' 1 "⊗"
