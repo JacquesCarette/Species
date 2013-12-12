@@ -69,7 +69,7 @@
 %% Diagrams
 
 \usepackage{graphicx}
-\usepackage[outputdir=diagrams/,backend=ps,extension=eps]{diagrams-latex}
+\usepackage[outputdir=diagrams,backend=ps,extension=eps]{diagrams-latex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Math typesetting
@@ -197,6 +197,7 @@
 \fi
 
 \newcommand{\bay}[1]{\authornote{blue}{BAY}{#1}}
+\newcommand{\jc}[1]{\authornote{purple}{JC}{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Semantic markup
@@ -1639,7 +1640,7 @@ therefore has a natural number size).
 \paragraph{Derivative and pointing}
 
 The \term{derivative} is a well-known operation on shapes in the
-functional programming community~\cite{holes etc.}, and it works in
+functional programming community~\cite{holes_etc}, and it works in
 exactly the way one expects on species.  That is, $F'$-shapes consist
 of $F$-shapes with one distinguished location (a ``hole'') that
 contains no data.  Formally, we may define
@@ -2057,8 +2058,7 @@ rings of formal power series. \todo{future work making connections to
 \section{Conclusion}
 \label{sec:conclusion}
 
-
-%\bibliographystyle{plainnat}
-%\bibliography{paper}
+\bibliographystyle{plainnat}
+\bibliography{SpeciesAsConstructors}
 
 \end{document}
