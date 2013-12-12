@@ -284,11 +284,11 @@ answer looking for a question'': the theory is too beautiful, and too
 ``obviously'' related to algebraic data types, to have no applications
 whatsoever.  Teasing out the precise relationship between species and
 data types, however, has proved challenging, due in large part to two
-main causes.  First, combinatoricists are mainly concerned with
-counting structures, and not with storing and computing with data;
-thus, when attempting to apply species in a computational context,
+main causes.  First, combinatorialists are mainly concerned with
+enumerating (and generating) structures, and not with storing and computing
+with data; thus, when attempting to apply species in a computational context,
 there are many hidden assumptions and glossed distinctions that must
-be unraveled first.  Second, being situated in traditional
+be unraveled.  Second, being situated in traditional
 mathematical practice rooted in set theory, species are usually
 described in ways that are \emph{untyped} and \emph{nonconstructive},
 both of which hinder adoption and understanding in a computational
@@ -299,11 +299,12 @@ lie primarily in its ability to describe data types with
 \term{symmetry} (\ie\ quotient types).  For example, the type of
 (oriented) \term{cycles}---nonempty lists considered equivalent up to
 cyclic rotation of the elements---cannot be described as a traditional
-algebraic data type, but do correspond to a species.  Though that
+algebraic data type, but does correspond to a species.  Though that
 promise has not gone away, as we took a close look at the definitions,
 we were surprised to see the notion of \term{labels} coming to the
 fore, playing a much more prominent---and promising---role than we had
-previously imagined.
+previously imagined. \jc{Already mention here the idea of a theory of 
+memory?}
 
 The essential idea is to decompose data structures as \emph{shapes}
 filled with \emph{data}, with labels mediating between the two. Of
