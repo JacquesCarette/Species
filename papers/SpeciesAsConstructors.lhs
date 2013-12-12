@@ -306,14 +306,14 @@ be described as a traditional algebraic data type, but do correspond
 to a species.  That promise has not gone away, but as we took a close
 look at the definitions, we were surprised to see the notion of
 \term{labels} coming to the fore, playing a much more prominent---and
-promising---role than previously imagined.
+promising---role than previously imagined. 
 
 After working with the definitions for a while, it becomes clear that
 species structures should be regarded as \emph{labelled shapes}---in
 particular, they should \emph{not} be thought of as containing
 data. \todo{justify previous statement a bit more?  why is this true,
   beyond ``it just feels right''?}  To recover a notion of data
-structures, one must associate mappings from labels to data.  This
+structures, one must add a (notion of) mapping from labels to data.  This
 leads to the familiar idea of decomposing data structures as shapes
 plus data \todo{citations: containers, shapely types, etc.}, with
 labels mediating between the two.  The crucial difference, however, is
@@ -368,12 +368,17 @@ Our contributions are as follows: \todo{finish}
   including \todo{?}
 \end{itemize}
 
+We remain amused by our discovery that a Functor category (which is what
+Species are) sheds its brightest light on low-level issues relating to 
+low-level issues of memory allocation, layout and sharing.
 
 % \begin{todoP}
 %   Motivation.  ``An answer looking for a question.''  Note symmetries
 %   were original motivation, but drawn to labels instead.  ``Follow the
 %   theory'' and see what pops out.
 
+% \jc{I am starting to think that our interesting points and our take
+%     home points have slowly swapped position over time}
 %   Take-home points:
 %   \begin{itemize}
 %   \item Labelled structures capture a wide range of data structures.
@@ -393,6 +398,8 @@ Our contributions are as follows: \todo{finish}
 
 Rather than diving immediately into species, we begin with an
 intuitive definition of ``labelled structures'' and some examples.
+\jc{Which brings to mind an important question: is it the labelled types or
+the labelled structures which emerge from this as most important?}
 
 The essential idea of labelled structures is to separate the notions
 of container shapes and the data stored in those shapes.  This idea in
