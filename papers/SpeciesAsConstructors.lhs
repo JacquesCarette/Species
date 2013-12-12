@@ -486,7 +486,8 @@ that we will make precise in section \todo{??} \bay{Idea here is that
 Since the definition of a labelled structure already includes the
 notion of a mapping from labels to data, we may encode finite maps
 simply by using \emph{sets} of labels as shapes, \ie\ shapes with no
-structure other than containing some labels.
+structure other than containing some labels. \jc{Mention that to recover
+Haskell's notion of Finite Map, we need to use labels which are ordered?}
 
 \todo{picture?}
 
@@ -495,7 +496,9 @@ structure other than containing some labels.
 Vectors, and multi-dimensional arrays more generally, \todo{from one
   point of view are just finite maps with some nontrivial structure on
   the labels.  Can also move the structure around between labels and
-  shape (???).}
+  shape (???).}  \jc{The danger I see here is that we can do vectors
+  rather easily, but our story on higher dimensional arrays is not
+  well enough developped at this point to say much about it.}
 
 \paragraph{Symmetric shapes}
 
