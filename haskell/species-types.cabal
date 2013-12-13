@@ -25,6 +25,7 @@ library
                        Data.Species.Convert,
                        Data.Species.Elim,
                        Data.Species.Isos,
+                       Data.Species.Lens,
                        Data.Species.List,
                        Data.Species.Rose,
                        Data.Species.Shape,
