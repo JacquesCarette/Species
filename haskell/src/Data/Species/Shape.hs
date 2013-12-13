@@ -150,13 +150,15 @@ x_ = X id
 -- E ---------------------------------------------
 
 -- | The species of bags, with one shape of each size.
-newtype E (l :: *) = E (S.Set l)
-  deriving (BFunctor, Show)
+data E (l :: *) = E
+  deriving (Functor,Show)
+
+instance BFunctor E
 
 -- | Trivial introduction form for the canonical @E@-shape of any set
 --   of labels.
-e_ :: Finite l -> E l
-e_ = E . S.enumerate
+e_ :: E l
+e_ = E 
 
 -- U ---------------------------------------------
 data U l = U l deriving Show

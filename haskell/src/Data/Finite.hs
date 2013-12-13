@@ -66,6 +66,8 @@ fromFin     :: Finite l -> Fin (Size l) -> l
 --   for convenience.
 fromFin (F finite) = view finite
 
+------------------------------------------------------------
+
 instance Natural n => HasSize (Fin n) where
   type Size (Fin n) = n
   size _ = toSNat
@@ -144,15 +146,6 @@ finite_Product a@(F{}) b@(F{}) =
         szA = size a
         szB = size b
 
-
-{- NOTE, it is actually not possible to make a reasonable implementation of
-
-  finite_splitProduct :: Finite (a,b) -> (Finite a, Finite b)
-
-because there is no guarantee that there is any sort of regularity in
-the way the pairs are distributed.
--}
-
 -- Finite is almost a BFunctor...
 -- instance BFunctor Finite where
 --   bmap i = iso (\(F f) -> F (f . i))
@@ -161,6 +154,15 @@ the way the pairs are distributed.
 finConv :: (Eq l2, HasSize l2) => (l1 <-> l2) -> Finite l1 -> Finite l2
 finConv i (F f) =
   case isoPresSize i of Refl -> F (f . i)
+
+
+{- NOTE, it is actually not possible to make a reasonable implementation of
+
+  finite_splitProduct :: Finite (a,b) -> (Finite a, Finite b)
+
+because there is no guarantee that there is any sort of regularity in
+the way the pairs are distributed.
+-}
 
 ------------------------------------------------------------
 -- Miscellaneous proofs about size

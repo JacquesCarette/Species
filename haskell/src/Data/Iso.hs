@@ -1,13 +1,15 @@
 {-# LANGUAGE Rank2Types           #-}
 {-# LANGUAGE TypeOperators        #-}
 
--- | Natural transformations and isomorphisms.
+-- | Natural transformations, isomorphisms, and partial isomorphisms.
 module Data.Iso
     ( -- * Isomorphisms and natural transformations
 
      type (<->), liftIso, type (-->), type (<-->)
 
     , subtractIso
+
+
     )
     where
 
@@ -63,4 +65,3 @@ subtractIso ab e = iso (iter ab e . Right) (iter (from ab) (from e) . Right)
 
 -- | Natural transformations between two shapes.
 type (-->) f g = forall l. (Eq l) => f l -> g l
-

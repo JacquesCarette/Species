@@ -19,6 +19,7 @@ import           Data.Void
 import           Data.Species.Elim
 import           Data.Species.Shape
 import           Data.Species.Types
+import           Data.Storage
 
 import           Data.Species.List
 
@@ -29,11 +30,11 @@ import           Data.Species.List
 class Labelled c where
   type EltType c :: *
   type ShapeOf c :: * -> *
-  toLabelled   :: c -> Sp' (ShapeOf c) (EltType c)
+  toLabelled   :: Storage s => c -> Sp' (ShapeOf c) s (EltType c)
   elimLabelled :: Elim (ShapeOf c) (EltType c) c
-  fromLabelled :: Eq l => Sp (ShapeOf c) l (EltType c) -> c
+  fromLabelled :: (Eq l, Storage s) => Sp (ShapeOf c) s l (EltType c) -> c
   fromLabelled = elim elimLabelled
-  fromLabelled' :: Sp' (ShapeOf c) (EltType c) -> c
+  fromLabelled' :: Sp' (ShapeOf c) s (EltType c) -> c
   fromLabelled' = elim' elimLabelled
 
 instance Labelled (Identity a) where
@@ -78,6 +79,7 @@ instance ( Labelled (f a), Labelled (g a)
   elimLabelled = elimSum (elimLabelled <#> left)
                          (elimLabelled <#> right)
 
+{-
 instance ( Functor f
          , Labelled (g a)
          , Labelled (f (g a))
@@ -93,18 +95,19 @@ instance ( Functor f
               have to make do with enumerating the
               necessary instantiations.
            -}
-         , ShapeOf (f (g a)) ~ ShapeOf (f (Sp' (ShapeOf (g a)) a))
+         , ShapeOf (f (g a)) ~ ShapeOf (f (Sp' (ShapeOf (g a)) s a))
 
          )
     => Labelled (Compose f g a) where
   type EltType (Compose f g a) = a
   type ShapeOf (Compose f g a)
-    = Comp (ShapeOf (f (Sp' (ShapeOf (g a)) (EltType (g a)))))
+    = Comp (ShapeOf (f (Sp' (ShapeOf (g a)) s (EltType (g a)))))
            (ShapeOf (g a))
   toLabelled (Compose fga)
     = compJ'' (fmap toLabelled (toLabelled fga))
   elimLabelled
     = elimComp (Compose <$> elimLabelled) elimLabelled
+-}
 
 instance Labelled [a] where
   type EltType [a] = a

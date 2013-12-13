@@ -1,0 +1,22 @@
+What to write about, precisely?
+
+* Taking labels seriously
+* Taking constructiveness seriously.
+
+  - "Finite" sets: isomorphism to Fin n.  But the precise isomorphism
+    matters.  Use it to index into underlying storage.
+
+    - Talk about implementation of unit, singleton, sums, products,
+      composition.
+
+  - Partial isomorphisms / subset relation.  (Note it corresponds to
+    prisms from lens --- so we can compose them nicely. =)
+
+    - Subset vs E*E.  U.
+    - Sharing storage by subsetting.
+
+    - Decomposition operations.
+
+  - Case study: array operations.
+
+    - Stuff about forgetting labels/canonical relabeling etc.
