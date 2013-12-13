@@ -252,11 +252,10 @@ p l (Struct s es) = Struct (p_ l s) es
 
 -- Partition   -----------------------------------
 
-part
-  :: (Storage s)
+part :: (Storage s, Eq l1, Eq l2)
   => Finite l1 -> Finite l2
-  -> (l1 -> a) -> (l2 -> a) -> (Either l1 l2 <-> l) -> Sp Part s l a
-part finf fing f g i = Struct (part_ finf fing i) (reindex i $ append (allocate finf f) (allocate fing g))
+  -> (l1 -> a) -> (l2 -> a) -> (Either l1 l2 <-> l) -> Sp (E * E) s l a
+part finl1 finl2 f g i = Struct (part_ i) (reindex i $ append (allocate finl1 f) (allocate finl2 g))
 
 -- It is not clear that we can create a part' because this witnesses a subset
 -- relation on labels, which seems difficult to abstract

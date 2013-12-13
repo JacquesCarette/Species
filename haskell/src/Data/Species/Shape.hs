@@ -273,17 +273,12 @@ p_ :: l -> f l -> (P f) l
 p_ l f = P l f
 
 -- Partition   -----------------------------------
--- This can be see as 'just' E * E, but it is useful to give it a name
+-- Since this is really E * E, define it that way.
 
-data Part l where
-  Part :: S.Set l1 -> S.Set l2 -> (Either l1 l2 <-> l) -> Part l
+type Part = E * E
 
-instance BFunctor Part where
-  bmap i = iso (\(Part s1 s2 pf) -> Part s1 s2 (pf.i))
-               (\(Part s1 s2 pf) -> Part s1 s2 (pf.from i))
-
-part_ :: Finite l1 -> Finite l2 -> (Either l1 l2 <-> l) -> Part l
-part_ f1 f2 i = Part (S.enumerate f1) (S.enumerate f2) i
+part_ :: (Eq l1, Eq l2) => (Either l1 l2 <-> l) -> (E * E) l
+part_ i = Prod E E i
 
 -- Composition -----------------------------------
 
