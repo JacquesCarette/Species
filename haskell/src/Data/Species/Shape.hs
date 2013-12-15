@@ -278,7 +278,7 @@ p_ l f = P l f
 type Part = E * E
 
 part_ :: (Eq l1, Eq l2) => (Either l1 l2 <-> l) -> (E * E) l
-part_ i = Prod E E i
+part_ = Prod E E
 
 -- Composition -----------------------------------
 

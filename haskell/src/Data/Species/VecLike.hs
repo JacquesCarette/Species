@@ -11,81 +11,40 @@
 
 module Data.Species.VecLike where
 
-import           Control.Lens
-import           Data.Proxy
+import           Control.Lens (iso)
 import           Data.Type.Equality
 
 import qualified Data.Fin                 as F
-import           Data.Fin.Isos
+import           Data.Fin.Isos (finSum, finSum')
 import           Data.Iso
 import           Data.Finite
-import qualified Data.Set.Abstract        as S
 import           Data.Species.Shape
 import           Data.Species.Types
 import qualified Data.Type.Nat            as N
 import           Data.Type.Nat.Inequality
 import           Data.Type.Nat.Minus
-import qualified Data.Vec                 as V
+import qualified Data.Storage             as S
 
-{-
-   This fails, as it REQUIRES l ~ F.Fin (N.Plus n j))
 
-take :: forall f l a n . HasSize l => Sp f l a -> N.SNat n -> (n <= Size l) ->
-  Sp (f # Part) l a
-take (Struct f i finl) n pf =
-  case minus (size finl) n pf of
+-- This requires quite a lot of inputs to 'work', but it does.
+-- Given a species, its allocated size, the size of prefix you want to take,
+-- a proof that it is smaller, overlay this with the Species.  Note that
+-- this requires that the label set be F.Fin.  One could likely generalize
+-- this to l <-> F.Fin q by explicitly adding such a parameter.
+take :: forall f a q q' n s. q ~ q' =>
+  Sp f s (F.Fin q) a -> N.SNat q' -> N.SNat n -> (n <= q) 
+     -> Sp (f # Part) s (F.Fin q) a
+take (Struct f i) qq n pf =
+  case minus qq n pf of
     Minus (m :: N.SNat m) Refl ->
       case N.plusComm m n of
-        Refl -> Struct (cprod_ f k) i finl
-          where k :: Part l
-                k = N.natty n $ N.natty m $ Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
-                isom :: Either (F.Fin n) (F.Fin m) <-> l
+        Refl -> Struct (cprod_ f (part_ isom)) i
+          where isom :: Either (F.Fin n) (F.Fin m) <-> F.Fin q
                 isom = iso (finSum n m) (finSum' n m)
--}
 
-{-
--- This used to work, but is now entirely impossible
-take :: forall f a q n s. N.Natural q => Sp f s (F.Fin q) a -> N.SNat n -> (n <= q) ->
-  Sp (f # Part) s (F.Fin q) a
-take (Struct f i) n pf =
-  case minus (size finq) n pf of
-    Minus (m :: N.SNat m) Refl ->
-      case N.plusComm m n of
-        Refl -> Struct (cprod_ f k) i finq
-          where k :: Part (F.Fin q)
-                k = N.natty n $ N.natty m $ Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
-                isom :: Either (F.Fin n) (F.Fin m) <-> F.Fin q
-                isom = iso (finSum n m) (finSum' n m)
-data VPart l where
-  VPart :: V.Vec n l -> V.Vec m l -> N.Plus n m :=: Size l -> VPart l
+filter :: (S.Storage s, Eq l) => Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
+filter (Struct f stor) p = Struct (cprod_ f k) stor
+  where sel = S.smap p stor
+        k = part_ (iso (\l -> case l of {Left a -> a; Right a -> a}) 
+                       (\l -> if (S.index sel l) then Left l else Right l) )
 
-vpart :: V.Vec n Bool -> VPart (F.Fin n)
-vpart V.VNil = VPart V.VNil V.VNil Refl
-vpart (V.VCons a v) = case vpart v of
-  VPart ns ms Refl ->
-    if a then VPart (V.VCons F.FZ (fmap F.FS ns)) (fmap F.FS ms) Refl
-         else VPart (fmap F.FS ns) (V.VCons F.FZ (fmap F.FS ms))
-                    (case N.plusSuccR (V.size ns) (V.size ms) of Refl -> Refl)
--}
-
-{- This is still not right
-filter :: forall f l a. Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
-filter (Struct f i finl@(F isof)) p =
-  let foo = fmap p i in
-  case vpart foo of
-    VPart (v1 :: V.Vec n (F.Fin (Size l))) (v2 :: V.Vec m (F.Fin (Size l))) Refl
-      -> Struct (cprod_ f k) i finl
-        where k :: Part l
-              k = N.natty (V.size v1) $ N.natty (V.size v2) $
-                  Part (S.enumerate finite_Fin) (S.enumerate finite_Fin) isom
-              isom :: Either (F.Fin n) (F.Fin m) <-> l
-              isom = iso foo bar
-              foo :: Either (F.Fin n) (F.Fin m) -> l
-              foo (Left n) = V.index v1 n
-              foo (Right m) = V.index v2 m
-              bar l = case V.lookup v1 (view finl l) of
-                        Just n1 -> Left n1
-                        Nothing -> case V.lookup v2 l of
-                                      Just m1 -> Right m1
-                                      Nothing -> error "this case cannot happen"
--}

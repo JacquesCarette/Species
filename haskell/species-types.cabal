@@ -30,7 +30,7 @@ library
                        Data.Species.Traversal,
                        Data.Species.Types,
                        -- Data.Species.Unlabelled,
-                       -- Data.Species.VecLike,
+                       Data.Species.VecLike,
                        Data.Species.Zippy,
                        Data.Type.Isos,
                        Data.Type.List,
