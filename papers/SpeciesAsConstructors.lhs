@@ -642,8 +642,6 @@ matter which proof we use, we simply leave it implicit, being careful
 to only use $\size$ in a context where a suitable finiteness proof
 could be obtained.
 
-\todo{extend to $\cons{Countable}\ L = \Finite L + L \iso \N$?}
-
 \subsection{Partial isomorphisms}
 \label{sec:subsets}
 
@@ -653,8 +651,8 @@ evidence that one type is a ``subset'' of another type, written $A
 there is no literal set-theoretic sense in which one type can be a
 subset of another.
 
-However, we can model this situation with a \term{partial
-  isomorphism}. \todo{cite Tillmann Rendel and Klaus
+However, we can model this situation with \term{partial
+  isomorphisms}. \todo{cite Tillmann Rendel and Klaus
   Ostermann. Invertible Syntax Descriptions: Unifying Parsing and
   Pretty Printing. In Proc. of Haskell Symposium, 2010. ? Not sure if
   it's really about the same thing, though it may be related somehow.}
@@ -680,9 +678,9 @@ is, we have $- \comp - : (B \subseteq C) \to (A \subseteq B) \to (A
 \subseteq C)$ implemented in the obvious way.  Combining the two
 previous observations, we can compose an isomorphism with a partial
 isomorphism (or the other way around) to obtain another partial
-isomorphism.\footnote{Happily, using the Haskell \texttt{lens}
-  library, this all works out automatically: the representations of
-  isomorphisms and partial isomorphisms (which \texttt{lens} calls
+isomorphism.\footnote{Happily, using the Haskell \texttt{lens} library
+  \cite{lens}, this all works out automatically: the representations
+  of isomorphisms and partial isomorphisms (which \texttt{lens} calls
   \emph{prisms}) are such that isomorphisms simply \emph{are} partial
   isomorphisms, and they compose as one would expect, using the
   standard function composition operator.}
@@ -888,7 +886,7 @@ we require only that it come equipped with the following operations:
     L_2)} A \\
 %  |replace| &: \DecEq L \to L \to A \to \Store L A \to A \times \Store L A \\
   |map| &: (A \to B) \to \Store L A \to \Store L B \\
-  |ap| &: \Store L {(A \to B)} \to \Store L A \to \Store L B \\
+  |zipWith| &: (A \to B \to C) \to \Store L A \to \Store L B \to \Store L C \\
   |reindex|  &: (L' \subseteq L) \to \Store L A \to \Store {L'} A
 \end{align*}
 \todo{not sure if we need |replace|} It's worth walking through
@@ -906,10 +904,9 @@ some informal descriptions of the semantics of these operations.
 \item |append| and |concat| are ``structural'' operations, allowing us
   to combine two mappings into one, or collapse nested mappings,
   respectively.
-\item |map| ensures that $\Store L -$ is functorial; |ap| requires it
-  to be ``applicative'' (allowing us to implement, \eg, $|zipWith| :
-  (A \to B \to C) \to \Store L A \to \Store L B \to \Store L
-  C$).
+\item |map| ensures that $\Store L -$ is functorial.
+\item |zipWith| gives us a way to combine the contents of two mappings
+  labelwise. \todo{Note why we don't use |ap|}
 \item $|reindex| : (L' \subseteq L) \to \Store L A \to \Store {L'} A$
   expresses the functoriality of $\Store - A$.  In particular, it is
   contravariant as one might expect, and lifts not just isomorphisms
@@ -932,13 +929,13 @@ arrow to represent $\StoreSym$ (presented here using Haskell-like
 notation):
 
 \begin{spec}
-  allocate _   = id
-  index        = id
-  append f g   = either f g
-  concat       = curry
-  map          = (.)
-  ap f g l     = f l (g l)
-  reindex s f  = f . s
+  allocate _       = id
+  index            = id
+  append f g       = either f g
+  concat           = curry
+  map              = (.)
+  zipWith z f g    = \l -> z (f l) (g l)
+  reindex s f      = f . s
 \end{spec}
 
 Note that the implementation of |allocate| does not make use of the
@@ -955,8 +952,8 @@ values.  In particular, we assume a type $|Vec| : \N \to \Type \to
   appendV   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \\
   concatV   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \\
   mapV      &: (A \to B) \to (\Vect n A \to \Vect n B) \\
-  imapV     &: (\Fin n \to A \to B) \to (\Vec n A \to \Vect n B) \\
-  apV       &: \Vect n {(A \to B)} \to \Vect n A \to \Vect n B
+  imapV     &: (\Fin n \to A \to B) \to (\Vect n A \to \Vect n B) \\
+  zipWithV  &: (A \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C
 \end{align*}
 
 We then define \[ \Store L A \defn \sum_{n : \N} (L \subseteq \Fin n)
@@ -993,14 +990,15 @@ We then define \[ \Store L A \defn \sum_{n : \N} (L \subseteq \Fin n)
   affected, the proof $(L \subseteq \Fin n)$ can be carried through
   unchanged.
 
-\item At first blush it may seem that |ap| is equally straightforward
-  to implement in terms of |apV|, but it is much more subtle.  In
-  fact, we cannot directly use |apV|, for two reasons. First, two
-  $\Store L A$ values may have underlying vectors of different
-  lengths, so an application of |apV| would not even be well-typed!
-  Second, even if the underlying vectors did have the same length, the
-  $(L \subseteq \Fin n)$ proofs have real computational content:
-  zipping on labels and zipping on indices may not coincide.
+\item At first blush it may seem that |zipWith| is equally
+  straightforward to implement in terms of |zipWithV|, but it is
+  somewhat subtle.  In fact, we cannot directly use |zipWithV|, for two
+  reasons. First, two $\Store L A$ values may have underlying vectors
+  of different lengths, so an application of |apV| would not even be
+  well-typed!  Second, even if the underlying vectors did have the
+  same length, the $(L \subseteq \Fin n)$ proofs have real
+  computational content: zipping on labels and zipping on indices may
+  not coincide.
 
   \todo{Explain solution.  Could go via |allocateV| and then |apV|.
     More efficient solution that avoids allocation makes use of
@@ -1026,8 +1024,6 @@ We then define \[ \Store L A \defn \sum_{n : \N} (L \subseteq \Fin n)
 \item |concat| \todo{finish}
 
 \end{itemize}
-
-\todo{compaction using Gordon complementary bijection principle?}
 
 \todo{On the other hand, data structures ultimately have
 to be stored in memory somehow, and this gives us a nice
@@ -2095,6 +2091,8 @@ species---at least in the context of combinatorics---can be traced to
 fruitful homomorphisms between algebraic descriptions of species and
 rings of formal power series. \todo{future work making connections to
   computation?}
+
+\todo{extend to $\cons{Countable}\ L = \Finite L + L \iso \N$?}
 
 \todo{assumptions on categories needed for various operations.}
 
