@@ -161,16 +161,6 @@ nd x = Node (Sp x (1/2))
 lf :: a -> Tree a
 lf x = Node x []
 
-main :: IO ()
-main = -- defaultMain (arrow 1 ((text' 1 "f" <> strutY 1) # scale 0.5))
-
- defaultMain (draw (down (Cyc [lab 0, lab 1, lab 2])))
-
--- defaultMain (draw (Cyc [Cyc [lab 0, lab 4], Cyc [lab 1, lab 2, lab 3]]))
--- (cyc' (replicate 5 (square 0.2 :: Diagram B R2)) 1)
-
--- defaultMain (drawSpT (nd 'F' [lf Leaf, lf Hole, Node Bag (map lf [Leaf, Leaf, Hole, Leaf])]))
-
 struct :: Int -> String -> Diagram B R2
 struct n x = drawSpT (struct' n x)
            # centerXY
