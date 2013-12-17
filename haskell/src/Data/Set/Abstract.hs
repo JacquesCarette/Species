@@ -2,7 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- | A simple model of abstract (mathematical) sets.
-module Data.Set.Abstract (Set, enumerate, elimSet) where
+module Data.Set.Abstract (Set, enumerate, elimSet, emptySet, union) where
 
 import           Control.Lens
 import           Data.BFunctor
@@ -21,6 +21,13 @@ instance BFunctor Set where
 -- | The set of elements of a 'Finite' type.
 enumerate :: forall l. Finite l -> Set l
 enumerate f@(F finite) = Set $ map (view finite) (fins (size f))
+
+-- | The empty set
+emptySet = Set []
+
+-- | Union
+union :: Set a -> Set b -> Set (Either a b)
+union (Set la) (Set lb) = Set (map Left la ++ map Right lb)
 
 -- | Generic eliminator for 'Set'. Note that using @elimSet@ incurs a
 --   proof obligation, namely, the first argument must be a function
