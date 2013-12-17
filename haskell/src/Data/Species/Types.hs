@@ -33,7 +33,7 @@ module Data.Species.Types
       -- ** Singleton
     , x, x'
       -- ** Bags
-    , e
+    , e, e', empty, econs
       -- ** Sum
     , inl, inr, inl', inr'
       -- ** Product
@@ -123,7 +123,7 @@ reshape r = over shape r
 --   labels, otherwise we can't really do anything with them and we
 --   might as well just not have them at all.
 data Sp' f s a where
-  SpEx :: (HasSize l, Eq l, Storage s) => Sp f s l a -> Sp' f s a
+  SpEx :: (Eq l, Storage s) => Sp f s l a -> Sp' f s a
 
 withSp :: (forall l. Sp f s l a -> Sp g s l b) -> Sp' f s a -> Sp' g s b
 withSp q sp' = case sp' of SpEx sp -> SpEx (q sp)
@@ -158,14 +158,19 @@ x' = SpEx . x
 e :: Storage s => Finite l -> (l -> a) -> Sp E s l a
 e fin f = Struct e_ (allocate fin f)
 
--- Argh, this needs a Natural constraint, but adding one to SomeVec
--- ends up infecting everything in a very annoying way.
--- JC: can't we pull a 'natty' here too?
+-- it is also useful to have the empty bag, as well as 
+-- one-element union
+empty :: Storage s => Sp E s (Fin Z) a
+empty = Struct e_ emptyStorage
 
--- e' :: [a] -> Sp' E a
--- e' as =
---   case V.fromList as of
---     (V.SomeVec (v :: V.Vec n a)) -> SpEx (Struct (e_ (finite_Fin) :: E (Fin n)) v finite_Fin)
+econs :: (Storage s) => a -> Sp E s l a -> Sp E s (Either (Fin (S Z)) l) a
+econs x (Struct f stor) = 
+  Struct E (append (allocate finite_Fin (const x)) stor)
+
+-- probably could forgo the Vector by using snatToInt
+e' :: Storage s => [a] -> Sp' E s a
+e' as = case V.fromList as of
+          (V.SomeVec v) -> SpEx (Struct e_ (initialize (V.index v)))
 
 -- u ---------------------------------------------
 
