@@ -150,14 +150,11 @@ x_ = X id
 -- E ---------------------------------------------
 
 -- | The species of bags, with one shape of each size.
-data E (l :: *) = E
-  deriving (Functor,Show)
+data E (l :: *) = E (S.Set l) deriving (Show)
 
-instance BFunctor E
-
--- | Trivial introduction form for the canonical @E@-shape of any set
+-- | Introduction form for the canonical @E@-shape of any set
 --   of labels.
-e_ :: E l
+e_ :: S.Set l -> E l
 e_ = E 
 
 -- U ---------------------------------------------
@@ -277,8 +274,8 @@ p_ l f = P l f
 
 type Part = E * E
 
-part_ :: (Eq l1, Eq l2) => (Either l1 l2 <-> l) -> (E * E) l
-part_ = Prod E E
+part_ :: (Eq l1, Eq l2) => S.Set l1 -> S.Set l2 -> (Either l1 l2 <-> l) -> (E * E) l
+part_ s1 s2 = Prod (E s1) (E s2)
 
 -- Composition -----------------------------------
 

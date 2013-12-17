@@ -68,7 +68,8 @@ import           Data.Storage
 import           Data.Subset
 import           Data.Type.List
 import           Data.Type.Nat
-import qualified Data.Vec     as V
+import qualified Data.Vec          as V
+import qualified Data.Set.Abstract as S
 
 ------------------------------------------------------------
 -- Labelled structures
@@ -156,21 +157,24 @@ x' = SpEx . x
 -- E ---------------------------------------------
 
 e :: Storage s => Finite l -> (l -> a) -> Sp E s l a
-e fin f = Struct e_ (allocate fin f)
+e fin f = Struct (e_ (S.enumerate fin)) (allocate fin f)
 
 -- it is also useful to have the empty bag, as well as 
 -- one-element union
 empty :: Storage s => Sp E s (Fin Z) a
-empty = Struct e_ emptyStorage
+empty = Struct (e_ S.emptySet) emptyStorage
 
 econs :: (Storage s) => a -> Sp E s l a -> Sp E s (Either (Fin (S Z)) l) a
-econs x (Struct f stor) = 
-  Struct E (append (allocate finite_Fin (const x)) stor)
+econs x (Struct (E s) stor) = 
+  Struct (E (S.union (S.enumerate finite_Fin) s)) 
+         (append (allocate finite_Fin (const x)) stor)
 
 -- probably could forgo the Vector by using snatToInt
 e' :: Storage s => [a] -> Sp' E s a
 e' as = case V.fromList as of
-          (V.SomeVec v) -> SpEx (Struct e_ (initialize (V.index v)))
+          (V.SomeVec v) -> natty (V.size v) $
+                           SpEx (Struct (e_ (S.enumerate finite_Fin)) 
+                                (initialize (V.index v)))
 
 -- u ---------------------------------------------
 
@@ -260,7 +264,9 @@ p l (Struct s es) = Struct (p_ l s) es
 part :: (Storage s, Eq l1, Eq l2)
   => Finite l1 -> Finite l2
   -> (l1 -> a) -> (l2 -> a) -> (Either l1 l2 <-> l) -> Sp (E * E) s l a
-part finl1 finl2 f g i = Struct (part_ i) (reindex i $ append (allocate finl1 f) (allocate finl2 g))
+part finl1 finl2 f g i = 
+  Struct (part_ (S.enumerate finl1) (S.enumerate finl2) i) 
+         (reindex i $ append (allocate finl1 f) (allocate finl2 g))
 
 -- It is not clear that we can create a part' because this witnesses a subset
 -- relation on labels, which seems difficult to abstract
