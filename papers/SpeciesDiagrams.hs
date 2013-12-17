@@ -3,6 +3,7 @@
 {-# LANGUAGE GADTs                #-}
 {-# LANGUAGE TypeFamilies         #-}
 {-# LANGUAGE TypeSynonymInstances #-}
+
 module SpeciesDiagrams where
 
 import           Data.List                           (intersperse)
@@ -13,7 +14,7 @@ import           Diagrams.Prelude                    hiding (arrow)
 import           Diagrams.TwoD.Layout.Tree
 import           Graphics.SVGFonts.ReadFont
 
-import           Control.Lens                        ((%~), (&), _head, _last)
+import           Control.Lens                        (_head, _last)
 
 colors :: [Colour Double]
 colors = [red, orange, green, blue, purple, brown, grey, black]
@@ -22,13 +23,13 @@ labR, arrowGap :: Double
 labR     = 0.3
 arrowGap = 0.2
 
-text' :: Double -> String -> Diagram Postscript R2
+text' :: Double -> String -> Diagram B R2
 text' d s = (stroke $ textSVG' (TextOpts s lin INSIDE_H KERN False d d)) # fc black # lw 0
 
-labT :: Int -> Diagram Postscript R2
+labT :: Int -> Diagram B R2
 labT n = text' 1 (show n) # scale labR <> lab n
 
-lab :: Int -> Diagram Postscript R2
+lab :: Int -> Diagram B R2
 lab n = lab' (colors !! n)
 
 lab' :: (TrailLike b, Transformable b, HasStyle b, V b ~ R2) => Colour Double -> b
@@ -37,7 +38,7 @@ lab' c = circle labR
        # lc c
        # lw (labR / 5)
 
-cyc :: [Int] -> Double -> Diagram Postscript R2
+cyc :: [Int] -> Double -> Diagram B R2
 cyc labs r = cyc' (map lab labs) r
 
 cyc' :: (Monoid' a, TrailLike a, Transformable a, HasStyle a, HasOrigin a, V a ~ R2) => [a] -> Double -> a
@@ -70,9 +71,9 @@ newtype Cyc a = Cyc {getCyc :: [a]}
 data Pointed a = Plain a | Pointed a
 
 class Drawable d where
-  draw :: d -> Diagram Postscript R2
+  draw :: d -> Diagram B R2
 
-instance Drawable (Diagram Postscript R2) where
+instance Drawable (Diagram B R2) where
   draw = id
 
 instance Drawable a => Drawable (Cyc a) where
@@ -86,10 +87,10 @@ instance Drawable a => Drawable (Pointed a) where
   draw (Plain a) = draw a
   draw (Pointed a) = point (draw a)
 
-point :: Diagram Postscript R2 -> Diagram Postscript R2
+point :: Diagram B R2 -> Diagram B R2
 point d = d <> drawSpN Hole # sizedAs (d # scale 5)
 
-down :: Cyc (Diagram Postscript R2) -> Cyc (Cyc (Pointed (Diagram Postscript R2)))
+down :: Cyc (Diagram B R2) -> Cyc (Cyc (Pointed (Diagram B R2)))
 
 down (Cyc ls) = Cyc (map Cyc (pointings ls))
 
@@ -97,10 +98,11 @@ pointings :: [a] -> [[Pointed a]]
 pointings []     = []
 pointings (x:xs) = (Pointed x : map Plain xs) : map (Plain x :) (pointings xs)
 
-elimArrow :: Diagram Postscript R2
+elimArrow :: Diagram B R2
 elimArrow = (hrule 2 # lw 0.03)
         ||| eqTriangle 0.2 # rotateBy (-1/4) # fc black
 
+arrow :: Double -> Diagram B R2 -> Diagram B R2
 arrow len l =
   ( l
     ===
@@ -110,28 +112,30 @@ arrow len l =
   |||
   eqTriangle 0.2 # rotateBy (-1/4) # fc black
 
+(|-|) :: Diagram B R2 -> Diagram B R2 -> Diagram B R2
 x |-| y = x ||| strutX 1 ||| y
 
-data SpN = Lab (Either Int String) | Leaf | Hole | Point | Sp (Diagram Postscript R2) CircleFrac | Bag
+data SpN = Lab (Either Int String) | Leaf (Maybe (Diagram B R2)) | Hole | Point | Sp (Diagram B R2) CircleFrac | Bag
 
 type SpT = Tree SpN
 
-drawSpT' :: T2 -> SymmLayoutOpts SpN -> Tree SpN -> Diagram Postscript R2
+drawSpT' :: T2 -> SymmLayoutOpts SpN -> Tree SpN -> Diagram B R2
 drawSpT' tr slopts
   = transform tr
   . renderTree' (drawSpN' (inv tr)) drawSpE
   . symmLayout' slopts
 
-drawSpT :: Tree SpN -> Diagram Postscript R2
+drawSpT :: Tree SpN -> Diagram B R2
 drawSpT = drawSpT' (rotation (1/4 :: CircleFrac))
                    (with { slHSep = 0.5, slVSep = 2})
 
-drawSpN' :: Transformation R2 -> SpN -> Diagram Postscript R2
+drawSpN' :: Transformation R2 -> SpN -> Diagram B R2
 drawSpN' _  (Lab (Left n))  = lab n # scale 0.5
-drawSpN' tr (Lab (Right t)) = (drawSpN' tr Leaf ||| strutX (labR/2) ||| text' 0.3 t) # transform tr
-drawSpN' _  Leaf     = circle (labR/2) # fc black
+drawSpN' tr (Lab (Right t)) = (drawSpN' tr (Leaf Nothing) ||| strutX (labR/2) ||| text' 0.3 t) # transform tr
+drawSpN' _  (Leaf Nothing)  = circle (labR/2) # fc black
+drawSpN' _  (Leaf (Just d)) = d
 drawSpN' _  Hole     = circle (labR/2) # lw (labR / 10) # fc white
-drawSpN' tr Point    = drawSpN' tr Leaf <> drawSpN' tr Hole # scale 1.7
+drawSpN' tr Point    = drawSpN' tr (Leaf Nothing) <> drawSpN' tr Hole # scale 1.7
 drawSpN' tr (Sp s f) = ( arc (3/4 - f/2) (3/4 + f/2) # scale 0.3
                        |||
                        strutX 0.1
@@ -144,48 +148,34 @@ drawSpN' _  Bag     =
                   ||| strutX (labR/4) ||| text' 1 "}" # scale 0.5
                 ) # centerX
 
-drawSpN :: SpN -> Diagram Postscript R2
+drawSpN :: SpN -> Diagram B R2
 drawSpN = drawSpN' mempty
 
 drawSpE :: (TrailLike b, HasStyle b) => (t, Point (V b)) -> (SpN, Point (V b)) -> b
 drawSpE (_,p) (Hole,q) = (p ~~ q) # dashing [0.05,0.05] 0
 drawSpE (_,p) (_,q)    = p ~~ q
 
-nd :: Diagram Postscript R2 -> Forest SpN -> Tree SpN
+nd :: Diagram B R2 -> Forest SpN -> Tree SpN
 nd x = Node (Sp x (1/2))
 
 lf :: a -> Tree a
 lf x = Node x []
 
-main :: IO ()
-main = -- defaultMain (arrow 1 ((text' 1 "f" <> strutY 1) # scale 0.5))
-
- defaultMain (draw (down (Cyc [lab 0, lab 1, lab 2])))
-
--- defaultMain (draw (Cyc [Cyc [lab 0, lab 4], Cyc [lab 1, lab 2, lab 3]]))
--- (cyc' (replicate 5 (square 0.2 :: Diagram Postscript R2)) 1)
-
--- defaultMain (drawSpT (nd 'F' [lf Leaf, lf Hole, Node Bag (map lf [Leaf, Leaf, Hole, Leaf])]))
-
-struct :: Int -> String -> Diagram Postscript R2
+struct :: Int -> String -> Diagram B R2
 struct n x = drawSpT (struct' n x)
            # centerXY
 
 struct' :: Int -> String -> Tree SpN
 struct' n x = struct'' n (text' 1 x <> rect 2 1 # lw 0)
 
-struct'' :: Int -> Diagram Postscript R2 -> Tree SpN
-struct'' n d = nd d (replicate n (lf Leaf))
+struct'' :: Int -> Diagram B R2 -> Tree SpN
+struct'' n d = nd d (replicate n (lf (Leaf Nothing)))
 
-linOrd :: [Int] -> Diagram Postscript R2
+linOrd :: [Int] -> Diagram B R2
 linOrd ls =
-    connect
+    connect' (with & arrowHead .~ noHead) "head" "last"
   . hcat' (with & sep .~ 0.5)
   $ map labT ls & _head %~ named "head" & _last %~ named "last"
-  where
-    connect =
-      withNames ["head", "last"] $ \[h,l] ->
-        beneath (location h ~~ location l)
 
 unord :: (Monoid' b, Semigroup b, TrailLike b, Alignable b, Transformable b, HasStyle b, Juxtaposable b, HasOrigin b, Enveloped b, V b ~ R2) => [b] -> b
 unord [] = circle 1 # lw 0.1 # lc gray
