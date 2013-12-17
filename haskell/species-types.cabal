@@ -42,7 +42,7 @@ library
   -- other-modules:
   build-depends:       base ==4.6.*,
                        lens ==3.9.*,
-                       tagged ==0.7.*,
+                       tagged >= 0.6 && < 0.8,
                        void ==0.6.*,
                        type-equality ==0.1.*,
                        mtl ==2.1.*,
