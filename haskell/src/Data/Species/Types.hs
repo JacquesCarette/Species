@@ -373,6 +373,6 @@ data UnzippedSpSp' n g a where
 
 -- Cardinality restriction -----------------------
 
--- sized :: Sp f s l a -> Sp (OfSize (Size l) f) s l a
--- sized (Struct s es finl) = Struct (sized_ finl s) es finl
+sized :: Finite l -> Sp f s l a -> Sp (OfSize (Size l) f) s l a
+sized finl (Struct s es) = Struct (sized_ finl s) es
 
