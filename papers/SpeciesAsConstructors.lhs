@@ -393,8 +393,11 @@ low-level issues of memory allocation, layout and sharing.
 %   \end{itemize}
 % \end{todoP}
 
-\section{Labelled Structures}
+\section{Labelled Structures, Informally}
 \label{sec:labelled}
+
+\todo{combine this and the previous section? i.e. put this informal
+  description and examples before our list of contributions.}
 
 Rather than diving immediately into species, we begin with an
 intuitive definition of ``labelled structures'' and some examples.
@@ -642,102 +645,6 @@ matter which proof we use, we simply leave it implicit, being careful
 to only use $\size$ in a context where a suitable finiteness proof
 could be obtained.
 
-\subsection{Partial isomorphisms}
-\label{sec:subsets}
-
-In what follows we will often have cause to make use of constructive
-evidence that one type is a ``subset'' of another type, written $A
-\subseteq B$.  Of course there is no subtyping in our type theory, so
-there is no literal set-theoretic sense in which one type can be a
-subset of another.
-
-However, we can model this situation with \term{partial
-  isomorphisms}. \todo{cite Tillmann Rendel and Klaus
-  Ostermann. Invertible Syntax Descriptions: Unifying Parsing and
-  Pretty Printing. In Proc. of Haskell Symposium, 2010. ? Not sure if
-  it's really about the same thing, though it may be related somehow.}
-A partial isomorphism $A \subseteq B$ is given by:
-\begin{itemize}
-\item a function $|embed| : A \to B$,
-\item a function $|project| : B \to 1+A$,
-\item a proof that $|project . embed| = \cons{inr}$, and
-\item a proof that for all $b : B$, if $|project b| = \cons{inr}(a)$
-  then |embed a = b|.
-\end{itemize}
-
-The situation can be visualized as follows:
-
-\todo{picture}
-
-Note that an isomorphism $f \mkIso g : A \iso B$ can be made into a
-partial isomorphism trivially by setting $|embed| = f$ and $|project|
-= \cons{inr} \comp g$.  We will not bother to note the conversion,
-simply using equivalences as if they were partial isomorphisms when
-convenient.  In addition, note that partial isomorphisms compose, that
-is, we have $- \comp - : (B \subseteq C) \to (A \subseteq B) \to (A
-\subseteq C)$ implemented in the obvious way.  Combining the two
-previous observations, we can compose an isomorphism with a partial
-isomorphism (or the other way around) to obtain another partial
-isomorphism.\footnote{Happily, using the Haskell \texttt{lens} library
-  \cite{lens}, this all works out automatically: the representations
-  of isomorphisms and partial isomorphisms (which \texttt{lens} calls
-  \emph{prisms}) are such that isomorphisms simply \emph{are} partial
-  isomorphisms, and they compose as one would expect, using the
-  standard function composition operator.}
-
-The type $(n : \N) \times (L \subseteq \Fin n)$ can also be thought of
-as a witness of the finiteness of $L$; intuitively, it states that $L$
-has size \emph{at most} $n$, which sounds like it would contain
-\emph{less} information than a proof $\Finite L$.  However, there is a
-lot of information contained in a value of $(L \subseteq \Fin n)$. In
-particular, we may use the |project| function to compute the precise
-size of $L$.  We can define a function \[ |subToEquiv| : ((n : \N)
-\times (L \subseteq \Fin n)) \to ((m : \N) \times (L \iso \Fin m)) \]
-by induction on $n$, running the |project| component of $(L \subseteq
-\Fin n)$ on each inhabitant of $\Fin n$ and counting how many map to a
-value in $L$.
-
-\todo{Actually, there are some interesting choices in how we implement
-  |subToEquiv|.  It corresponds in some sense to ``compaction'' or
-  ``defragmentation'' if you will, and one might wish to do it with as
-  little copying as possible.  The ``naive'' approach, to just ``shift
-  everything left'' to fill unused slots may do a lot of unnecessary
-  copying.  We can do better using the Gordon Complementary Bijection
-  Principle (with type $(A \iso A') \to (A + B \iso A' + B')
-  \to (B \iso B')$).  The idea is to prove that for all $s : \N$,
-\begin{multline*}
-  \left( \sum_{\substack{k : \Fin
-        n \\ l : L}} |project|(k) = \cons{inr}(l) \right) + \left(
-    \sum_{k : \Fin n} |project|(k) = \cons{inl}(\star) \right) \iso
-  \Fin n
-  \iso \Fin s + \Fin (n - s)
-\end{multline*}
-where $\Fin (n - s)$ is an abbreviation for $\sum_{j : \N} (j + s = n)
-\times \Fin j$; the left-hand equivalence is unique, and for the
-right-hand equivalence we want the ``obvious'' implementation which
-simply concatenates the elements of $\Fin {(n-s)}$ after those of
-$\Fin s$. Then we write a function |Lsize| which simultaneously
-computes the size of $L$ and an enumeration of the elements of $\Fin
-n$ which do not correspond to elements of $L$: \[ |Lsize| : (n : \N)
-\to (L \subseteq \Fin n) \to \sum_{s:\N} \left[ \left( \sum_{k : \Fin
-      n} |project|(k) = \cons{inl}(\star) \right) \iso \Fin (n - s)
-\right] \] Applying the GCBP now gives us an equivalence \[ \left(
-  \sum_{\substack{k : \Fin n \\ l : L}} |project|(k) = \cons{inr}(l)
-\right) \iso \Fin s. \] To complete the construction we note that \[ L
-\iso \left( \sum_{\substack{k : \Fin n \\ l : L}} |project|(k) =
-  \cons{inr}(l) \right) \] by properties of $\subseteq$.  So in the
-end we have an equivalence $L \iso \Fin s$ as desired, but one which
-``does as little copying as possible'' (it should be possible to
-formalize this).
-}
-
-On the other hand, we could drop |project|, that is, we could take
-something like \[ \cons{SubFinite} L \defn (n : \N) \times (|embed| :
-L \to \Fin n) \times \cons{Injective}\ |embed|. \] This certainly
-implies that $L$ is finite in a classical sense (\ie not infinite),
-but it does not allow us to construct a $\Finite L$ value.  At the
-moment we are not sure where (or if) this concept might be useful.
-
 \section{Combinatorial Species}
 \label{sec:species}
 
@@ -857,25 +764,111 @@ arrows. That is, if $F : \Species$, instead of writing $F.\shapes\ L$
 or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 \sigma$.
 
-\subsection{Labelled structures and mappings}
-\label{sec:labelled-formal}
+\section{Mappings}
+\label{sec:mappings}
 
-Formally, we may define families of labelled structures as follows:
-\begin{align*}
-   &\LStr - - - : \Species \to \Type \to \Type \to \Type \\
-   &\LStr F L A = F\ L \times \Store L A
-\end{align*}
-that is, a labelled structure over the species $F$, parameterized by a
-type $L$ of labels and a type $A$ of data, consists of
+\todo{high-level explanation}
+
+\subsection{Partial isomorphisms}
+\label{sec:subsets}
+
+In what follows we will often have cause to make use of constructive
+evidence that one type is a ``subset'' of another type, written $A
+\subseteq B$.  Of course there is no subtyping in our type theory, so
+there is no literal set-theoretic sense in which one type can be a
+subset of another.
+
+However, we can model this situation with \term{partial
+  isomorphisms}. \todo{cite Tillmann Rendel and Klaus
+  Ostermann. Invertible Syntax Descriptions: Unifying Parsing and
+  Pretty Printing. In Proc. of Haskell Symposium, 2010. ? Not sure if
+  it's really about the same thing, though it may be related somehow.}
+A partial isomorphism $A \subseteq B$ is given by:
 \begin{itemize}
-\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape; and
-\item a mapping $\Store L A$ from labels to data values (defined
-  below).
+\item a function $|embed| : A \to B$,
+\item a function $|project| : B \to 1+A$,
+\item a proof that $|project . embed| = \cons{inr}$, and
+\item a proof that for all $b : B$, if $|project b| = \cons{inr}(a)$
+  then |embed a = b|.
 \end{itemize}
 
-This formal definition matches well with the intuition that we are
-taking labelled shapes corresponding to a species and simply adding
-some associated data.  The interesting point, however, is that we
+The situation can be visualized as follows:
+
+\todo{picture}
+
+Note that an isomorphism $f \mkIso g : A \iso B$ can be made into a
+partial isomorphism trivially by setting $|embed| = f$ and $|project|
+= \cons{inr} \comp g$.  We will not bother to note the conversion,
+simply using equivalences as if they were partial isomorphisms when
+convenient.  In addition, note that partial isomorphisms compose, that
+is, we have $- \comp - : (B \subseteq C) \to (A \subseteq B) \to (A
+\subseteq C)$ implemented in the obvious way.  Combining the two
+previous observations, we can compose an isomorphism with a partial
+isomorphism (or the other way around) to obtain another partial
+isomorphism.\footnote{Happily, using the Haskell \texttt{lens} library
+  \cite{lens}, this all works out automatically: the representations
+  of isomorphisms and partial isomorphisms (which \texttt{lens} calls
+  \emph{prisms}) are such that isomorphisms simply \emph{are} partial
+  isomorphisms, and they compose as one would expect, using the
+  standard function composition operator.}
+
+The type $(n : \N) \times (L \subseteq \Fin n)$ can also be thought of
+as a witness of the finiteness of $L$; intuitively, it states that $L$
+has size \emph{at most} $n$, which sounds like it would contain
+\emph{less} information than a proof $\Finite L$.  However, there is a
+lot of information contained in a value of $(L \subseteq \Fin n)$. In
+particular, we may use the |project| function to compute the precise
+size of $L$.  We can define a function \[ |subToEquiv| : ((n : \N)
+\times (L \subseteq \Fin n)) \to ((m : \N) \times (L \iso \Fin m)) \]
+by induction on $n$, running the |project| component of $(L \subseteq
+\Fin n)$ on each inhabitant of $\Fin n$ and counting how many map to a
+value in $L$.
+
+\todo{Actually, there are some interesting choices in how we implement
+  |subToEquiv|.  It corresponds in some sense to ``compaction'' or
+  ``defragmentation'' if you will, and one might wish to do it with as
+  little copying as possible.  The ``naive'' approach, to just ``shift
+  everything left'' to fill unused slots may do a lot of unnecessary
+  copying.  We can do better using the Gordon Complementary Bijection
+  Principle (with type $(A \iso A') \to (A + B \iso A' + B')
+  \to (B \iso B')$).  The idea is to prove that for all $s : \N$,
+\begin{multline*}
+  \left( \sum_{\substack{k : \Fin
+        n \\ l : L}} |project|(k) = \cons{inr}(l) \right) + \left(
+    \sum_{k : \Fin n} |project|(k) = \cons{inl}(\star) \right) \iso
+  \Fin n
+  \iso \Fin s + \Fin (n - s)
+\end{multline*}
+where $\Fin (n - s)$ is an abbreviation for $\sum_{j : \N} (j + s = n)
+\times \Fin j$; the left-hand equivalence is unique, and for the
+right-hand equivalence we want the ``obvious'' implementation which
+simply concatenates the elements of $\Fin {(n-s)}$ after those of
+$\Fin s$. Then we write a function |Lsize| which simultaneously
+computes the size of $L$ and an enumeration of the elements of $\Fin
+n$ which do not correspond to elements of $L$: \[ |Lsize| : (n : \N)
+\to (L \subseteq \Fin n) \to \sum_{s:\N} \left[ \left( \sum_{k : \Fin
+      n} |project|(k) = \cons{inl}(\star) \right) \iso \Fin (n - s)
+\right] \] Applying the GCBP now gives us an equivalence \[ \left(
+  \sum_{\substack{k : \Fin n \\ l : L}} |project|(k) = \cons{inr}(l)
+\right) \iso \Fin s. \] To complete the construction we note that \[ L
+\iso \left( \sum_{\substack{k : \Fin n \\ l : L}} |project|(k) =
+  \cons{inr}(l) \right) \] by properties of $\subseteq$.  So in the
+end we have an equivalence $L \iso \Fin s$ as desired, but one which
+``does as little copying as possible'' (it should be possible to
+formalize this).
+}
+
+On the other hand, we could drop |project|, that is, we could take
+something like \[ \cons{SubFinite} L \defn (n : \N) \times (|embed| :
+L \to \Fin n) \times \cons{Injective}\ |embed|. \] This certainly
+implies that $L$ is finite in a classical sense (\ie not infinite),
+but it does not allow us to construct a $\Finite L$ value.  At the
+moment we are not sure where (or if) this concept might be useful.
+
+\subsection{Storage}
+\label{sec:storage}
+
+  The interesting point, however, is that we
 leave the type $\Store L A$ intentionally abstract.  In particular,
 we require only that it come equipped with the following operations:
 \begin{align*}
@@ -1034,6 +1027,26 @@ semantics.}
 \todo{note that |appendV| and |concatV| probably have to allocate.
   Fixing that leads to an implementation using generalized tries---cf Hinze.}
 
+\section{Labelled structures}
+\label{sec:labelled-formal}
+
+Formally, we may define families of labelled structures as follows:
+\begin{align*}
+   &\LStr - - - : \Species \to \Type \to \Type \to \Type \\
+   &\LStr F L A = F\ L \times \Store L A
+\end{align*}
+that is, a labelled structure over the species $F$, parameterized by a
+type $L$ of labels and a type $A$ of data, consists of
+\begin{itemize}
+\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape; and
+\item a mapping $\Store L A$ from labels to data values (defined
+  below).
+\end{itemize}
+
+This formal definition matches well with the intuition that we are
+taking labelled shapes corresponding to a species and simply adding
+some associated data.
+
 \subsection{Labelled eliminators}
 \label{sec:labelled-eliminators}
 
@@ -1134,7 +1147,134 @@ equality, by converting to $\Fin\ (\size L)$ and comparing, and we
 construct an $(L \to A)$ function which converts $L$ to an index
 before doing a lookup in the element vector.
 
-\subsection{Species, algebraically}
+\subsection{Zipping and canonical labels}
+\label{sec:zipping}
+
+One natural operation on arrays of the same size is to \term{zip}
+them, applying some operation to their corresponding elements
+pointwise and producing a new array.
+
+Typically, when we think of zipping operation, we think of taking two
+values with the ``same shape'' and matching up corresponding elements.
+Following this intuition, we could try to define an operation \[
+|zip|_F : (L, A, B : \Type) \to \LStr F L A \to \LStr F L B \to \LStr
+F L {A \times B} \] by induction on (suitable) algebraic species
+descriptions $F$.  However, we quickly get stuck trying to define it
+even for binary product, and it is instructive to see why.  We are
+given values $x : \LStr {F \sprod G} L A$ and $y : \LStr {F \sprod G}
+L B$, and we may assume that we have suitable functions $|zip|_F$ and
+$|zip|_G$.  We need to somehow produce a value of type $\LStr {F
+  \sprod G} L {A \times B}$.  Expanding the definitions of $\LStr - -
+-$ and $\sprod$, we find that $x$ has the type \[ x : \Finite L \times
+\sum_{L_1, L_2 : \FinType} \left( (L_1 + L_2 \iso L) \times F\ L_1
+  \times G\ L_2 \right) \times \Vect{(\size L)}{A} \] where we have
+used $\Sigma$-notation for a dependent pair, to emphasize the fact
+that $L_1$ and $L_2$ are existentially quantified within $x$.  $y$ has
+a similar type, with $B$ substituted for $A$: \[ y : \Finite L \times
+\sum_{L_1', L_2' : \FinType} \left( (L_1' + L_2' \iso L) \times F\
+  L_1' \times G\ L_2' \right) \times \Vect{(\size L)}{B} \] However,
+we note crucially that $y$ may existentially quantify over types
+$L_1'$ and $L_2'$ which are \emph{different} from those in $x$.  We
+have nothing on which to apply our inductive hypotheses $|zip|_F$ and
+$|zip|_G$, since they require matching label types.  We can put
+together the given equivalences to conclude that $L_1 + L_2 \iso L_1'
++ L_2'$, but this still does not tell us anything about the
+relationship of $L_i$ to $L_i'$.  Intuitively, the problem is that
+though $x$ and $y$ contain the same set of labels, those labels may be
+distributed in different ways, and so we have no guarantee that we can
+match up the structures in a meaningful way.
+
+\todo{picture of mismatching labelled structures with same shape?}
+
+The takeaway from all of this is that we can only zip two labelled
+structures if they have the same shape \emph{labelled in exactly the
+  same way}; otherwise, it is not clear how the resulting structure
+should be labelled.  However, in general we have no way to ensure
+this.
+
+However, there is an alternative, more fundamental way to think about
+zipping labelled structures.  We allow zipping only between two bag
+structures with the same set of labels, with data corresponding to
+matching labels paired in the obvious way.  That is, we have an
+operation \[ |zip| : \LStr \E L A \to \LStr \E L B \to
+\LStr \E L {A \times B}.\] We can recover a notion of ``shape-based''
+zipping by noting that for \term{regular} species (\ie polynomial
+functors), we can assign canonical labels based on the shape.
+Assigning such canonical labels allows us to then ``forget'' the shape
+without losing any information, since the shape is encoded in the labels.
+
+To make this precise, we first introduce an operation |canonicalize|
+with a type as follows: \[ |canonicalize| : (F : \RegSpecies) \to
+\LStr F L A \to \LStr F {\Path F} A \times (L \iso \Path F) \] That
+is, given a regular species $F$, we can relabel an $F$-structure,
+returning the canonically relabelled structure (using the canonical
+label type $\Path F$) along with an equivalence specifying the
+relabeling that was performed.
+
+\todo{Explain $\Path F$.  Also, where to put this definition of
+  $\RegSpecies$?}
+
+\begin{flalign*}
+  &\Regular : \Species \to \Type \\
+  &\Regular F \defn (L, L' : \Type) \to
+  (f : F\ L) \to (\sigma : L \iso L') \to ((F\ \sigma\ f = f) \to
+  (\sigma = \id))) \\
+  &\RegSpecies \defn (F : \Species) \times \Regular F
+\end{flalign*}
+
+The problem with the type $\LStr F {\Path F} A$ is that it has
+structure duplicated between its shape and the labels.  |canonicalize|
+is not itself an equivalence, because given something of type $\LStr F
+{\Path F} A$ there is no guarantee that the labels match the
+structure in the canonical way---they may be shuffled around.
+
+We therefore introduce another function
+\[ |forgetShape| : (F : \Species) \to \LStr F L A \to \LStr \E L A \]
+which takes a labelled structure and simply forgets its shape. Also,
+given a bag labeled with the canonical labels for some shape, we can
+recover the shape: \[ |reconstruct| : (F : \RegSpecies) \to \LStr \E
+{\Path F} A \to \LStr F {\Path F} A \] We have the laws \[
+|forgetShape| \comp |reconstruct| = id \] \todo{and?}
+
+\todo{finish}
+This lets us go back and forth between different views of data.  Some
+operations are ``structural'', \ie operate on nontrivial shapes
+(\eg matrix multiplication) whereas some (\eg transpose) are best
+expressed as operations on structured labels.
+
+% The shape of 2D arrays, for example, is $L_m \comp L_n$ (if we consider 2D
+% arrays as a data structure where the ordering of elements is
+% significant).  But $Path(L_m \comp L_n) \sim (Fin m, Fin n)$, so we can convert
+% between $(Sp (L_m \comp L_n) l a)$ and $(Sp E (Fin m, Fin n) a)$.
+
+% Now, on to zipping in general.  The problem is that zipping two
+% labelled structures where the structures are nontrivial is
+% nonsensical: we must be able to match up both the structures *and* the
+% labels, but we cannot do both in general.  Ultimately I think the real
+% problem here is that we usually don't work directly with labelled
+% structures but with unlabelled, that is, equivalence classes of
+% labelled structures.  For *regular* unlabelled structures (i.e. ones
+% with no symmetry) we can then zip because the structure itself gives
+% us canonical labels---as labels we can use the type of "paths" into
+% the structure.  So then we are back to matching up labels, but they
+% are guaranteed to match the structure.
+
+% However I am really not sure how to talk about unlabelled species
+% within our framework.  For a regular species S we can sort of fake it
+% by using E (Path S), i.e. labelled bags where (Path S) is the type of
+% paths into S.  But that's not all that nice and I'm not even convinced
+% it's really the same thing.
+
+% Hmm, now that I think of it, perhaps the idea for unlabelled
+% structures would just be that the system is allowed to permute the
+% labels at any time, and you the user are not supposed to care because
+% you are working with an equivalence class instead of with a concrete
+% labelling.  I suppose this could be enforced by existentially
+% quantifying over the labels or something like that.  So a zip on
+% "unlabelled" structures (urgh, unlabelled is a really bad name!) gets
+% to first permute the labels so they match up before doing the zip.
+
+\section{The algebra of species and labelled structures}
 \label{sec:algebraic}
 
 We now return to the observation from \pref{sec:set-species} that we
@@ -1144,6 +1284,9 @@ but rather with an algebraic theory. \todo{say a bit more}
 For each species primitive or operation, we also discuss the
 associated introduction form(s), for both ``bare'' shapes and for
 labelled structures.  We discuss eliminators in~\pref{sec:elim}.
+
+\subsection{Primitive species}
+\label{sec:primitive}
 
 \paragraph{Zero}
   The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
@@ -1770,132 +1913,6 @@ isomorphism.
   e.g. $n$-dimensional vectors.
 }
 
-\subsection{Zipping and canonical labels}
-\label{sec:zipping}
-
-One natural operation on arrays of the same size is to \term{zip}
-them, applying some operation to their corresponding elements
-pointwise and producing a new array.
-
-Typically, when we think of zipping operation, we think of taking two
-values with the ``same shape'' and matching up corresponding elements.
-Following this intuition, we could try to define an operation \[
-|zip|_F : (L, A, B : \Type) \to \LStr F L A \to \LStr F L B \to \LStr
-F L {A \times B} \] by induction on (suitable) algebraic species
-descriptions $F$.  However, we quickly get stuck trying to define it
-even for binary product, and it is instructive to see why.  We are
-given values $x : \LStr {F \sprod G} L A$ and $y : \LStr {F \sprod G}
-L B$, and we may assume that we have suitable functions $|zip|_F$ and
-$|zip|_G$.  We need to somehow produce a value of type $\LStr {F
-  \sprod G} L {A \times B}$.  Expanding the definitions of $\LStr - -
--$ and $\sprod$, we find that $x$ has the type \[ x : \Finite L \times
-\sum_{L_1, L_2 : \FinType} \left( (L_1 + L_2 \iso L) \times F\ L_1
-  \times G\ L_2 \right) \times \Vect{(\size L)}{A} \] where we have
-used $\Sigma$-notation for a dependent pair, to emphasize the fact
-that $L_1$ and $L_2$ are existentially quantified within $x$.  $y$ has
-a similar type, with $B$ substituted for $A$: \[ y : \Finite L \times
-\sum_{L_1', L_2' : \FinType} \left( (L_1' + L_2' \iso L) \times F\
-  L_1' \times G\ L_2' \right) \times \Vect{(\size L)}{B} \] However,
-we note crucially that $y$ may existentially quantify over types
-$L_1'$ and $L_2'$ which are \emph{different} from those in $x$.  We
-have nothing on which to apply our inductive hypotheses $|zip|_F$ and
-$|zip|_G$, since they require matching label types.  We can put
-together the given equivalences to conclude that $L_1 + L_2 \iso L_1'
-+ L_2'$, but this still does not tell us anything about the
-relationship of $L_i$ to $L_i'$.  Intuitively, the problem is that
-though $x$ and $y$ contain the same set of labels, those labels may be
-distributed in different ways, and so we have no guarantee that we can
-match up the structures in a meaningful way.
-
-\todo{picture of mismatching labelled structures with same shape?}
-
-The takeaway from all of this is that we can only zip two labelled
-structures if they have the same shape \emph{labelled in exactly the
-  same way}; otherwise, it is not clear how the resulting structure
-should be labelled.  However, in general we have no way to ensure
-this.
-
-However, there is an alternative, more fundamental way to think about
-zipping labelled structures.  We allow zipping only between two bag
-structures with the same set of labels, with data corresponding to
-matching labels paired in the obvious way.  That is, we have an
-operation \[ |zip| : \LStr \E L A \to \LStr \E L B \to
-\LStr \E L {A \times B}.\] We can recover a notion of ``shape-based''
-zipping by noting that for \term{regular} species (\ie polynomial
-functors), we can assign canonical labels based on the shape.
-Assigning such canonical labels allows us to then ``forget'' the shape
-without losing any information, since the shape is encoded in the labels.
-
-To make this precise, we first introduce an operation |canonicalize|
-with a type as follows: \[ |canonicalize| : (F : \RegSpecies) \to
-\LStr F L A \to \LStr F {\Path F} A \times (L \iso \Path F) \] That
-is, given a regular species $F$, we can relabel an $F$-structure,
-returning the canonically relabelled structure (using the canonical
-label type $\Path F$) along with an equivalence specifying the
-relabeling that was performed.
-
-\todo{Explain $\Path F$.  Also, where to put this definition of
-  $\RegSpecies$?}
-
-\begin{flalign*}
-  &\Regular : \Species \to \Type \\
-  &\Regular F \defn (L, L' : \Type) \to
-  (f : F\ L) \to (\sigma : L \iso L') \to ((F\ \sigma\ f = f) \to
-  (\sigma = \id))) \\
-  &\RegSpecies \defn (F : \Species) \times \Regular F
-\end{flalign*}
-
-The problem with the type $\LStr F {\Path F} A$ is that it has
-structure duplicated between its shape and the labels.  |canonicalize|
-is not itself an equivalence, because given something of type $\LStr F
-{\Path F} A$ there is no guarantee that the labels match the
-structure in the canonical way---they may be shuffled around.
-
-We therefore introduce another function
-\[ |forgetShape| : (F : \Species) \to \LStr F L A \to \LStr \E L A \]
-which takes a labelled structure and simply forgets its shape. Also,
-given a bag labeled with the canonical labels for some shape, we can
-recover the shape: \[ |reconstruct| : (F : \RegSpecies) \to \LStr \E
-{\Path F} A \to \LStr F {\Path F} A \] We have the laws \[
-|forgetShape| \comp |reconstruct| = id \] \todo{and?}
-
-\todo{finish}
-This lets us go back and forth between different views of data.  Some
-operations are ``structural'', \ie operate on nontrivial shapes
-(\eg matrix multiplication) whereas some (\eg transpose) are best
-expressed as operations on structured labels.
-
-% The shape of 2D arrays, for example, is $L_m \comp L_n$ (if we consider 2D
-% arrays as a data structure where the ordering of elements is
-% significant).  But $Path(L_m \comp L_n) \sim (Fin m, Fin n)$, so we can convert
-% between $(Sp (L_m \comp L_n) l a)$ and $(Sp E (Fin m, Fin n) a)$.
-
-% Now, on to zipping in general.  The problem is that zipping two
-% labelled structures where the structures are nontrivial is
-% nonsensical: we must be able to match up both the structures *and* the
-% labels, but we cannot do both in general.  Ultimately I think the real
-% problem here is that we usually don't work directly with labelled
-% structures but with unlabelled, that is, equivalence classes of
-% labelled structures.  For *regular* unlabelled structures (i.e. ones
-% with no symmetry) we can then zip because the structure itself gives
-% us canonical labels---as labels we can use the type of "paths" into
-% the structure.  So then we are back to matching up labels, but they
-% are guaranteed to match the structure.
-
-% However I am really not sure how to talk about unlabelled species
-% within our framework.  For a regular species S we can sort of fake it
-% by using E (Path S), i.e. labelled bags where (Path S) is the type of
-% paths into S.  But that's not all that nice and I'm not even convinced
-% it's really the same thing.
-
-% Hmm, now that I think of it, perhaps the idea for unlabelled
-% structures would just be that the system is allowed to permute the
-% labels at any time, and you the user are not supposed to care because
-% you are working with an equivalence class instead of with a concrete
-% labelling.  I suppose this could be enforced by existentially
-% quantifying over the labels or something like that.  So a zip on
-% "unlabelled" structures (urgh, unlabelled is a really bad name!) gets
-% to first permute the labels so they match up before doing the zip.
 
 \subsection{Arrays}
 \label{sec:arrays}
@@ -2069,7 +2086,7 @@ shapes would be much more difficult to work with).
 
 %   (E^(j+k-2)) (dims1,dims2) a .
 
-\section{Partition stuff}
+\subsection{Partition stuff}
 \label{sec:partition}
 
 \todo{write about partition, filter, take...?}
@@ -2080,7 +2097,7 @@ shapes would be much more difficult to work with).
 \begin{itemize}
 \item containers, naturally
 \item shapely types
-\item HoTT
+\item species in general
 \end{itemize}
 
 \section{Future work}
