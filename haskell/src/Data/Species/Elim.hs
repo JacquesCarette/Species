@@ -39,6 +39,7 @@ module Data.Species.Elim
     , elimX
     , elimSum
     , elimProd
+    , elimE
     , elimComp
 
     )
@@ -118,6 +119,11 @@ elimProd (Elim f) = Elim $ \(Prod fShp gShp pf) m ->
   in
     case f fShp mf of
       Elim g -> g gShp mg
+
+-- | Create an eliminator for 'E' by specifying a mapping from data
+-- values to return values.  This is basically a 'crush'
+elimE :: (E a -> r) -> Elim E a r
+elimE f = Elim $ \e m -> f (fmap m e)
 
 -- | Create an eliminator for @(Comp f g)@-structures containing @a@'s
 --   from a way to eliminate @g@-structures containing @a@'s to some
