@@ -3,6 +3,7 @@
 \documentclass[adraft,copyright,creativecommons]{eptcs}
 \providecommand{\event}{MSFP 2014}
 \usepackage{breakurl}
+\usepackage{natbib}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% lhs2TeX
@@ -28,6 +29,17 @@
 %format sub2
 %format v1
 %format v2
+%format i1
+%format i2
+%format s1
+%format s2
+
+%format inr = "\inr"
+%format inl = "\inl"
+%format outr = "\outr"
+%format outl = "\outl"
+
+%format inv(a) = a "^{-1}"
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
@@ -98,8 +110,15 @@
 
 \newcommand{\cons}[1]{\ensuremath{\mathsf{#1}}}
 
+\newcommand{\inl}{\cons{inl}}
+\newcommand{\inr}{\cons{inr}}
+\newcommand{\outl}{\cons{outl}}
+\newcommand{\outr}{\cons{outr}}
+
 \newcommand{\Type}{\ensuremath{\mathcal{U}}}
-\newcommand{\FinType}{\ensuremath{\Type^F}}
+\newcommand{\FinType}{\ensuremath{\Type_{\text{Fin}}}}
+
+\newcommand{\size}[1]{\ensuremath{||#1||}}
 
 \DeclareMathOperator{\Species}{Species}
 \DeclareMathOperator{\RegSpecies}{RegSpecies}
@@ -116,7 +135,6 @@
 \DeclareMathOperator{\relabel}{relabel}
 \DeclareMathOperator{\Natural}{Natural}
 \DeclareMathOperator{\OfSize}{OfSize}
-\DeclareMathOperator{\size}{size}
 
 \DeclareMathOperator{\map}{map}
 \DeclareMathOperator{\sumTys}{sumTys}
@@ -505,35 +523,31 @@ We begin with some necessary preliminaries.
 \subsection{Homotopy type theory}
 \label{sec:HoTT}
 
-In the remainder of this paper, we work within homotopy type
-theory~\cite{hott} as a convenient and well-developed dependent type
-theory.  We do not actually need much complex machinery from the
-theory, and simply summarize the most important ideas and notation
-here.  It seems likely that there are deeper connections between
-homotopy type theory and the theory of species, but exploring these
-connections is left to future work.
+In the remainder of this paper, we work within \emph{homotopy type
+  theory} (HoTT)~\cite{hott}. We do not actually need much complex
+machinery from the theory, and simply summarize the most important
+ideas and notation here.  Everything in this paper could be formalized
+in most any standard constructive type theory; we choose to work in
+HoTT because of its emphasis on equality and isomorphism, which plays
+a large role.  In fact, it seems likely that there are deeper
+connections between homotopy type theory and the theory of species,
+but exploring these connections is left to future work.
 
 The type theory is equipped with an empty type \TyZero, a unit type
-\TyOne with inhabitant $\unit$, coproducts, dependent pairs, dependent
-functions, a universe $\Type$ of types, and a notion of propositional
-equality.  Instead of writing the traditional $\sum_{x : A} B(x)$ for
-the type of dependent pairs and $\prod_{x:A} B(x)$ for dependent
-functions, we will use the Agda-like \cite{Agda} notations $(x:A)
-\times B(x)$ and $(x:A) \to B(x)$, respectively.  We continue to use
-the standard abbreviations $A \times B$ and $A \to B$ for
-non-dependent pair and function types, that is, when $x$ does not
-appear free in $B$.  \todo{Remark that to reduce clutter we sometimes
-  make use of implicit arguments.  e.g. free variables are implicitly
-  quantified.}
-
-% We write $\impl{x:A} \to B$ for the type of
-% functions taking $x$ as an \emph{implicit} argument, and omit implicit
-% arguments when applying such functions.  For example, if $f :
-% \impl{A:\Type} \to A \to A$ then we write simply $f\ 3$ instead of $f\
-% \N\ 3$.  When an implicit argument needs to be provided explicitly we
-% use a subscript, as in $f_{\N}\ 3$.  Free type variables should be
-% understood as implicit arguments, for example, the type $A \to A$ is
-% shorthand for $\impl{A:\Type} \to A \to A$.
+\TyOne (with inhabitant $\unit$), coproducts (with constructors $\inl$
+and $\inr$), dependent pairs (with projections $\outl$ and $\outr$),
+dependent functions, a universe $\Type$ of types, and a notion of
+propositional equality.  Instead of writing the traditional $\sum_{x :
+  A} B(x)$ for the type of dependent pairs and $\prod_{x:A} B(x)$ for
+dependent functions, we will often use the Agda-like \cite{Agda}
+notations $(x:A) \times B(x)$ and $(x:A) \to B(x)$, respectively
+(though we still occasionally use $\Sigma$ and $\Pi$ for emphasis).
+We continue to use the standard abbreviations $A \times B$ and $A \to
+B$ for non-dependent pair and function types, that is, when $x$ does
+not appear free in $B$. Also, to reduce clutter, we sometimes make use
+of implicit quantification: free type variables in a type---like $A$
+and $B$ in $A \times (B \to \N)$---are implicitly universally
+quantified, like $(A : \Type) \to (B : \Type) \to A \times (B \to \N)$.
 
 We use $\N : \Type$ to denote the usual inductively defined type of
 natural numbers, with constructors $\NatZ : \N$ and $\NatS : \N \to
@@ -544,18 +558,21 @@ sets $\Fin : \N \to \Type$, with constructors $\FinZ : \impl{n :
 
 $A \iso B$ is the type of \term{equivalences} between $A$ and $B$
 (intuitively, pairs of inverse functions $f : A \to B$ and $g : B \to
-A$).  We overload the notations $\id$ and $\comp$ to denote the
-identity equivalence and equivalence composition respectively; we also
-allow equivalences of type $A \iso B$ to be implicitly used as
-functions $A \to B$ where it does not cause confusion.  We use the
-notation $\mkIso$ for constructing equivalences from a pair of
-functions. That is, if $f : A \to B$ and $g : B \to A$ are inverse,
-then $f \mkIso g : A \iso B$; the proof that $f$ and $g$ are inverse
-is left implicit.  For $T : \Type \to \Type$ and $\sigma : A \iso B$
-we can also construct the equivalence $T\ \sigma : T\ A \iso T\
-B$. For example, $\sigma \times (\sigma \to C) : A \times (A \to C)
-\iso B \times (B \to C)$, given by \[ \sigma \times (\sigma \to C) =
-(\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso
+A$).\footnote{The precise details are more subtle \cite[Chapter
+  4]{HoTT}, but unimportant for our purposes.}  We overload the
+notations $\id$ and $\comp$ to denote the identity equivalence and
+equivalence composition respectively; we also allow equivalences of
+type $A \iso B$ to be implicitly used as functions $A \to B$ where it
+does not cause confusion.  We use the notation $\mkIso$ for
+constructing equivalences from a pair of functions. That is, if $f : A
+\to B$ and $g : B \to A$ are inverse, then $f \mkIso g : A \iso B$;
+the proof that $f$ and $g$ are inverse is left implicit.  For $T :
+\Type \to \Type$ and $\sigma : A \iso B$ we can also construct the
+equivalence $T\ \sigma : T\ A \iso T\ B$.\footnote{Formally, this is
+  justified by the univalence axiom and the guaranteed functoriality
+  of $T$.} For example, $\sigma \times (\sigma \to C) : A \times (A
+\to C) \iso B \times (B \to C)$, given by \[ \sigma \times (\sigma \to
+C) = (\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso
 (\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
 
 \subsection{Finiteness}
@@ -563,14 +580,15 @@ B$. For example, $\sigma \times (\sigma \to C) : A \times (A \to C)
 
 The concept of \term{finiteness} plays a central role in the theory of
 species. There are many possible constructive interpretations of
-finiteness (\url{http://ncatlab.org/nlab/show/finite+set}); to start,
-we choose the simplest: a finite set is one which is in bijection to a
-canonical set of a known size. That is,
+finiteness \todo{make a citation:
+  \url{http://ncatlab.org/nlab/show/finite+set}}; the one we need is
+the simplest: a finite set is one which is in bijection to a canonical
+set of a known size. That is,
 \[ \Finite A \defn (n : \N) \times (\Fin n \iso A). \]
 
-It is tempting to use Haskell's \emph{type class} mechanism, or
-something similar, to record the finiteness of types.  That is, we
-could imagine defining a type class
+It is tempting to use mechanisms for implicit evidence, such as
+Haskell's \emph{type class} mechanism, to record the finiteness of
+types.  That is, we could imagine defining a type class
 \begin{spec}
 class IsFinite a where
   isFinite :: Finite a
@@ -592,15 +610,15 @@ finiteness proof.  We can encapsulate this by defining \[ \FinType
 \defn (L : \Type) \times \Finite L \] as the universe of finite types.
 
 It is not hard to see that the size of a finite type is determined
-uniquely. That is, if $f_1, f_2 : \Finite L$ are any two proofs that
-$L$ is finite, then $\pi_1 f_1 = \pi_1 f_2$.  (As proof, note that if
+uniquely. That is, if $f_1, f_2 : \Finite L$ are any two witnesses that
+$L$ is finite, then $\outl(f_1) = \outl(f_2)$.  (As proof, note that if
 $f_1 = (n_1, i_1)$ and $f_2 = (n_2, i_2)$, then $i_2^{-1} \comp i_1 :
 \Fin{n_1} \iso \Fin{n_2}$, from which we can derive $n_1 = n_2$ by
 double induction.) In a slight abuse of notation, we therefore write
-$\size L$ to denote this size.  Computationally, this corresponds to
-applying $\pi_1$ to some finiteness proof; but since it does not
+$\size{L}$ to denote this size.  Computationally, this corresponds to
+applying $\outl$ to some finiteness proof; but since it does not
 matter which proof we use, we simply leave it implicit, being careful
-to only use $\size$ in a context where a suitable finiteness proof
+to only use $\size -$ in a context where a suitable finiteness proof
 could be obtained.
 
 \section{Combinatorial Species}
@@ -616,17 +634,17 @@ could be obtained.
 Our theory of labelled structures is inspired by, and directly based
 upon, the theory of \term{combinatorial species} \cite{joyal}.  We
 give a brief introduction to it here; the reader interested in a
-fuller treatment should consult \cite{bll}.  \todo{point the reader
+fuller treatment should consult \citet{bll}.  \todo{point the reader
   to our own prior work on species + FP?}
 
 \subsection{Species, set-theoretically}
 \label{sec:set-species}
 
 We begin with a standard set-theoretic definition of species
-(essentially what one finds in Bergeron \etal \cite{bll}, but with
-slightly different terminology).  We will upgrade to a
-\emph{type}-theoretic definition in \pref{sec:constructive-species},
-but include this version for completeness and to help build intuition.
+(essentially what one finds in \citet{bll}, but with slightly
+different terminology).  We will upgrade to a \emph{type}-theoretic
+definition in \pref{sec:constructive-species}, but it is worth seeing
+both definitions and the relationship between them.
 
 \begin{definition}
 A \term{species} $F$ is a pair of mappings which
@@ -634,8 +652,7 @@ A \term{species} $F$ is a pair of mappings which
 \item sends any finite set $L$ (of \term{labels}) to a finite set
   $F(L)$ (of \term{shapes}), and
 \item sends any bijection on finite sets $\sigma : L \leftrightarrow L'$ (a
-  \term{relabelling}) to a function $F(\sigma) : F(L) \to F(L')$
-  (illustrated in \pref{fig:relabelling}),
+  \term{relabelling}) to a function $F(\sigma) : F(L) \to F(L')$,
 \end{itemize}
 additionally satisfying the following functoriality conditions:
 \begin{itemize}
@@ -660,17 +677,17 @@ morphisms are arbitrary (total) functions.
 
 We call $F(L)$ the set of ``$F$-shapes with
 labels drawn from $L$'', or simply ``$F$-shapes on $L$'', or even
-(when $L$ is clear from context) just ``$F$-shapes.  $F(\sigma)$
+(when $L$ is clear from context) just ``$F$-shapes''.  $F(\sigma)$
 is called the ``transport of $\sigma$ along $F$'', or sometimes the
 ``relabelling of $F$-shapes by $\sigma$''.
 
-Note that in the existing literature, elements of $F(L)$ are usually
-called ``$F$-structures'' rather than ``$F$-shapes''.  To a
-combinatorialist, labelled shapes are themselves the primary objects
-of interest; however, in a computational context, we must be careful
-to distinguish between labelled \emph{structures} (which have data
-associated with the labels) and bare labelled \emph{shapes} (which do
-not).
+In the existing literature, elements of $F(L)$ are usually called
+``$F$-structures'' rather than ``$F$-shapes''.  To a combinatorialist,
+labelled shapes are themselves the primary objects of interest;
+however, in a computational context, we must be careful to distinguish
+between labelled \emph{structures} (which, in our terminology, have
+data associated with the labels) and bare labelled \emph{shapes}
+(which do not).
 
 Here we see that the formal notion of ``shape'' is actually quite
 broad, so broad as to make one squirm: a shape is just an element of
@@ -687,22 +704,6 @@ The foregoing set-theoretic definition of species is perfectly
 serviceable in the context of classical combinatorics, but in order to
 use it as a foundation for data structures, it is necessary to first
 ``port'' the definition from set theory to constructive type theory.
-
-
-\todo{need some nice notation for dependent $n$-tuples, \ie\ records.}
-
-\bay{in the set-theory section we said the codomain of species is
-  \emph{finite} types, but in this definition the codomain is $\Type$
-  rather than $\FinType$.  What's going on? Certainly the finiteness
-  of the codomain does not seem to be that important---it doesn't come
-  up at all in our implementation, which is why I didn't notice the
-  discrepancy at first. I suppose it only becomes important when one
-  wants to do things like map to generating functions.  Following a
-  discussion with Stephanie, it seems that quite a few theorems about
-  species (molecular decomposition, maybe implicit species theorem)
-  may actually depend on the finiteness, but it's hard to be sure.
-  Would be interesting to try to port the theorems and proofs as well
-  as the definition.}
 
 \todo{motivate/explain this}
 
@@ -722,26 +723,212 @@ arrows. That is, if $F : \Species$, instead of writing $F.\shapes\ L$
 or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
 \sigma$.
 
+\bay{in the set-theory section we said the codomain of species is
+  \emph{finite} types, but in this definition the codomain is $\Type$
+  rather than $\FinType$.  What's going on? Certainly the finiteness
+  of the codomain does not seem to be that important---it doesn't come
+  up at all in our implementation, which is why I didn't notice the
+  discrepancy at first. I suppose it only becomes important when one
+  wants to do things like map to generating functions.  Following a
+  discussion with Stephanie, it seems that quite a few theorems about
+  species (molecular decomposition, maybe implicit species theorem)
+  may actually depend on the finiteness, but it's hard to be sure.
+  Would be interesting to try to port the theorems and proofs as well
+  as the definition.}
+
 \section{Mappings}
 \label{sec:mappings}
 
 \todo{high-level explanation}
 
-\subsection{Partial isomorphisms}
+\subsection{Mappings, take I}
+\label{sec:storage}
+
+Our goal is to define a labelled structure as a labelled shape paired
+with a \emph{mapping} from labels to data.  What, precisely, do we
+mean by a \emph{mapping}?  In fact, we can leave the notion of mapping
+abstract: we require only that a type $\Store L A$ representing
+mappings from $L$ to $A$ come equipped with the following operations:
+\begin{align*}
+  |allocate| &: \Finite L \to (L \to A) \to \Store L A \\
+  |index|  &: \Store L A \to L \to A \\
+  |append| &: \Store {L_1} A \to \Store {L_2} A \to \Store {(L_1 + L_2)} A \\
+  |concat| &: \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times
+    L_2)} A \\
+%  |replace| &: \DecEq L \to L \to A \to \Store L A \to A \times \Store L A \\
+  |map| &: (A \to B) \to \Store L A \to \Store L B \\
+  |zipWith| &: (A \to B \to C) \to \Store L A \to \Store L B \to \Store L C \\
+  |reindex|  &: (L' \iso L) \to \Store L A \to \Store {L'} A
+\end{align*}
+\todo{not sure if we need |replace|} It's worth walking through
+some informal descriptions of the semantics of these operations.
+
+\begin{itemize}
+\item First, |allocate| is the sole means of constructing $\Store L A$
+  values. It takes not only a function $L \to A$ but also a
+  constructive proof that $L$ is finite.  Intuitively, the finiteness
+  proof is necessary because allocation may require some intensional
+  knowledge about the type $L$.  For example, as explained below we
+  may implement $\Store L A$ using a vector of $A$ values; allocating
+  such a vector requires knowing the size of $L$.  Specifying not just
+  a size but an equivalence with $\Fin n$ may additionally afford the
+  caller of |allocate| some control over how elements are laid out.
+\item |index| allows looking up data by label.
+\item |append| and |concat| are ``structural'' operations, allowing us
+  to combine two mappings into one, or collapse nested mappings,
+  respectively.
+\item |map| ensures that $\Store L -$ is functorial.
+\item |zipWith| gives us a way to combine the contents of two mappings
+  labelwise.
+\item $|reindex| : (L' \iso L) \to \Store L A \to \Store {L'} A$
+  expresses the functoriality of $\Store - A$: we can change from one
+  type of labels to another by specifying an equivalence between them.
+\end{itemize}
+These intuitions can be formalized by various unsurprising laws (for
+example, |allocate| followed by |index| should recover the original
+function; |index| and |reindex| commute with other operations in the
+appropriate ways; and so on). \todo{is it worth actually
+  formulating/spelling out the laws?  are any of them particularly
+  interesting? are there any interesting choices to be made?}
+
+We can give a particularly simple implementation using a function
+arrow to represent $\StoreSym$ (presented here using Haskell-like
+notation):
+
+\begin{spec}
+  allocate _       = id
+  index            = id
+  append f g       = either f g
+  concat           = curry
+  map              = (.)
+  zipWith z f g    = \l -> z (f l) (g l)
+  reindex i f      = f . im
+\end{spec}
+
+Note that the implementation of |allocate| does not make use of the
+$\Finite L$ argument at all, and the implementation of |reindex| uses a
+slight abuse of notation to treat $s : L' \iso L$ as a function
+$L' \to L$.
+
+A more interesting implementation uses finite vectors to store the $A$
+values.  In particular, we assume a type $|Vec| : \N \to \Type \to
+\Type$ of length-indexed vectors, supporting standard operations
+\begin{align*}
+  allocateV &: (n : \N) \to (\Fin n \to A) \to \Vect n A \\
+  (!)       &: \Vect n A \to \Fin n \to A \\
+  appendV   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \\
+  concatV   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \\
+  mapV      &: (A \to B) \to (\Vect n A \to \Vect n B) \\
+%  imapV     &: (\Fin n \to A \to B) \to (\Vect n A \to \Vect n B) \\
+%  zipWithV  &: (A \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C
+\end{align*}
+
+We then define \[ \Store L A \defn \sum_{n : \N} (L \iso \Fin n)
+\times \Vect n A, \] and implement the required operations as follows:
+
+\begin{itemize}
+\item The implementation of |allocate| uses the provided $\Finite L$
+  proof to determine the size of the vector to be allocated, as well
+  as the initial layout of the values.
+  \begin{spec}
+    allocate fin@(n, iso) f = (n, fin, allocateV n (f . iso))
+  \end{spec}
+
+\item To reindex, there is no need to allocate a new vector; |reindex|
+  simply composes the given equivalence with the stored one.
+  \begin{spec}
+    reindex i' (n, i, v) = (n, i . i', v)
+  \end{spec}
+
+\item |index| is implemented in terms of |(!)|, using the stored
+  equivalence to convert an external label $L$ into an internal index
+  of type $\Fin n$.
+
+\item |map| is implemented straightforwardly in terms of |mapV|; since
+  the type $L$ and the length of the underlying vector are not
+  affected, the proof $(L \iso \Fin n)$ can be carried through
+  unchanged.
+
+\item At first blush it may seem that |zipWith| would be equally
+  straightforward to implement in terms of a function $|zipWithV| : (A
+  \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C$ (if we had
+  such a function), but it is more subtle.  The problem is that the
+  $(L \iso \Fin n)$ proofs have real computational content: zipping on
+  labels may not coincide with zipping on indices.  \todo{picture}
+  Since we want to zip on indices, |zipWith| must compose the given
+  equivalences to obtain the correspondence between the label mappings
+  used by the two input vectors:
+  \begin{spec}
+    zipWith f (n, i1, v1) (_, i2, v2) = (n, i2, v)
+      where v = allocateV n (\k -> f (v1 ! (i1 . inv(i2)) k) (v2 ! k))
+  \end{spec}
+  Note that the output of |zipWith f s1 s2| reuses the label
+  equivalence |i2| from |s2|.  Of course we could instead have chosen
+  to reuse |i1| instead, but these are the only possible choices.  One
+  could imagine an optimizing compiler that could compile |zipWith|
+  into in-place update on |s2| when it could prove that the old value
+  was no longer needed.
+
+\item |append| is straightforward to implement via |appendV|, with a
+  small twist:
+  \begin{spec}
+    append (n1, i1, v1) (n2, i2, v2) = (n1+n2, sumEqv n1 n2 i1 i2, appendV v1 v2)
+  \end{spec}
+  Appending vectors of lengths $n_1$ and $n_2$ gives one of length
+  $n_1 + n_2$, and |appendV| will combine the vectors in the
+  appropriate way.  However, what is meant by |sumEqv n1 n2 i1 i2|?
+  Evidently we need \[ |sumEqv| : (n_1, n_2 : \N) \to (L_1 \iso
+  \Fin{n_1}) \to (L_2 \iso \Fin{n_2}) \to (L_1 + L_2 \iso \Fin{(n_1 +
+    n_2)}), \] which we can construct as the composite \[ L_1 + L_2
+  \stackrel{i_1 + i_2}{\iso} \Fin{n_1} + \Fin{n_2}
+  \stackrel{|appendFin|}{\iso} \Fin{(n_1 + n_2)}, \] given
+  $|appendFin| : \Fin{n_1} + \Fin{n_2} \iso \Fin{(n_1 + n_2)}$ which
+  ``does the same thing'' as |appendV|. That is, |appendFin|
+  calculates ``where the input indices end up'' in the output.
+
+  \todo{picture?}
+
+\item |concat| is implemented similarly to |append|: we multiply the
+  sizes, use |concatV| on the input vector-of-vectors, and compute the
+  right equivalence by \todo{urgh, actually we have to sum over them,
+    not just take a product, because there may be \emph{many}
+    equivalences $L_2 \iso \Fin{n_2}$, one for each inner vector.}
+
+\end{itemize}
+
+In this instance, the labels are acting like (generalized)
+``pointers'', and the label equivalences yield some built-in ``pointer
+indirection'', allowing us to manipulate the labels without incurring
+a lot of (potentially expensive) allocation and copying. Data
+structures ultimately have to be stored in memory somehow, and this
+gives us a nice ``end-to-end'' theory that is able to model
+both high-level concerns as well as low-level operational details.
+
+Note that when |appendV| and |concatV| cannot be optimized to in-place
+updates, they must allocate an entire new vector in memory.  To avoid
+this in exchange for some bookkeeping overhead, we could make a deep
+embedding out of the vector operations, turning |appendV| and
+|concatV| (and possibly |allocateV| and |mapV| as well) into
+\emph{constructors} in a new data type.  This results in something
+that looks very much like generalized tries
+\cite{Hinze-generalized-tries}.
+
+\todo{Motivate partial isos, subset relabelling, etc. with an example
+  here involving decomposition?}
+
+\subsection{Partial equivalences}
 \label{sec:subsets}
 
-In what follows we will often have cause to make use of constructive
-evidence that one type is a ``subset'' of another type, written $A
-\subseteq B$.  Of course there is no subtyping in our type theory, so
-there is no literal set-theoretic sense in which one type can be a
-subset of another.
-
-However, we can model this situation with \term{partial
-  isomorphisms}. \todo{cite Tillmann Rendel and Klaus
+In what follows we will often make use of constructive evidence that
+one type is a ``subset'' of another type, written $A \subseteq B$.  Of
+course there is no subtyping in our type theory, so there is no
+literal set-theoretic sense in which one type can be a subset of
+another. However, we can model this situation with \term{partial
+  equivalences}. \todo{cite Tillmann Rendel and Klaus
   Ostermann. Invertible Syntax Descriptions: Unifying Parsing and
   Pretty Printing. In Proc. of Haskell Symposium, 2010. ? Not sure if
   it's really about the same thing, though it may be related somehow.}
-A partial isomorphism $A \subseteq B$ is given by:
+A partial equivalence $A \subseteq B$ is given by:
 \begin{itemize}
 \item a function $|embed| : A \to B$,
 \item a function $|project| : B \to 1+A$,
@@ -750,25 +937,81 @@ A partial isomorphism $A \subseteq B$ is given by:
   then |embed a = b|.
 \end{itemize}
 
-The situation can be visualized as follows:
+That is, there is a 1-1 correspondence between all the elements of $A$
+and \emph{some} (possibly all) of the elements of $B$.  The situation
+can be visualized as follows:
 
+% XXX
 \todo{picture}
 
 Note that an isomorphism $f \mkIso g : A \iso B$ can be made into a
-partial isomorphism trivially by setting $|embed| = f$ and $|project|
+partial equivalence trivially by setting $|embed| = f$ and $|project|
 = \cons{inr} \comp g$.  We will not bother to note the conversion,
-simply using equivalences as if they were partial isomorphisms when
-convenient.  In addition, note that partial isomorphisms compose, that
+simply using equivalences as if they were partial equivalences when
+convenient.  In addition, note that partial equivalences compose, that
 is, we have $- \comp - : (B \subseteq C) \to (A \subseteq B) \to (A
-\subseteq C)$ implemented in the obvious way.  Combining the two
-previous observations, we can compose an isomorphism with a partial
-isomorphism (or the other way around) to obtain another partial
-isomorphism.\footnote{Happily, using the Haskell \texttt{lens} library
+\subseteq C)$, implemented in the obvious way.  Combining the two
+previous observations, we can compose an equivalence with a partial
+equivalence (or the other way around) to obtain another partial
+equivalence.\footnote{Happily, using the Haskell \texttt{lens} library
   \cite{lens}, this all works out automatically: the representations
-  of isomorphisms and partial isomorphisms (which \texttt{lens} calls
-  \emph{prisms}) are such that isomorphisms simply \emph{are} partial
-  isomorphisms, and they compose as one would expect, using the
+  of equivalences and partial equivalences (which \texttt{lens} calls
+  \emph{prisms}) are such that equivalences simply \emph{are} partial
+  equivalences, and they compose as one would expect, using the
   standard function composition operator.}
+
+% On the other hand, we could drop |project|, that is, we could take
+% something like \[ \cons{SubFinite}\ L \defn (n : \N) \times (|embed| :
+% L \to \Fin n) \times \cons{Injective}\ |embed|. \] This certainly
+% implies that $L$ is finite in a classical sense (\ie not infinite),
+% but it does not allow us to construct a $\Finite L$ value.  At the
+% moment we are not sure where (or if) this concept might be useful.
+
+\subsection{Mappings, take II}
+
+Idea: change \[ |reindex| : (L' \iso L) \to \Store L A \to \Store {L'} A \]
+to \[ |reindex| : (L' \subseteq L) \to \Store L A \to \Store {L'} A \]
+
+Now |reindex| lifts not just equivalences but \emph{partial}
+equivalences between labels.  When given an equivalence, |reindex| has
+the same semantics as before.  When given a nontrivially partial
+equivalence, however, the idea is that |reindex| has the effect of
+``forgetting'' part of the mapping. Data associated with labels in $L$
+which have no corresponding label in $L'$ are no longer accessible.
+
+The implementation of $\Store L A$ as a function arrow does not need
+to change at all.  However, the vector implementation does indeed need
+to change, in some interesting ways.  First of all, we store a partial
+equivalence instead of an equivalence along with the vector:
+
+\[ \Store L A \defn \sum_{n : \N} (L \iso \Fin n) \times \Vect n A, \]
+
+Note that now the underying vector might have \emph{more} slots than
+necessary, which is crucial to be able to implement |reindex|
+efficiently.  The implementation of |reindex| still does not need to
+allocate, but simply composes the given partial equivalence with the
+stored one.
+  \begin{spec}
+    reindex sub' (n, sub, v) = (n, sub . sub', v)
+  \end{spec}
+
+\todo{finish writing about append and concat}
+
+  but what is meant by |sub1 + sub2|?  We need to appropriately
+  combine two subset proofs, that is, we need \[ -+- : (L_1 \subseteq
+  \Fin {n_1}) \to (L_2 \subseteq \Fin {n_2}) \to (L_1 + L_2) \subseteq
+  \Fin {(n_1 + n_2)}. \] It is straightforward to derive $(A_1
+  \subseteq B_1) \to (A_2 \subseteq B_2) \to (A_1 + A_2) \subseteq
+  (B_1 + B_2)$, so all that remains is to prove $\Fin{n_1} + \Fin{n_2}
+  \subseteq \Fin {(n_1 + n_2)}$.  In fact, we actually have the
+  stronger property $\Fin{n_1} + \Fin{n_2} \iso \Fin {(n_1 +
+    n_2)}$---but there are many such equivalences, and it matters
+  which one we pick!  In particular, the correct implementation is
+  determined by the behavior of |appendV|.
+  \todo{explain more, maybe a picture?}
+
+\subsection{Defragmentation}
+\label{sec:defrag}
 
 The type $(n : \N) \times (L \subseteq \Fin n)$ can also be thought of
 as a witness of the finiteness of $L$; intuitively, it states that $L$
@@ -793,7 +1036,7 @@ value in $L$.
 \begin{multline*}
   \left( \sum_{\substack{k : \Fin
         n \\ l : L}} |project|(k) = \cons{inr}(l) \right) + \left(
-    \sum_{k : \Fin n} |project|(k) = \cons{inl}(\star) \right) \iso
+    \sum_{k : \Fin n} |project|(k) = \inl(\star) \right) \iso
   \Fin n
   \iso \Fin s + \Fin (n - s)
 \end{multline*}
@@ -815,175 +1058,6 @@ end we have an equivalence $L \iso \Fin s$ as desired, but one which
 ``does as little copying as possible'' (it should be possible to
 formalize this).
 }
-
-On the other hand, we could drop |project|, that is, we could take
-something like \[ \cons{SubFinite} L \defn (n : \N) \times (|embed| :
-L \to \Fin n) \times \cons{Injective}\ |embed|. \] This certainly
-implies that $L$ is finite in a classical sense (\ie not infinite),
-but it does not allow us to construct a $\Finite L$ value.  At the
-moment we are not sure where (or if) this concept might be useful.
-
-\subsection{Storage}
-\label{sec:storage}
-
-  The interesting point, however, is that we
-leave the type $\Store L A$ intentionally abstract.  In particular,
-we require only that it come equipped with the following operations:
-\begin{align*}
-  |allocate| &: \Finite L \to (L \to A) \to \Store L A \\
-  |index|  &: \Store L A \to L \to A \\
-  |append| &: \Store {L_1} A \to \Store {L_2} A \to \Store {(L_1 + L_2)} A \\
-  |concat| &: \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times
-    L_2)} A \\
-%  |replace| &: \DecEq L \to L \to A \to \Store L A \to A \times \Store L A \\
-  |map| &: (A \to B) \to \Store L A \to \Store L B \\
-  |zipWith| &: (A \to B \to C) \to \Store L A \to \Store L B \to \Store L C \\
-  |reindex|  &: (L' \subseteq L) \to \Store L A \to \Store {L'} A
-\end{align*}
-\todo{not sure if we need |replace|} It's worth walking through
-some informal descriptions of the semantics of these operations.
-
-\begin{itemize}
-\item First, |allocate| is the sole means of constructing $\Store L A$
-  values. It takes not only a function $L \to A$ but also a
-  constructive proof that $L$ is finite.  Intuitively, the finiteness
-  proof is necessary because allocation may require some intensional
-  knowledge about the type $L$.  For example, as explained below we
-  may implement $\Store L A$ using a vector of $A$ values; allocating
-  such a vector requires knowing the size of $L$.
-\item |index| allows looking up data by label.
-\item |append| and |concat| are ``structural'' operations, allowing us
-  to combine two mappings into one, or collapse nested mappings,
-  respectively.
-\item |map| ensures that $\Store L -$ is functorial.
-\item |zipWith| gives us a way to combine the contents of two mappings
-  labelwise. \todo{Note why we don't use |ap|}
-\item $|reindex| : (L' \subseteq L) \to \Store L A \to \Store {L'} A$
-  expresses the functoriality of $\Store - A$.  In particular, it is
-  contravariant as one might expect, and lifts not just isomorphisms
-  but \emph{partial} isomorphisms between labels.  When given an
-  isomorphism, |reindex| corresponds to a straightforward relabelling.
-  When given a nontrivially partial isomorphism, however, |reindex|
-  has the effect of ``forgetting'' part of the mapping: data
-  associated with labels in $L$ which have no corresponding label in
-  $L'$ are no longer accessible.
-\end{itemize}
-These intuitions can be formalized by various unsurprising laws (for
-example, |allocate| followed by |index| should recover the original
-function; |index| and |reindex| commute with other operations in the
-appropriate ways; and so on). \todo{is it worth actually
-  formulating/spelling out the laws?  are any of them particularly
-  interesting? are there any interesting choices to be made?}
-
-We can give a particularly simple implementation using a function
-arrow to represent $\StoreSym$ (presented here using Haskell-like
-notation):
-
-\begin{spec}
-  allocate _       = id
-  index            = id
-  append f g       = either f g
-  concat           = curry
-  map              = (.)
-  zipWith z f g    = \l -> z (f l) (g l)
-  reindex s f      = f . s
-\end{spec}
-
-Note that the implementation of |allocate| does not make use of the
-$\Finite L$ argument at all, and the implementation of |reindex| uses a
-slight abuse of notation to treat $s : L' \subseteq L$ as a function
-$L' \to L$.  This instance is simple but \todo{finish}
-
-A more interesting implementation uses finite vectors to store the $A$
-values.  In particular, we assume a type $|Vec| : \N \to \Type \to
-\Type$ of length-indexed vectors, supporting standard operations
-\begin{align*}
-  allocateV &: (n : \N) \to (\Fin n \to A) \to \Vect n A \\
-  indexV    &: \Vect n A \to \Fin n \to A \\
-  appendV   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \\
-  concatV   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \\
-  mapV      &: (A \to B) \to (\Vect n A \to \Vect n B) \\
-  imapV     &: (\Fin n \to A \to B) \to (\Vect n A \to \Vect n B) \\
-  zipWithV  &: (A \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C
-\end{align*}
-
-We then define \[ \Store L A \defn \sum_{n : \N} (L \subseteq \Fin n)
-\times \Vect n A, \] and implement the required operations as follows:
-
-\begin{itemize}
-\item The implementation of |allocate| uses the provided $\Finite L$
-  proof to determine the size of the vector to be allocated, as well
-  as the initial layout of the values.
-  \begin{spec}
-    allocate fin f = (n, fin, allocateV n (f . pi2 fin))
-      where n = pi1 fin
-  \end{spec}
-
-\item Note that the underying vector might have \emph{more} slots than
-  necessary, which is crucial to be able to implement |reindex|
-  efficiently.  The implementation of |reindex| does not allocate a
-  new, smaller vector; in fact, it does not have to modify the vector
-  at all, but simply composes the given subset proof with the stored
-  one.
-  \begin{spec}
-    reindex sub' (n, sub, v) = (n, sub . sub', v)
-  \end{spec}
-
-\item |index| is implemented in terms of |indexV|, using the stored
-  subset proof to convert an external label $L$ into an internal index
-  of type $\Fin n$.
-  % \begin{spec}
-  %   index (_, sub, v) l = indexV v (sub l)
-  % \end{spec}
-
-\item |map| is implemented straightforwardly in terms of |mapV|; since
-  the type $L$ and the length of the underlying vector is not
-  affected, the proof $(L \subseteq \Fin n)$ can be carried through
-  unchanged.
-
-\item At first blush it may seem that |zipWith| is equally
-  straightforward to implement in terms of |zipWithV|, but it is
-  somewhat subtle.  In fact, we cannot directly use |zipWithV|, for two
-  reasons. First, two $\Store L A$ values may have underlying vectors
-  of different lengths, so an application of |apV| would not even be
-  well-typed!  Second, even if the underlying vectors did have the
-  same length, the $(L \subseteq \Fin n)$ proofs have real
-  computational content: zipping on labels and zipping on indices may
-  not coincide.
-
-  \todo{Explain solution.  Could go via |allocateV| and then |apV|.
-    More efficient solution that avoids allocation makes use of
-    |imapV| and does reverse lookup using a partial iso.}
-
-\item |append| is almost straightforward to implement via |appendV|:
-  \begin{spec}
-    append (n1, sub1, v1) (n2, sub2, v2) = (n1+n2, sub1 + sub2, appendV v1 v2)
-  \end{spec}
-  but what is meant by |sub1 + sub2|?  We need to appropriately
-  combine two subset proofs, that is, we need \[ -+- : (L_1 \subseteq
-  \Fin {n_1}) \to (L_2 \subseteq \Fin {n_2}) \to (L_1 + L_2) \subseteq
-  \Fin {(n_1 + n_2)}. \] It is straightforward to derive $(A_1
-  \subseteq B_1) \to (A_2 \subseteq B_2) \to (A_1 + A_2) \subseteq
-  (B_1 + B_2)$, so all that remains is to prove $\Fin{n_1} + \Fin{n_2}
-  \subseteq \Fin {(n_1 + n_2)}$.  In fact, we actually have the
-  stronger property $\Fin{n_1} + \Fin{n_2} \iso \Fin {(n_1 +
-    n_2)}$---but there are many such equivalences, and it matters
-  which one we pick!  In particular, the correct implementation is
-  determined by the behavior of |appendV|.
-  \todo{explain more, maybe a picture?}
-
-\item |concat| \todo{finish}
-
-\end{itemize}
-
-\todo{On the other hand, data structures ultimately have
-to be stored in memory somehow, and this gives us a nice
-``end-to-end'' theory that is able to talk about actual
-implementations and whether they are faithful to the intended
-semantics.}
-
-\todo{note that |appendV| and |concatV| probably have to allocate.
-  Fixing that leads to an implementation using generalized tries---cf Hinze.}
 
 \section{Labelled structures}
 \label{sec:labelled-formal}
@@ -1309,7 +1383,7 @@ labelled structures.  We discuss eliminators in~\pref{sec:elim}.
   that $L$ has size $1$.  Again, there is at most one such proof.
   Unlike $\One$, we may also think of an $\X$-shape as ``containing''
   a single label of type $L$, which we may recover by applying the
-  isomorphism to $\unit$.
+  equivalence to $\unit$.
 
   Note that once again the definition is ``obviously'' functorial; we
   may syntactically replace $L$ by $\sigma$ to obtain \[ \X\ \sigma =
