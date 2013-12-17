@@ -21,6 +21,7 @@ library
                        -- Data.Species.Array,
                        Data.Species.Convert,
                        Data.Species.Elim,
+                       Data.Species.Examples,
                        Data.Species.Isos,
                        Data.Species.Lens,
                        Data.Species.List,
@@ -51,5 +52,6 @@ library
                        monad-supply ==0.4.*,
                        transformers >= 0.3 && < 0.4,
                        comonad-transformers >= 1.0.0,
-                       containers >= 0.4 && < 0.6
+                       containers >= 0.4 && < 0.6,
+                       multiset >= 0.2 && < 1.0
   hs-source-dirs:      src
