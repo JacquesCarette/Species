@@ -62,10 +62,13 @@ class Storage s where
   --   their label types.
   concat :: s l1 (s l2 a) -> s (l1,l2) a
 
+  -- | Initialize a potentially infinite block of storage with some
+  --   initial content.  This is experimental.
+  initialize :: (l -> a) -> s l a
+  
 -- | A storage block of zero size.
 emptyStorage :: Storage s => s (Fin Z) a
 emptyStorage = allocate finite_Fin absurd
-
 
 instance Storage (->) where
   type LabelConstraint (->) l = Eq l
@@ -78,3 +81,4 @@ instance Storage (->) where
   append f _ (Left l1)  = f l1
   append _ g (Right l2) = g l2
   concat                = uncurry
+  initialize f          = f
