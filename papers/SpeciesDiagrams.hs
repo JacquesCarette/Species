@@ -1,8 +1,9 @@
-{-# LANGUAGE DeriveFunctor        #-}
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE GADTs                #-}
-{-# LANGUAGE TypeFamilies         #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE DeriveFunctor             #-}
+{-# LANGUAGE FlexibleInstances         #-}
+{-# LANGUAGE GADTs                     #-}
+{-# LANGUAGE NoMonomorphismRestriction #-}
+{-# LANGUAGE TypeFamilies              #-}
+{-# LANGUAGE TypeSynonymInstances      #-}
 
 module SpeciesDiagrams where
 
@@ -22,6 +23,17 @@ colors = [red, orange, green, blue, purple, brown, grey, black]
 labR, arrowGap :: Double
 labR     = 0.3
 arrowGap = 0.2
+
+aLabels = map (sized (Dims (4*labR) (4*labR)))
+  [ circle 1
+  , triangle 1
+  , square 1
+  , pentagon 1
+  , rect 1 1.618
+  , rect 1.618 1
+  , circle 1 # scaleX 1.618
+  , circle 1 # scaleY 1.618
+  ]
 
 text' :: Double -> String -> Diagram B R2
 text' d s = (stroke $ textSVG' (TextOpts s lin INSIDE_H KERN False d d)) # fc black # lw 0
