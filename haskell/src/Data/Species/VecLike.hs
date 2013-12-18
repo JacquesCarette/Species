@@ -42,12 +42,15 @@ take (Struct f i) qq n pf =
         Refl -> Struct (cprod_ f (part_ sn sm isom)) i
           where isom :: Either (F.Fin n) (F.Fin m) <-> F.Fin q
                 isom = iso (finSum n m) (finSum' n m)
-                sn = Set.enumerate n
-                sm = Set.enumerate m
+                sn = N.natty n $ Set.enumerate $ finite_Fin
+                sm = N.natty m $ Set.enumerate $ finite_Fin
 
-filter :: (S.Storage s, Eq l) => Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
+filter :: (S.Storage s, N.Natural n, l ~ F.Fin n) => Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
 filter (Struct f stor) p = Struct (cprod_ f k) stor
   where sel = S.smap p stor
-        k = part_ (iso (\l -> case l of {Left a -> a; Right a -> a}) 
+        k = part_ s1 s2
+                  (iso (\l -> case l of {Left a -> a; Right a -> a}) 
                        (\l -> if (S.index sel l) then Left l else Right l) )
+        s1 = Set.enumerate finite_Fin
+        s2 = Set.enumerate finite_Fin
 

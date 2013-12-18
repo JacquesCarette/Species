@@ -17,10 +17,11 @@ import           Data.Tuple                 (swap)
 
 import           Data.BFunctor
 import           Data.Iso
-import           Data.Finite                (Size(..),finConv)
+import           Data.Finite                (Size(..),finConv,finite_Fin)
 import           Data.Storage
 import           Data.Species.Shape
 import           Data.Species.Types
+import qualified Data.Set.Abstract          as S
 
 
 canonicalize :: forall f s l a. (TraversableWithKey f, Size (Key f) ~ Size l, Eq l, Eq (Key f), HasSize (Key f), Storage s)
@@ -31,12 +32,12 @@ canonicalize (Struct fl es) = (Struct fk (reindex klIso es), klIso)
     klIso :: l <-> Key f
     klIso   = iso (fromJust . (lookup ?? map swap m)) (fromJust . (lookup ?? m))
 
-forgetShape :: Sp f s l a -> Sp E s l a
-forgetShape (Struct _ es) = Struct e_ es
+forgetShape :: S.Enumerable l => Sp f s l a -> Sp E s l a
+forgetShape (Struct _ es) = Struct (e_ S.enumS) es
 
 reconstitute :: Representable f => Sp E s (Key f) a -> Sp f s (Key f) a
 reconstitute (Struct _ es) = Struct (tabulate id) es
 
-unCanonicalize :: (BFunctor f, Representable f, HasSize l, HasSize (Key f), Eq l, Eq (Key f), Storage s)
+unCanonicalize :: (BFunctor f, Representable f, HasSize l, HasSize (Key f), Eq l, Eq (Key f), Storage s, S.Enumerable (Key f))
                => (Sp f s (Key f) a, l <-> Key f) -> Sp f s l a
 unCanonicalize (sp, i) = relabel (from i) (reconstitute . forgetShape $ sp)

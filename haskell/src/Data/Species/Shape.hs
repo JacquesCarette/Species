@@ -152,6 +152,12 @@ x_ = X id
 -- | The species of bags, with one shape of each size.
 data E (l :: *) = E (S.Set l) deriving (Show)
 
+instance BFunctor E where
+  bmap i = iso (applyIso i) (applyIso (from i))
+    where
+      applyIso :: l <-> l' -> E l -> E l'
+      applyIso i' (E s) = E $ view (bmap i') s
+
 -- | Introduction form for the canonical @E@-shape of any set
 --   of labels.
 e_ :: S.Set l -> E l

@@ -2,7 +2,8 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- | A simple model of abstract (mathematical) sets.
-module Data.Set.Abstract (Set, enumerate, elimSet, emptySet, union) where
+module Data.Set.Abstract (Set, enumerate, elimSet, emptySet, union, 
+  Enumerable(..)) where
 
 import           Control.Lens
 import           Data.BFunctor
@@ -35,3 +36,13 @@ union (Set la) (Set lb) = Set (map Left la ++ map Right lb)
 --   list.
 elimSet :: ([a] -> b) -> Set a -> b
 elimSet f (Set xs) = f xs
+
+-- Probably need to move this to its own file
+-- Rather than requiring Finite, which isn't alawys what we want
+-- as it 'implies' an ordering, we can get away with abstract enumerability
+
+class Enumerable l where
+  enumS :: Set l
+
+instance Enumerable () where
+  enumS = Set [()]
