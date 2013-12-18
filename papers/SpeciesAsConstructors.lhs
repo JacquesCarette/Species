@@ -306,7 +306,7 @@ whatsoever.  Teasing out the precise relationship between species and
 data types, however, has proved challenging, for two reasons. First,
 combinatorialists are mainly concerned with enumerating and
 generating abstract structures, not with storing and computing with data.
-Thus, when attempting to apply species in a computational setting,
+Thus, in order to apply species in a computational setting,
 there are many hidden assumptions and glossed distinctions that must
 first be teased apart.  Second, being situated in traditional mathematical
 practice rooted in set theory, species are usually described in ways
@@ -443,8 +443,8 @@ giving the labels a much more prominent role.  Bringing the mediating
 labels to the fore in this way is, to our knowledge, novel, and leads
 to some interesting benefits.  For example:
 \begin{itemize}
-\item It allows us to unify ``implicitly labeled'' structures (such as
-  algebraic data types) and ``explicitly labeled'' structures (such as
+\item It allows us to unify ``implicitly labelled'' structures (such as
+  algebraic data types) and ``explicitly labelled'' structures (such as
   arrays or finite maps) under the same framework.
 \item Some operations (for example, reversing a vector, taking the
   transpose of a 2D array, or altering the keys of a finite map) can
@@ -472,7 +472,7 @@ significance.  In particular, we are naturally led to work up to
 computationally relevant \emph{equivalences} (and \emph{partial
   equivalences}) on labels.  Working up to equivalence in this way
 confers additional expressive power, allowing us to model efficient
-label operations (\eg\ matrix transpose) without copying.  In fact,
+label operations (\eg matrix transpose) without copying.  In fact,
 this is one of the key ingredients in modeling memory layout and
 allocation (see \todo{section?}).
 
@@ -624,7 +624,7 @@ could be obtained.
 \section{Combinatorial Species}
 \label{sec:species}
 
-% We want to think of each labeled structure as \emph{indexed by} its
+% We want to think of each labelled structure as \emph{indexed by} its
 % set of labels (or, more generally, by the \emph{size} of the set of
 % labels).  We can accomplish this by a mapping from label sets to all
 % the structures built from them, with some extra properties to
@@ -1075,21 +1075,28 @@ type $L$ of labels and a type $A$ of data, consists of
   below).
 \end{itemize}
 
-This formal definition matches well with the intuition that we are
-taking labelled shapes corresponding to a species and simply adding
-some associated data.
+Depending on the representation used for the map type $\Store L A$, a
+given labelled structure can have multiple distinct
+representations. Ideally, this extra representation detail should be
+unobservable when programming with labelled structures. In addition,
+species, and hence labelled structures, are functorial in the label
+type, so the precise nature of the labels should not be observable
+either---that is, computing some function of a labelled structure
+should give the same result if we first relabel it.  We can accomplish
+this by making the type of labelled structures abstract, and carefully
+defining a type of \emph{eliminators} for labelled structures which
+hide the extra detail.
+
+\bay{Argh, it just hit me that this story about getting the same
+  result before and after relabeling is inconsistent with our story
+  about operations on arrays as label operations.  There is something
+  more subtle going on here but I am not sure what.}
 
 \subsection{Labelled eliminators}
 \label{sec:labelled-eliminators}
 
-Depending on the representation used for the map type $\Store L A$, a
-given labelled structure can have multiple distinct
-representations. \todo{picture here illustrating two different
-  representations of the same structure} This extra representation
-detail should not be observable \todo{finish}
-
-We can define the generic type of eliminators for labelled
-$F$-structures, $\Elim_F : \Type \to \Type \to \Type$, as
+The generic type of eliminators for labelled $F$-structures, $\Elim_F
+: \Type \to \Type \to \Type$, is defined by
 \begin{equation*}
   \Elim_F\ A\ R \defn (L : \Type) \to F\ L \to \DecEq L \to \Store L A \to R
 \end{equation*}
@@ -1105,31 +1112,16 @@ an eliminator cannot make use of any details of a particular
 implementation for $\Store L A$, but only its abstract interface (in
 particular, the |index| function).
 
-\todo{rewrite: in particular, given the former, one can observe an
-  induced linear order on the elements of $L$, using the usual linear
-  order on the associated natural numbers. However, we do not want to
-  allow this. Labelled structures should be equivalent up to mere
-  reordering of the data storage, so eliminators should not be able to
-  observe the difference.  Given only $\DecEq L \times (L \to A)$,
-  there is no way to enumerate the elements of $L$ or observe any
-  order relation on them.  One can only traverse the shape $F\ L$ and
-  feed encountered $L$ values into the $(L \to A)$ function to learn
-  the associated data values, possibly consulting the provided
-  decidable equality to find out which labels are shared.}
-
-Note that if $\DecEq L$ is left out, we have \[ (L : \Type) \to F\ L
+Decidable equality on $L$ allows the eliminator to observe value-level
+sharing.  If $\DecEq L$ is left out, we have \[ (L : \Type) \to F\ L
 \to \Store L A \to R, \] which by parametricity is equivalent to \[ F\
-A \to R. \] The point is that labels allow us to describe and observe
-(value-level) \emph{sharing}.  If we do not observe the sharing (\ie\
-if we do not consult the decidable equality on $L$, to see which
-labels occur more than once), then semantically speaking we might as
-well simply replace the labels in the $F$-shape with their
-corresponding $A$ values, and then eliminate that.  However, from an
-operational point of view, even without any sharing, filling in the
-$F$-shape with data might involve undesirable copying of large amounts
-of data.
-
-\todo{picture}
+A \to R. \] That is, if we do not observe the sharing (\ie\ if we do not
+consult the decidable equality on $L$, to see which labels occur more
+than once), then semantically speaking we might as well simply replace
+the labels in the $F$-shape with their corresponding $A$ values, and
+then eliminate that. However, from an operational point of view, even
+without any sharing, filling in the $F$-shape with data might involve
+undesirable copying of large amounts of data.
 
 % Including this here for reference (probably doesn't need to actually
 % go in the paper):
@@ -1161,23 +1153,35 @@ of data.
 % where the last step follows from the free theorem, taking l' = a, q =
 % id, and g = p.
 
+We can always derive decidable equality for any type with a $\Finite$
+proof, by mapping to $\Fin n$ and comparing for equality.  However, we
+do not expose the actual $\Finite L$ witness to eliminators.  The
+reason is that given a value of $\Finite L$, one can observe an
+induced linear order on the elements of $L$, using the usual linear
+order on the associated natural numbers. However, this would again
+break functoriality: an eliminator would be able to observe some of
+the effects of relabeling. Given only $\DecEq L \times (L \to A)$,
+there is no way to enumerate the elements of $L$ or observe any order
+relation on them.  One can only traverse the shape $F\ L$ and feed
+encountered $L$ values into the $(L \to A)$ function to learn the
+associated data values, possibly consulting the provided decidable
+equality to find out which labels are shared.
+
 Note that if we do want to observe sharing, the given formulation is
 not actually very convenient; for example, if we want to know whether
 a given label $l : L$ is shared, we have to traverse the entire
-$F$-structure and test every label for equality with $l$.
-Unfortunately, we cannot do much better without exposing arbitrary
-implementation details which an eliminator should not have access to.
-For example, we could imagine providing a list of equivalence classes
-of $L$ values, but this would again expose some arbitrary ordering on
-$L$.
+$F$-structure and test every label for equality with $l$.  In
+practice, there may be equivalent, more operationally convenient
+formulations.
 
 We can ``run'' an eliminator,
 \[ \elim : \Elim_F\ A\ R \to \LStr F L A \to R, \] by taking apart the
 labelled structure and using it to construct the proper arguments to
-the eliminator.  In particular, any $\Finite$ type $L$ has decidable
-equality, by converting to $\Fin\ (\size L)$ and comparing, and we
-construct an $(L \to A)$ function which converts $L$ to an index
-before doing a lookup in the element vector.
+the eliminator.
+
+\todo{mention in this section that this doesn't give you any help in
+  eliminating $F\ L$, which for some species $F$ may be nontrivial
+  (\eg anything with symmetry).  Future work.}
 
 \subsection{Zipping and canonical labels}
 \label{sec:zipping}
@@ -1263,7 +1267,7 @@ structure in the canonical way---they may be shuffled around.
 We therefore introduce another function
 \[ |forgetShape| : (F : \Species) \to \LStr F L A \to \LStr \E L A \]
 which takes a labelled structure and simply forgets its shape. Also,
-given a bag labeled with the canonical labels for some shape, we can
+given a bag labelled with the canonical labels for some shape, we can
 recover the shape: \[ |reconstruct| : (F : \RegSpecies) \to \LStr \E
 {\Path F} A \to \LStr F {\Path F} A \] We have the laws \[
 |forgetShape| \comp |reconstruct| = id \] \todo{and?}
@@ -1309,13 +1313,14 @@ expressed as operations on structured labels.
 \section{The algebra of species and labelled structures}
 \label{sec:algebraic}
 
+\todo{add eliminators / eliminator combinators for each primitive + operation}
+
 We now return to the observation from \pref{sec:set-species} that we
 do not really want to work directly with the definition of species,
-but rather with an algebraic theory. \todo{say a bit more}
-
-For each species primitive or operation, we also discuss the
-associated introduction form(s), for both ``bare'' shapes and for
-labelled structures.  We discuss eliminators in~\pref{sec:elim}.
+but rather with an algebraic theory. In this section we explain such a
+theory.  At its core, this theory is not new; what is new is porting
+it to a constructive setting, and the introduction and elimination
+forms for labelled structures built on top of these species.
 
 \subsection{Primitive species}
 \label{sec:primitive}
@@ -1899,7 +1904,7 @@ contain many $G$-shapes.
 
 \todo{picture}
 
-As an example, the species of simple directed graphs with labeled
+As an example, the species of simple directed graphs with labelled
 vertices can be specified as \[ \mathcal{G} = (\E \sprod \E) \fcomp
 (\X^2 \sprod \E), \] describing a graph as a subset ($\E \sprod \E$)
 of the set of all ordered pairs chosen from the complete set of vertex
@@ -2017,7 +2022,7 @@ shapes would be much more difficult to work with).
 % Jacques, you were actually right: (E . E) is not the right shape for
 % matrices.  The problem is that it allows ragged matrices.  Having
 % something of type Sp (E.E) (l1,l2) does not actually guarantee that we
-% have l1-many rows each labeled by l2: all we know is that there are
+% have l1-many rows each labelled by l2: all we know is that there are
 % l1xl2 many entries *in total*, but they can be distributed in weird
 % ways.
 
@@ -2067,7 +2072,7 @@ shapes would be much more difficult to work with).
 % Here's how matrix product works.  Recall that 2-dimensional matrices
 % have the shape (E . E), where . represents composition.  So I will
 % abbreviate the type of 2D matrices containing elements of type a and
-% labeled with pairs from the set (Fin m, Fin n) as (E.E) (m,n) a.  Now
+% labelled with pairs from the set (Fin m, Fin n) as (E.E) (m,n) a.  Now
 % suppose we want to multiply two matrices of types
 
 %   (E.E) (m,p) a
