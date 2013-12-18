@@ -17,7 +17,7 @@ import           Data.Tuple                 (swap)
 
 import           Data.BFunctor
 import           Data.Iso
-import           Data.Finite                (Size(..),finConv,finite_Fin)
+import           Data.Finite                (Size(..),finConv)
 import           Data.Storage
 import           Data.Species.Shape
 import           Data.Species.Types

@@ -45,12 +45,10 @@ take (Struct f i) qq n pf =
                 sn = N.natty n $ Set.enumerate $ finite_Fin
                 sm = N.natty m $ Set.enumerate $ finite_Fin
 
-filter :: (S.Storage s, N.Natural n, l ~ F.Fin n) => Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
+-- We need an Enumerable constraint
+filter :: (S.Storage s, Set.Enumerable l, Eq l) => Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
 filter (Struct f stor) p = Struct (cprod_ f k) stor
   where sel = S.smap p stor
-        k = part_ s1 s2
+        k = part_ Set.enumS Set.enumS
                   (iso (\l -> case l of {Left a -> a; Right a -> a}) 
                        (\l -> if (S.index sel l) then Left l else Right l) )
-        s1 = Set.enumerate finite_Fin
-        s2 = Set.enumerate finite_Fin
-
