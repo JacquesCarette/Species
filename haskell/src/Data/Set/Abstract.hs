@@ -3,7 +3,7 @@
 
 -- | A simple model of abstract (mathematical) sets.
 module Data.Set.Abstract (Set, enumerate, elimSet, emptySet, union, 
-  Enumerable(..), setToMS) where
+  Enumerable(..), setToMS, smap) where
 
 import           Control.Lens
 import           Data.BFunctor
@@ -16,8 +16,13 @@ import qualified Data.MultiSet as MS
 newtype Set a = Set [a]
   deriving Show
 
-instance Functor Set where
-  fmap f (Set l) = Set $ map f l
+-- Set is not a Functor (unless f is required to be injective).
+-- so map on Set produces a MultiSet
+-- we ignore efficiency for now, so the generated MultiSet might be
+-- totally out of whack.  We ought to implement our own instead, to make
+-- that clearer still.
+smap :: (a -> b) -> Set a -> MS.MultiSet b
+smap f (Set l) = MS.mapMonotonic f $ MS.fromDistinctAscList l
 
 instance BFunctor Set where
   bmap i = iso (\(Set as) -> Set (map (view i) as))

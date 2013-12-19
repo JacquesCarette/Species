@@ -29,7 +29,7 @@ instance Labelled (MS.MultiSet a) where
   type EltType (MS.MultiSet a) = a
   type ShapeOf (MS.MultiSet a) = E
   toLabelled            = fromMS
-  elimLabelled          = elimE S.setToMS
+  elimLabelled          = elimE id
 
 toMS :: (Eq l, Storage s) => Sp E s l a -> MS.MultiSet a
 toMS = fromLabelled
@@ -66,15 +66,18 @@ node a ts = arbo' $ prod' (x' a) (compJ'' ts)
 
 -- | An eliminator for labelled general tree structures, the equivalent of
 --   'foldr'.
-elimArbo :: (a -> S.Set r -> r) -> Elim Arbo a r
+elimArbo :: (a -> MS.MultiSet r -> r) -> Elim Arbo a r
 elimArbo f =
   mapElimShape (view isoArbo) $
     elimProd (elimX (\a -> elimComp (elimE (f a)) (elimArbo f)))
 
-{-
-instance Labelled (Tree a) where
-  type EltType (Tree a) = a
-  type ShapeOf (Tree a) = Rose
-  toLabelled            = fromRose
-  elimLabelled          = elimRose Node
--}
+data SetTree a = SetTree a (MS.MultiSet (SetTree a))
+
+fromSetTree :: Storage s => SetTree a -> Sp' Arbo s a
+fromSetTree (SetTree a st) = node a (fromMS (MS.mapMonotonic fromSetTree st))
+
+instance Labelled (SetTree a) where
+  type EltType (SetTree a) = a
+  type ShapeOf (SetTree a) = Arbo
+  toLabelled               = fromSetTree
+  elimLabelled             = elimArbo SetTree
