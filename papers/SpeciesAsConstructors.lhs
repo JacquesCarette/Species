@@ -20,6 +20,10 @@
 %format compP  = "\cons{compP}"
 %format <*>    = "<\!\!*\!\!>"
 
+%format le_intro = "\lab{\cons{e}}"
+
+%format LStr (f) (l) (a) = "\LStr{" f "}{" l "}{" a "}"
+
 %format pi = "\pi"
 %format pi1
 %format pi2
@@ -119,6 +123,8 @@
 \newcommand{\FinType}{\ensuremath{\Type_{\text{Fin}}}}
 
 \newcommand{\size}[1]{\ensuremath{||#1||}}
+
+\newcommand{\lab}[1]{\ensuremath{\left\langle #1 \right\rangle}}
 
 \DeclareMathOperator{\Species}{Species}
 \DeclareMathOperator{\RegSpecies}{RegSpecies}
@@ -608,6 +614,12 @@ requiring them to have an implicit, canonical finiteness proof, we
 will in general pass around types \emph{together with} some specific
 finiteness proof.  We can encapsulate this by defining \[ \FinType
 \defn (L : \Type) \times \Finite L \] as the universe of finite types.
+
+\todo{Revisit this!  Having $\FinType$ everywhere is somewhat
+  problematic, since \eg I am not sure that an equivalence $L_1 \iso
+  L_2$ where $L_1, L_2 : \FinType$ really means what we want.  We
+  still don't have a very good story/understanding of where we need
+  the finite evidence and where we don't.}
 
 It is not hard to see that the size of a finite type is determined
 uniquely. That is, if $f_1, f_2 : \Finite L$ are any two witnesses that
@@ -1322,29 +1334,34 @@ theory.  At its core, this theory is not new; what is new is porting
 it to a constructive setting, and the introduction and elimination
 forms for labelled structures built on top of these species.
 
+Formally, to define a species we must define its action on both label
+types and label equivalences.  However, we will only give the actions
+on label types: if the action of a species on the label type $L$ is
+given by $F\ L$, its action on equivalences $\sigma$ can be derived by
+syntactically replacing $L$ by $\sigma$ in the definition of $F$
+(using our convention that $F\ \sigma : F\ L_1 \iso F\ L_2$ when
+$\sigma : L_1 \iso L_2$). Moreover, this action on equivalences is
+automatically functorial.
+
 \subsection{Primitive species}
 \label{sec:primitive}
+
+We begin by examining some primitive species which serve as the ``base
+cases'' when building up more complex species.
 
 \paragraph{Zero}
   The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
   unique species with no shapes whatsoever, defined by its action on
-  finite types and bijections as
-  \begin{align*}
-  \Zero\ L &= \TyZero \\
-  \Zero\ \sigma &= \id_\TyZero
-  \end{align*}
-  The zero species, of course, has no introduction form.
-  \bay{Say more here?}
-
-  \todo{be more explicit about how we will be defining species
-    implicitly by defining the $\cons{shapes}$ field; $\cons{relabel}$
-    can be obtained by the syntactic substitution trick outlined
-    below; the proofs are straightforward and omitted.}
+  finite types as
+  \begin{equation*}
+  \Zero\ L = \TyZero
+  \end{equation*}
+  Of course, it has no introduction form.
 
 \paragraph{One}
-  The \emph{one} or \emph{unit} species, denoted $\One$, is the
-  species with a single shape of size $0$.  The usual set-theoretic
-  definition is
+The \emph{one} or \emph{unit} species, denoted $\One$, is the species
+with a single shape of size $0$ (that is, containing no labels).  The
+usual set-theoretic definition is
   \[ \One\ L =
   \begin{cases}
     \{\bullet\} & ||L|| = 0 \\
@@ -1361,26 +1378,24 @@ forms for labelled structures built on top of these species.
 
   The corresponding type-theoretic definition, on the other hand, is
   \[ \One\ L = \TyZero \iso L. \] That is, a $\One$-shape consists
-  solely of a proof that $L$ is empty. (Note that there is at most one
-  such proof.)  In this form, the functoriality of $\One$ is also
-  evident: \[ \One\ \sigma = \TyZero \iso \sigma, \] or more
-  explicitly, \[ \One\ \sigma = (\lam {\tau}{\sigma \comp \tau})
-  \mkIso (\lam {\tau}{\sigma^{-1} \comp \tau}). \] \bay{Note that
-    something equivalent is mentioned in Yeh, “The calculus of virtual
-    species and K-species”, namely that $\One$ can be defined as the
-    hom-functor $\B(\varnothing, -)$.}
+  solely of a proof that $L$ is
+  empty.\footnote{\citet{Yeh-calculus-virtual-K} mentions something
+    equivalent, namely, that the unit species can be defined as the
+    hom-functor $\B(\varnothing, -)$, though he certainly does not
+    have constructive type theory in mind.}  (Note that there is at
+  most one such proof.)
 
   There is a trivial introduction form for $\One$, also denoted
-  $\top$, which creates a $\One$-shape using the canonical label set
-  $\Fin\ 0$, that is, \[ \top : \One\ (\Fin\ 0). \] In a further abuse
-  of notation we can also use $\top$ to denote an introduction form
-  for labelled $\One$-structures, \[ \top : \LStr \One {\Fin\,0} A. \]
+  $\One$, which creates a $\One$-shape using the canonical label set
+  $\Fin\ 0$, that is, \[ \One : \One\ (\Fin\ 0). \] We also have an
+  introduction form for labelled $\One$-structures, \[ \lab{\One} : \LStr
+  \One {\Fin\,0} A. \]
 
-  \todo{Come up with better notation that distinguishes constructors
-    for shapes and labelled structures.}
+  In general, species introduction forms will use a canonical label
+  type if there is one; other label types may be obtained via
+  relabelling.
 
-  Introducing a canonical label type will be standard for introduction
-  forms; other label types may be obtained via relabelling.
+  \todo{eliminator}
 
 \paragraph{Singleton}
   The \emph{singleton} species, denoted $\X$, is defined by
@@ -1390,16 +1405,12 @@ forms for labelled structures built on top of these species.
   a single label of type $L$, which we may recover by applying the
   equivalence to $\unit$.
 
-  Note that once again the definition is ``obviously'' functorial; we
-  may syntactically replace $L$ by $\sigma$ to obtain \[ \X\ \sigma =
-  \top \iso \sigma. \] From this point on, we will only explicitly
-  give the action of species on label types, since the functoriality
-  will always follow straightforwardly in this way.
-
   $\X$-shapes, as with $\One$, have a trivial introduction form,
   \[ \cons{x} : \X\ (\Fin\ 1). \]  To introduce an $\X$-structure, one
   must provide the single value of type $A$ which is to be stored in
-  the single location: \[ \cons{x} : A \to \LStr \X {\Fin\,1} A. \]
+  the single location: \[ \lab{\cons{x}} : A \to \LStr \X {\Fin 1} A. \]
+
+  \todo{eliminator}
 
 \paragraph{Sets}
 The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
@@ -1413,10 +1424,15 @@ are \emph{bags}: any particular data element may occur multiple times
 (each time associated with a different, unique label).
 
 $\E$-shapes also have a trivial introduction form, $\cons{e} : \E\ L$,
-along with a corresponding introduction form for $\E$-structures
-which simply requires the mapping from labels to values: \todo{needs
-  a $\Finite$ proof}\[ \cons{e} :
-(L \to A) \to \LStr \E L A. \]
+along with a corresponding introduction form for $\E$-structures which
+simply requires the mapping from labels to values:
+\begin{align*}
+\lab{\cons{e}} &: (L \to A) \to \LStr \E L A \\
+\lab{\cons{e}} &= |allocate| ...
+\end{align*}
+\todo{finish}
+
+\todo{eliminator.  Explain why it is problematic.}
 
 As a summary, \pref{fig:prims} contains a graphic showing $\Zero$-,
 $\One$-, $\X$-, and $\E$-shapes arranged by size (\ie, the size of the
@@ -1471,7 +1487,6 @@ where $\Natural\ \varphi$ is the proposition which states that $\varphi$ is
 \term{natural}, that is, the diagram shown in
 \pref{fig:species-morphism} commutes for all $L, L' : \FinType$ and
 all $\sigma : L \iso L'$.
-
 \begin{figure}[h!]
   \centering
   \centerline{
@@ -1483,7 +1498,6 @@ all $\sigma : L \iso L'$.
   \caption{Naturality for species morphisms}
   \label{fig:species-morphism}
 \end{figure}
-
 Intuitively, $\varphi$ is natural if it does not depend on the type of
 the labels, that is, it acts uniformly for all choices of label set:
 it does not matter whether one first relabels an $F$-shape and then
@@ -1500,7 +1514,7 @@ isomorphism. However, species isomorphisms carry computational
 content, so when dealing with labelled structures we must be more
 careful and explicit in their use.
 
-It is worth noting that a pair of ``bare'' inverse morphisms, without
+It is worth noting that an inverse pair of ``bare'' morphisms, without
 naturality, constitute what is termed an \term{equipotence} between
 two species.  An equipotence preserves the \emph{number} of shapes of
 each size, but it does not necessarily preserve the structure of those
@@ -1516,8 +1530,10 @@ although equipotences are of interest to combinatorialists, so far
 they do not seem to be of much use computationally, so we will not
 consider them further in this paper.
 
-\subsection{Species operations}
+\subsection{Operations on species and labelled structures}
 \label{sec:species-ops}
+
+\todo{say something about how to interpret the picture schemas we will use}
 
 \paragraph{Sum}
 Given two species $F$ and $G$, we may form their sum. We use $\ssum$
@@ -1525,7 +1541,7 @@ to denote the sum of two species to distinguish it from $+$, which
 denotes a sum of types. The definition is straightforward, and
 unsurprising to anyone who has ever done any generic programming: \[
 (F \ssum G)\ L = F\ L + G\ L. \] That is, a labelled $(F \ssum G)$-shape is
-either a labelled $F$-shape or a labelled $G$-shape.
+either a labelled $F$-shape or a labelled $G$-shape (\pref{fig:sum}).
 
   \begin{figure}
     \centering
@@ -1549,42 +1565,35 @@ dia = theDia # centerXY # pad 1.1
     \caption{Species sum}
     \label{fig:sum}
   \end{figure}
-\todo{need to explain what these pictures mean at some point, and make
-  sure each picture is referenced from the text.}
 
 As the reader is invited to check, $(\ssum,\Zero)$ forms a commutative
 monoid structure on species, up to species isomorphism.  That is, one
-can define isomorphisms
+can define natural isomorphisms
 \begin{align*}
 &\cons{plusAssoc} : \impl{F, G, H : \Species} \to ((F \ssum G) \ssum H
 \natiso F \ssum (G \ssum H)) \\
 &\cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \natiso F) \\
 &\cons{plusComm} : \impl{F, G : \Species} \to (F \ssum G \natiso G
-\ssum F) \\
+\ssum F)
 \end{align*}
 
 As expected, there are two introduction forms for $(F \ssum G)$-shapes
 and \mbox{-structures}:
 \begin{align*}
-&\cons{inl} : F\ L \to (F \ssum G)\ L \\
-&\cons{inr} : G\ L \to (F \ssum G)\ L \\
-&\cons{inl} : \LStr F L A \to \LStr {F \ssum G} L A \\
-&\cons{inl} : \LStr G L A \to \LStr {F \ssum G} L A \\
+&\inl : F\ L \to (F \ssum G)\ L \\
+&\inr : G\ L \to (F \ssum G)\ L \\
+&\lab{\inl} : \LStr F L A \to \LStr {F \ssum G} L A \\
+&\lab{\inr} : \LStr G L A \to \LStr {F \ssum G} L A
 \end{align*}
+
+\todo{eliminator}
 
 \paragraph{Product}
 The product of two species $F$ and $G$ consists of paired $F$- and
 $G$-shapes, but with a twist: the label types $L_1$ and $L_2$ used for
 $F$ and $G$ are not necessarily the same as the label type $L$
 used for $(F \sprod G)$.  In fact, they must constitute a
-partition of $L$, in the sense that their sum is isomorphic to $L$.
-\begin{equation*}
-  (F \sprod G)\ L = (L_1, L_2 : \FinType) \times (L_1 + L_2 \iso L) \times F\ L_1 \times G\ L_2
-\end{equation*}
-The intuition here is that each label represents a unique ``location''
-which can hold a data value, so the locations in the two paired
-shapes should be disjoint.
-
+partition of $L$, in the sense that their sum is isomorphic to $L$ (\pref{fig:product}).
   \begin{figure}
     \centering
     \begin{diagram}[width=250]
@@ -1606,6 +1615,15 @@ dia = theDia # centerXY # pad 1.1
     \caption{Species product}
     \label{fig:product}
   \end{figure}
+\begin{equation*}
+  (F \sprod G)\ L = (L_1, L_2 : \FinType) \times (L_1 + L_2 \iso L) \times F\ L_1 \times G\ L_2
+\end{equation*}
+For comparison, in set theory the definition is usually presented
+as \[ (F \sprod G)\ L = \sum_{L_1 \uplus L_2 = L} F\ L_1 \times G\
+L_2 \] which lacks any computational evidence for the relationship of
+$L_1$ and $L_2$ to $L$.  The intuition is that each label represents a
+unique ``location'' which can hold a data value, so the locations in
+the two paired shapes should be disjoint.
 
 Another good way to gain intuition is to imagine indexing species not
 by label types, but by natural number sizes.  Then it is easy to see
@@ -1613,7 +1631,7 @@ that we would have \[ (F \sprod G)_n = (n_1, n_2 : \N) \times (n_1 +
 n_2 = n) \times F_{n_1} \times G_{n_2}, \] that is, an $(F \sprod
 G)$-shape of size $n$ consists of an $F$-shape of size $n_1$ and a
 $G$-shape of size $n_2$, where $n_1 + n_2 = n$.  Indexing by labels is
-just a generalization (a \emph{categorification}, in fact) of this
+a generalization (a \emph{categorification}, in fact) of this
 size-indexing scheme, where we replace natural numbers with finite
 types, addition with coproduct, multiplication with product, and
 equality with isomorphism.
@@ -1632,11 +1650,12 @@ One introduces a labelled $(F \sprod G)$-shape by pairing a labelled $F$-shape a
 labelled $G$-shape, using a canonical label set formed as the
 coproduct of the two label types:
 \begin{align*}
-  &\langle - , - \rangle : F\ L_1 \to G\ L_2 \to (F \sprod G)\ (L_1 +
+  - \sprod - &: F\ L_1 \to G\ L_2 \to (F \sprod G)\ (L_1 +
   L_2) \\
-  &\langle - , - \rangle : \LStr F {L_1} A \to \LStr G {L_2} A \to
+  - \lab{\sprod} - &: \LStr F {L_1} A \to \LStr G {L_2} A \to
   \LStr {F \sprod G} {L_1 + L_2} A
 \end{align*}
+\todo{show how to implement $\lab{\sprod}$}
 
 $(\sprod, \One)$ also forms a commutative monoid up to species
 isomorphism.
