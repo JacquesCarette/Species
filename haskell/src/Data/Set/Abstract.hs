@@ -3,17 +3,26 @@
 
 -- | A simple model of abstract (mathematical) sets.
 module Data.Set.Abstract (Set, enumerate, elimSet, emptySet, union, 
-  Enumerable(..)) where
+  Enumerable(..), setToMS, smap) where
 
 import           Control.Lens
 import           Data.BFunctor
 import           Data.Fin
 import           Data.Finite
+import qualified Data.MultiSet as MS
 
 -- | A set is an unordered collection of elements in which each
 --   element occurs at most once.
 newtype Set a = Set [a]
   deriving Show
+
+-- Set is not a Functor (unless f is required to be injective).
+-- so map on Set produces a MultiSet
+-- we ignore efficiency for now, so the generated MultiSet might be
+-- totally out of whack.  We ought to implement our own instead, to make
+-- that clearer still.
+smap :: (a -> b) -> Set a -> MS.MultiSet b
+smap f (Set l) = MS.mapMonotonic f $ MS.fromDistinctAscList l
 
 instance BFunctor Set where
   bmap i = iso (\(Set as) -> Set (map (view i) as))
@@ -25,6 +34,10 @@ enumerate f@(F finite) = Set $ map (view finite) (fins (size f))
 
 -- | The empty set
 emptySet = Set []
+
+-- | Convert from an abstract set to a MultiSet
+setToMS :: Set a -> MS.MultiSet a
+setToMS (Set l) = MS.fromDistinctAscList l
 
 -- | Union
 union :: Set a -> Set b -> Set (Either a b)

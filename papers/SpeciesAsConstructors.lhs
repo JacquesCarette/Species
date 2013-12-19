@@ -224,7 +224,7 @@
 
 \newcommand{\bay}[1]{\authornote{blue}{BAY}{#1}}
 \newcommand{\jc}[1]{\authornote{purple}{JC}{#1}}
-
+\newcommand{\scw}[1]{\authornote{magenta}{SCW}{#1}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Semantic markup
 
@@ -316,7 +316,7 @@ combinatorialists are mainly concerned with enumerating and
 generating abstract structures, not with storing and computing with data.
 Thus, in order to apply species in a computational setting,
 there are many hidden assumptions and glossed distinctions that must
-first be teased apart.  Second, being situated in traditional mathematical
+first be made explicit.  Second, being situated in traditional mathematical
 practice rooted in set theory, species are usually described in ways
 that are \emph{untyped} and \emph{nonconstructive}, both of which
 hinder adoption and understanding in a computational context.
@@ -330,33 +330,42 @@ lie primarily in its ability to describe data types with
 example, the type of (oriented) \term{cycles}---nonempty lists
 considered equivalent up to cyclic rotation of the elements---cannot
 be described as a traditional algebraic data type, but do correspond
-to a species.  That promise has not gone away; but as we took a close
+to a species.\scw{Shouldn't put cycles in the introduction if we aren't going
+  to get to them in this paper. Maybe change to dags, as we do have a story
+  about sharing?}  That promise has not gone away; but as we took a close
 look at the definitions, we were surprised to see the notion of
 \term{labels} coming to the fore, playing a much more prominent---and
-promising---role than previously imagined.
+promising---role than previously imagined.\scw{The last sentence doesn't seem
+  to follow from the ones before it. I guess the point is to shift the focus
+  from working with new data structures to new approaches to old ones, but
+  that seems to assume that the audience is thinking the same way that we
+  are. Why not start out with focus to labelled data upfront? i.e. we were
+  thinking about species, and its emphasis on labelled data got us
+  thinking... We don't need to apologize for not doing everything.}
 
 After working with the definitions for a while, it becomes clear that
 species structures should be regarded as \emph{labelled shapes}---in
 particular, they should \emph{not} be thought of as containing
-data. (Some justification for this assertion can be found in
+data.\scw{This is confusing, and also makes too many assumptions about what
+  readers are thinking. We don't need to tell them what not to think before we
+  tell them what to think. Why not just say that species are labeled
+  containers. Paired with a mapping from labels to data they are isomorphic to
+standard data structures.} (Some justification for this assertion can be found in
 \todo{where?}.)  To recover a notion of \emph{data} structures, one
 must add a (notion of) mapping from labels to data.  This leads to the
 familiar idea of decomposing data structures as shapes plus data
 \todo{citations: containers, shapely types, etc.}, with labels
 mediating between the two.
 
-Informally, a \term{labelled structure} is specified by:
-\begin{itemize}
-\item a (finite) type of labels $L$;
-\item a type of data elements $A$;
-\item some sort of ``labelled shape'', corresponding to a species; and
-\item a mapping from labels to data values.
-\end{itemize}
-\pref{fig:labelled-structure-example} illustrates a labelled tree
-shape paired with a mapping from (integer) labels to (character)
-data.  A \emph{family} of labelled structures refers to a class of
-structures parameterized over the label type $L$ and (typically) the
-data type $A$.
+Informally, a \term{labelled structure} is a labelled shape (corresponding to
+a species) paired with a mapping from labels to data values. The type of
+lables $L$ must be finite, whereas the type of data elements $A$ is
+unrestricted.\scw{Reworded to emphasize the difference between labelled shape
+  and labelled structure, which are easy to confuse.}  For example,
+\pref{fig:labelled-structure-example} illustrates a labelled tree shape paired
+with a mapping from (integer) labels to (character) data.  A \emph{family} of
+labelled structures refers to a class of structures parameterized over the
+label type $L$ and (typically) the data type $A$.
 
 \begin{figure}
   \centering
@@ -408,7 +417,7 @@ as labelled shapes.  Given such a labelled structure we can
 ``collapse'' it back to an algebraic data structure by substituting
 data for labels.  For example, the labelled tree structure in
 \pref{fig:labelled-structure-example} represents the tree containing
-|'A'| at its root, |'N'| as the left child, and so on..  Note that the
+|'A'| at its root, |'N'| as the left child, and so on\dots  Note that the
 family of labelled tree structures is quite a bit larger than the
 usual tree type: every possible labelling of a given
 tree shape results in a different labelled structure, whereas there
@@ -446,7 +455,7 @@ and a list structure on some data, as shown in
 Though this bears many similarities to previous approaches, there is
 one key difference: whereas previous approaches have used a fixed,
 canonical set of labels (or left the labels entirely implicit),
-species naturally lead one to work \emph{parametrically} over labels,
+species naturally lead one to work \emph{parametrically}\scw{???} over labels,
 giving the labels a much more prominent role.  Bringing the mediating
 labels to the fore in this way is, to our knowledge, novel, and leads
 to some interesting benefits.  For example:
@@ -458,6 +467,8 @@ to some interesting benefits.  For example:
   transpose of a 2D array, or altering the keys of a finite map) can
   be more naturally described as \emph{operations on labels}, leading
   to benefits in both reasoning and efficiency (see \todo{section ?}).
+  \scw{Are we sure that it is more efficient? What about the copying that 
+    may need to be done to adjust the labels/maps?}
 \item Value-level \emph{sharing} can be easily modelled via shared
   labels (see \todo{section?})---in contrast, this is not possible if
   every structure has a fixed set of canonical labels.
@@ -470,6 +481,8 @@ to some interesting benefits.  For example:
   $\mathbb{L}$-species \cite{BLL, chapter 5}).  We conjecture that
   this has also benefits in a computational setting, though exploring
   this idea in more detail is left to future work.
+  \scw{Expand this? I thought having structure in the labels themselves was an important 
+    part of this model.}
 \end{itemize}
 
 In addition, species are traditionally defined over \emph{finite} sets
@@ -585,11 +598,15 @@ equivalence $T\ \sigma : T\ A \iso T\ B$.\footnote{Formally, this is
 C) = (\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso
 (\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
 
+\scw{Should we be explicit about what ``dimension'' we are working in?
+  Equivalences between data are informative, but equivalences between
+  equivalences are not.}
+
 \subsection{Finiteness}
 \label{sec:finiteness}
 
 The concept of \term{finiteness} plays a central role in the theory of
-species. There are many possible constructive interpretations of
+species.\scw{Do we ever say why?} There are many possible constructive interpretations of
 finiteness \todo{make a citation:
   \url{http://ncatlab.org/nlab/show/finite+set}}; the one we need is
 the simplest: a finite set is one which is in bijection to a canonical
@@ -627,7 +644,7 @@ finiteness proof.  We can encapsulate this by defining \[ \FinType
 
 It is not hard to see that the size of a finite type is determined
 uniquely. That is, if $f_1, f_2 : \Finite L$ are any two witnesses that
-$L$ is finite, then $\outl(f_1) = \outl(f_2)$.  (As proof, note that if
+$L$ is finite, then $\outl(f_1) = \outl(f_2)$. \scw{Define outl} (As proof, note that if
 $f_1 = (n_1, i_1)$ and $f_2 = (n_2, i_2)$, then $i_2^{-1} \comp i_1 :
 \Fin{n_1} \iso \Fin{n_2}$, from which we can derive $n_1 = n_2$ by
 double induction.) In a slight abuse of notation, we therefore write
@@ -663,7 +680,7 @@ definition in \pref{sec:constructive-species}, but it is worth seeing
 both definitions and the relationship between them.
 
 \begin{definition}
-A \term{species} $F$ is a pair of mappings which
+A \term{species} is a pair of mappings, both called $F$, that
 \begin{itemize}
 \item sends any finite set $L$ (of \term{labels}) to a finite set
   $F(L)$ (of \term{shapes}), and
@@ -721,6 +738,10 @@ serviceable in the context of classical combinatorics, but in order to
 use it as a foundation for data structures, it is necessary to first
 ``port'' the definition from set theory to constructive type theory.
 
+As before, a species is a pair of maps, called here $\shapes$ from labels to shapes 
+and for $\relabel$ for relabling shapes. However, the species type also 
+requires proofs of the functoriality conditions for the relabeling function.
+
 \todo{motivate/explain this}
 
 \begin{align*}
@@ -735,8 +756,8 @@ use it as a foundation for data structures, it is necessary to first
 
 Where the meaning is clear from context, we will use simple
 application to denote the action of a species on both objects and
-arrows. That is, if $F : \Species$, instead of writing $F.\shapes\ L$
-or $F.\relabel\ \sigma$ we will just write $F\ L$ or $F\
+arrows. That is, if $F : \Species$, instead of writing ``$F.\shapes\ L$''
+or ``$F.\relabel\ \sigma$'' we will just write $F\ L$ or $F\
 \sigma$.
 
 \bay{in the set-theory section we said the codomain of species is
