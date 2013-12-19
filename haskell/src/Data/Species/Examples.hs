@@ -17,6 +17,7 @@ import           Data.Species.List
 import           Data.Species.Shape
 import           Data.Species.Types
 import           Data.Storage
+import qualified Data.Set.Abstract as S
 
 ------------------------------------------------------------------------------
 
@@ -28,8 +29,13 @@ instance Labelled (MS.MultiSet a) where
   type EltType (MS.MultiSet a) = a
   type ShapeOf (MS.MultiSet a) = E
   toLabelled            = fromMS
-  elimLabelled          = undefined -- TODO
+  elimLabelled          = elimE S.setToMS
 
+toMS :: (Eq l, Storage s) => Sp E s l a -> MS.MultiSet a
+toMS = fromLabelled
+
+toMS' :: (Storage s) => Sp' E s a -> MS.MultiSet a
+toMS' = fromLabelled'
 ------------------------------------------------------------------------------
 
 -- | Much like Rose trees, general trees use a set rather than a list
@@ -58,28 +64,14 @@ arbo' sp' = case sp' of SpEx sp -> SpEx (arbo sp)
 node :: Storage s => a -> Sp' E s (Sp' Arbo s a) -> Sp' Arbo s a
 node a ts = arbo' $ prod' (x' a) (compJ'' ts)
 
-{-
--- | Convert a Haskell tree to a labelled rose tree structure.
-fromRose :: Storage s => Tree a -> Sp' Rose s a
-fromRose (Node a ts) = node a (map fromRose ts)
--}
-
-{-  TODO: need elimE
 -- | An eliminator for labelled general tree structures, the equivalent of
 --   'foldr'.
-elimArbo :: (a -> E r -> r) -> Elim Arbo a r
+elimArbo :: (a -> S.Set r -> r) -> Elim Arbo a r
 elimArbo f =
   mapElimShape (view isoArbo) $
     elimProd (elimX (\a -> elimComp (elimE (f a)) (elimArbo f)))
--}
 
 {-
-toRose :: (Eq l, Storage s) => Sp Rose s l a -> Tree a
-toRose = fromLabelled
-
-toRose' :: Sp' Rose s a -> Tree a
-toRose' = fromLabelled'
-
 instance Labelled (Tree a) where
   type EltType (Tree a) = a
   type ShapeOf (Tree a) = Rose

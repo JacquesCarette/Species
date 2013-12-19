@@ -39,7 +39,7 @@ module Data.Species.Elim
     , elimX
     , elimSum
     , elimProd
-    -- , elimE
+    , elimE
     , elimComp
 
     )
@@ -54,6 +54,7 @@ import           Data.Species.Types
 import           Data.Storage
 import           Data.Type.List
 import qualified Data.Vec           as V
+import qualified Data.Set.Abstract  as S
 
 -- | The type of eliminators for labelled structures.  A value of type
 --   @Elim f a r@ is an eliminator for labelled @f@-structures with
@@ -122,10 +123,8 @@ elimProd (Elim f) = Elim $ \(Prod fShp gShp pf) m ->
 
 -- | Create an eliminator for 'E' by specifying a mapping from data
 -- values to return values.  This is basically a 'crush'
-{-
-elimE :: (a -> r -> r) -> Elim E a r
-elimE f = Elim $ \e m -> f (fmap m e)
--}
+elimE :: (S.Set a -> r) -> Elim E a r
+elimE f = Elim $ \(E s) m -> f (fmap m s)
 
 -- | Create an eliminator for @(Comp f g)@-structures containing @a@'s
 --   from a way to eliminate @g@-structures containing @a@'s to some
