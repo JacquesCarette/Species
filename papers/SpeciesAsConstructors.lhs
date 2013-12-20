@@ -301,6 +301,58 @@ for programming.
 % \terms
 % Languages, Types
 
+
+\scw{I've been thinking about the structure of this paper, trying to make it
+tell its story more effectively. 
+The focus of the paper should be on labelled structures. The fact that they
+are directly inspired by combinatorial species is great and should be
+mentioned repeatedly, but in the end, it is not what the paper is about.
+Our introduction mostly works with this format, but we could bring it out. 
+I'm imagining a progression like:
+\begin{itemize}
+\item What is a labelled structure? A decomposition of data structure. More
+formally, a labelled shape combined with a mapping from labels to data values.
+\item What is novel about this definition?
+\begin{itemize}
+  \item Labels must be drawn from some finite set, but can have their own
+  structure
+  \item We define the mapping from labels to data values abstractly. It
+    doesn't need to be injective.
+\end{itemize}
+\item What is important about our definition?
+\begin{itemize}
+  \item Non-injective mappings represent sharing in data structures, something
+    that is unobservable for algebraic datatypes.
+  \item Although labels have structure, we make it convenient to work up to (partial)
+    isomorphism. ``Relabeling'' models certain operations on data, sometimes
+    more efficiently that with more standard representations.  
+  \item We can choose a definition of mapping that lets us reason about memory
+    allocation and layout.
+\end{itemize}
+\end{itemize}
+However, once we are past the introduction, the story gets muddled. Part of
+this may be that I'm more of a fan of a top-down presentation, whereas the
+current state is more bottom-up. Perhaps we could use more concrete examples
+of what we are trying to do in Section 2 (although explaining them informally)
+before diving into the mathematical preliminaries. Section 3 is called
+``Cominatorial Species'', though perhaps we should call it ``Labelled
+shapes''. I'm not sure how important it is to start with the set-theoretic
+definition first. Why not start with the real definition, and then later
+explain why it is different in type theory than in set theory?  Are there
+interesting examples of labelled shapes we can give at the end of section 3?
+Or remarks to make about labels?  Section 4 dives into mappings. We present
+mappings as one thing, but then change it to something else in 4.3. Why not
+just start with the definition that we want in the first place?  Section 5
+seems a little strange to me because it starts talking about eliminators
+before talking about where we get labelled structures in the first place
+(Section 6). And section 6 mixes the construction of labelled shapes with the
+construction of labelled structures. Maybe it makes sense to combine these
+explanations, but we need to be more explicit about what we are doing. Sec 6
+also doesn't really connect to the finite map/array examples mentioned
+before. Can we show an example of constructing an array?  }
+
+
+
 \section{Introduction}
 \label{sec:intro}
 
