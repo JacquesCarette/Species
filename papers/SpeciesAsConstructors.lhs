@@ -15,9 +15,9 @@
 
 \renewcommand{\Conid}[1]{\mathsf{#1}}
 
-%format sumTys = "\cons{sumTys}"
 %format <->    = "\iso"
-%format compP  = "\cons{compP}"
+%format compP  = "\compP"
+%format compA  = "\compA"
 %format <*>    = "<\!\!*\!\!>"
 
 %format le_intro = "\lab{\cons{e}}"
@@ -141,6 +141,8 @@
 \DeclareMathOperator{\relabel}{relabel}
 \DeclareMathOperator{\Natural}{Natural}
 \DeclareMathOperator{\OfSize}{OfSize}
+\DeclareMathOperator{\OfSizeLTE}{OfSizeLTE}
+\DeclareMathOperator{\OfSizeGTE}{OfSizeGTE}
 
 \DeclareMathOperator{\map}{map}
 \DeclareMathOperator{\sumTys}{sumTys}
@@ -162,10 +164,10 @@
 
 \newcommand{\LStr}[3]{\langle #1 \rangle_{#2}(#3)}
 
-\newcommand{\compP}{\otimes}
-\newcommand{\compA}{\oast}
-\newcommand{\compJ}{\varovee}
-\newcommand{\compB}{\varogreaterthan}
+\newcommand{\compP}{\lab{\otimes}}
+\newcommand{\compA}{\lab{\oast}}
+\newcommand{\compJ}{\lab{\varovee}}
+\newcommand{\compB}{\lab{\varogreaterthan}}
 
 \newcommand{\Vect}[2]{\VectOp\ #1\ #2}
 
@@ -607,18 +609,20 @@ but exploring these connections is left to future work.
 The type theory is equipped with an empty type \TyZero, a unit type
 \TyOne (with inhabitant $\unit$), coproducts (with constructors $\inl$
 and $\inr$), dependent pairs (with projections $\outl$ and $\outr$),
-dependent functions, a universe $\Type$ of types, and a notion of
-propositional equality.  Instead of writing the traditional $\sum_{x :
-  A} B(x)$ for the type of dependent pairs and $\prod_{x:A} B(x)$ for
-dependent functions, we will often use the Agda-like \cite{Agda}
-notations $(x:A) \times B(x)$ and $(x:A) \to B(x)$, respectively
-(though we still occasionally use $\Sigma$ and $\Pi$ for emphasis).
-We continue to use the standard abbreviations $A \times B$ and $A \to
-B$ for non-dependent pair and function types, that is, when $x$ does
-not appear free in $B$. Also, to reduce clutter, we sometimes make use
-of implicit quantification: free type variables in a type---like $A$
-and $B$ in $A \times (B \to \N)$---are implicitly universally
-quantified, like $(A : \Type) \to (B : \Type) \to A \times (B \to \N)$.
+dependent functions, a hierarchy of type universes $\Type_0$,
+$\Type_1$, $\Type_2$\dots (we usually omit the subscripts), and a
+notion of propositional equality.  Instead of writing the traditional
+$\sum_{x : A} B(x)$ for the type of dependent pairs and $\prod_{x:A}
+B(x)$ for dependent functions, we will often use the Agda-like
+\cite{Agda} notations $(x:A) \times B(x)$ and $(x:A) \to B(x)$,
+respectively (though we still occasionally use $\Sigma$ and $\Pi$ for
+emphasis).  We continue to use the standard abbreviations $A \times B$
+and $A \to B$ for non-dependent pair and function types, that is, when
+$x$ does not appear free in $B$. Also, to reduce clutter, we sometimes
+make use of implicit quantification: free type variables in a
+type---like $A$ and $B$ in $A \times (B \to \N)$---are implicitly
+universally quantified, like $(A : \Type) \to (B : \Type) \to A \times
+(B \to \N)$.
 
 We use $\N : \Type$ to denote the usual inductively defined type of
 natural numbers, with constructors $\NatZ : \N$ and $\NatS : \N \to
@@ -1739,29 +1743,24 @@ We may also define the \term{composition} of two species.
 Intuitively, $(F \scomp G)$-shapes consist of a single top-level
 $F$-shape, which itself contains labelled $G$-shapes in place of the
 usual labels, as illustrated in~\pref{fig:composition}.
+Set-theoretically, we have \[ (F \scomp G)\ L = \sum_{\pi \in
+  \cons{Par}(L)} F\ \pi \times \prod_{L' \in \pi} G\ L', \] where
+$\cons{Par}(L)$ denotes the set of all partitions of $L$ into nonempty
+subsets.  Note how this uses the elements of the partition $\pi$
+itself as labels on the $F$-structure.  A more natural type-theoretic
+encoding is to use an arbitrary type of $F$-labels, and then store a
+mapping from these labels to the label types used for the $G$-shapes.
+Additionally, we store an equivalence witnessing the fact that the
+$G$-labels constitute a partition of the overall label type.
+Formally, \[ (F \scomp G)\ L = (L_F : \Type) \times F\ L_F \times
+(Ls_G : \StoreNP {L_F} \Type) \times (L \iso \cons{sum}\ Ls_G) \times
+\cons{map}\ G\ Ls_G. \]  We assume a function $\cons{sum} : \Store J
+\Type \to \Type$ which computes the sum of all the types in the range
+of a mapping.
 
-We represent this sort of nested shape by pairing an $F$-shape with a
-vector of $G$-shapes, using a canonical labelling for the $F$-shape
-and treating the vector as a mapping from this canonical label set to
-labelled $G$-shapes. \todo{needs another picture} Finally, the label
-type for the overall $(F \scomp G)$-shape is the sum of all the
-individual label types used for the $G$-shapes.  Formally,
-\begin{equation*}
- (F \scomp G)\ L = (k : \N) \times (\mathit{Ls} : \Vect{k}{\Type})
- \times F\ (\Fin\ k) \times \sumTys\ (\map\ G\ \mathit{Ls})
-\end{equation*}
-where $\sumTys$ constructs the sum of a collection of types, and is defined by
-\begin{spec}
-  sumTys :  Vec n Type  ->   Type
-  sumTys    []          =    undefined
-  sumTys    (t::ts)     =    t + sumTys ts
-\end{spec}
-$k$ represents the size of the $F$-shape and hence also the number of
-$G$-shapes.
-
-  \begin{figure}
-    \centering
-    \begin{diagram}[width=250]
+\begin{figure}
+  \centering
+  \begin{diagram}[width=250]
 import SpeciesDiagrams
 
 theDia
@@ -1778,31 +1777,33 @@ theDia
     ]
 
 dia = theDia # centerXY # pad 1.1
-    \end{diagram}
-    \caption{Species composition}
-    \label{fig:composition}
-  \end{figure}
+  \end{diagram}
+  \caption{Species composition}
+  \label{fig:composition}
+\end{figure}
 
-$\scomp$, unlike $\ssum$ and $\sprod$, is not commutative: an $F$-shape
-of $G$-shapes is quite different from a $G$-shape of $F$-shapes.  It
-is, however, still associative (up to isomorphism), and in fact
-$(\scomp, \X)$ forms a monoid up to species isomorphism.
+Composition ($\scomp$), unlike sum ($\ssum$) and product ($\sprod$),
+is not commutative\footnote{Interestingly, a recent paper XXX introduces
+  XXX which seems to represent a sort of ``commutative composition'';
+  XXX future work. \todo{finish}}: an $F$-shape of $G$-shapes is quite different from
+a $G$-shape of $F$-shapes.  It is, however, still associative, and in
+fact $(\scomp, \X)$ forms a monoid: Intuitively, an ``$F$-shape of
+$X$-shapes'' corresponds to an application of |map id| to an
+$F$-shape, and ``an $X$-shape of $F$-shapes'' to an application of
+|id|.
 
-Unlike the shape constructions we've seen up to now, the space of
-introduction forms for composition structures is actually quite
-interesting.  We will not separately consider introduction forms for
+The space of introduction forms for composition structures is
+nontrivial.  We will not separately consider introduction forms for
 composition shapes, but study introduction forms for composition
-structures directly.
-
-At the simplest end of the spectrum, we can define an operator
-$\compP$ as follows.  $\compP$ is a sort of cartesian product of
-structures, copying the provided $G$ structure into every location of
-the $F$ structure and pairing up their labels (and their data):
+structures directly. At the simplest end of the spectrum, we can
+define an operator $\compP$ (``cross'') as a sort of cartesian product
+of structures, copying the provided $G$ structure into every location
+of the $F$ structure and pairing up both their labels and data
+(\pref{fig:compP}):
 \begin{equation*}
   - \compP - : \LStr F {L_1} A \to \LStr G {L_2} B \to \LStr {F
   \scomp G} {L_1 \times L_2} {A \times B}
 \end{equation*}
-
 \begin{figure}
   \centering
   \begin{diagram}[width=250]
@@ -1828,24 +1829,28 @@ theDia
 
 dia = theDia # centerXY # pad 1.1
   \end{diagram}
-  \caption{Constructing a composition with |compP|}
+  \caption{Constructing a composition with $\compP$}
   \label{fig:compP}
 \end{figure}
-
 Of course, this is far from being a general introduction form for
 $\scomp$, since it only allows us to construct composition structures
-of a special form, but is convenient when it suffices.  Note that we
-also have
+of a special form, but is convenient when it suffices.
+
+We also have $\compA$ (``ap''), defined by
 \begin{equation*}
   - \compA - : \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
-    \scomp G} {L_1 \times L_2} B
+    \scomp G} {L_1 \times L_2} B.
 \end{equation*}
-which equivalent in power to $\compP$, assuming that we have a function
-$\cons{eval} : (A \to B) \times A \to B$.
+$\compA$ is equivalent in power to $\compP$: in particular, |x compP y =
+(map (,) x) compA y|, where $(,) : A \to B \to A \times B$ denotes the
+constructor for pair types, and |x compA y = map eval (x compP y)|,
+where $|eval| : (A \to B) \times A \to B$.  \todo{say something about
+  parallel with Haskell's |Applicative| and monoidal functors; cite
+  monoidal functors paper I forget}
 
-Just as $\compA$ is a generalization of the |(<*>)| method from
-Haskell's |Applicative| class, there is another introduction form for
-composition which is a generalization of the |join| method of a |Monad|:
+There is another introduction form for composition ($\compJ$,
+``join'') which is a generalization of the |join| ($\mu$) function of
+a monad:
 \begin{equation*}
   - \compJ - : \LStr F {L_1} {\LStr G {L_2} A} \to \LStr {F \scomp
   G} {L_1 \times L_2} A
@@ -1862,14 +1867,16 @@ label set, $L_1$, so they still must all be equal in size.
 
 Most generally, of course, it should be possible to compose
 $G$-structures of different shapes and sizes inside an $F$-structure,
-which is made possible by the last and most general introduction form
-for $\scomp$, which can be seen as a generalization of a monadic bind
-operation |(>>=)|.
+which is made possible by $\compB$ (``bind''), the last and most
+general introduction form for composition, which can be seen as a
+generalization of a monadic bind operation |(>>=)|.
 \begin{equation*}
   - \compB - : \LStr F {L_1} A \to ((l : L_1) \to A \to \LStr G
   {L_2\,l} B) \to \LStr {F \scomp G} {(l : L_1) \times L_2\,l} B
 \end{equation*}
-Note that $L_2$ is allowed to depend on the $F$-labels of type $L_1$.
+Here, $L_2$ is actually a \emph{family} of types, indexed over $L_1$,
+so each $G$ subshape can have a different type of labels, and hence a
+different size.
 
 \todo{illustration for $\compB$}
 
@@ -1883,11 +1890,10 @@ not partition the labels:\[ (F \scprod G)\ L = F\ L \times G\ L \]
 This is the ``na\"ive'' version of product that one might expect from
 experience with generic programming.
 
-With labelled shapes, however, this works very differently.  It is
-important to remember that we still only get to specify a single
-function of type $L \to A$ for the mapping from labels to data.  So
-each label is still associated to only a single data value, but labels
-can occur twice (or more) in an $(F \times G)$-shape.  This lets us
+Cartesian product works very differently With labelled shapes,
+however.  It is important to remember that a mapping $\Store L A$
+still only assigns a single $A$ value to each label; but labels can
+occur twice (or more) in an $(F \times G)$-shape.  This lets us
 \emph{explicitly} model value-level sharing, that is, multiple parts
 of the same shape can all ``point to'' the same data.  In pure
 functional languages such as Haskell or Agda, sharing is a (mostly)
@@ -1906,7 +1912,9 @@ on top of an existing structure: \[ \cons{cprodL} : F\ L \to \LStr G L A
 $\cons{cprodR}$ which combines an $F$-structure and a $G$-shape.
 \todo{picture}
 
-$(\scprod, \E)$ forms a commutative monoid up to species isomorphism.
+$(\scprod, \E)$ forms a commutative monoid up to species isomorphism;
+superimposing an $\E$-shape has no effect, since the $\E$-shape
+imposes no additional structure.
 
 \paragraph{Cardinality restriction}
 
@@ -1917,14 +1925,14 @@ lists, $\L_3$ is the species of lists with length exactly three, and
 $\L_{\geq 1}$ is the species of non-empty lists.  We can formalize a
 simple version of this, for restricting only to particular sizes, as
 follows:
-
 \begin{align*}
 &\OfSize : \Species \to \N \to \Species \\
-&\OfSize\ F\ n = \lam{L}{(\Fin n \iso L) \times F\ L}
+&\OfSize\ F\ n\ L = (\Fin n \iso L) \times F\ L
 \end{align*}
-
-As is standard, we use the notation $F_n$ as shorthand for
-$\OfSize\ F\ n$.
+The introduction form for $\OfSize$ is simple enough, allowing one to
+observe that an existing label type has the size that it has:
+\[ \cons{sized} : \Finite L \to \LStr F L A \to \LStr {\OfSize\ F\
+  ||L||} L A. \]
 
 We could also generalize to arbitrary predicates on natural numbers,
 as in
@@ -1933,20 +1941,17 @@ as in
 &\OfSize'\ F\ P = \lam{L}{(m : \N) \times P\ m \times (\Fin m \iso L)
   \times F\ L}
 \end{align*}
-The original $\OfSize$ can be recovered by setting $P\ m = (m \equiv
+The original $\OfSize$ can be recovered by setting $P\ m \defn (m =
 n)$.  However, $\OfSize'$ is difficult to compute with, since $P$ is
-an opaque function.  In practice, $P\ m = (m \leq n)$ and $P\ m = (m
-\geq n)$ (along with equality) cover the vast majority of cases we
-care about, so as a practical tradeoff we can add explicit combinators
-$\cons{OfSizeLT}$ and $\cons{OfSizeGT}$ representing these predicates,
-abbreviated as $F_{\leq n}$ and $F_{\geq n}$ respectively.
-
-The introduction form for $\OfSize$ is simple enough,
-\[ \cons{sized} : \LStr F L A \to \LStr {\OfSize\ F\ ||L||} L A, \]
-where $||L||$ denotes the size of $L$ ($L$ is a $\FinType$ and
-therefore has a natural number size).
-
-\todo{intro forms for $\cons{OfSizeLT}$ and $\cons{OfSizeGT}$?}
+an opaque function.  In practice, $P\ m \defn (m \leq n)$ and $P\ m
+\defn (m \geq n)$ (along with equality) cover the vast majority of
+cases we care about, so as a practical tradeoff we can add explicit
+combinators $\cons{OfSizeLTE}$ and $\cons{OfSizeGTE}$ representing these
+predicates, with parallel introduction forms:
+\begin{align*}
+  \OfSizeLTE\ F\ n\ L &= (L \subseteq \Fin n) \times F\ L \\
+  \OfSizeGTE\ F\ n\ L &= (L \supseteq \Fin n) \times F\ L
+\end{align*}
 
 \paragraph{Derivative and pointing}
 
@@ -1955,59 +1960,75 @@ functional programming community~\cite{holes_etc}, and it works in
 exactly the way one expects on species.  That is, $F'$-shapes consist
 of $F$-shapes with one distinguished location (a ``hole'') that
 contains no data.  Formally, we may define
-\[ F'\ L = (L' : \FinType) \times (L' \iso \TyOne + L) \times F\ L' \]
+\[ F'\ L = (L' : \Type) \times (L' \iso \TyOne + L) \times F\ L' \]
 \todo{picture}
 
-Note that a function of type $L \to A$ associates data to every label
+Note that a mapping $\Store L A$ associates data to every label
 in the underlying $F\ L'$ structure but one, since $L' \iso \TyOne +
 L$.
 
 To introduce a derivative structure, we require an input structure
-whose label type is already in the form $\TyOne + L$: \[ \cons{d} :
-\LStr F {\TyOne + L} A \to \LStr {F'} L A. \]
+whose label type is already in the form $\TyOne + L$:
+\begin{align*}
+  \cons{d} &: F\ (\TyOne + L) \to F'\ L \\
+  \lab{\cons{d}} &: \LStr F {\TyOne + L} A \to A \times \LStr {F'} L A
+\end{align*}
+The idea with $\lab{\cons{d}}$ is that we get back the $A$ that used
+to be labelled by $\TyOne$, paired with a derivative structure with
+that value missing.
 
-A related, but constructively quite different operation is that of
-\term{pointing}.  A pointed $F$-shape is an $F$-shape with a
-particular label distinguished. \todo{picture} Formally,
+\todo{talk about down operator, once we have figured out functor composition}
+
+A related operation is that of \term{pointing}.  A pointed $F$-shape
+is an $F$-shape with a particular label distinguished. \todo{picture}
+Formally,
 \[ \pt{F}\ L = L \times F\ L. \]
-Introducing a pointed structure requires simply specifying which label
-should be pointed: \[ \cons{p} : L \to \LStr F L A \to \LStr
-{\pt{F}} L A. \]
+Introducing a pointed structure simply requires specifying which label
+should be pointed:
+\begin{align*}
+\cons{p} &: L \to F\ L \to \pt{F}\ L \\
+\cons{p} &: L \to \LStr F L A \to \LStr{\pt{F}} L A
+\end{align*}
 
 The relationship bewteen pointing and derivative is given by the
-isomorphism \[ \pt F \natiso \X \sprod F'. \] \todo{say more about
-  this?}
+isomorphism \[ \pt F \natiso \X \sprod F'. \] The right-to-left
+direction is straightforward to implement, requiring only some
+relabeling.  The left-to-right direction, on the other hand, requires
+decomposing a given label type $L$ as \[ L \iso \left(\sum_{l':L} l'
+  \neq l \right) + \left(\sum_{l':L} l' = l \right), \] \ie
+``subtracting'' a given label $l:L$ from the type $L$.
+
 
 \paragraph{Functor composition}
 
-Just as a ``na\"ive'' product gave us some interesting structures with
-value-level sharing, a ``na\"ive'' composition can do the same.  We
-define the \term{functor composition} of two species as follows:
+It is worth mentioning the operation of \emph{functor composition},
+which set-theoretically is defined as the ``na\"ive'' composition
+
 \[ (F \fcomp G)\ L = F\ (G\ L). \]
 
-Note that the label set given to $F$ is the set of \emph{all $(G\
-  L)$-shapes}.  Giving $G$-shapes as labels for $F$ is the same as
-$\scomp$; the difference is that with $\scomp$ the labels are
-partitioned among all the $G$-shapes, but here the complete set of
-labels is given to each $G$-shape.  This means that a particular label
-could occur \emph{many} times in an $(F \fcomp G)$-shape, since it
-will occur at least once in each $G$-shape, and the $F$-shape may
-contain many $G$-shapes.
+Just as with Cartesian product, functor composition allows encoding
+structures with sharing---for example, the species of simple,
+undirected graphs can be specified as \[ \mathcal{G} = (\E \sprod \E)
+\fcomp (\X^2 \sprod \E), \] describing a graph as a subset ($\E \sprod
+\E$) of all ($\fcomp$) ordered pairs chosen from the complete set of
+vertex labels ($\X^2 \sprod \E$).
 
-\todo{picture}
+However, functor composition mixes up labels and shapes in the most
+peculiar way---and while this is perfectly workable in an untyped,
+set-theoretic setting, we do not yet know how to interpret it in a
+typed, constructive way.
 
-As an example, the species of simple directed graphs with labelled
-vertices can be specified as \[ \mathcal{G} = (\E \sprod \E) \fcomp
-(\X^2 \sprod \E), \] describing a graph as a subset ($\E \sprod \E$)
-of the set of all ordered pairs chosen from the complete set of vertex
-labels ($\X^2 \sprod \E$).
+% Note that the label set given to $F$ is the set of \emph{all $(G\
+%   L)$-shapes}.  Giving $G$-shapes as labels for $F$ is the same as
+% $\scomp$; the difference is that with $\scomp$ the labels are
+% partitioned among all the $G$-shapes, but here the complete set of
+% labels is given to each $G$-shape.  This means that a particular label
+% could occur \emph{many} times in an $(F \fcomp G)$-shape, since it
+% will occur at least once in each $G$-shape, and the $F$-shape may
+% contain many $G$-shapes.
 
-\todo{more examples}
-
-\todo{introduction form(s)?}
-
-$(\fcomp, \pt{\E})$ forms a (non-commutative) monoid up to species
-isomorphism.
+% $(\fcomp, \pt{\E})$ forms a (non-commutative) monoid up to species
+% isomorphism.
 
 \todo{Give some examples.  Show that we can use recursion from the
   host language.}
@@ -2028,8 +2049,16 @@ isomorphism.
 \label{sec:haskell}
 
 \todo{
-  Describe our implementation.  Note that actually compiling such
-  things to efficient runtime code is future work.
+  Interesting points of our implementation in Haskell.
+  \begin{itemize}
+  \item Link to (public) git repo
+  \item Heavy use of DataKinds etc. to simulate dep types (cite Hasochism)
+  \item Needs to use existentially quantified labels in place of
+    dependency, e.g. for $\compB$.
+  \item Uses the lens lib for isos and subset.
+  \item A lot of overhead; actually compiling such things to efficient
+    runtime code is future work.
+  \end{itemize}
 }
 
 \todo{be sure to discuss recursion.}
@@ -2241,6 +2270,10 @@ rings of formal power series. \todo{future work making connections to
 \todo{extend to $\cons{Countable}\ L = \Finite L + L \iso \N$?}
 
 \todo{assumptions on categories needed for various operations.}
+
+\todo{functor composition}
+
+\todo{Port to Agda, together with proofs of species properties?}
 
 \paragraph{Symmetric shapes}
 
