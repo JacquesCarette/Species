@@ -34,6 +34,8 @@ module Data.Species.Types
     , x, x'
       -- ** Bags
     , e, e', empty, econs
+      -- ** Element (Underlying(
+    , u
       -- ** Sum
     , inl, inr, inl', inr'
       -- ** Product
@@ -181,6 +183,8 @@ e' as = case V.fromList as of
 -- Note how this is essentially the Store Comonad.
 u :: Storage s => Finite l -> (l -> a) -> l -> Sp U s l a
 u fin f x = Struct (u_ x) (allocate fin f)
+
+-- No u' since u depends very closely on the labels
 
 -- Sum -------------------------------------------
 

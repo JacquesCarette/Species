@@ -53,5 +53,7 @@ library
                        transformers >= 0.3 && < 0.4,
                        comonad-transformers >= 1.0.0,
                        containers >= 0.4 && < 0.6,
-                       multiset >= 0.2 && < 1.0
+                       multiset >= 0.2 && < 1.0,
+                       unordered-containers >= 0.2.2,
+                       hashable >= 1.1
   hs-source-dirs:      src

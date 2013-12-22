@@ -1,5 +1,6 @@
 {-# LANGUAGE TypeFamilies  #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE GADTs         #-}
 
 -- | A collection of examples of Species
 
@@ -17,29 +18,37 @@ import           Data.Species.List
 import           Data.Species.Shape
 import           Data.Species.Types
 import           Data.Storage
+import           Data.Finite
+import           Data.Hashable
 import qualified Data.Set.Abstract as S
+import qualified Data.HashMap.Lazy as HM
+import           Data.HashMap.Lazy ((!))
 
 ------------------------------------------------------------------------------
 
--- | Haskell MultiSet is a Bag
+-- | Haskell MultiSet is an unlabelled Bag
 fromMS :: Storage s => MS.MultiSet a -> Sp' E s a
 fromMS = e' . MS.elems
 
-instance Labelled (MS.MultiSet a) where
+instance ImpLabelled (MS.MultiSet a) where
   type EltType (MS.MultiSet a) = a
   type ShapeOf (MS.MultiSet a) = E
-  toLabelled            = fromMS
   elimLabelled          = elimE id
+  toLabelled            = fromMS
 
 toMS :: (Eq l, Storage s) => Sp E s l a -> MS.MultiSet a
 toMS = fromLabelled
 
 toMS' :: (Storage s) => Sp' E s a -> MS.MultiSet a
 toMS' = fromLabelled'
+
 ------------------------------------------------------------------------------
 
--- | Much like Rose trees, general trees use a set rather than a list
--- of sub-trees.
+-- | Much like Rose trees, rooted (multi-arity) trees use a set rather than 
+--   a list of sub-trees.  Since terminology between combinatorics and PL
+--   conflicts, we'll stick with 'Arbo' (from the French arborescence) instead
+--   of trying to invent some tree variant (as it would be misunderstood 
+--   almost surely anyways).
 newtype Arbo l = Arbo {unArbo :: (X * (Comp E Arbo)) l }
 
 -- | fold and unfold.  This is so systematic, it should be automated.
@@ -76,8 +85,26 @@ data SetTree a = SetTree a (MS.MultiSet (SetTree a))
 fromSetTree :: Storage s => SetTree a -> Sp' Arbo s a
 fromSetTree (SetTree a st) = node a (fromMS (MS.mapMonotonic fromSetTree st))
 
-instance Labelled (SetTree a) where
+instance ImpLabelled (SetTree a) where
   type EltType (SetTree a) = a
   type ShapeOf (SetTree a) = Arbo
-  toLabelled               = fromSetTree
   elimLabelled             = elimArbo SetTree
+  toLabelled               = fromSetTree
+
+{-
+------------------------------------------------------------------------------
+-- | Haskell HashMap is (essentially) a labelled bag.
+--   To make things work though, we really need to package up a Finite l
+--   in there.
+data FinHashMap l v where
+   FHM :: (Data.Hashable.Hashable l, Eq l) => 
+               Finite l -> HM.HashMap l v -> FinHashMap l v
+
+fromFM :: (Storage s) => FinHashMap l a -> Sp E s l a
+fromFM (FHM fin hm) = e fin (\l -> hm ! l)
+
+instance Labelled (FinHashMap l a) where
+  type EltType (FinHashMap l a) = a
+  type ShapeOf (FinHashMap l a) = E
+  elimLabelled          = elimE id
+-}

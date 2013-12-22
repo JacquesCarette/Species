@@ -27,7 +27,13 @@ import           Data.Species.List
 -- Converting between containers and labelled structures
 ------------------------------------------------------------
 
-class Labelled c where
+-- There are two kinds of containers:
+-- 1. Those which are fully polymorphic in their labels, in other words
+--    the labels are implicit, corresponding to Sp' structures
+-- 2. Those where the labels form an integral part of the container
+
+-- For the Implicitly labelled structures:
+class ImpLabelled c where
   type EltType c :: *
   type ShapeOf c :: * -> *
   toLabelled   :: Storage s => c -> Sp' (ShapeOf c) s (EltType c)
@@ -37,52 +43,52 @@ class Labelled c where
   fromLabelled' :: Sp' (ShapeOf c) s (EltType c) -> c
   fromLabelled' = elim' elimLabelled
 
-instance Labelled (Identity a) where
+instance ImpLabelled (Identity a) where
   type EltType (Identity a) = a
   type ShapeOf (Identity a) = X
-  toLabelled   = x' . runIdentity
   elimLabelled = elimX Identity
+  toLabelled   = x' . runIdentity
 
-instance Labelled Void where
+instance ImpLabelled Void where
   type EltType Void = Void
   type ShapeOf Void = Zero
-  toLabelled _ = undefined
   elimLabelled = elimZero
+  toLabelled _ = undefined
 
-instance Labelled () where
+instance ImpLabelled () where
   type EltType () = ()
   type ShapeOf () = One
-  toLabelled () = one'
   elimLabelled = elimOne ()
+  toLabelled () = one'
 
-instance ( Labelled (f a), Labelled (g a)
+instance ( ImpLabelled (f a), ImpLabelled (g a)
          , EltType (f a) ~ a, EltType (g a) ~ a
          )
-    => Labelled (Product f g a) where
+    => ImpLabelled (Product f g a) where
   type EltType (Product f g a) = a
   type ShapeOf (Product f g a) = ShapeOf (f a) * ShapeOf (g a)
-  toLabelled (Pair a b) = prod' (toLabelled a) (toLabelled b)
   elimLabelled = elimProd $ elimLabelled <#> \fa -> elimLabelled <#> \ga -> Pair fa ga
+  toLabelled (Pair a b) = prod' (toLabelled a) (toLabelled b)
 
 infixr 4 <#>
 (<#>) :: Functor f => f a -> (a -> b) -> f b
 (<#>) = flip fmap
 
-instance ( Labelled (f a), Labelled (g a)
+instance ( ImpLabelled (f a), ImpLabelled (g a)
          , EltType (f a) ~ a, EltType (g a) ~ a
          )
-    => Labelled (Coproduct f g a) where
+    => ImpLabelled (Coproduct f g a) where
   type EltType (Coproduct f g a) = a
   type ShapeOf (Coproduct f g a) = (ShapeOf (f a)) + (ShapeOf (g a))
-  toLabelled (Coproduct (Left a)) = inl' $ toLabelled a
-  toLabelled (Coproduct (Right a)) = inr' $ toLabelled a
   elimLabelled = elimSum (elimLabelled <#> left)
                          (elimLabelled <#> right)
+  toLabelled (Coproduct (Left a)) = inl' $ toLabelled a
+  toLabelled (Coproduct (Right a)) = inr' $ toLabelled a
 
 {-
 instance ( Functor f
-         , Labelled (g a)
-         , Labelled (f (g a))
+         , ImpLabelled (g a)
+         , ImpLabelled (f (g a))
          , EltType (f (g a)) ~ g a
          , EltType    (g a)  ~   a
 
@@ -98,7 +104,7 @@ instance ( Functor f
          , ShapeOf (f (g a)) ~ ShapeOf (f (Sp' (ShapeOf (g a)) s a))
 
          )
-    => Labelled (Compose f g a) where
+    => ImpLabelled (Compose f g a) where
   type EltType (Compose f g a) = a
   type ShapeOf (Compose f g a)
     = Comp (ShapeOf (f (Sp' (ShapeOf (g a)) s (EltType (g a)))))
@@ -109,8 +115,8 @@ instance ( Functor f
     = elimComp (Compose <$> elimLabelled) elimLabelled
 -}
 
-instance Labelled [a] where
+instance ImpLabelled [a] where
   type EltType [a] = a
   type ShapeOf [a] = L
-  toLabelled       = fromList
   elimLabelled     = elimList [] (:)
+  toLabelled       = fromList

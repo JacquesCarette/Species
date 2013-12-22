@@ -164,6 +164,8 @@ e_ :: S.Set l -> E l
 e_ = E 
 
 -- U ---------------------------------------------
+-- | The species of elements, also called Underlying Set
+--   (thus its symbol).
 data U l = U l deriving Show
 
 instance BFunctor U where
