@@ -75,9 +75,8 @@ toRose = fromLabelled
 toRose' :: Sp' Rose s a -> Tree a
 toRose' = fromLabelled'
 
-instance Labelled (Tree a) where
+instance ImpLabelled (Tree a) where
   type EltType (Tree a) = a
   type ShapeOf (Tree a) = Rose
   toLabelled            = fromRose
   elimLabelled          = elimRose Node
-
