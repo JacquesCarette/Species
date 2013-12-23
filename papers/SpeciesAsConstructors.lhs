@@ -382,18 +382,27 @@ lie primarily in its ability to describe data types with
 example, the type of (oriented) \term{cycles}---nonempty lists
 considered equivalent up to cyclic rotation of the elements---cannot
 be described as a traditional algebraic data type, but do correspond
-to a species.\scw{Shouldn't put cycles in the introduction if we aren't going
-  to get to them in this paper. Maybe change to dags, as we do have a story
-  about sharing?}  That promise has not gone away; but as we took a close
-look at the definitions, we were surprised to see the notion of
-\term{labels} coming to the fore, playing a much more prominent---and
-promising---role than previously imagined.\scw{The last sentence doesn't seem
-  to follow from the ones before it. I guess the point is to shift the focus
-  from working with new data structures to new approaches to old ones, but
-  that seems to assume that the audience is thinking the same way that we
-  are. Why not start out with focus to labelled data upfront? i.e. we were
+to a species.\scw{Shouldn't put cycles in the introduction if we
+  aren't going to get to them in this paper. Maybe change to dags, as
+  we do have a story about sharing?}\bay{Agree about taking out
+  references to cycles, will do.  However, we definitely can't do
+  dags.  We can only do \emph{value} sharing, not structural
+  sharing. (In fact, describing the species of dags in a
+  nice/tractable way is an open problem.)}  That promise has not gone
+away; but as we took a close look at the definitions, we were
+surprised to see the notion of \term{labels} coming to the fore,
+playing a much more prominent---and promising---role than previously
+imagined.\scw{The last sentence doesn't seem to follow from the ones
+  before it. I guess the point is to shift the focus from working with
+  new data structures to new approaches to old ones, but that seems to
+  assume that the audience is thinking the same way that we are. Why
+  not start out with focus to labelled data upfront? i.e. we were
   thinking about species, and its emphasis on labelled data got us
-  thinking... We don't need to apologize for not doing everything.}
+  thinking... We don't need to apologize for not doing
+  everything.}\bay{I guess I was just thinking that we've been touting
+  the potential of species for talking about symmetry for quite a
+  while; there certainly will be people in the audience who ARE
+  thinking the same way we are. But probably just a small minority.}
 
 After working with the definitions for a while, it becomes clear that
 species structures should be regarded as \emph{labelled shapes}---in
@@ -411,7 +420,7 @@ mediating between the two.
 
 Informally, a \term{labelled structure} is a labelled shape (corresponding to
 a species) paired with a mapping from labels to data values. The type of
-lables $L$ must be finite, whereas the type of data elements $A$ is
+labels $L$ must be finite, whereas the type of data elements $A$ is
 unrestricted.\scw{Reworded to emphasize the difference between labelled shape
   and labelled structure, which are easy to confuse.}  For example,
 \pref{fig:labelled-structure-example} illustrates a labelled tree shape paired
@@ -469,7 +478,7 @@ as labelled shapes.  Given such a labelled structure we can
 ``collapse'' it back to an algebraic data structure by substituting
 data for labels.  For example, the labelled tree structure in
 \pref{fig:labelled-structure-example} represents the tree containing
-|'A'| at its root, |'N'| as the left child, and so on\dots  Note that the
+|'A'| at its root, |'N'| as the left child, and so on.  Note that the
 family of labelled tree structures is quite a bit larger than the
 usual tree type: every possible labelling of a given
 tree shape results in a different labelled structure, whereas there
@@ -528,13 +537,11 @@ to some interesting benefits.  For example:
   addresses, \ie\ pointers, and taking this analogy seriously lets us
   reason about memory allocation and layout for stored data
   structures (see \todo{section?}).
-\item It opens the possibility of imposing additional structure on the
-  labels themselves (as is done, for example, with
+\item It opens the possibility of taking labels and relabellings from
+  a category other than $\B$ (as is done, for example, with
   $\mathbb{L}$-species \cite{BLL, chapter 5}).  We conjecture that
   this has also benefits in a computational setting, though exploring
   this idea in more detail is left to future work.
-  \scw{Expand this? I thought having structure in the labels themselves was an important 
-    part of this model.}
 \end{itemize}
 
 In addition, species are traditionally defined over \emph{finite} sets
@@ -696,7 +703,10 @@ finiteness proof.  We can encapsulate this by defining \[ \FinType
 
 It is not hard to see that the size of a finite type is determined
 uniquely. That is, if $f_1, f_2 : \Finite L$ are any two witnesses that
-$L$ is finite, then $\outl(f_1) = \outl(f_2)$. \scw{Define outl} (As proof, note that if
+$L$ is finite, then $\outl(f_1) = \outl(f_2)$. \scw{Define
+  outl}\bay{outl is defined in the ``preliminaries'' section, as one
+  of the projections for product types.  Should we make it more
+  explicit?  It's pretty standard.} (As proof, note that if
 $f_1 = (n_1, i_1)$ and $f_2 = (n_2, i_2)$, then $i_2^{-1} \comp i_1 :
 \Fin{n_1} \iso \Fin{n_2}$, from which we can derive $n_1 = n_2$ by
 double induction.) In a slight abuse of notation, we therefore write
