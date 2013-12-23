@@ -237,7 +237,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\def\titlerunning{Combinatorial species and labelled types}
+\def\titlerunning{Labelled structures and combinatorial species}
 
 \title{\titlerunning}
 
