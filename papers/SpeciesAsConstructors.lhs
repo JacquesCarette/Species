@@ -376,57 +376,20 @@ hinder adoption and understanding in a computational context.
 \todo{sprinkle some forward references to the rest of the paper
   through the following}
 
-Initially, we thought that the benefits of the theory of species would
-lie primarily in its ability to describe data types with
-\term{symmetry} (\ie\ quotient types \cite{quotient types?}).  For
-example, the type of (oriented) \term{cycles}---nonempty lists
-considered equivalent up to cyclic rotation of the elements---cannot
-be described as a traditional algebraic data type, but do correspond
-to a species.\scw{Shouldn't put cycles in the introduction if we
-  aren't going to get to them in this paper. Maybe change to dags, as
-  we do have a story about sharing?}\bay{Agree about taking out
-  references to cycles, will do.  However, we definitely can't do
-  dags.  We can only do \emph{value} sharing, not structural
-  sharing. (In fact, describing the species of dags in a
-  nice/tractable way is an open problem.)}  That promise has not gone
-away; but as we took a close look at the definitions, we were
-surprised to see the notion of \term{labels} coming to the fore,
-playing a much more prominent---and promising---role than previously
-imagined.\scw{The last sentence doesn't seem to follow from the ones
-  before it. I guess the point is to shift the focus from working with
-  new data structures to new approaches to old ones, but that seems to
-  assume that the audience is thinking the same way that we are. Why
-  not start out with focus to labelled data upfront? i.e. we were
-  thinking about species, and its emphasis on labelled data got us
-  thinking... We don't need to apologize for not doing
-  everything.}\bay{I guess I was just thinking that we've been touting
-  the potential of species for talking about symmetry for quite a
-  while; there certainly will be people in the audience who ARE
-  thinking the same way we are. But probably just a small minority.}
-
-After working with the definitions for a while, it becomes clear that
-species structures should be regarded as \emph{labelled shapes}---in
-particular, they should \emph{not} be thought of as containing
-data.\scw{This is confusing, and also makes too many assumptions about what
-  readers are thinking. We don't need to tell them what not to think before we
-  tell them what to think. Why not just say that species are labeled
-  containers. Paired with a mapping from labels to data they are isomorphic to
-standard data structures.} (Some justification for this assertion can be found in
-\todo{where?}.)  To recover a notion of \emph{data} structures, one
-must add a (notion of) mapping from labels to data.  This leads to the
-familiar idea of decomposing data structures as shapes plus data
-\todo{citations: containers, shapely types, etc.}, with labels
-mediating between the two.
-
-Informally, a \term{labelled structure} is a labelled shape (corresponding to
-a species) paired with a mapping from labels to data values. The type of
-labels $L$ must be finite, whereas the type of data elements $A$ is
-unrestricted.\scw{Reworded to emphasize the difference between labelled shape
-  and labelled structure, which are easy to confuse.}  For example,
-\pref{fig:labelled-structure-example} illustrates a labelled tree shape paired
-with a mapping from (integer) labels to (character) data.  A \emph{family} of
-labelled structures refers to a class of structures parameterized over the
-label type $L$ and (typically) the data type $A$.
+From a computational point of view, the right way to think about
+species is as \emph{labelled shapes} which do not contain any dataxs.
+To recover a notion of \emph{data} structures, one must add a (notion
+of) mapping from labels to data.  This leads to the familiar idea of
+decomposing data structures as shapes plus data \todo{citations:
+  containers, shapely types, etc.}, with labels mediating between the
+two.  Informally, this pairing of a labelled shape (corresponding to a
+species) and a mapping from labels to data values is what we call a
+\term{labelled structure}.  For example,
+\pref{fig:labelled-structure-example} illustrates a labelled tree
+shape paired with a mapping from (integer) labels to (character) data.
+A \emph{family} of labelled structures refers to a class of structures
+parameterized over the label type $L$ and (typically) the data type
+$A$.
 
 \begin{figure}
   \centering
@@ -516,7 +479,8 @@ and a list structure on some data, as shown in
 Though this bears many similarities to previous approaches, there is
 one key difference: whereas previous approaches have used a fixed,
 canonical set of labels (or left the labels entirely implicit),
-species naturally lead one to work \emph{parametrically}\scw{???} over labels,
+species naturally lead one to work
+\emph{parametrically}\scw{???}\bay{What do you find confusing about this?} over labels,
 giving the labels a much more prominent role.  Bringing the mediating
 labels to the fore in this way is, to our knowledge, novel, and leads
 to some interesting benefits.  For example:
@@ -575,9 +539,13 @@ In more detail, our contributions are as follows:
   including \todo{?}
 \end{itemize}
 
-We remain amused by our discovery that a functor category seems to
-shed its brightest light on low-level issues like memory allocation,
-layout and sharing.
+It is worth mentioning that in previous work \todo{cite} we
+conjectured that the benefits of the theory of species would lie
+primarily in its ability to describe data types with \term{symmetry}
+(\ie\ quotient types \cite{quotient types?}).  That promise has not
+gone away; but we were amused to discover that a functor category
+would seem to shed its brightest light on low-level issues like memory
+allocation, layout and sharing.
 
 % \jc{I am starting to think that our interesting points and our take
 %     home points have slowly swapped position over time}
