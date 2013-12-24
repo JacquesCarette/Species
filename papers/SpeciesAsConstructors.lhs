@@ -285,16 +285,28 @@
 
 \begin{abstract}
 
-\todo{finish}
+  We describe a theory of \term{labelled structures}, which
+  intuitively consist of a labelled shape together with a mapping from
+  labels to data. Labelled structures thus subsume algebraic data
+  types as well as ``labelled'' types such as arrays and finite maps.
+  The idea of decomposing container structures into shapes and data is
+  an old one. The novel idea is to explicitly mediate the
+  decomposition with arbitrary labels, and we demonstrate benefits of
+  this approach in implementing and reasoning about operations
+  naturally expressed as operations on labels, explicitly modelling
+  value-level sharing, and reasoning about memory allocation and
+  layout.
 
-The theory of \term{combinatorial species} has striking similarities
-to the theory of algebraic data types, but the precise
-connection---and its practical import---has remained elusive.
-
-We present a theory of \term{labelled types}, based directly on the
-foundation of combinatorial species and containing algebraic data
-types as a subclass, and demonstrate by example their practical utility
-for programming.
+  The theory of labelled structures is built directly on the
+  foundation of \emph{combinatorial species}, which serve to describe
+  labelled shapes.  The theory of species bears striking similarities
+  to the theory of algebraic data types, and it has long been
+  suspected that a more precise and fruitful connection could be made
+  between the two.  In a larger sense, the aim of this paper is to
+  serve as a first step in connecting combinatorial species to the
+  theory and practice of programming.  In particular, we describe a
+  ``port'' of the theory of species into constructive type theory,
+  justifying its use as a basis for computation.
 
 \end{abstract}
 
