@@ -377,14 +377,14 @@ hinder adoption and understanding in a computational context.
   through the following}
 
 From a computational point of view, the right way to think about
-species is as \emph{labelled shapes} which do not contain any dataxs.
+species is as \emph{labelled shapes} which do not contain any data.
 To recover a notion of \emph{data} structures, one must add a (notion
 of) mapping from labels to data.  This leads to the familiar idea of
-decomposing data structures as shapes plus data \todo{citations:
-  containers, shapely types, etc.}, with labels mediating between the
-two.  Informally, this pairing of a labelled shape (corresponding to a
-species) and a mapping from labels to data values is what we call a
-\term{labelled structure}.  For example,
+decomposing data structures as shapes plus data
+\citep{abbott_categories_2003, jay-shapely}, with labels mediating
+between the two.  Informally, this pairing of a labelled shape
+(corresponding to a species) and a mapping from labels to data values
+is what we call a \term{labelled structure}.  For example,
 \pref{fig:labelled-structure-example} illustrates a labelled tree
 shape paired with a mapping from (integer) labels to (character) data.
 A \emph{family} of labelled structures refers to a class of structures
@@ -503,7 +503,7 @@ to some interesting benefits.  For example:
   structures (see \todo{section?}).
 \item It opens the possibility of taking labels and relabellings from
   a category other than $\B$ (as is done, for example, with
-  $\mathbb{L}$-species \cite{BLL, chapter 5}).  We conjecture that
+  $\mathbb{L}$-species \cite[chapter 5]{bll}).  We conjecture that
   this has also benefits in a computational setting, though exploring
   this idea in more detail is left to future work.
 \end{itemize}
@@ -542,7 +542,7 @@ In more detail, our contributions are as follows:
 It is worth mentioning that in previous work \todo{cite} we
 conjectured that the benefits of the theory of species would lie
 primarily in its ability to describe data types with \term{symmetry}
-(\ie\ quotient types \cite{quotient types?}).  That promise has not
+(\ie\ quotient types \cite{quotient-types}).  That promise has not
 gone away; but we were amused to discover that a functor category
 would seem to shed its brightest light on low-level issues like memory
 allocation, layout and sharing.
@@ -609,7 +609,7 @@ sets $\Fin : \N \to \Type$, with constructors $\FinZ : \impl{n :
 $A \iso B$ is the type of \term{equivalences} between $A$ and $B$
 (intuitively, pairs of inverse functions $f : A \to B$ and $g : B \to
 A$).\footnote{The precise details are more subtle \cite[Chapter
-  4]{HoTT}, but unimportant for our purposes.}  We overload the
+  4]{hott}, but unimportant for our purposes.}  We overload the
 notations $\id$ and $\comp$ to denote the identity equivalence and
 equivalence composition respectively; we also allow equivalences of
 type $A \iso B$ to be implicitly used as functions $A \to B$ where it
