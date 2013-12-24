@@ -64,10 +64,10 @@ fromRose (Node a ts) = node a (map fromRose ts)
 
 -- | An eliminator for labelled list structures, the equivalent of
 --   'foldr'.
-elimRose :: (a -> [r] -> r) -> Elim Rose a r
+elimRose :: (a -> [r] -> r) -> Elim Rose l a r
 elimRose f =
   mapElimShape (view isoRose) $
-    elimProd (elimX (\a -> elimComp (f a <$> elimList [] (:)) (elimRose f)))
+    elimProd (const $ elimX (\a -> elimComp (f a <$> elimList [] (:)) (elimRose f)))
 
 toRose :: (Eq l, Storage s) => Sp Rose s l a -> Tree a
 toRose = fromLabelled

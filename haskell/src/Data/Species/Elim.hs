@@ -23,7 +23,7 @@
 module Data.Species.Elim
     ( -- * Eliminators
 
-      Elim(..)
+      Elim(..), Elim'(..)
     , mapElimSrc
     , mapElimShape
 
@@ -51,6 +51,7 @@ import           Data.Fin (Fin(..))
 import           Data.Finite (toFin)
 import           Data.Species.Shape
 import           Data.Species.Types
+import           Data.Iso
 import           Data.Storage
 import           Data.Type.List
 import qualified Data.Vec           as V
@@ -64,49 +65,52 @@ import qualified Data.Set.Abstract  as S
 --   @Elim@ is a covariant functor in its final argument (witnessed by
 --   the @Functor@ instance) and contravariant in its first two,
 --   witnessed by 'mapElimSrc' and 'mapElimShape'.
-newtype Elim f a r = Elim (forall l. Eq l => f l -> (l -> a) -> r)
+newtype Elim f l a r = Elim (f l -> (l -> a) -> r)
+  deriving Functor
+
+newtype Elim' f a r = Elim' (forall l. Eq l => f l -> (l -> a) -> r)
   deriving Functor
 
 -- | Convert an eliminator for @a@-valued structures into one for
 --   @b@-valued structures, by specifying a map from @b@ to @a@.
-mapElimSrc :: (b -> a) -> Elim f a r -> Elim f b r
+mapElimSrc :: (b -> a) -> Elim f l a r -> Elim f l b r
 mapElimSrc f (Elim el) = Elim $ \s m -> el s (f . m)
 
 -- | Convert an eliminator for @f@-structures into an eliminator for
 --   @g@-structures, by specifying a parametric mapping from
 --   @g@-structures to @f@-structures.
-mapElimShape :: (forall l. g l -> f l) -> Elim f a r -> Elim g a r
+mapElimShape :: (forall l. g l -> f l) -> Elim f l a r -> Elim g l a r
 mapElimShape q (Elim el) = Elim $ \s m -> el (q s) m
 
 -- Running eliminators
 
 -- | Run an eliminator.
-elim :: (Eq l, Storage s) => Elim f a b -> Sp f s l a -> b
+elim :: (Eq l, Storage s) => Elim f l a b -> Sp f s l a -> b
 elim (Elim el) (Struct shp es) = el shp (index es)
 
 -- | Run an eliminator over existentially quantified structures.
-elim' :: Elim f a b -> Sp' f s a -> b
-elim' el (SpEx s) = elim el s
+elim' :: Elim' f a b -> Sp' f s a -> b
+elim' (Elim' el) (SpEx (Struct shp es)) = el shp (index es)
 
 -- Combinators for building eliminators
 
 -- | The standard eliminator for 'Zero'.
-elimZero :: Elim Zero a r
+elimZero :: Elim Zero l a r
 elimZero = Elim (\z _ -> absurdZ z)
 
 -- | Create an eliminator for 'One' by specifying a return value.
-elimOne :: r -> Elim One a r
+elimOne :: r -> Elim One l a r
 elimOne r = Elim (\_ _ -> r)
   -- arguably we should force the shape + proof contained therein
 
 -- | Create an eliminator for 'X' by specifying a mapping from data
 -- values to return values.
-elimX :: (a -> r) -> Elim X a r
+elimX :: (a -> r) -> Elim X l a r
 elimX f = Elim (\(X i) m -> f (m (view i FZ)))
 
 -- | Create an eliminator for @(f+g)@-structures out of individual
 -- eliminators for @f@ and @g@.
-elimSum :: Elim f a r -> Elim g a r -> Elim (f+g) a r
+elimSum :: Elim f l a r -> Elim g l a r -> Elim (f+g) l a r
 elimSum (Elim f) (Elim g) = Elim $ \shp m ->
   case shp of
     Inl fShp -> f fShp m
@@ -114,29 +118,36 @@ elimSum (Elim f) (Elim g) = Elim $ \shp m ->
 
 -- | Create an eliminator for @(f*g)@-structures from a curried
 --   eliminator.
-elimProd :: Elim f a (Elim g a r) -> Elim (f*g) a r
-elimProd (Elim f) = Elim $ \(Prod fShp gShp pf) m ->
+elimProd :: (forall l1 l2. Either l1 l2 <-> l -> Elim f l1 a (Elim g l2 a r)) -> Elim (f*g) l a r
+elimProd el = Elim $ \(Prod fShp gShp pf) m ->
   let mEither  = m . view pf
       (mf, mg) = (mEither . Left, mEither . Right)
   in
-    case f fShp mf of
-      Elim g -> g gShp mg
+    case el pf of
+      Elim f ->
+        case f fShp mf of
+          Elim g -> g gShp mg
 
--- | Create an eliminator for 'E' by specifying a mapping from data
--- values to return values.  This is basically a 'crush'
-elimE :: (MS.MultiSet a -> r) -> Elim E a r
-elimE f = Elim $ \(E s) m -> f (S.smap m s)
+-- | Create an eliminator for 'E' by specifying a mapping from 
+--   *pairs* (label, value) to eventual result.
+--   Think of all the '*WithKey' routines for inspiration.
+elimE ::  (MS.MultiSet (l,a) -> r) -> Elim E l a r
+elimE f = Elim $ \(E s) m -> f (S.smap (\l -> (l, m l)) s)
 
 -- | Create an eliminator for @(Comp f g)@-structures containing @a@'s
 --   from a way to eliminate @g@-structures containing @a@'s to some
 --   intermediate type @x@, and then @f@-structures containing @x@'s
 --   to the final result type @r@.
-elimComp :: Elim f x r -> Elim g a x -> Elim (Comp f g) a r
-elimComp (Elim ef) (Elim eg)
+elimComp :: (forall l1.Elim f l1 x r) -> (forall l2.Elim g l2 a x) -> Elim (Comp f g) l a r
+elimComp elimf elimg
   = Elim $ \((Comp finl1 fl1 lp gs pf)) m ->
-      ef fl1 $ \l1 ->
-        case hlookup (toFin finl1 l1) gs lp of
-          HLResult gli inj -> eg gli (m . view pf . inj)
+      case elimf of
+        Elim ef ->
+          ef fl1 $ \l1 ->
+            case hlookup (toFin finl1 l1) gs lp of
+              HLResult gli inj -> 
+                case elimg of
+                  Elim eg -> eg gli (m . view pf . inj)
 
 data HLResult g ls where
   HLResult :: Eq l => g l -> (l -> Sum ls) -> HLResult g ls

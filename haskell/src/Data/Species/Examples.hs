@@ -1,6 +1,7 @@
 {-# LANGUAGE TypeFamilies  #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE GADTs         #-}
+{-# LANGUAGE RankNTypes    #-}
 
 -- | A collection of examples of Species
 
@@ -27,13 +28,14 @@ import           Data.HashMap.Lazy ((!))
 ------------------------------------------------------------------------------
 
 -- | Haskell MultiSet is an unlabelled Bag
+--   Note in particular how in the eliminator call we ignore the label.
 fromMS :: Storage s => MS.MultiSet a -> Sp' E s a
 fromMS = e' . MS.elems
 
 instance ImpLabelled (MS.MultiSet a) where
   type EltType (MS.MultiSet a) = a
   type ShapeOf (MS.MultiSet a) = E
-  elimLabelled          = elimE id
+  elimLabelled          = elimE (MS.mapMonotonic snd)
   toLabelled            = fromMS
 
 toMS :: (Eq l, Storage s) => Sp E s l a -> MS.MultiSet a
@@ -74,11 +76,11 @@ node :: Storage s => a -> Sp' E s (Sp' Arbo s a) -> Sp' Arbo s a
 node a ts = arbo' $ prod' (x' a) (compJ'' ts)
 
 -- | An eliminator for labelled general tree structures, the equivalent of
---   'foldr'.
-elimArbo :: (a -> MS.MultiSet r -> r) -> Elim Arbo a r
+--   'foldr'.  Explicitly polymorphic on the labels.
+elimArbo :: (forall l1. a -> MS.MultiSet (l1, r) -> r) -> Elim Arbo l a r
 elimArbo f =
   mapElimShape (view isoArbo) $
-    elimProd (elimX (\a -> elimComp (elimE (f a)) (elimArbo f)))
+    elimProd (const $ elimX (\a -> elimComp (elimE (f a)) (elimArbo f)))
 
 data SetTree a = SetTree a (MS.MultiSet (SetTree a))
 
@@ -88,23 +90,26 @@ fromSetTree (SetTree a st) = node a (fromMS (MS.mapMonotonic fromSetTree st))
 instance ImpLabelled (SetTree a) where
   type EltType (SetTree a) = a
   type ShapeOf (SetTree a) = Arbo
-  elimLabelled             = elimArbo SetTree
+  elimLabelled             = elimArbo (\a ms -> SetTree a (MS.mapMonotonic snd ms))
   toLabelled               = fromSetTree
 
-{-
 ------------------------------------------------------------------------------
--- | Haskell HashMap is (essentially) a labelled bag.
+-- | Haskell HashMap is (essentially) a labelled bag (with Hashable labels)
 --   To make things work though, we really need to package up a Finite l
---   in there.
+--   in our data-structure, and ask for it when needed.
 data FinHashMap l v where
-   FHM :: (Data.Hashable.Hashable l, Eq l) => 
-               Finite l -> HM.HashMap l v -> FinHashMap l v
+   FHM :: (Hashable l, Eq l) => Finite l -> HM.HashMap l v -> FinHashMap l v
 
-fromFM :: (Storage s) => FinHashMap l a -> Sp E s l a
-fromFM (FHM fin hm) = e fin (\l -> hm ! l)
+fromFHM :: (Storage s) => FinHashMap l a -> Sp E s l a
+fromFHM (FHM fin hm) = e fin (\l -> hm ! l)
 
-instance Labelled (FinHashMap l a) where
-  type EltType (FinHashMap l a) = a
-  type ShapeOf (FinHashMap l a) = E
-  elimLabelled          = elimE id
--}
+toFHM :: (Eq l, Hashable l, Storage s) => Finite l -> Sp E s l a -> FinHashMap l a
+toFHM finl s = elim (elimExpLabelled finl) s
+
+instance (Hashable l, Eq l) => ExpLabelled (FinHashMap l a) where
+  type EltLT     (FinHashMap l a) = a
+  type ShapeOfLT (FinHashMap l a) = E
+  type LabelType (FinHashMap l a) = l
+  toExpLabelled                   = fromFHM
+  elimExpLabelled pf              = elimE f 
+    where f ms = FHM pf (MS.fold (\(l,x) hm -> HM.insert l x hm) HM.empty ms)

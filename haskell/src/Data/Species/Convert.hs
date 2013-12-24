@@ -16,6 +16,7 @@ import           Data.Functor.Coproduct
 
 import           Data.Void
 
+import           Data.Finite
 import           Data.Species.Elim
 import           Data.Species.Shape
 import           Data.Species.Types
@@ -36,12 +37,14 @@ import           Data.Species.List
 class ImpLabelled c where
   type EltType c :: *
   type ShapeOf c :: * -> *
-  toLabelled   :: Storage s => c -> Sp' (ShapeOf c) s (EltType c)
-  elimLabelled :: Elim (ShapeOf c) (EltType c) c
-  fromLabelled :: (Eq l, Storage s) => Sp (ShapeOf c) s l (EltType c) -> c
-  fromLabelled = elim elimLabelled
+  toLabelled    :: Storage s => c -> Sp' (ShapeOf c) s (EltType c)
+  elimLabelled  :: Elim (ShapeOf c) l (EltType c) c
+  elimLabelled' :: Elim' (ShapeOf c) (EltType c) c
+  elimLabelled' = let (Elim el) = elimLabelled in Elim' el
+  fromLabelled  :: (Eq l, Storage s) => Sp (ShapeOf c) s l (EltType c) -> c
+  fromLabelled  = elim elimLabelled
   fromLabelled' :: Sp' (ShapeOf c) s (EltType c) -> c
-  fromLabelled' = elim' elimLabelled
+  fromLabelled' = elim' elimLabelled'
 
 instance ImpLabelled (Identity a) where
   type EltType (Identity a) = a
@@ -67,7 +70,7 @@ instance ( ImpLabelled (f a), ImpLabelled (g a)
     => ImpLabelled (Product f g a) where
   type EltType (Product f g a) = a
   type ShapeOf (Product f g a) = ShapeOf (f a) * ShapeOf (g a)
-  elimLabelled = elimProd $ elimLabelled <#> \fa -> elimLabelled <#> \ga -> Pair fa ga
+  elimLabelled = elimProd $ const (elimLabelled <#> \fa -> elimLabelled <#> \ga -> Pair fa ga)
   toLabelled (Pair a b) = prod' (toLabelled a) (toLabelled b)
 
 infixr 4 <#>
@@ -120,3 +123,16 @@ instance ImpLabelled [a] where
   type ShapeOf [a] = L
   elimLabelled     = elimList [] (:)
   toLabelled       = fromList
+
+-- For the Explicitly labelled structures.  The biggest difference is
+-- that an eliminator asks for a Finite proof - and thus so does 
+-- fromExpLabelled
+class ExpLabelled c where
+  type EltLT c     :: *
+  type ShapeOfLT c :: * -> *
+  type LabelType c :: *
+  toExpLabelled :: Storage s => c -> Sp (ShapeOfLT c) s (LabelType c) (EltLT c)
+  elimExpLabelled :: Finite (LabelType c) -> Elim (ShapeOfLT c) (LabelType c) (EltLT c) c
+  fromExpLabelled :: (Eq (LabelType c), Storage s) => 
+      Finite (LabelType c) -> Sp (ShapeOfLT c) s (LabelType c) (EltLT c) -> c
+  fromExpLabelled fin = elim (elimExpLabelled fin)

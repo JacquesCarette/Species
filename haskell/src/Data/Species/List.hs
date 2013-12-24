@@ -84,8 +84,8 @@ fromList (a:as) =
 
 -- | An eliminator for labelled list structures, the equivalent of
 --   'foldr'.
-elimList :: r -> (a -> r -> r) -> Elim L a r
+elimList :: r -> (a -> r -> r) -> Elim L l a r
 elimList r f = mapElimShape (view isoL)
              $ elimSum
                  (elimOne r)
-                 (elimProd . elimX $ \a -> fmap (f a) (elimList r f))
+                 (elimProd $ const (elimX $ \a -> fmap (f a) (elimList r f)))
