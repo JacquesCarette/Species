@@ -285,16 +285,28 @@
 
 \begin{abstract}
 
-\todo{finish}
+  We describe a theory of \term{labelled structures}, which
+  intuitively consist of a labelled shape together with a mapping from
+  labels to data. Labelled structures thus subsume algebraic data
+  types as well as ``labelled'' types such as arrays and finite maps.
+  The idea of decomposing container structures into shapes and data is
+  an old one. The novel idea is to explicitly mediate the
+  decomposition with arbitrary labels, and we demonstrate benefits of
+  this approach in implementing and reasoning about operations
+  naturally expressed as operations on labels, explicitly modelling
+  value-level sharing, and reasoning about memory allocation and
+  layout.
 
-The theory of \term{combinatorial species} has striking similarities
-to the theory of algebraic data types, but the precise
-connection---and its practical import---has remained elusive.
-
-We present a theory of \term{labelled types}, based directly on the
-foundation of combinatorial species and containing algebraic data
-types as a subclass, and demonstrate by example their practical utility
-for programming.
+  The theory of labelled structures is built directly on the
+  foundation of \emph{combinatorial species}, which serve to describe
+  labelled shapes.  The theory of species bears striking similarities
+  to the theory of algebraic data types, and it has long been
+  suspected that a more precise and fruitful connection could be made
+  between the two.  In a larger sense, the aim of this paper is to
+  serve as a first step in connecting combinatorial species to the
+  theory and practice of programming.  In particular, we describe a
+  ``port'' of the theory of species into constructive type theory,
+  justifying its use as a basis for computation.
 
 \end{abstract}
 
@@ -377,14 +389,14 @@ hinder adoption and understanding in a computational context.
   through the following}
 
 From a computational point of view, the right way to think about
-species is as \emph{labelled shapes} which do not contain any dataxs.
+species is as \emph{labelled shapes} which do not contain any data.
 To recover a notion of \emph{data} structures, one must add a (notion
 of) mapping from labels to data.  This leads to the familiar idea of
-decomposing data structures as shapes plus data \todo{citations:
-  containers, shapely types, etc.}, with labels mediating between the
-two.  Informally, this pairing of a labelled shape (corresponding to a
-species) and a mapping from labels to data values is what we call a
-\term{labelled structure}.  For example,
+decomposing data structures as shapes plus data
+\citep{abbott_categories_2003, jay-shapely}, with labels mediating
+between the two.  Informally, this pairing of a labelled shape
+(corresponding to a species) and a mapping from labels to data values
+is what we call a \term{labelled structure}.  For example,
 \pref{fig:labelled-structure-example} illustrates a labelled tree
 shape paired with a mapping from (integer) labels to (character) data.
 A \emph{family} of labelled structures refers to a class of structures
@@ -503,7 +515,7 @@ to some interesting benefits.  For example:
   structures (see \todo{section?}).
 \item It opens the possibility of taking labels and relabellings from
   a category other than $\B$ (as is done, for example, with
-  $\mathbb{L}$-species \cite{BLL, chapter 5}).  We conjecture that
+  $\mathbb{L}$-species \cite[chapter 5]{bll}).  We conjecture that
   this has also benefits in a computational setting, though exploring
   this idea in more detail is left to future work.
 \end{itemize}
@@ -542,7 +554,7 @@ In more detail, our contributions are as follows:
 It is worth mentioning that in previous work \todo{cite} we
 conjectured that the benefits of the theory of species would lie
 primarily in its ability to describe data types with \term{symmetry}
-(\ie\ quotient types \cite{quotient types?}).  That promise has not
+(\ie\ quotient types \cite{quotient-types}).  That promise has not
 gone away; but we were amused to discover that a functor category
 would seem to shed its brightest light on low-level issues like memory
 allocation, layout and sharing.
@@ -609,7 +621,7 @@ sets $\Fin : \N \to \Type$, with constructors $\FinZ : \impl{n :
 $A \iso B$ is the type of \term{equivalences} between $A$ and $B$
 (intuitively, pairs of inverse functions $f : A \to B$ and $g : B \to
 A$).\footnote{The precise details are more subtle \cite[Chapter
-  4]{HoTT}, but unimportant for our purposes.}  We overload the
+  4]{hott}, but unimportant for our purposes.}  We overload the
 notations $\id$ and $\comp$ to denote the identity equivalence and
 equivalence composition respectively; we also allow equivalences of
 type $A \iso B$ to be implicitly used as functions $A \to B$ where it
