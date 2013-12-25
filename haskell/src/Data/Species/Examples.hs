@@ -2,6 +2,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE GADTs         #-}
 {-# LANGUAGE RankNTypes    #-}
+{-# LANGUAGE DataKinds     #-}
 
 -- | A collection of examples of Species
 
@@ -12,7 +13,7 @@ import           Data.Functor       ((<$>))
 import qualified Data.MultiSet    as MS
 
 import           Data.BFunctor
-import           Data.Iso (liftIso)
+import           Data.Iso (liftIso,type (<->))
 import           Data.Species.Convert
 import           Data.Species.Elim
 import           Data.Species.List
@@ -20,10 +21,16 @@ import           Data.Species.Shape
 import           Data.Species.Types
 import           Data.Storage
 import           Data.Finite
+import           Data.Fin
 import           Data.Hashable
+import           Data.Type.Nat (Natural,Nat(..),SNat(..))
+import           Data.Fin.Isos
 import qualified Data.Set.Abstract as S
 import qualified Data.HashMap.Lazy as HM
+import qualified Data.Map          as Map
 import           Data.HashMap.Lazy ((!))
+import qualified Data.Vec          as Vec
+import qualified Data.Species.List as L
 
 ------------------------------------------------------------------------------
 
@@ -96,7 +103,8 @@ instance ImpLabelled (SetTree a) where
 ------------------------------------------------------------------------------
 -- | Haskell HashMap is (essentially) a labelled bag (with Hashable labels)
 --   To make things work though, we really need to package up a Finite l
---   in our data-structure, and ask for it when needed.
+--   in our data-structure, and ask for it when needed.  We also package up
+--   the needed Hashable.
 data FinHashMap l v where
    FHM :: (Hashable l, Eq l) => Finite l -> HM.HashMap l v -> FinHashMap l v
 
@@ -113,3 +121,39 @@ instance (Hashable l, Eq l) => ExpLabelled (FinHashMap l a) where
   toExpLabelled                   = fromFHM
   elimExpLabelled pf              = elimE f 
     where f ms = FHM pf (MS.fold (\(l,x) hm -> HM.insert l x hm) HM.empty ms)
+
+------------------------------------------------------------------------------
+-- | Haskell's FiniteMap is also (essentially) a labelled bag, but this time
+--   the constraint is that labels be Ord(erable).
+--   And again, the FiniteMap data-structure is too 'raw' on its own, we
+--   need to package up Finite and Ord.
+--   It is also worthwhile to see that the code below is essentially identical
+--   to the code for FinHashMap.  The only true difference is the constraint,
+--   aka the amount of structure we have on labels.
+data FinMap l v where
+   FM :: (Ord l, Eq l) => Finite l -> Map.Map l v -> FinMap l v
+
+fromFM :: (Storage s) => FinMap l a -> Sp E s l a
+fromFM (FM fin m) = e fin ((Map.!) m)
+
+toFM :: (Ord l, Eq l, Storage s) => Finite l -> Sp E s l a -> FinMap l a
+toFM finl s = elim (elimExpLabelled finl) s
+
+instance (Ord l, Eq l) => ExpLabelled (FinMap l a) where
+  type EltLT     (FinMap l a) = a
+  type ShapeOfLT (FinMap l a) = E
+  type LabelType (FinMap l a) = l
+  toExpLabelled               = fromFM
+  elimExpLabelled pf          = elimE f 
+    where f ms = FM pf (MS.fold (\(l,x) hm -> Map.insert l x hm) Map.empty ms)
+
+------------------------------------------------------------------------------
+-- | Length-indexed vectors are more interesting.
+
+{-  The following is 'close', but not quite right (yet)
+fromVec :: (Storage s) => Vec.Vec (Size l) a -> (Finite l) -> Sp L s l a
+fromVec v finl@(F f) = Struct (shape v) (allocate finl fill)
+  where fill l = Vec.index v (view (from f) l)
+        shape :: Vec.Vec (Size l) a -> L l
+        shape  (Vec.VNil) = view (from (isoL . from f) ) (inl_ one_)
+-}
