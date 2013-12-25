@@ -32,8 +32,8 @@ import qualified Data.Set.Abstract        as Set
 -- a proof that it is smaller, overlay this with the Species.  Note that
 -- this requires that the label set be F.Fin.  One could likely generalize
 -- this to l <-> F.Fin q by explicitly adding such a parameter.
-take :: forall f a q q' n s. q ~ q' =>
-  Sp f s (F.Fin q) a -> N.SNat q' -> N.SNat n -> (n <= q) 
+take :: forall f a q n s. 
+  Sp f s (F.Fin q) a -> N.SNat q -> N.SNat n -> (n <= q) 
      -> Sp (f # Part) s (F.Fin q) a
 take (Struct f i) qq n pf =
   case minus qq n pf of
