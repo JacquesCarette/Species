@@ -23,7 +23,7 @@ import           Data.Storage
 import           Data.Finite
 import           Data.Fin
 import           Data.Hashable
-import           Data.Type.Nat (Natural,Nat(..),SNat(..))
+import           Data.Type.Nat (Natural,Nat(..),SNat(..),natty)
 import           Data.Fin.Isos
 import qualified Data.Set.Abstract as S
 import qualified Data.HashMap.Lazy as HM
@@ -150,10 +150,17 @@ instance (Ord l, Eq l) => ExpLabelled (FinMap l a) where
 ------------------------------------------------------------------------------
 -- | Length-indexed vectors are more interesting.
 
-{-  The following is 'close', but not quite right (yet)
-fromVec :: (Storage s) => Vec.Vec (Size l) a -> (Finite l) -> Sp L s l a
-fromVec v finl@(F f) = Struct (shape v) (allocate finl fill)
-  where fill l = Vec.index v (view (from f) l)
-        shape :: Vec.Vec (Size l) a -> L l
-        shape  (Vec.VNil) = view (from (isoL . from f) ) (inl_ one_)
--}
+-- | Convert a Haskell length-indexed vector to a list structure with 
+--   explicit Fin labels.
+fromVec :: forall a n s. Storage s => Vec.Vec n a -> Sp L s (Fin n) a
+fromVec Vec.VNil = nil
+fromVec (Vec.VCons a v) = 
+    let m = Vec.vlength v in
+    natty m $ relabel (finSumI (SS SZ) m) $ cons a (fromVec v)
+
+instance ExpLabelled (Vec.Vec n a) where
+  type EltLT     (Vec.Vec n a) = a
+  type ShapeOfLT (Vec.Vec n a) = L
+  type LabelType (Vec.Vec n a) = Fin n
+  toExpLabelled                = fromVec
+  elimExpLabelled pf           = undefined
