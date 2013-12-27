@@ -1,5 +1,7 @@
 {-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE GADTs         #-}
+{-# LANGUAGE RankNTypes    #-}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -26,13 +28,15 @@ import           Control.Lens       (Iso, from, iso, view)
 
 import           Data.BFunctor
 import           Data.Iso
-import           Data.Fin (Fin)
+import           Data.Fin (Fin(..))
+import           Data.Fin.Isos
 import           Data.Finite (finite_Either, finite_Fin)
 import           Data.Type.Nat
 import           Data.Species.Elim
 import           Data.Species.Shape
 import           Data.Species.Types
 import           Data.Storage
+import qualified Data.Vec           as Vec
 
 -- | @L@ represents the shape of (finite) lists. It is defined
 --   directly according to the recurrence @L = One + X * L@.
@@ -75,12 +79,21 @@ cons a (Struct shp es) =
   Struct (list_ (inr_ (prod_ x_ shp))) 
          (append (allocate finite_Fin (const a)) es)
 
--- | Convert a Haskell list to a labelled list structure.
+-- | Convert a Haskell list to a list structure (with existentially quantified
+--   labels).
 fromList :: Storage s => [a] -> Sp' L s a
 fromList [] = SpEx nil
 fromList (a:as) =
   case fromList as of
     SpEx s -> SpEx (cons a s)
+
+-- | Convert a Haskell list to a list structure with explicit Fin labels.
+--   We need to ask for a length witness to do this, and fail if it is
+--   invalid
+listToLF :: forall a n s. Storage s => [a] -> SNat n -> Sp L s (Fin n) a
+listToLF []     SZ     = nil
+listToLF (x:xs) (SS m) = 
+    natty m $ relabel (finSumI (SS SZ) m) $ cons x (listToLF xs m)
 
 -- | An eliminator for labelled list structures, the equivalent of
 --   'foldr'.
