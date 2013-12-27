@@ -22,7 +22,7 @@ module Data.Vec
       -- ** Operations on length-indexed vectors
 
     , size, head, tail, index, lookup, replace, append, append', concat, concat'
-    , zip, zipWith, unzip, unzip3, shuffle , permute, fins, enumerate
+    , zip, zipWith, unzip, unzip3, shuffle , permute, fins, enumerate, vlength
 
       -- * Length-indexed, type-indexed heterogeneous vectors
 
@@ -38,7 +38,7 @@ import           Prelude hiding (concat, unzip, unzip3, zip, zipWith, lookup, he
 
 import           Control.Lens    (view,from,_Left,_Right, iso)
 import           Data.Functor    ((<$>))
-import           Data.Proxy
+import           Data.Proxy      (Proxy(..))
 
 import           Data.Fin        (Fin(..))
 import           Data.Fin.Isos   (finSumI)
@@ -176,6 +176,10 @@ shuffle _ n f v = mkV n (index v . f)
 -- from a source order to a target order
 permute :: SNat n -> (Fin n <-> Fin n) -> (Vec n a -> Vec n a)
 permute n f v = shuffle n n (view (from f)) v
+
+vlength :: Vec n a -> SNat n
+vlength VNil = SZ
+vlength (VCons _ v) = SS (vlength v)
 
 ------------------------------------------------------------
 -- HVec: Length-indexed, type-indexed heterogeneous vectors
