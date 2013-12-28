@@ -1,8 +1,9 @@
-{-# LANGUAGE TypeFamilies  #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE GADTs         #-}
-{-# LANGUAGE RankNTypes    #-}
-{-# LANGUAGE DataKinds     #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE TypeOperators       #-}
+{-# LANGUAGE GADTs               #-}
+{-# LANGUAGE RankNTypes          #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 -- | A collection of examples of Species
 
@@ -158,9 +159,21 @@ fromVec (Vec.VCons a v) =
     let m = Vec.vlength v in
     natty m $ relabel (finSumI (SS SZ) m) $ cons a (fromVec v)
 
-instance ExpLabelled (Vec.Vec n a) where
+{- the code below is 'morally right', but Haskell can't see it.
+   Basically, it (rightly) can't see that l2 ~ Fin k.  
+elimVec :: forall a n. SNat n -> Elim L (Fin n) a (Vec.Vec n a)
+elimVec n = mapElimShape (view isoL) $ elimSum' n
+    where
+      elimSum' :: SNat n -> Elim (One + X*L) (Fin n) a (Vec.Vec n a)
+      elimSum' SZ = Elim $ \(Inl (One _)) _ -> Vec.VNil
+      elimSum' (SS k) = elimSum (undefined) 
+          (elimProd $ const (elimX $ \a -> fmap (Vec.VCons a) (elimVec k)))
+-}
+
+-- This Natural constraint should be possible to remove, later.
+instance Natural n => ExpLabelled (Vec.Vec n a) where
   type EltLT     (Vec.Vec n a) = a
   type ShapeOfLT (Vec.Vec n a) = L
   type LabelType (Vec.Vec n a) = Fin n
   toExpLabelled                = fromVec
-  elimExpLabelled pf           = undefined
+  elimExpLabelled pf           = undefined -- elimVec (size pf)
