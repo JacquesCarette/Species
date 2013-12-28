@@ -398,37 +398,36 @@ between the two.  Informally, this pairing of a labelled shape
 (corresponding to a species) and a mapping from labels to data values
 is what we call a \term{labelled structure}.  For example,
 \pref{fig:labelled-structure-example} illustrates a labelled tree
-shape paired with a mapping from (integer) labels to (character) data.
-A \emph{family} of labelled structures refers to a class of structures
-parameterized over the label type $L$ and (typically) the data type
-$A$.
+shape paired with a mapping from labels to data.  A \emph{family} of
+labelled structures refers to a class of structures parameterized over
+the label type $L$ and (typically) the data type $A$.
 
 \begin{figure}
   \centering
-\begin{diagram}[width=200]
+\begin{diagram}[width=300]
 import Graphics.SVGFonts.ReadFont
 import Diagrams.Points
 import Data.Tree
 import Diagrams.TwoD.Layout.Tree
 import SpeciesDiagrams
 
-mkL n = text' 1 (show n) <> circle 0.7 # fc white
+mkL n = (aLabels !! n) # scale 0.5 # fc black <> circle 0.7 # fc white
 
 t = Node 2 [Node 1 [], Node 4 [Node 3 [], Node 0 [], Node 5 []]]
 
 d = renderTree mkL (~~) (symmLayout' with { slHSep = 3.5, slVSep = 3.5 } t)
 
-mapping = centerY . vcat' (with & sep .~ 0.3) $ zipWith mkMapping [0..5] "SNAILS" -- $
+mapping = centerX . hcat $ zipWith mkMapping [0..5] "SNAILS" -- $
   where
-    mkMapping i c = mkL i .... hrule 1 .... (text' 1 (show c) <> strutX 1)
+    mkMapping i c = mkL i ==== (text' 1.5 [c] <> square 2)
 
 dia = (d # centerY ... strutX 4 ... mapping)
     # centerXY # pad 1.1
 
 infixl 6 ...
-infixl 6 ....
+infixl 6 ====
 (...) = (||||||)
-x .... y = x ... strutX 0.5 ... y
+x ==== y = x === strutY 0.5 === y
 \end{diagram}
   \caption{A labelled structure with six labels}
   \label{fig:labelled-structure-example}
@@ -453,13 +452,12 @@ as labelled shapes.  Given such a labelled structure we can
 ``collapse'' it back to an algebraic data structure by substituting
 data for labels.  For example, the labelled tree structure in
 \pref{fig:labelled-structure-example} represents the tree containing
-|'A'| at its root, |'N'| as the left child, and so on.  Note that the
-family of labelled tree structures is quite a bit larger than the
-usual tree type: every possible labelling of a given
-tree shape results in a different labelled structure, whereas there
-are many labelled tree structures that will ``collapse'' to the same
-algebraic data structure, which differ only in the way they are
-labelled.
+\texttt{A} at its root, \texttt{N} as the left child, and so on.  Note
+that the family of labelled tree structures is quite a bit larger than
+the usual tree type: every possible labelling of a given tree shape
+results in a different labelled structure, whereas there are many
+labelled tree structures that will ``collapse'' to the same algebraic
+data structure, which differ only in the way they are labelled.
 
 \paragraph{Finite maps}
 
@@ -486,7 +484,45 @@ Structures with shared labels can be used to model (value-level)
 and a list structure on some data, as shown in
 \pref{fig:tree-list-share}.
 
-\todo{picture}
+\begin{figure}
+  \centering
+  \begin{diagram}[width=200]
+import           Data.List.Split
+import           Diagrams.TwoD.Layout.Tree
+import           Diagrams.TwoD.Path.Metafont
+
+import           SpeciesDiagrams
+
+leaf1 = circle 1 # fc white # named "l1"
+leaf2 = circle 1 # fc white # named "l2"
+
+tree = maybe mempty (renderTree (const leaf1) (~~))
+     . symmLayoutBin' with { slVSep = 4, slHSep = 6 }
+     $ (BNode () (BNode () (BNode () Empty (BNode () Empty Empty)) Empty) (BNode () (BNode () Empty Empty) (BNode () Empty Empty)))
+
+listL shp l = hcat . replicate 7 $ (shp # fc white # named l)
+
+connectAll l1 l2 perm =
+  withNameAll l1 $ \l1s ->
+  withNameAll l2 $ \l2s ->
+  applyAll (zipWith conn l1s (perm l2s))
+
+conn l1 l2 = beneath (lc grey . metafont $ location l1 .- leaving unit_Y <> arriving unit_Y -. endpt (location l2))
+
+dia = vcat' (with & sep .~ 5)
+  [ hcat' (with & sep .~ 5)
+    [ tree # centerY
+    , listL (circle 1) "l2" # centerY
+    ] # centerXY
+  , listL (square 2) "s" # centerXY
+  ]
+  # connectAll "l1" "s" id
+  # connectAll "l2" "s" (concat . map reverse . chunksOf 2)
+  # centerXY # pad 1.1
+  \end{diagram} %$
+  \caption{Superimposing a tree and a list on shared data}
+  \label{fig:tree-list-share}
+\end{figure}
 
 Though this bears many similarities to previous approaches, there is
 one key difference: whereas previous approaches have used a fixed,
@@ -551,7 +587,8 @@ In more detail, our contributions are as follows:
   including \todo{?}
 \end{itemize}
 
-It is worth mentioning that in previous work \todo{cite} we
+It is worth mentioning that in previous work
+\citep{Carette_Uszkay_2008_species, yorgey-2010-species} we
 conjectured that the benefits of the theory of species would lie
 primarily in its ability to describe data types with \term{symmetry}
 (\ie\ quotient types \cite{quotient-types}).  That promise has not
@@ -780,16 +817,14 @@ serviceable in the context of classical combinatorics, but in order to
 use it as a foundation for data structures, it is necessary to first
 ``port'' the definition from set theory to constructive type theory.
 
-As before, a species is a pair of maps, called here $\shapes$ from labels to shapes 
-and for $\relabel$ for relabling shapes. However, the species type also 
-requires proofs of the functoriality conditions for the relabeling function.
-
-\todo{motivate/explain this}
-
+As before, a species is a pair of maps, one mapping label types to
+sets of shapes, and one relabelling shapes. However, the species type
+also requires proofs of the functoriality conditions for the
+relabeling function.
 \begin{align*}
 \Species & \defn (\shapes : \FinType \to \Type) \\
-         & \times (\relabel : (\FinType \iso \FinType) \to
-           (\Type \to \Type)) \\
+         & \times (\relabel : (L_1, L_2 : \FinType) \to (L_1 \iso L_2) \to
+           (\shapes\ L_1 \to \shapes\ L_2)) \\
          & \times ((L : \FinType) \to \relabel \id_L = \id_{(\shapes L)}) \\
          & \times ((L_1, L_2, L_3 : \FinType) \to (\sigma : L_2 \iso
          L_3) \\ &\to (\tau : L_1 \iso L_2) \to
@@ -798,22 +833,42 @@ requires proofs of the functoriality conditions for the relabeling function.
 
 Where the meaning is clear from context, we will use simple
 application to denote the action of a species on both objects and
-arrows. That is, if $F : \Species$, instead of writing ``$F.\shapes\ L$''
-or ``$F.\relabel\ \sigma$'' we will just write $F\ L$ or $F\
-\sigma$.
+arrows. That is, if $F : \Species$, we will just write $F\ L$ or $F\
+\sigma$ without explicitly projecting out the $\shapes$ and $\relabel$
+functions.
 
-\bay{in the set-theory section we said the codomain of species is
-  \emph{finite} types, but in this definition the codomain is $\Type$
-  rather than $\FinType$.  What's going on? Certainly the finiteness
-  of the codomain does not seem to be that important---it doesn't come
-  up at all in our implementation, which is why I didn't notice the
-  discrepancy at first. I suppose it only becomes important when one
-  wants to do things like map to generating functions.  Following a
-  discussion with Stephanie, it seems that quite a few theorems about
-  species (molecular decomposition, maybe implicit species theorem)
-  may actually depend on the finiteness, but it's hard to be sure.
-  Would be interesting to try to port the theorems and proofs as well
-  as the definition.}
+In \pref{sec:set-species}, we said the codomain of species is
+\emph{finite} types, but in the above definition the codomain of
+$\shapes$ is $\Type$ rather than $\FinType$.  Constructively, the
+finiteness of the codomain does not seem very important---all the
+basic definitions and constructions work unchanged.  One place where
+the finiteness of the codomain comes into play is in setting up
+homomorphisms from species to generating functions with coefficients
+taken from $\N$---though we conjecture that taking coefficients from
+the ring over the one-point compactification of the naturals, $\N \cup
+\{\infty\}$, works just as well.  There may be some theorems (\eg
+molecular species decomposition, or the implicit species theorem) which
+only hold with a finite codomain---we are interested to port standard
+theorems about species to a constructive setting, and see where the
+finiteness is required.
+
+It is interesting to note that an equivalence $L_1 \iso L_2$ between
+constructively finite types $L_1,L_2 : \FinType$, as required by
+$\relabel$, contains more than meets the eye.  Since \[ \FinType \defn
+(L : \Type) \times \Finite L \equiv (L : \Type) \times (n : \N) \times
+(\Fin n \iso L), \] such equivalences contain not just an equivalence
+between the underlying types, but also an
+equivalence-between-equivalences requiring them to be finite ``in the
+same way'', that is, to yield the same equivalence with $\Fin n$ after
+mapping from one to the other.  The situation can be pictured
+\todo{finish}.
+
+Intuitively, this means that if $L_1, L_2 : \FinType$, an equivalence
+$L_1 \iso L_2$ cannot contain ``too much'' information: it only tells
+us how the underlying types of $L_1$ and $L_2$ relate, preserving the
+fact that they can both be put in correspondence with $\Fin n$ for
+some $n$.  In particular, it cannot encode a nontrivial permutation on
+$\Fin n$.
 
 \section{Mappings}
 \label{sec:mappings}
@@ -1946,10 +2001,12 @@ predicates, with parallel introduction forms:
 \paragraph{Derivative and pointing}
 
 The \term{derivative} is a well-known operation on shapes in the
-functional programming community~\cite{holes_etc}, and it works in
-exactly the way one expects on species.  That is, $F'$-shapes consist
-of $F$-shapes with one distinguished location (a ``hole'') that
-contains no data.  Formally, we may define
+functional programming community~\citep{Huet_zipper,
+  mcbride:derivative, abbott_deriv, regular_tree_types,
+  mcbride_clowns_2008}, and it works in exactly the way one expects on
+species.  That is, $F'$-shapes consist of $F$-shapes with one
+distinguished location (a ``hole'') that contains no data.  Formally,
+we may define
 \[ F'\ L = (L' : \Type) \times (L' \iso \TyOne + L) \times F\ L' \]
 \todo{picture}
 
@@ -1984,10 +2041,10 @@ The relationship bewteen pointing and derivative is given by the
 isomorphism \[ \pt F \natiso \X \sprod F'. \] The right-to-left
 direction is straightforward to implement, requiring only some
 relabeling.  The left-to-right direction, on the other hand, requires
-decomposing a given label type $L$ as \[ L \iso \left(\sum_{l':L} l'
-  \neq l \right) + \left(\sum_{l':L} l' = l \right), \] \ie
-``subtracting'' a given label $l:L$ from the type $L$.
-
+modelling an analogue of ``subtraction'': the given label type $L$
+must be decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[
+L \iso \left(\sum_{l':L} l' \neq l \right) + \left(\sum_{l':L} l' = l
+\right). \]
 
 \paragraph{Functor composition}
 
