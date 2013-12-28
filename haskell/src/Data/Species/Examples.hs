@@ -156,7 +156,7 @@ instance (Ord l, Eq l) => ExpLabelled (FinMap l a) where
 fromVec :: forall a n s. Storage s => Vec.Vec n a -> Sp L s (Fin n) a
 fromVec Vec.VNil = nil
 fromVec (Vec.VCons a v) = 
-    let m = Vec.vlength v in
+    let m = Vec.size v in
     natty m $ relabel (finSumI (SS SZ) m) $ cons a (fromVec v)
 
 {- the code below is 'morally right', but Haskell can't see it.
