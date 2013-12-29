@@ -23,7 +23,8 @@
 module Data.Species.Elim
     ( -- * Eliminators
 
-      Elim(..), Elim'(..)
+      Elim(..)
+    , Elim'(..)
     , mapElimSrc
     , mapElimShape
 
@@ -41,6 +42,23 @@ module Data.Species.Elim
     , elimProd
     , elimE
     , elimComp
+
+      -- * And now for the generalized versions
+    , GElim(..)
+
+      -- * Running generalized eliminators
+
+    , gelim
+
+      -- * Combinators for building generalized eliminators
+
+    , gelimZero
+    , gelimOne
+    , gelimX
+    , gelimSum
+    , gelimProd
+    , gelimE
+    -- , gelimComp
 
     )
     where
@@ -157,3 +175,58 @@ hlookup FZ     (V.HCons gl _) (LCons _ _ ) = HLResult gl Left
 hlookup (FS f) (V.HCons _  h) (LCons _ ls) =
   case hlookup f h ls of
     HLResult gl s -> HLResult gl (Right . s)
+
+---------------------------------------------------------------------
+-- Experiment: generalized eliminator.
+
+-- A generalized eliminator is allowed to use something more general
+-- than 'index' when extracting information at a particular label.
+newtype GElim f l a r = GElim (f l -> (l -> (l,a)) -> r)
+  deriving Functor
+
+-- | Runing a generalized eliminator.
+gelim :: (Eq l, LabelledStorage s) => GElim f l a b -> Sp f s l a -> b
+gelim (GElim el) (Struct shp es) = el shp (gindex es)
+
+-- Combinators for building generalized eliminators
+
+-- | The generalized eliminator for 'Zero' remains the same
+gelimZero :: GElim Zero l a r
+gelimZero = GElim (\z _ -> absurdZ z)
+
+-- | Create an eliminator for 'One' by specifying a value
+gelimOne :: r -> GElim One l a r
+gelimOne r = GElim (\_ _ -> r)
+  -- arguably we should force the shape + proof contained therein
+
+-- | Create an eliminator for 'X' by specifying a mapping from 
+--  label + data values to return values.
+gelimX :: ((l,a) -> r) -> GElim X l a r
+gelimX f = GElim (\(X i) m -> f (m (view i FZ)))
+
+-- | Create an eliminator for @(f+g)@-structures out of individual
+-- eliminators for @f@ and @g@.
+gelimSum :: GElim f l a r -> GElim g l a r -> GElim (f+g) l a r
+gelimSum (GElim f) (GElim g) = GElim $ \shp m ->
+  case shp of
+    Inl fShp -> f fShp m
+    Inr gShp -> g gShp m
+
+-- | Create an eliminator for @(f*g)@-structures from a curried
+--   eliminator.
+gelimProd :: (forall l1 l2. Either l1 l2 <-> l -> GElim f l1 a (GElim g l2 a r)) -> GElim (f*g) l a r
+gelimProd el = GElim $ \(Prod fShp gShp pf) m ->
+  let mEither  = m . view pf -- mEither :: Either l1 l2 -> (l,a)
+      (mf, mg) = (\l1 -> (l1, snd (mEither $ Left l1)), 
+                  \l2 -> (l2, snd (mEither $ Right l2)))
+      -- mf :: l1 -> (l1,a) , mg :: l2 :: (l2,a)
+  in
+    case el pf of
+      GElim f ->
+        case f fShp mf of
+          GElim g -> g gShp mg
+
+-- | The generalized eliminator for E is now quite simple.
+gelimE ::  (MS.MultiSet (l,a) -> r) -> GElim E l a r
+gelimE f = GElim $ \(E s) m -> f (S.smap m s)
+

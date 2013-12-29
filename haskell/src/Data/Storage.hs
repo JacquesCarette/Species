@@ -9,6 +9,7 @@
 
 module Data.Storage
     ( Storage(..)
+    , LabelledStorage(..)
     , emptyStorage
     )
     where
@@ -87,6 +88,12 @@ instance Storage (->) where
   append _ g (Right l2) = g l2
 --  concat                = uncurry
   initialize f          = f
+
+class Storage s => LabelledStorage s where
+  gindex :: s l a -> l -> (l,a)
+
+instance LabelledStorage (->) where
+  gindex f l = (l, f l)
 
 {- 
    Comment out this for now, will get back to it later.
