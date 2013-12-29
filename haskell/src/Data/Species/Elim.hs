@@ -44,7 +44,9 @@ module Data.Species.Elim
     , elimComp
 
       -- * And now for the generalized versions
+
     , GElim(..)
+    , mapGElimShape
 
       -- * Running generalized eliminators
 
@@ -183,6 +185,12 @@ hlookup (FS f) (V.HCons _  h) (LCons _ ls) =
 -- than 'index' when extracting information at a particular label.
 newtype GElim f l a r = GElim (f l -> (l -> (l,a)) -> r)
   deriving Functor
+
+-- | Convert a generalized eliminator for @f@-structures into one for
+--   @g@-structures, by specifying a parametric mapping from
+--   @g@-structures to @f@-structures.
+mapGElimShape :: (forall l. g l -> f l) -> GElim f l a r -> GElim g l a r
+mapGElimShape q (GElim el) = GElim $ \s m -> el (q s) m
 
 -- | Runing a generalized eliminator.
 gelim :: (Eq l, LabelledStorage s) => GElim f l a b -> Sp f s l a -> b
