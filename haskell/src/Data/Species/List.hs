@@ -17,9 +17,9 @@ module Data.Species.List
 
     , list_, list, nil, cons, fromList
 
-      -- * Eliminator
+      -- * Eliminators
 
-    , elimList
+    , elimList, gelimList
 
     )
     where
@@ -102,3 +102,14 @@ elimList r f = mapElimShape (view isoL)
              $ elimSum
                  (elimOne r)
                  (elimProd $ const (elimX $ \a -> fmap (f a) (elimList r f)))
+
+-- | A generalized eliminator for labelled list structures, which actually
+--   treats the label as a objects (but not first class, as their type
+--   is existentially quantified).
+gelimList :: r -> ((l,a) -> r -> r) -> GElim L l a r
+gelimList r f = mapGElimShape (view isoL)
+    $ gelimSum
+        (gelimOne r)
+        (gelimProd $ \pf -> 
+            (gelimX $ \(l,a) -> fmap (f ((view pf (Left l)),a)) 
+                      (gelimList r (\(l,a) -> f ((view pf (Right l)),a)) )))

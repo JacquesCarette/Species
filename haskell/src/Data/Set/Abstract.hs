@@ -9,6 +9,7 @@ import           Control.Lens
 import           Data.BFunctor
 import           Data.Fin
 import           Data.Finite
+import           Data.Type.Nat
 import qualified Data.MultiSet as MS
 
 -- | A set is an unordered collection of elements in which each
@@ -59,3 +60,6 @@ class Enumerable l where
 
 instance Enumerable () where
   enumS = Set [()]
+
+instance Natural n => Enumerable (Fin n) where
+  enumS = Set (fins toSNat)
