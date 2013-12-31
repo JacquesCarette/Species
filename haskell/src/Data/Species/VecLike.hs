@@ -66,24 +66,26 @@ take' (Struct f i) sizl n pf (F finl) =
                 sn = N.natty n $ Set.enumerate finite_Fin
                 sm = N.natty m $ Set.enumerate finite_Fin
 
+-- Define a general 'partition' function, from which filter and remove
+-- can easily be defined.
 -- We can do this with an Enumerable constraint, which is less `leaky'
 -- than a Finite proof.
-filter :: (S.Storage s, Set.Enumerable l, Eq l) => 
+partition :: (S.Storage s, Set.Enumerable l, Eq l) => 
           Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
-filter (Struct f stor) p = Struct (cprod_ f k) stor
-  where sel = S.smap p stor
+partition (Struct f stor) p = Struct (cprod_ f k) stor
+  where sel = S.smap p stor -- force this?
         k = part_ Set.enumS Set.enumS
                   (iso (\l -> case l of {Left a -> a; Right a -> a}) 
                        (\l -> if (S.index sel l) then Left l else Right l) )
 
--- One question still nags: is the above really filter?  In other words,
--- could we implement Prelude.filter with the above?
--- let's try to implement the 'back half' first: given a species of 
--- shape L#Part, extract a filtered list
-extract :: (S.LabelledStorage s, Set.Enumerable l, Eq l) => 
+-- One question still nags: is the above really partition?  In other words,
+-- could we implement (for example) Prelude.filter with the above?
+-- First, let's implement the 'back half' first: given a species of 
+-- shape L#Part, extract a filtered list of the 'left' part of the partition
+extractLeft :: (S.LabelledStorage s, Set.Enumerable l, Eq l) => 
     Sp (L.L # Part) s l a -> [a]
-extract sp = 
-  -- because of existential, it is very hard to rewrite the code below
+extractLeft sp = 
+  -- because of existentials, it is very hard to rewrite the code below
   -- in a less `inline' style.
   let (lsp, part) = decompL sp
   in gelim (L.gelimList [] 
@@ -94,18 +96,39 @@ extract sp =
               Left _  -> a : r
               Right _ ->     r  )) lsp
 
+-- for ease of use below, create specialized versions which work on 
+-- an L-shape, using Fin labels, and (->) for storage.  Use LFA as an
+-- abbreviation for these 3 aspects.
+extractLFA :: N.Natural n => Sp (L.L # Part) (->) (F.Fin n) a -> [a]
+extractLFA = extractLeft
+
+partitionLFA :: N.Natural n => Sp L.L (->) (F.Fin n) a -> (a -> Bool) -> Sp (L.L # Part) (->) (F.Fin n) a
+partitionLFA = partition
+
 -- Victory!
--- The *code* below is quite ugly, but that is because we have to have a way
--- to be explicit about all our choices.  Our setup is very polymorphic,
--- and we need to pin all these things down to get a runnable routine.
 filter' :: forall a. (a -> Bool) -> [a] -> [a]
-filter' p lst = 
-  case Vec.fromList lst of
-    Vec.SomeVec v -> 
-      let n = Vec.size v
-          sp = fromVec v
-          e :: forall n. N.Natural n => Sp (L.L # Part) (->) (F.Fin n) a -> [a]
-          e = extract
-          f :: forall n. N.Natural n => Sp L.L (->) (F.Fin n) a -> (a -> Bool) -> Sp (L.L # Part) (->) (F.Fin n) a
-          f = filter
-      in N.natty n $ e $ f sp p
+filter' p lst = case Vec.fromList lst of
+  Vec.SomeVec v -> 
+      N.natty (Vec.size v) $ extractLFA $ partitionLFA (fromVec v) p
+
+extractBoth :: (S.LabelledStorage s, Set.Enumerable l, Eq l) => 
+    Sp (L.L # Part) s l a -> ([a], [a])
+extractBoth sp = 
+  -- because of existentials, it is very hard to rewrite the code below
+  -- in a less `inline' style.
+  let (lsp, part) = decompL sp
+  in gelim (L.gelimList ([],[])
+      (\(l,a) (ll,rl) -> 
+        case part of 
+          Prod _ _ eiso ->
+            case view (from eiso) l of
+              Left _  -> (a:ll,rl)
+              Right _ -> (ll,a:rl))) lsp
+
+extractBothLFA :: N.Natural n => Sp (L.L # Part) (->) (F.Fin n) a -> ([a],[a])
+extractBothLFA = extractBoth
+
+partition' :: (a -> Bool) -> [a] -> ([a],[a])
+partition' p lst = case Vec.fromList lst of
+  Vec.SomeVec v -> 
+      N.natty (Vec.size v) $ extractBothLFA $ partitionLFA (fromVec v) p
