@@ -818,51 +818,90 @@ use it as a foundation for data structures, it is necessary to first
 ``port'' the definition from set theory to constructive type theory.
 
 As before, a species is a pair of maps, one mapping label types to
-sets of shapes, and one relabelling shapes. However, the species type
+sets of shapes, and one relabelling shapes. However, the $\Species$ type
 also requires proofs of the functoriality conditions for the
 relabeling function.
 \begin{align*}
 \Species & \defn (\shapes : \FinType \to \Type) \\
          & \times (\relabel : (L_1, L_2 : \FinType) \to (L_1 \iso L_2) \to
            (\shapes\ L_1 \to \shapes\ L_2)) \\
-         & \times ((L : \FinType) \to \relabel \id_L = \id_{(\shapes L)}) \\
+         & \times ((L : \FinType) \to \relabel \id_L = \id_{\shapes L}) \\
          & \times ((L_1, L_2, L_3 : \FinType) \to (\sigma : L_2 \iso
-         L_3) \\ &\to (\tau : L_1 \iso L_2) \to
-(\relabel (\sigma \comp \tau) = \relabel \sigma \comp \relabel \tau))
+         L_3) \\ &\qquad\to (\tau : L_1 \iso L_2) \to
+(\relabel\ (\sigma \comp \tau) = \relabel \sigma \comp \relabel \tau))
 \end{align*}
 
 Where the meaning is clear from context, we will use simple
-application to denote the action of a species on both objects and
-arrows. That is, if $F : \Species$, we will just write $F\ L$ or $F\
-\sigma$ without explicitly projecting out the $\shapes$ and $\relabel$
-functions.
+application to denote the action of a species on both label types and
+relabellings. That is, if $F : \Species$, $L, L' : \FinType$, and $\sigma
+: L \iso L'$, we will just write $F\ L : \Type$ or $F\ \sigma : F\
+L \to F\ L'$ without explicitly projecting out the $\shapes$ and
+$\relabel$ functions.
 
-In \pref{sec:set-species}, we said the codomain of species is
-\emph{finite} types, but in the above definition the codomain of
-$\shapes$ is $\Type$ rather than $\FinType$.  Constructively, the
-finiteness of the codomain does not seem very important---all the
-basic definitions and constructions work unchanged.  One place where
-the finiteness of the codomain comes into play is in setting up
-homomorphisms from species to generating functions with coefficients
-taken from $\N$---though we conjecture that taking coefficients from
-the ring over the one-point compactification of the naturals, $\N \cup
-\{\infty\}$, works just as well.  There may be some theorems (\eg
-molecular species decomposition, or the implicit species theorem) which
-only hold with a finite codomain---we are interested to port standard
-theorems about species to a constructive setting, and see where the
+In \pref{sec:set-species}, the codomain of species was defined as the
+category of \emph{finite} sets, but in the above definition the
+codomain of $\shapes$ is $\Type$ rather than $\FinType$.
+Constructively, the finiteness of the codomain does not seem very
+important---all the basic definitions and constructions work
+unchanged.  One place where the finiteness of the codomain comes into
+play is in setting up homomorphisms from species to generating
+functions with coefficients taken from $\N$---though we conjecture
+that taking coefficients from the ring over the one-point
+compactification of the naturals, $\N \cup \{\infty\}$, works just as
+well.  There may be some theorems (\eg molecular species
+decomposition, or the implicit species theorem) which only hold with a
+finite codomain---in the future, we plan to port some standard
+theorems about species to a constructive setting to see where the
 finiteness is required.
 
 It is interesting to note that an equivalence $L_1 \iso L_2$ between
 constructively finite types $L_1,L_2 : \FinType$, as required by
-$\relabel$, contains more than meets the eye.  Since \[ \FinType \defn
-(L : \Type) \times \Finite L \equiv (L : \Type) \times (n : \N) \times
-(\Fin n \iso L), \] such equivalences contain not just an equivalence
-between the underlying types, but also an
+$\relabel$, contains more than first meets the eye.  Since \[ \FinType
+\defn (L : \Type) \times \Finite L \equiv (L : \Type) \times (n : \N)
+\times (\Fin n \iso L), \] such equivalences contain not just an
+equivalence between the underlying types, but also an
 equivalence-between-equivalences requiring them to be finite ``in the
 same way'', that is, to yield the same equivalence with $\Fin n$ after
-mapping from one to the other.  The situation can be pictured
-\todo{finish}.
+mapping from one to the other.  The situation can be pictured as shown
+in \pref{fig:fin-equiv}, where the diagram necessarily contains only
+triangles: corresponding elements of $L_1$ and $L_2$ on the sides
+correspond to the same element of $\Fin n$ on the bottom row.
+\begin{figure}
+  \centering
+  \begin{diagram}[width=150]
+import           Data.Bits                      (xor)
+import           SpeciesDiagrams
 
+mkList n d f = hcat (zipWith named (map f [0::Int ..]) (replicate n d))
+
+n :: Int
+n = 8
+
+dia = decorateLocatedTrail (triangle (fromIntegral (n+1)) # rotateBy (1/2))
+      [ "l1"  ||> (l1 # rotateBy (-1/3))
+      , "fin" ||> fin
+      , "l2"  ||> (l2 # rotateBy (1/3))
+      ]
+      # mkConnections
+      # centerXY # pad 1.2
+      # flip appends
+        [ (unit_Y                  , text' 4 "Fin n")
+        , (unit_Y # rotateBy (-1/3), text' 4 "L₁"   )
+        , (unit_Y # rotateBy (1/3) , text' 4 "L₂"   )
+        ]
+  where
+    fin = mkList n (circle 1) (`xor` 1) # centerXY
+    l1  = mkList n (circle 1) id # centerXY
+    l2  = mkList n (circle 1) ((n-1) -) # centerXY
+    mkConnections = applyAll
+      [  withNames [a .> i, b .> i] $ \[p,q] -> beneath (location p ~~ location q)
+      || (a,b) <- take 3 . (zip <*> tail) . cycle $ ["l1", "fin", "l2"]
+      ,  i <- [0 .. (n-1)]
+      ]
+  \end{diagram}
+  \caption{An equivalence between constructively finite types}
+  \label{fig:fin-equiv}
+\end{figure}
 Intuitively, this means that if $L_1, L_2 : \FinType$, an equivalence
 $L_1 \iso L_2$ cannot contain ``too much'' information: it only tells
 us how the underlying types of $L_1$ and $L_2$ relate, preserving the
