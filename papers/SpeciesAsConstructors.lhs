@@ -975,7 +975,7 @@ notation):
   concat           = curry
   map              = (.)
   zipWith z f g    = \l -> z (f l) (g l)
-  reindex i f      = f . im
+  reindex i f      = f . i
 \end{spec}
 
 Note that the implementation of |allocate| does not make use of the
@@ -989,12 +989,20 @@ values.  In particular, we assume a type $|Vec| : \N \to \Type \to
 \begin{align*}
   allocateV &: (n : \N) \to (\Fin n \to A) \to \Vect n A \\
   (!)       &: \Vect n A \to \Fin n \to A \\
-  appendV   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \\
-  concatV   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \\
-  mapV      &: (A \to B) \to (\Vect n A \to \Vect n B) \\
+  appendV   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \times
+  (\Fin m + \Fin n \iso \Fin{(m + n)}) \\
+  concatV   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \times
+  (\Fin m \times \Fin n \iso \Fin (m \cdot n))\\
+  mapV      &: (A \to B) \to (\Vect n A \to \Vect n B)
 %  imapV     &: (\Fin n \to A \to B) \to (\Vect n A \to \Vect n B) \\
 %  zipWithV  &: (A \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C
 \end{align*}
+Note that in addition to computing new vectors, |appendV| and
+|concatV| also yield isomorphisms which encode the precise
+relationship bewteen the indices of the input and output vectors.  For
+example, if |appendV v1 v2 = (v,e)|, then it must be the case that |v1
+! m = v !  (e (inl m))|.  Similarly, |v ! m ! n = v' ! (e (m,n))| when
+|concatV v = (v',e)|.
 
 We then define \[ \Store L A \defn \sum_{n : \N} (L \iso \Fin n)
 \times \Vect n A, \] and implement the required operations as follows:
@@ -1037,29 +1045,20 @@ We then define \[ \Store L A \defn \sum_{n : \N} (L \iso \Fin n)
   \end{spec}
   Note that the output of |zipWith f s1 s2| reuses the label
   equivalence |i2| from |s2|.  Of course we could instead have chosen
-  to reuse |i1| instead, but these are the only possible choices.  One
-  could imagine an optimizing compiler that could compile |zipWith|
-  into in-place update on |s2| when it could prove that the old value
-  was no longer needed.
+  to reuse |i1| instead, but these are the only possible choices.
+  Given the choice of |i2|,  an optimizing compiler can compile |zipWith|
+  into in-place update on |s2| when it can prove that the old value
+  is no longer needed.
 
-\item |append| is straightforward to implement via |appendV|, with a
-  small twist:
+\item |append| is straightforward to implement via |appendV|:
   \begin{spec}
-    append (n1, i1, v1) (n2, i2, v2) = (n1+n2, sumEqv n1 n2 i1 i2, appendV v1 v2)
+    append (n1, i1, v1) (n2, i2, v2) = (n1+n2, e . (i1 + i2), v)
+      where (v,e) = appendV v1 v2
   \end{spec}
-  Appending vectors of lengths $n_1$ and $n_2$ gives one of length
-  $n_1 + n_2$, and |appendV| will combine the vectors in the
-  appropriate way.  However, what is meant by |sumEqv n1 n2 i1 i2|?
-  Evidently we need \[ |sumEqv| : (n_1, n_2 : \N) \to (L_1 \iso
-  \Fin{n_1}) \to (L_2 \iso \Fin{n_2}) \to (L_1 + L_2 \iso \Fin{(n_1 +
-    n_2)}), \] which we can construct as the composite \[ L_1 + L_2
-  \stackrel{i_1 + i_2}{\iso} \Fin{n_1} + \Fin{n_2}
-  \stackrel{|appendFin|}{\iso} \Fin{(n_1 + n_2)}, \] given
-  $|appendFin| : \Fin{n_1} + \Fin{n_2} \iso \Fin{(n_1 + n_2)}$ which
-  ``does the same thing'' as |appendV|. That is, |appendFin|
-  calculates ``where the input indices end up'' in the output.
-
-  \todo{picture?}
+  Note that we construct the required label equivalence as the
+  composite \[ L_1 + L_2 \stackrel{i_1 + i_2}{\iso} \Fin{n_1} +
+  \Fin{n_2} \stackrel{e}{\iso} \Fin{(n_1 + n_2)}, \] using the index
+  equivalence |e| returned by |appendV|.
 
 \item |concat| is implemented similarly to |append|: we multiply the
   sizes, use |concatV| on the input vector-of-vectors, and compute the

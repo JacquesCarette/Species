@@ -1,4 +1,4 @@
-+ [ ] redo storage methods to return isomorphisms when appropriate
++ [X] redo vector methods to return isomorphisms when appropriate
 + [ ] implement/explain concat (write out on paper)
 + [ ] example motivating partial isos: decomposition (write out
       on paper first)
