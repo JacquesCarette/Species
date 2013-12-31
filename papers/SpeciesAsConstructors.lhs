@@ -45,6 +45,16 @@
 
 %format inv(a) = a "^{-1}"
 
+%format sumN = sum "_\N"
+%format sumTy = sum "_\Type"
+
+%format allocateV = allocate "_V"
+%format mapV = map "_V"
+%format foldV = fold "_V"
+%format appendV = append "_V"
+%format concatV = concat "_V"
+%format sumV = sum "_V"
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
 
@@ -317,11 +327,11 @@
 
 
 \scw{I've been thinking about the structure of this paper, trying to make it
-tell its story more effectively. 
+tell its story more effectively.
 The focus of the paper should be on labelled structures. The fact that they
 are directly inspired by combinatorial species is great and should be
 mentioned repeatedly, but in the end, it is not what the paper is about.
-Our introduction mostly works with this format, but we could bring it out. 
+Our introduction mostly works with this format, but we could bring it out.
 I'm imagining a progression like:
 \begin{itemize}
 \item What is a labelled structure? A decomposition of data structure. More
@@ -339,7 +349,7 @@ formally, a labelled shape combined with a mapping from labels to data values.
     that is unobservable for algebraic datatypes.
   \item Although labels have structure, we make it convenient to work up to (partial)
     isomorphism. ``Relabeling'' models certain operations on data, sometimes
-    more efficiently that with more standard representations.  
+    more efficiently that with more standard representations.
   \item We can choose a definition of mapping that lets us reason about memory
     allocation and layout.
 \end{itemize}
@@ -540,7 +550,7 @@ to some interesting benefits.  For example:
   transpose of a 2D array, or altering the keys of a finite map) can
   be more naturally described as \emph{operations on labels}, leading
   to benefits in both reasoning and efficiency (see \todo{section ?}).
-  \scw{Are we sure that it is more efficient? What about the copying that 
+  \scw{Are we sure that it is more efficient? What about the copying that
     may need to be done to adjust the labels/maps?}
 \item Value-level \emph{sharing} can be easily modelled via shared
   labels (see \todo{section?})---in contrast, this is not possible if
@@ -712,12 +722,6 @@ will in general pass around types \emph{together with} some specific
 finiteness proof.  We can encapsulate this by defining \[ \FinType
 \defn (L : \Type) \times \Finite L \] as the universe of finite types.
 
-\todo{Revisit this!  Having $\FinType$ everywhere is somewhat
-  problematic, since \eg I am not sure that an equivalence $L_1 \iso
-  L_2$ where $L_1, L_2 : \FinType$ really means what we want.  We
-  still don't have a very good story/understanding of where we need
-  the finite evidence and where we don't.}
-
 It is not hard to see that the size of a finite type is determined
 uniquely. That is, if $f_1, f_2 : \Finite L$ are any two witnesses that
 $L$ is finite, then $\outl(f_1) = \outl(f_2)$. \scw{Define
@@ -872,12 +876,13 @@ correspond to the same element of $\Fin n$ on the bottom row.
 import           Data.Bits                      (xor)
 import           SpeciesDiagrams
 
-mkList n d f = hcat (zipWith named (map f [0::Int ..]) (replicate n d))
+mkList n d f = hcat' (with & sep .~ 2 & catMethod .~ Distrib)
+  (zipWith named (map f [0::Int ..]) (replicate n d))
 
 n :: Int
 n = 8
 
-dia = decorateLocatedTrail (triangle (fromIntegral (n+1)) # rotateBy (1/2))
+dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
       [ "l1"  ||> (l1 # rotateBy (-1/3))
       , "fin" ||> fin
       , "l2"  ||> (l2 # rotateBy (1/3))
@@ -890,16 +895,18 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+1)) # rotateBy (1/2))
         , (unit_Y # rotateBy (1/3) , text' 4 "L₂"   )
         ]
   where
-    fin = mkList n (circle 1) (`xor` 1) # centerXY
-    l1  = mkList n (circle 1) id # centerXY
-    l2  = mkList n (circle 1) ((n-1) -) # centerXY
+    fin = mkList n dot (`xor` 1) # centerXY
+    l1  = mkList n dot id # centerXY
+    l2  = mkList n dot ((n-1) -) # centerXY
+    dot = circle 0.5 # fc grey
     mkConnections = applyAll
-      [  withNames [a .> i, b .> i] $ \[p,q] -> beneath (location p ~~ location q)
+      [  withNames [a .> i, b .> i] $ \[p,q] -> atop (location p ~~ location q)
       || (a,b) <- take 3 . (zip <*> tail) . cycle $ ["l1", "fin", "l2"]
       ,  i <- [0 .. (n-1)]
       ]
   \end{diagram}
-  \caption{An equivalence between constructively finite types}
+  \caption{An equivalence between constructively finite types contains
+  only triangles}
   \label{fig:fin-equiv}
 \end{figure}
 Intuitively, this means that if $L_1, L_2 : \FinType$, an equivalence
@@ -985,15 +992,19 @@ $L' \to L$.
 
 A more interesting implementation uses finite vectors to store the $A$
 values.  In particular, we assume a type $|Vec| : \N \to \Type \to
-\Type$ of length-indexed vectors, supporting standard operations
+\Type$ of length-indexed vectors, supporting operations
 \begin{align*}
-  allocateV &: (n : \N) \to (\Fin n \to A) \to \Vect n A \\
-  (!)       &: \Vect n A \to \Fin n \to A \\
-  appendV   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \times
+  |allocateV| &: (n : \N) \to (\Fin n \to A) \to \Vect n A \\
+  |(!)|       &: \Vect n A \to \Fin n \to A \\
+  |mapV|      &: (A \to B) \to (\Vect n A \to \Vect n B) \\
+  |foldV|     &: R \to (R \to A \to R) \to \Vect n A \to R \\
+  |appendV|   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \times
   (\Fin m + \Fin n \iso \Fin{(m + n)}) \\
-  concatV   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \times
+  |concatV|   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \times
   (\Fin m \times \Fin n \iso \Fin (m \cdot n))\\
-  mapV      &: (A \to B) \to (\Vect n A \to \Vect n B)
+  |sumV|      &: (|ns| : \Vect m \N) \to |mapV (\n -> Vec n A) ns| \\
+  &\qquad \to \Vect {(|sumN ns|)} A \times
+  (|sumTy|\ (|mapV|\ \Fin{}\ |ns|) \iso \Fin (|sumN ns|))
 %  imapV     &: (\Fin n \to A \to B) \to (\Vect n A \to \Vect n B) \\
 %  zipWithV  &: (A \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C
 \end{align*}
@@ -1002,10 +1013,34 @@ Note that in addition to computing new vectors, |appendV| and
 relationship bewteen the indices of the input and output vectors.  For
 example, if |appendV v1 v2 = (v,e)|, then it must be the case that |v1
 ! m = v !  (e (inl m))|.  Similarly, |v ! m ! n = v' ! (e (m,n))| when
-|concatV v = (v',e)|.
+|concatV v = (v',e)|. |sumV| is a generalized version of |concatV|
+allowing the concatenation of a collection of vectors of varying
+length,
+\begin{equation*}
+  \begin{minipage}[c]{200pt}
+  \hfill
+  \begin{diagram}[height=15]
+    dia = pad 1.1 . centerXY
+        . hcat' (with & sep .~ 0.5) . map (hcat . flip replicate (square 1))
+        $ [ 4, 2, 5 ]
+  \end{diagram}
+  %$
+  \end{minipage}
+  \stackrel{|sumV|}{\longrightarrow}
+  \begin{minipage}[c]{200pt}
+  \begin{diagram}[height=15]
+    dia = pad 1.1 . centerXY
+        . hcat . flip replicate (square 1) . sum
+        $ [ 4, 2, 5 ]
+  \end{diagram}
+  %$
+  \end{minipage}
+\end{equation*}
+with |sumN = foldV 0 (+)| and |sumTy = foldV undefined (+)|.
 
-We then define \[ \Store L A \defn \sum_{n : \N} (L \iso \Fin n)
-\times \Vect n A, \] and implement the required operations as follows:
+Given such a type $\cons{Vec}$, we may define \[ \Store L A \defn \sum_{n :
+  \N} (L \iso \Fin n) \times \Vect n A, \] and implement the required
+operations as follows:
 
 \begin{itemize}
 \item The implementation of |allocate| uses the provided $\Finite L$
@@ -1033,12 +1068,12 @@ We then define \[ \Store L A \defn \sum_{n : \N} (L \iso \Fin n)
 \item At first blush it may seem that |zipWith| would be equally
   straightforward to implement in terms of a function $|zipWithV| : (A
   \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C$ (if we had
-  such a function), but it is more subtle.  The problem is that the
-  $(L \iso \Fin n)$ proofs have real computational content: zipping on
-  labels may not coincide with zipping on indices.  Since we want to
-  zip on indices, |zipWith| must compose the given equivalences to
-  obtain the correspondence between the label mappings used by the two
-  input vectors:
+  such a function).  The problem, however, is that the $(L \iso \Fin
+  n)$ proofs have real computational content: zipping on labels may
+  not coincide with zipping on indices. \todo{need some pictures to
+    make this more clear?} Since we want to zip on indices, |zipWith|
+  must compose the given equivalences to obtain the correspondence
+  between the label mappings used by the two input vectors:
   \begin{spec}
     zipWith f (n, i1, v1) (_, i2, v2) = (n, i2, v)
       where v = allocateV n (\k -> f (v1 ! (i1 . inv(i2)) k) (v2 ! k))
