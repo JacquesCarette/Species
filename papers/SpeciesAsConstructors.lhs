@@ -1027,10 +1027,10 @@ We then define \[ \Store L A \defn \sum_{n : \N} (L \iso \Fin n)
   \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C$ (if we had
   such a function), but it is more subtle.  The problem is that the
   $(L \iso \Fin n)$ proofs have real computational content: zipping on
-  labels may not coincide with zipping on indices.  \todo{picture}
-  Since we want to zip on indices, |zipWith| must compose the given
-  equivalences to obtain the correspondence between the label mappings
-  used by the two input vectors:
+  labels may not coincide with zipping on indices.  Since we want to
+  zip on indices, |zipWith| must compose the given equivalences to
+  obtain the correspondence between the label mappings used by the two
+  input vectors:
   \begin{spec}
     zipWith f (n, i1, v1) (_, i2, v2) = (n, i2, v)
       where v = allocateV n (\k -> f (v1 ! (i1 . inv(i2)) k) (v2 ! k))
@@ -1109,13 +1109,8 @@ A partial equivalence $A \subseteq B$ is given by:
 \item a proof that for all $b : B$, if $|project b| = \cons{inr}(a)$
   then |embed a = b|.
 \end{itemize}
-
 That is, there is a 1-1 correspondence between all the elements of $A$
-and \emph{some} (possibly all) of the elements of $B$.  The situation
-can be visualized as follows:
-
-% XXX
-\todo{picture}
+and \emph{some} (possibly all) of the elements of $B$.
 
 Note that an isomorphism $f \mkIso g : A \iso B$ can be made into a
 partial equivalence trivially by setting $|embed| = f$ and $|project|
@@ -1130,8 +1125,8 @@ equivalence.\footnote{Happily, using the Haskell \texttt{lens} library
   \cite{lens}, this all works out automatically: the representations
   of equivalences and partial equivalences (which \texttt{lens} calls
   \emph{prisms}) are such that equivalences simply \emph{are} partial
-  equivalences, and they compose as one would expect, using the
-  standard function composition operator.}
+  equivalences, and they compose as one would expect (albeit
+  ``backwards''), using the standard function composition operator.}
 
 % On the other hand, we could drop |project|, that is, we could take
 % something like \[ \cons{SubFinite}\ L \defn (n : \N) \times (|embed| :
@@ -1994,7 +1989,6 @@ more interesting. One way to do it is to overlay an additional shape
 on top of an existing structure: \[ \cons{cprodL} : F\ L \to \LStr G L A
 \to \LStr {F \scprod G} L A. \] There is also a corresponding
 $\cons{cprodR}$ which combines an $F$-structure and a $G$-shape.
-\todo{picture}
 
 $(\scprod, \E)$ forms a commutative monoid up to species isomorphism;
 superimposing an $\E$-shape has no effect, since the $\E$-shape
