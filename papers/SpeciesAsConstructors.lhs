@@ -926,33 +926,37 @@ $\Fin n$.
 
 Our goal is to define a labelled structure as a labelled shape paired
 with a \emph{mapping} from labels to data.  What, precisely, do we
-mean by a \emph{mapping}?  In fact, we can leave the notion of mapping
-abstract: we require only that a type $\Store L A$ representing
-mappings from $L$ to $A$ come equipped with the following operations:
+mean by a \emph{mapping}?  In fact, we need not pin down a particular
+implementation.  We require only that implementations of $\Store - - : \FinType
+\to \Type \to \Type$ come equipped with the following operations:
 \begin{align*}
-  |allocate| &: \Finite L \to (L \to A) \to \Store L A \\
+  |allocate| &: (L \to A) \to \Store L A \\
   |index|  &: \Store L A \to L \to A \\
   |append| &: \Store {L_1} A \to \Store {L_2} A \to \Store {(L_1 + L_2)} A \\
   |concat| &: \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times
     L_2)} A \\
-%  |replace| &: \DecEq L \to L \to A \to \Store L A \to A \times \Store L A \\
   |map| &: (A \to B) \to \Store L A \to \Store L B \\
   |zipWith| &: (A \to B \to C) \to \Store L A \to \Store L B \to \Store L C \\
   |reindex|  &: (L' \iso L) \to \Store L A \to \Store {L'} A
 \end{align*}
-\todo{not sure if we need |replace|} It's worth walking through
-some informal descriptions of the semantics of these operations.
+One could also imagine requiring similar operations like $|replace| :
+L \to A \to \Store L A \to A \times \Store L A$, but these are the
+operations we need in the context of this paper. The semantics of
+these operations can be specified by various laws (for example,
+|allocate| and |index| are inverse; |index| and |reindex| commute
+appropriately with the other operations; and so on). For now, we will
+content ourselves with some informal descriptions of the semantics.
 
 \begin{itemize}
 \item First, |allocate| is the sole means of constructing $\Store L A$
-  values. It takes not only a function $L \to A$ but also a
-  constructive proof that $L$ is finite.  Intuitively, the finiteness
-  proof is necessary because allocation may require some intensional
-  knowledge about the type $L$.  For example, as explained below we
-  may implement $\Store L A$ using a vector of $A$ values; allocating
-  such a vector requires knowing the size of $L$.  Specifying not just
-  a size but an equivalence with $\Fin n$ may additionally afford the
-  caller of |allocate| some control over how elements are laid out.
+  values, taking a function $L \to A$ as a specification of the
+  mapping. Note that since $L : \FinType$, implementations of
+  |allocate| also have access to a constructive proof that $L$ is
+  finite.  Intuitively, this is necessary because allocation may
+  require some intensional knowledge about the type $L$.  For example,
+  as explained below, we may implement $\Store L A$ using a vector of
+  $A$ values; allocating such a vector requires knowing the size of
+  $L$.
 \item |index| allows looking up data by label.
 \item |append| and |concat| are ``structural'' operations, allowing us
   to combine two mappings into one, or collapse nested mappings,
@@ -964,10 +968,7 @@ some informal descriptions of the semantics of these operations.
   expresses the functoriality of $\Store - A$: we can change from one
   type of labels to another by specifying an equivalence between them.
 \end{itemize}
-These intuitions can be formalized by various unsurprising laws (for
-example, |allocate| followed by |index| should recover the original
-function; |index| and |reindex| commute with other operations in the
-appropriate ways; and so on). \todo{is it worth actually
+ \todo{is it worth actually
   formulating/spelling out the laws?  are any of them particularly
   interesting? are there any interesting choices to be made?}
 
@@ -976,7 +977,7 @@ arrow to represent $\StoreSym$ (presented here using Haskell-like
 notation):
 
 \begin{spec}
-  allocate _       = id
+  allocate         = id
   index            = id
   append f g       = either f g
   concat           = curry
@@ -985,10 +986,10 @@ notation):
   reindex i f      = f . i
 \end{spec}
 
-Note that the implementation of |allocate| does not make use of the
-$\Finite L$ argument at all, and the implementation of |reindex| uses a
-slight abuse of notation to treat $s : L' \iso L$ as a function
-$L' \to L$.
+Note that the implementation of |allocate| does not take into account
+the finiteness of $L$ at all, and the implementation of |reindex| uses
+a slight abuse of notation to treat $s : L' \iso L$ as a function $L'
+\to L$.
 
 A more interesting implementation uses finite vectors to store the $A$
 values.  In particular, we assume a type $|Vec| : \N \to \Type \to
