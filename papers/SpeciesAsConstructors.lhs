@@ -947,6 +947,13 @@ these operations can be specified by various laws (for example,
 appropriately with the other operations; and so on). For now, we will
 content ourselves with some informal descriptions of the semantics.
 
+\bay{The interesting thing that needs to be worked out here is what
+  type formers mean when ``lifted'' to $\FinType$ (and whether it even
+  makes sense to lift them thus).  \eg if $L_1,L_2 : \FinType$, then
+  what is $L_1 + L_2$?  Note, presumably it has to include a proof $\outr(L_1) +
+  \outr(L_2) \iso \Fin(|L_1| + |L_2|)$, which encodes a canonical
+  choice of how to do the summing.}
+
 \begin{itemize}
 \item First, |allocate| is the sole means of constructing $\Store L A$
   values, taking a function $L \to A$ as a specification of the
