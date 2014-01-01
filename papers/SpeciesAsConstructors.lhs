@@ -1324,14 +1324,15 @@ that is, a labelled structure over the species $F$, parameterized by a
 type $L$ of labels and a type $A$ of data, consists of
 \begin{itemize}
 \item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape; and
-\item a mapping $\Store L A$ from labels to data values (defined
-  below).
+\item a mapping $\Store L A$ from labels to data values (as defined
+  in the previous section).
 \end{itemize}
 
 Depending on the representation used for the map type $\Store L A$, a
 given labelled structure can have multiple distinct
 representations. Ideally, this extra representation detail should be
-unobservable when programming with labelled structures. In addition,
+unobservable when writing programs using labelled structures (although they
+will likely have an effect on resource usage). In addition,
 species, and hence labelled structures, are functorial in the label
 type, so the precise nature of the labels should not be observable
 either---that is, computing some function of a labelled structure
@@ -1344,10 +1345,19 @@ hide the extra detail.
   result before and after relabeling is inconsistent with our story
   about operations on arrays as label operations.  There is something
   more subtle going on here but I am not sure what.}
+\jc{That is because species based on $\B$ alone cannot model arrays.
+This is why you need more 'visible' structure on the label set to be
+able to do anything except relabelling.  Another approach is to move
+the structure to the shape component -- which we can't do in time for this
+paper.}
 
 \subsection{Labelled eliminators}
 \label{sec:labelled-eliminators}
 
+\jc{The `problem' with this definition is that it does not fully 
+correspond to the Haskell implementation.  In particular, we don't really
+have access to (the type) L from within the eliminator.  And the most
+interesting examples require a slight generalization.}
 The generic type of eliminators for labelled $F$-structures, $\Elim_F
 : \Type \to \Type \to \Type$, is defined by
 \begin{equation*}
@@ -1453,7 +1463,11 @@ even for binary product, and it is instructive to see why.  We are
 given values $x : \LStr {F \sprod G} L A$ and $y : \LStr {F \sprod G}
 L B$, and we may assume that we have suitable functions $|zip|_F$ and
 $|zip|_G$.  We need to somehow produce a value of type $\LStr {F
-  \sprod G} L {A \times B}$.  Expanding the definitions of $\LStr - -
+  \sprod G} L {A \times B}$.  \jc{The following seems to use an
+older notion of Mapping?  Shouldn't the last bit be $\Store L A$? Also,
+$\times$ is actually not defined (yet!).  Lastly, where does the Finite
+come from?  That also seems to be from an older version.}
+Expanding the definitions of $\LStr - -
 -$ and $\sprod$, we find that $x$ has the type \[ x : \Finite L \times
 \sum_{L_1, L_2 : \FinType} \left( (L_1 + L_2 \iso L) \times F\ L_1
   \times G\ L_2 \right) \times \Vect{(\size L)}{A} \] where we have
@@ -1531,6 +1545,9 @@ operations are ``structural'', \ie operate on nontrivial shapes
 (\eg matrix multiplication) whereas some (\eg transpose) are best
 expressed as operations on structured labels.
 
+\jc{I am rather dubious about this whole section.  It is not wrong, but
+I also don't think it is ready for prime time.  More fundamentally, I 
+don't think this is the right way to go, i.e. pushing shape into the labels.}
 % The shape of 2D arrays, for example, is $L_m \comp L_n$ (if we consider 2D
 % arrays as a data structure where the ordering of elements is
 % significant).  But $Path(L_m \comp L_n) \sim (Fin m, Fin n)$, so we can convert
