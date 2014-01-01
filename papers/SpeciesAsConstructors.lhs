@@ -2251,7 +2251,7 @@ typed, constructive way.
   \item Link to (public) git repo
   \item Heavy use of DataKinds etc. to simulate dep types (cite Hasochism)
   \item Needs to use existentially quantified labels in place of
-    dependency, e.g. for $\compB$.
+    dependency, e.g. for $\compB$.  And for products.
   \item Uses the lens lib for isos and subset.
   \item A lot of overhead; actually compiling such things to efficient
     runtime code is future work.
@@ -2265,13 +2265,22 @@ typed, constructive way.
 
 \todo{
   Give some examples of using our implementation.
-  e.g. $n$-dimensional vectors.
+  \begin{itemize}
+  \item $n$-dimensional vectors.
+  \item filter and partition.  
+  \item Foldable.  Traversable.
+  \item Various flavours of trees
+  \item finite maps.  Bags.
+  \item length-indexed vectors?
+  \end{itemize}
 }
 
 
 \subsection{Arrays}
 \label{sec:arrays}
 
+\jc{Until we have the code in the repo back to working, I would completely
+remove this.  I am not sure we can get this done in time.}
 As an extended example and a good way to explore some of the
 combinators which are possible, we now present a framework for
 programming with (arbitrary-dimensional) \emph{arrays}.
@@ -2452,6 +2461,8 @@ shapes would be much more difficult to work with).
 \begin{itemize}
 \item containers, naturally
 \item shapely types
+\item stuff types
+\item combstruct and other species implementations
 \item species in general
 \end{itemize}
 
