@@ -1670,11 +1670,23 @@ usual set-theoretic definition is
 
   \todo{eliminator}
 
+  Combinatorialists often regard the species $\X$ as a ``variable''.
+  Roughly speaking, this can be justified by thinking of the inhabitant
+  of $L$ as the actual variable, and the species $\X$ then 
+  \emph{represents} the action of subtituting an arbitrary value for
+  that label in the structure.  In that sense $\X$ does act operationally
+  as a variable.  However $\X$ does \emph{not} act like a binder.
+
 \paragraph{Sets}
-The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
-\TyOne. \] That is, there is a single $\E$-shape for every label type.
+The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L = \{L\}. \]
+That is, there is a single $\E$-shape for every label type (since, up
+to relabeling, all $L$s of the same size are equivalent).
 Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
 labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
+Note that this is how we actually implement $\E$: we insist that $L$ be
+enumerable (which is actually a weaker requirement than having a
+$\Finite$ proof), and the shape stores this enumeration as an 
+\emph{abstract} set.
 
 Note that if $\E$-shapes are sets, then labelled
 $\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
@@ -1873,6 +1885,8 @@ dia = theDia # centerXY # pad 1.1
     \caption{Species product}
     \label{fig:product}
   \end{figure}
+\jc{Shouldn't $\Sigma$ be used explicitly here, to further emphasize the 
+fact that $L_1$ and $L_2$ are externally invisible?}
 \begin{equation*}
   (F \sprod G)\ L = (L_1, L_2 : \FinType) \times (L_1 + L_2 \iso L) \times F\ L_1 \times G\ L_2
 \end{equation*}
@@ -1894,6 +1908,7 @@ size-indexing scheme, where we replace natural numbers with finite
 types, addition with coproduct, multiplication with product, and
 equality with isomorphism.
 
+\jc{once again?  We have not mentioned them yet...}
 Finally, this definition highlights once again the fundamental
 difference between \emph{container types} and \emph{labelled shapes}.
 Given two functors representing container types, their product is
@@ -2071,7 +2086,7 @@ not partition the labels:\[ (F \scprod G)\ L = F\ L \times G\ L \]
 This is the ``na\"ive'' version of product that one might expect from
 experience with generic programming.
 
-Cartesian product works very differently With labelled shapes,
+Cartesian product works very differently with labelled shapes,
 however.  It is important to remember that a mapping $\Store L A$
 still only assigns a single $A$ value to each label; but labels can
 occur twice (or more) in an $(F \times G)$-shape.  This lets us
