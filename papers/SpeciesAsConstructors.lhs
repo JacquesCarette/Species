@@ -598,7 +598,7 @@ In more detail, our contributions are as follows:
 \end{itemize}
 
 It is worth mentioning that in previous work
-\citep{Carette_Uszkay_2008_species, yorgey-2010-species} we
+\citep{carette_species, yorgey-2010-species} we
 conjectured that the benefits of the theory of species would lie
 primarily in its ability to describe data types with \term{symmetry}
 (\ie\ quotient types \cite{quotient-types}).  That promise has not
