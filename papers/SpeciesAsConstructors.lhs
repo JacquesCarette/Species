@@ -790,7 +790,7 @@ both definitions and the relationship between them.
 \begin{definition}
 A \term{species} is a pair of mappings, both called $F$, that
 \begin{itemize}
-\item sends any finite set $L$ (of \term{labels}) to a finite set
+\item sends any finite set $L$ (of \term{labels}) to a set
   $F(L)$ (of \term{shapes}), and
 \item sends any bijection on finite sets $\sigma : L \leftrightarrow L'$ (a
   \term{relabelling}) to a function $F(\sigma) : F(L) \to F(L')$,
@@ -812,9 +812,11 @@ additionally satisfying the following functoriality conditions:
 
 Using the language of category theory, this definition can be pithily
 summed up by saying that a species is a functor $F : \B \to
-\FinSet$, where $\B$ is the category of finite sets whose morphisms
-are bijections, and $\FinSet$ is the category of finite sets whose
-morphisms are arbitrary (total) functions.
+\Set$, where $\B$ is the category of finite sets whose morphisms
+are bijections, and $\Set$ is the category of sets whose
+morphisms are arbitrary (total) functions.  Note that we could have
+chosen $\FinSet$ as codomain with very few changes, but $\Set$ is now
+traditional.
 
 We call $F(L)$ the set of ``$F$-shapes with
 labels drawn from $L$'', or simply ``$F$-shapes on $L$'', or even
@@ -832,7 +834,7 @@ data associated with the labels) and bare labelled \emph{shapes}
 
 Here we see that the formal notion of ``shape'' is actually quite
 broad, so broad as to make one squirm: a shape is just an element of
-some arbitrary finite set!  In practice, however, we are interested
+some arbitrary set!  In practice, however, we are interested
 not in arbitrary species but in ones built up algebraically from a set
 of primitives and operations.  In that case the corresponding shapes
 will have more structure as well. First, however, we must put species
@@ -867,21 +869,21 @@ relabellings. That is, if $F : \Species$, $L, L' : \FinType$, and $\sigma
 L \to F\ L'$ without explicitly projecting out the $\shapes$ and
 $\relabel$ functions.
 
-In \pref{sec:set-species}, the codomain of species was defined as the
-category of \emph{finite} sets, but in the above definition the
-codomain of $\shapes$ is $\Type$ rather than $\FinType$.
-Constructively, the finiteness of the codomain does not seem very
-important---all the basic definitions and constructions work
-unchanged.  One place where the finiteness of the codomain comes into
+Like with general species whose codomain is $\Set$, note that we use
+$\Type$ rather than $\FinType$.  There are situations where finiteness
+of the codomain matters, although we will not encounter them here.
+\jc{I would comment out the following, basically because I think it is
+false.}
+\bay{One place where the finiteness of the codomain comes into
 play is in setting up homomorphisms from species to generating
 functions with coefficients taken from $\N$---though we conjecture
-that taking coefficients from the ring over the one-point
+that taking coefficients from the semi-ring over the one-point
 compactification of the naturals, $\N \cup \{\infty\}$, works just as
 well.  There may be some theorems (\eg molecular species
 decomposition, or the implicit species theorem) which only hold with a
 finite codomain---in the future, we plan to port some standard
 theorems about species to a constructive setting to see where the
-finiteness is required.
+finiteness is required.}
 
 It is interesting to note that an equivalence $L_1 \iso L_2$ between
 constructively finite types $L_1,L_2 : \FinType$, as required by
