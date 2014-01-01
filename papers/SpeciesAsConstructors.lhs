@@ -943,12 +943,12 @@ fact that they can both be put in correspondence with $\Fin n$ for
 some $n$.  In particular, it cannot encode a nontrivial permutation on
 $\Fin n$.
 
-\section{Mappings}
+\section{Mappings from labels to data}
 \label{sec:mappings}
 
 \todo{high-level explanation}
 
-\subsection{Mappings, take I}
+\subsection{Simple Mappings}
 \label{sec:storage}
 
 Our goal is to define a labelled structure as a labelled shape paired
@@ -1006,6 +1006,12 @@ content ourselves with some informal descriptions of the semantics.
   formulating/spelling out the laws?  are any of them particularly
   interesting? are there any interesting choices to be made?}
 
+The keen-eyed, categorically-oriented reader might well notice that
+these encode properties of the functor category $\left[\FinSet,C\right]$,
+for an arbitrary category $C$, except for $|allocate|$ which requires more
+structure.  $|allocate|$ bears close resemblance to the Yoneda embedding,
+which is why $\Set$ is nowadays chosen as the codomain for species.
+
 We can give a particularly simple implementation using a function
 arrow to represent $\StoreSym$ (presented here using Haskell-like
 notation):
@@ -1025,8 +1031,17 @@ the finiteness of $L$ at all, and the implementation of |reindex| uses
 a slight abuse of notation to treat $s : L' \iso L$ as a function $L'
 \to L$.
 
+\subsection{Vector mappings}
+\label{sec:vecmap}
+
 A more interesting implementation uses finite vectors to store the $A$
-values.  In particular, we assume a type $|Vec| : \N \to \Type \to
+values.  This gives a very detailed view of the memory layout, allocation
+and manipulation required for storing the data associated with labelled
+structures.  As we will see, for mappings based on (length-indexed)
+vectors, \emph{finiteness} is crucial, and the finiteness proofs are
+all computationally relevant.
+
+In particular, we assume a type $|Vec| : \N \to \Type \to
 \Type$ of length-indexed vectors, supporting operations
 \begin{align*}
   |allocateV| &: (n : \N) \to (\Fin n \to A) \to \Vect n A \\
@@ -1148,7 +1163,7 @@ both high-level concerns as well as low-level operational details.
 
 Note that when |appendV| and |concatV| cannot be optimized to in-place
 updates, they must allocate an entire new vector in memory.  To avoid
-this in exchange for some bookkeeping overhead, we could make a deep
+this, in exchange for some bookkeeping overhead, we could make a deep
 embedding out of the vector operations, turning |appendV| and
 |concatV| (and possibly |allocateV| and |mapV| as well) into
 \emph{constructors} in a new data type.  This results in something
@@ -1220,6 +1235,7 @@ The implementation of $\Store L A$ as a function arrow does not need
 to change at all.  However, the vector implementation does indeed need
 to change, in some interesting ways.  First of all, we store a partial
 equivalence instead of an equivalence along with the vector:
+\jc{So that $\iso$ should be $\subseteq$?}
 
 \[ \Store L A \defn \sum_{n : \N} (L \iso \Fin n) \times \Vect n A, \]
 
