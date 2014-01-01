@@ -647,17 +647,12 @@ gone away; but we were amused to discover that a functor category
 would seem to shed its brightest light on low-level issues like memory
 allocation, layout and sharing.
 
-\section{Preliminaries}
+\section{Theoretical setting}
 \label{sec:prelim}
 
-We begin with some necessary preliminaries.
-
-\subsection{Homotopy type theory}
-\label{sec:HoTT}
-
-In the remainder of this paper, we work within \emph{homotopy type
-  theory} (HoTT)~\cite{hott}. We do not actually need much complex
-machinery from the theory, and simply summarize the most important
+We have found it quite convenient to work within (a small fragment of)
+\emph{homotopy type theory} (HoTT)~\cite{hott}.  We do not actually need much
+complex machinery from the theory, and simply summarize the most important
 ideas and notation here.  Everything in this paper could be formalized
 in most any standard constructive type theory; we choose to work in
 HoTT because of its emphasis on equality and isomorphism, which plays
@@ -665,8 +660,17 @@ a large role.  In fact, it seems likely that there are deeper
 connections between homotopy type theory and the theory of species,
 but exploring these connections is left to future work.
 
-The type theory is equipped with an empty type \TyZero, a unit type
-\TyOne (with inhabitant $\unit$), coproducts (with constructors $\inl$
+The concept of \term{finiteness} plays a central (but implicit) r\^{o}le in 
+the theory of combinatorial species, primarily through the pervasive use
+of generating functions.  While its r\^{o}le is not as central in our
+setting, it is important enough to give the precise definition we use,
+seeing as there are multiple constructive interpretations of finiteness.
+
+\subsection{A fragment of homotopy type theory}
+\label{sec:HoTT}
+
+The type theory we work with is equipped with an empty type \TyZero, a unit
+type \TyOne (with inhabitant $\unit$), coproducts (with constructors $\inl$
 and $\inr$), dependent pairs (with projections $\outl$ and $\outr$),
 dependent functions, a hierarchy of type universes $\Type_0$,
 $\Type_1$, $\Type_2$\dots (we usually omit the subscripts), and a
@@ -709,15 +713,14 @@ equivalence $T\ \sigma : T\ A \iso T\ B$.\footnote{Formally, this is
 C) = (\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso
 (\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
 
-\scw{Should we be explicit about what ``dimension'' we are working in?
-  Equivalences between data are informative, but equivalences between
-  equivalences are not.}
+\noindent For our purposes, this is sufficient:  in other words,
+equivalences between labels are informative, but equivalences between
+equivalences yield no further useful information.
 
 \subsection{Finiteness}
 \label{sec:finiteness}
 
-The concept of \term{finiteness} plays a central role in the theory of
-species.\scw{Do we ever say why?} There are many possible constructive interpretations of
+There are many possible constructive interpretations of
 finiteness \todo{make a citation:
   \url{http://ncatlab.org/nlab/show/finite+set}}; the one we need is
 the simplest: a finite set is one which is in bijection to a canonical
@@ -749,18 +752,15 @@ finiteness proof.  We can encapsulate this by defining \[ \FinType
 
 It is not hard to see that the size of a finite type is determined
 uniquely. That is, if $f_1, f_2 : \Finite L$ are any two witnesses that
-$L$ is finite, then $\outl(f_1) = \outl(f_2)$. \scw{Define
-  outl}\bay{outl is defined in the ``preliminaries'' section, as one
-  of the projections for product types.  Should we make it more
-  explicit?  It's pretty standard.} (As proof, note that if
+$L$ is finite, then $\outl(f_1) = \outl(f_2)$.  (As proof, note that if
 $f_1 = (n_1, i_1)$ and $f_2 = (n_2, i_2)$, then $i_2^{-1} \comp i_1 :
 \Fin{n_1} \iso \Fin{n_2}$, from which we can derive $n_1 = n_2$ by
-double induction.) In a slight abuse of notation, we therefore write
+double induction.) In a slight abuse of notation, we write
 $\size{L}$ to denote this size.  Computationally, this corresponds to
 applying $\outl$ to some finiteness proof; but since it does not
 matter which proof we use, we simply leave it implicit, being careful
 to only use $\size -$ in a context where a suitable finiteness proof
-could be obtained.
+can be obtained.
 
 \section{Combinatorial Species}
 \label{sec:species}
@@ -775,8 +775,8 @@ could be obtained.
 Our theory of labelled structures is inspired by, and directly based
 upon, the theory of \term{combinatorial species} \cite{joyal}.  We
 give a brief introduction to it here; the reader interested in a
-fuller treatment should consult \citet{bll}.  \todo{point the reader
-  to our own prior work on species + FP?}
+fuller treatment should consult \citet{bll}.  Functional programmers
+may wish to start with~\cite{yorgey-2010-species}.
 
 \subsection{Species, set-theoretically}
 \label{sec:set-species}
