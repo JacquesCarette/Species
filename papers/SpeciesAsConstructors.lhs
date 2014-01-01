@@ -375,14 +375,26 @@ explanations, but we need to be more explicit about what we are doing. Sec 6
 also doesn't really connect to the finite map/array examples mentioned
 before. Can we show an example of constructing an array?  }
 
-
+\jc{Right.  The more we worked on this, the more the picture evolved, and
+I think Stephanie's comments really illustrates our current state best.  I
+would be quite happy with the paper layout that she suggests.  Although
+there is one item which needs serious re-thinking: the emphasis on 'finite'.
+As things currently stand, our use of 'finite' keeps getting smaller and
+smaller.  In a number of places, I think we could weaken the definition
+of finiteness too (from an isomorphism to simply requiring a surjection 
+from some bounded set of naturals onto our labels, with no injectivity
+requirement; in other places we need an (unordered) enumeration instead).}
+\jc{Regarding array examples: we do not have any code on arrays that works
+at the moment.  We do have code for 1D sized vectors that mostly works.
+We have all sorts of other examples that also work.  We should really agree 
+on which examples we'll pull from, and make sure they fully work.}
 
 \section{Introduction}
 \label{sec:intro}
 
-The theory of combinatorial species, as it relates to the theory and
-practice of programming languages, has long seemed to the authors ``an
-answer looking for a question'': the theory is too beautiful, and too
+The theory of combinatorial species \citation{joyal,bll}, as it relates to the
+theory and practice of programming languages, has long seemed to the authors
+``an answer looking for a question'': the theory is too beautiful, and too
 ``obviously'' related to algebraic data types, to have no applications
 whatsoever.  Teasing out the precise relationship between species and
 data types, however, has proved challenging, for two reasons. First,
@@ -406,7 +418,9 @@ decomposing data structures as shapes plus data
 \citep{abbott_categories_2003, jay-shapely}, with labels mediating
 between the two.  Informally, this pairing of a labelled shape
 (corresponding to a species) and a mapping from labels to data values
-is what we call a \term{labelled structure}.  For example,
+is what we call a \term{labelled structure}\footnote{Following
+Flajolet et al's lead \citation{FlSaZi91,FlajoletZC94}.}.
+For example,
 \pref{fig:labelled-structure-example} illustrates a labelled tree
 shape paired with a mapping from labels to data.  A \emph{family} of
 labelled structures refers to a class of structures parameterized over
@@ -469,6 +483,18 @@ results in a different labelled structure, whereas there are many
 labelled tree structures that will ``collapse'' to the same algebraic
 data structure, which differ only in the way they are labelled.
 
+\jc{Give a forward reference to how we can associate canonical labels
+to algebraic data types?}
+
+\jc{Comment to be moved to the right place, but it came to mind while I
+was reading the above: this `late' collapse joins up nicely with HTT 
+and higher-categorical thinking.  In this style, rather than quotienting
+early (to find an efficient representation eagerly), it is thought best
+to wait and record the collapse through adjoining an groupoid of 
+isomorphisms [think identity types].  The `best' picture may then 
+emerge much later from a \emph{composition} of isomorphisms, rather than
+directly from the first isomorphism encountered.}
+
 \paragraph{Finite maps}
 
 Since the definition of a labelled structure already includes the
@@ -479,6 +505,11 @@ directly model multiple finite map implementations (\todo{see section
   ???}).
 
 \paragraph{Vectors and arrays}
+
+\jc{As I said above, I am uncomfortable with saying too much about
+multi-dimensional arrays until our implementation catches up.  I think 
+what I'll do is finish this read through/edit pass, then work on the array
+ideas, so that we can keep this example family in place.}
 
 Vectors, and multi-dimensional arrays more generally, can be modeled as
 finite maps with nontrivial structure on their labels---for example,
@@ -536,6 +567,7 @@ dia = vcat' (with & sep .~ 5)
 
 Though this bears many similarities to previous approaches, there is
 one key difference: whereas previous approaches have used a fixed,
+\jc{citations to previous approaches?}
 canonical set of labels (or left the labels entirely implicit),
 species naturally lead one to work
 \emph{parametrically}\scw{???}\bay{What do you find confusing about this?} over labels,
@@ -545,13 +577,15 @@ to some interesting benefits.  For example:
 \begin{itemize}
 \item It allows us to unify ``implicitly labelled'' structures (such as
   algebraic data types) and ``explicitly labelled'' structures (such as
-  arrays or finite maps) under the same framework.
+  vectors and finite maps) under the same framework.
 \item Some operations (for example, reversing a vector, taking the
   transpose of a 2D array, or altering the keys of a finite map) can
   be more naturally described as \emph{operations on labels}, leading
   to benefits in both reasoning and efficiency (see \todo{section ?}).
   \scw{Are we sure that it is more efficient? What about the copying that
-    may need to be done to adjust the labels/maps?}
+    may need to be done to adjust the labels/maps?}\jc{It should be more
+    efficient for large data think local index and distributed data --
+    there was an ICFP talk about exactly this.}
 \item Value-level \emph{sharing} can be easily modelled via shared
   labels (see \todo{section?})---in contrast, this is not possible if
   every structure has a fixed set of canonical labels.
@@ -561,20 +595,27 @@ to some interesting benefits.  For example:
   structures (see \todo{section?}).
 \item It opens the possibility of taking labels and relabellings from
   a category other than $\B$ (as is done, for example, with
-  $\mathbb{L}$-species \cite[chapter 5]{bll}).  We conjecture that
-  this has also benefits in a computational setting, though exploring
+  $\mathbb{L}$-species \cite{Joyal86}, \cite[chapter 5]{bll}).  We conjecture 
+  that this has also benefits in a computational setting, though exploring
   this idea in more detail is left to future work.
 \end{itemize}
 
-In addition, species are traditionally defined over \emph{finite} sets
-of labels.  In a classical setting, this is little more than a
-footnote; when ported to a constructive setting, however, the notion
+\jc{The paragraph below goes in a different direction, but in the text
+it reads as if it were a continuation of value-level sharing.  We should
+visually indicate this break - maybe via subsections?}
+It is important to remember that species are defined over \emph{finite}
+sets of labels.  In a classical setting, while finiteness is a crucial part of
+the definition, it is otherwise a fairly implicit feature of the actual
+theory.  Combinatorialists do not need to remind themselves of this 
+finiteness condition, as it is a pervasive axiom that you can only ``count''
+finite collections of objects.  When ported to a 
+constructive setting, however, the notion
 of finiteness takes on nontrivial computational content and
 significance.  In particular, we are naturally led to work up to
 computationally relevant \emph{equivalences} (and \emph{partial
   equivalences}) on labels.  Working up to equivalence in this way
 confers additional expressive power, allowing us to model efficient
-label operations (\eg matrix transpose) without copying.  In fact,
+label operations (\eg partition) without copying.  In fact,
 this is one of the key ingredients in modeling memory layout and
 allocation (see \todo{section?}).
 
@@ -605,22 +646,6 @@ primarily in its ability to describe data types with \term{symmetry}
 gone away; but we were amused to discover that a functor category
 would seem to shed its brightest light on low-level issues like memory
 allocation, layout and sharing.
-
-% \jc{I am starting to think that our interesting points and our take
-%     home points have slowly swapped position over time}
-%   Take-home points:
-%   \begin{itemize}
-%   \item Labelled structures capture a wide range of data structures.
-%   \item Combinators! ($\times 2!$ --- type level and value level)
-%   \end{itemize}
-
-%   Other interesting but not take-home points:
-%   \begin{itemize}
-%   \item fun with isos
-%   \item labels as abstract model of memory
-%   \item labels make sharing easy
-%   \end{itemize}
-% \end{todoP}
 
 \section{Preliminaries}
 \label{sec:prelim}
