@@ -415,12 +415,12 @@ species is as \emph{labelled shapes} which do not contain any data.
 To recover a notion of \emph{data} structures, one must add a (notion
 of) mapping from labels to data.  This leads to the familiar idea of
 decomposing data structures as shapes plus data
-\citep{abbott_categories_2003, jay-shapely}, with labels mediating
-between the two.  Informally, this pairing of a labelled shape
-(corresponding to a species) and a mapping from labels to data values
-is what we call a \term{labelled structure}\footnote{Following
-Flajolet et al's lead \citation{FlSaZi91,FlajoletZC94}.}.
-For example,
+\citep{banger1993foundation, jay-shapely, abbott_categories_2003},
+with labels mediating between the two.  Informally, this pairing of a
+labelled shape (corresponding to a species) and a mapping from labels
+to data values is what we call a \term{labelled
+  structure}\footnote{Following Flajolet et al's lead
+  \citep{FlSaZi91,FlajoletZC94}.}.  For example,
 \pref{fig:labelled-structure-example} illustrates a labelled tree
 shape paired with a mapping from labels to data.  A \emph{family} of
 labelled structures refers to a class of structures parameterized over
@@ -566,14 +566,14 @@ dia = vcat' (with & sep .~ 5)
 \end{figure}
 
 Though this bears many similarities to previous approaches, there is
-one key difference: whereas previous approaches have used a fixed,
-\jc{citations to previous approaches?}
-canonical set of labels (or left the labels entirely implicit),
-species naturally lead one to work
-\emph{parametrically}\scw{???}\bay{What do you find confusing about this?} over labels,
-giving the labels a much more prominent role.  Bringing the mediating
-labels to the fore in this way is, to our knowledge, novel, and leads
-to some interesting benefits.  For example:
+one key difference: whereas previous approaches \citep{jay-shapely,
+abbott_categories_2003} use a fixed, canonical set of labels (or
+left the labels entirely implicit), species naturally lead one to work
+\emph{parametrically}\scw{???}\bay{What do you find confusing about
+  this?} over labels, giving the labels a much more prominent role.
+Bringing the mediating labels to the fore in this way is, to our
+knowledge, novel, and leads to some interesting benefits.  For
+example:
 \begin{itemize}
 \item It allows us to unify ``implicitly labelled'' structures (such as
   algebraic data types) and ``explicitly labelled'' structures (such as
@@ -595,29 +595,28 @@ to some interesting benefits.  For example:
   structures (see \todo{section?}).
 \item It opens the possibility of taking labels and relabellings from
   a category other than $\B$ (as is done, for example, with
-  $\mathbb{L}$-species \cite{Joyal86}, \cite[chapter 5]{bll}).  We conjecture 
-  that this has also benefits in a computational setting, though exploring
-  this idea in more detail is left to future work.
+  $\mathbb{L}$-species \citep{Joyal86}, \citep[chap. 5]{bll}).  We
+  conjecture that this has also benefits in a computational setting,
+  though exploring this idea in more detail is left to future work.
 \end{itemize}
 
 \jc{The paragraph below goes in a different direction, but in the text
-it reads as if it were a continuation of value-level sharing.  We should
-visually indicate this break - maybe via subsections?}
-It is important to remember that species are defined over \emph{finite}
-sets of labels.  In a classical setting, while finiteness is a crucial part of
-the definition, it is otherwise a fairly implicit feature of the actual
-theory.  Combinatorialists do not need to remind themselves of this 
-finiteness condition, as it is a pervasive axiom that you can only ``count''
-finite collections of objects.  When ported to a 
-constructive setting, however, the notion
-of finiteness takes on nontrivial computational content and
-significance.  In particular, we are naturally led to work up to
-computationally relevant \emph{equivalences} (and \emph{partial
-  equivalences}) on labels.  Working up to equivalence in this way
-confers additional expressive power, allowing us to model efficient
-label operations (\eg partition) without copying.  In fact,
-this is one of the key ingredients in modeling memory layout and
-allocation (see \todo{section?}).
+  it reads as if it were a continuation of value-level sharing.  We
+  should visually indicate this break - maybe via subsections?}  It is
+important to remember that species are defined over \emph{finite} sets
+of labels.  In a classical setting, while finiteness is a crucial part
+of the definition, it is otherwise a fairly implicit feature of the
+actual theory.  Combinatorialists do not need to remind themselves of
+this finiteness condition, as it is a pervasive axiom that you can
+only ``count'' finite collections of objects.  When ported to a
+constructive setting, however, the notion of finiteness takes on
+nontrivial computational content and significance.  In particular, we
+are naturally led to work up to computationally relevant
+\emph{equivalences} (and \emph{partial equivalences}) on labels.
+Working up to equivalence in this way confers additional expressive
+power, allowing us to model efficient label operations (\eg partition)
+without copying.  This is also one of the key ingredients in modeling
+memory layout and allocation (see \todo{section?}).
 
 In more detail, our contributions are as follows:
 \begin{itemize}
@@ -629,9 +628,6 @@ In more detail, our contributions are as follows:
 \item We define a generic framework for \term{labelled types} on top
   of this basis, showing how to include them in practical
   programming languages.
-\item We show how to accomplish \emph{memory defragmentation} using
-  constructive subset evidence and the \emph{Gordon complementary
-    bijection principle} (\todo{ref}).
 \item We describe some novel introduction forms for structures built
   as the composition of other structures (\pref{sec:species-ops}).
 \item We give extended examples showing the utility of labelled types,
@@ -651,7 +647,7 @@ allocation, layout and sharing.
 \label{sec:prelim}
 
 We have found it quite convenient to work within (a small fragment of)
-\emph{homotopy type theory} (HoTT)~\cite{hott}.  We do not actually need much
+\emph{homotopy type theory} (HoTT)~\citep{hottbook}.  We do not actually need much
 complex machinery from the theory, and simply summarize the most important
 ideas and notation here.  Everything in this paper could be formalized
 in most any standard constructive type theory; we choose to work in
@@ -660,11 +656,12 @@ a large role.  In fact, it seems likely that there are deeper
 connections between homotopy type theory and the theory of species,
 but exploring these connections is left to future work.
 
-The concept of \term{finiteness} plays a central (but implicit) r\^{o}le in 
+The concept of \term{finiteness} plays a central (but implicit) role in
 the theory of combinatorial species, primarily through the pervasive use
-of generating functions.  While its r\^{o}le is not as central in our
+of generating functions.  While its role is not as central in our
 setting, it is important enough to give the precise definition we use,
-seeing as there are multiple constructive interpretations of finiteness.
+seeing as there are multiple constructive interpretations of
+finiteness.
 
 \subsection{A fragment of homotopy type theory}
 \label{sec:HoTT}
@@ -677,7 +674,7 @@ $\Type_1$, $\Type_2$\dots (we usually omit the subscripts), and a
 notion of propositional equality.  Instead of writing the traditional
 $\sum_{x : A} B(x)$ for the type of dependent pairs and $\prod_{x:A}
 B(x)$ for dependent functions, we will often use the Agda-like
-\cite{Agda} notations $(x:A) \times B(x)$ and $(x:A) \to B(x)$,
+\citep{Agda} notations $(x:A) \times B(x)$ and $(x:A) \to B(x)$,
 respectively (though we still occasionally use $\Sigma$ and $\Pi$ for
 emphasis).  We continue to use the standard abbreviations $A \times B$
 and $A \to B$ for non-dependent pair and function types, that is, when
@@ -696,8 +693,8 @@ sets $\Fin : \N \to \Type$, with constructors $\FinZ : \impl{n :
 
 $A \iso B$ is the type of \term{equivalences} between $A$ and $B$
 (intuitively, pairs of inverse functions $f : A \to B$ and $g : B \to
-A$).\footnote{The precise details are more subtle \cite[Chapter
-  4]{hott}, but unimportant for our purposes.}  We overload the
+A$).\footnote{The precise details are more subtle \cite[chap.
+  4]{hottbook}, but unimportant for our purposes.}  We overload the
 notations $\id$ and $\comp$ to denote the identity equivalence and
 equivalence composition respectively; we also allow equivalences of
 type $A \iso B$ to be implicitly used as functions $A \to B$ where it
@@ -715,17 +712,18 @@ C) = (\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso
 
 \noindent For our purposes, this is sufficient:  in other words,
 equivalences between labels are informative, but equivalences between
-equivalences yield no further useful information.
+equivalences yield no further useful information. \bay{This sentence
+  makes no sense to me.  What are we trying to say here?}
 
 \subsection{Finiteness}
 \label{sec:finiteness}
 
-There are many possible constructive interpretations of
-finiteness \todo{make a citation:
-  \url{http://ncatlab.org/nlab/show/finite+set}}; the one we need is
-the simplest: a finite set is one which is in bijection to a canonical
-set of a known size. That is,
-\[ \Finite A \defn (n : \N) \times (\Fin n \iso A). \]
+There are many possible constructive interpretations of finiteness
+\citep{finite}; we adopt the simplest: a finite set is one which is in
+bijection to a canonical set of a known size. That is,
+\[ \Finite A \defn (n : \N) \times (\Fin n \iso A). \]  Other
+constructive characterizations of finiteness may have roles to play as
+well, but we leave exploring them to future work.
 
 It is tempting to use mechanisms for implicit evidence, such as
 Haskell's \emph{type class} mechanism, to record the finiteness of
@@ -751,16 +749,15 @@ finiteness proof.  We can encapsulate this by defining \[ \FinType
 \defn (L : \Type) \times \Finite L \] as the universe of finite types.
 
 It is not hard to see that the size of a finite type is determined
-uniquely. That is, if $f_1, f_2 : \Finite L$ are any two witnesses that
-$L$ is finite, then $\outl(f_1) = \outl(f_2)$.  (As proof, note that if
-$f_1 = (n_1, i_1)$ and $f_2 = (n_2, i_2)$, then $i_2^{-1} \comp i_1 :
-\Fin{n_1} \iso \Fin{n_2}$, from which we can derive $n_1 = n_2$ by
-double induction.) In a slight abuse of notation, we write
-$\size{L}$ to denote this size.  Computationally, this corresponds to
-applying $\outl$ to some finiteness proof; but since it does not
-matter which proof we use, we simply leave it implicit, being careful
-to only use $\size -$ in a context where a suitable finiteness proof
-can be obtained.
+uniquely. That is, if $(n_1,i_1)$ and $(n_2,i_2) : \Finite L$ are any
+two witnesses that $L$ is finite, then $n_1 = n_2$.  (As proof, note
+that $i_2^{-1} \comp i_1 : \Fin{n_1} \iso \Fin{n_2}$, from which we
+can derive $n_1 = n_2$ by double induction.) In a slight abuse of
+notation, we write $\size{L}$ to denote this size.  Computationally,
+this corresponds to applying $\outl$ to some finiteness proof; but
+since it does not matter which proof we use, we simply leave it
+implicit, being careful to only use $\size -$ in a context where a
+suitable finiteness proof can be obtained.
 
 \section{Combinatorial Species}
 \label{sec:species}
