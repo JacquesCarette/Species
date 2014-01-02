@@ -1,9 +1,3 @@
--- open import Data.Nat
--- open import Data.Fin
--- open import Data.Sum
--- open import Data.Unit
--- open import Relation.Binary.PropositionalEquality
-
 open import HoTT
 
 module GCBP where
@@ -50,36 +44,81 @@ module GCBP where
            (L : Set)
            (n : ℕ)
            (sub : L ⊆ Fin n)
-           (gcbp : {A B A' B' : Set} -> (Coprod A A' ≃ Coprod B B') -> (A ≃ B) -> (A' ≃ B')) where
+           (gcbp : {A B A' B' : Set} -> (Coprod A A' ≃ Coprod B B') -> (A' ≃ B') -> (A ≃ B)) where
 
     open _⊆_
+
+    D1' : Set
+    D1' = Σ (Fin n) (λ k → Coprod (Σ L (λ l → project sub k == inr l))
+                                  (project sub k == inl unit))
 
     D1 : Set
     D1 = Coprod (Σ (Fin n) (λ k → Σ L (λ l → project sub k == inr l)))
                 (Σ (Fin n) (λ k → project sub k == inl unit))
 
-    f1 : D1 -> Fin n
-    f1 (inl (k , _)) = k
-    f1 (inr (k , _)) = k
-
-    g1' : Fin n -> Σ (Fin n) (λ k → Coprod (Σ L (λ l → project sub k == inr l))
-                                           (project sub k == inl unit))
+    g1' : Fin n -> D1'
     g1' k = k , match_withl_withr_ {C = λ prj → Coprod (Σ L (λ l → prj == inr l))
                                                        (prj == inl unit) }
              (project sub k)
              (λ unit → inr idp)
              (λ l → inl (l , idp))
 
-    g1 : Fin n -> D1
-    g1 n = –> (distribute {P = λ k → Σ L (λ l → project sub k == inr l)}
-                          {Q = λ k → project sub k == inl unit})
-             (g1' n)
+    -- g1'fst ( k , pq ) = {!!}
 
-    f1g1 : (k : Fin n) → f1 (g1 k) == k
-    f1g1 k = {!!}
+    decomp1' : D1' ≃ Fin n
+    decomp1' = equiv fst g1' (λ _ → idp) (λ a → pair= idp {!!})
+      -- where
+      --   foo : (a : D1') → match project sub (fst a) withl (λ unit₁ → inr idp) withr (λ l → inl (l , idp)) == snd a
+      --   foo = {!!}
 
-    decomp1 : (s : ℕ) -> D1 ≃ Fin n
-    decomp1 s = equiv f1 g1 f1g1 {!!}
+    decomp1 : D1 ≃ Fin n
+    decomp1 = D1 ≃⟨ distribute ⁻¹ ⟩ D1' ≃⟨ decomp1' ⟩ Fin n ≃∎
 
-    defragment : (Σ ℕ (λ n → L ⊆ Fin n)) -> Finite L
-    defragment = {!!}
+    Fin- : ℕ -> ℕ -> Set
+    Fin- n s = Σ ℕ (λ j → Σ (j + s == n) (λ _ → Fin j))
+
+    D2 : (s : ℕ) → Set
+    D2 s = Coprod (Fin s) (Fin- n s)
+
+    decomp2 : (s : ℕ) → Fin n ≃ D2 s
+    decomp2 O = {!!}
+    decomp2 (S s) = {!!}
+
+    Lsize : Σ ℕ (λ sz → (Σ (Fin n) (λ k → project sub k == inl unit)) ≃ Fin- n sz)
+    Lsize = {!!}
+
+    ∣L∣ : ℕ
+    ∣L∣ = fst Lsize
+
+    quux : (Σ (Fin n) (λ k → Σ L (λ l → project sub k == inr l))) ≃ Fin ∣L∣
+    quux = gcbp (decomp2 ∣L∣ ∘e decomp1) (snd Lsize)
+
+    baz1 : L → (Σ (Fin n) (λ k → Σ L (λ l → project sub k == inr l)))
+    baz1 l = embed sub l , (l , rtL sub l)
+
+    baz2 : (Σ (Fin n) (λ k → Σ L (λ l → project sub k == inr l))) → L
+    baz2 (_ , (l , _)) = l
+
+    baz : L ≃ (Σ (Fin n) (λ k → Σ L (λ l → project sub k == inr l)))
+    baz = equiv baz1 baz2 bazpf1 (λ _ → idp)
+      where
+        bazpf1 : (b : Σ (Fin n) (λ k → Σ L (λ l → project sub k == inr l))) →
+           (embed sub (fst (snd b)) , (fst (snd b) , rtL sub (fst (snd b)))) == b
+        bazpf1 (k , (l , e)) = {!!}
+
+          -- J {A = Coprod Unit L} (λ _ p → (embed sub l , (l , rtL sub l)) == (k , (l , p))) {!!} {a' = (k , (l , e))} e
+
+          -- (embed sub l , (l , rtL sub l)) == (k , (l , e))
+
+          -- pair=
+          --   (rtR sub k l e) {!!}
+
+            -- (J' (λ _ p → PathOver (λ v → Σ L (λ l₁ → project sub v == inr l₁))
+            --                       (rtR sub k l p) (l , rtL sub l) (l , p))
+            --     ? ?)
+
+    frob : L ≃ Fin ∣L∣
+    frob = quux ∘e baz
+
+    defragment : Finite L
+    defragment = ∣L∣ , frob
