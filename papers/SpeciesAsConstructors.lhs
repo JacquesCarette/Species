@@ -1047,7 +1047,20 @@ a slight abuse of notation to treat $s : L' \iso L$ as a function $L'
 \section{The algebra of species and labelled structures}
 \label{sec:algebraic}
 
-\todo{add eliminators / eliminator combinators for each primitive + operation}
+\todo{
+  Give some examples of using our implementation.  I've marked places
+  in the following section where it seems natural for them to go.
+  \begin{itemize}
+  \item $n$-dimensional vectors.
+  \item filter and partition.
+  \item Foldable.  Traversable.
+  \item Various flavours of trees
+  \item finite maps.  Bags.
+  \item length-indexed vectors?
+  \end{itemize}
+}
+
+\todo{add eliminators / eliminator combinators for each primitive + operation?}
 
 We now return to the observation from \pref{sec:set-species} that we
 do not really want to work directly with the definition of species,
@@ -1065,11 +1078,13 @@ syntactically replacing $L$ by $\sigma$ in the definition of $F$
 $\sigma : L_1 \iso L_2$). Moreover, this action on equivalences is
 automatically functorial.
 
-\subsection{Primitive species}
+\subsection{Algebraic data types}
 \label{sec:primitive}
 
-We begin by examining some primitive species which serve as the ``base
-cases'' when building up more complex species.
+\todo{we begin by exhibiting species/labelled structures which
+  correspond to algebraic data types, i.e. polynomial functors.}
+
+\todo{say something about how to interpret the picture schemas we will use}
 
 \paragraph{Zero}
   The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
@@ -1140,134 +1155,6 @@ usual set-theoretic definition is
   \emph{represents} the action of subtituting an arbitrary value for
   that label in the structure.  In that sense $\X$ does act operationally
   as a variable.  However $\X$ does \emph{not} act like a binder.
-
-\paragraph{Sets}
-The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L = \{L\}. \]
-That is, there is a single $\E$-shape for every label type (since, up
-to relabeling, all $L$s of the same size are equivalent).
-Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
-labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
-Note that this is how we actually implement $\E$: we insist that $L$ be
-enumerable (which is actually a weaker requirement than having a
-$\Finite$ proof), and the shape stores this enumeration as an 
-\emph{abstract} set.
-
-Note that if $\E$-shapes are sets, then labelled
-$\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
-are \emph{bags}: any particular data element may occur multiple times
-(each time associated with a different, unique label).
-
-$\E$-shapes also have a trivial introduction form, $\cons{e} : \E\ L$,
-along with a corresponding introduction form for $\E$-structures which
-simply requires the mapping from labels to values:
-\begin{align*}
-\lab{\cons{e}} &: (L \to A) \to \LStr \E L A \\
-\lab{\cons{e}} &= |allocate| ...
-\end{align*}
-\todo{finish}
-
-\todo{eliminator.  Explain why it is problematic.}
-
-As a summary, \pref{fig:prims} contains a graphic showing $\Zero$-,
-$\One$-, $\X$-, and $\E$-shapes arranged by size (\ie, the size of the
-underlying type of labels $L$): a dot indicates a single shape, and
-the size of the label type increases from left to right.
-
-\begin{figure}
-  \centering
-\begin{diagram}[width='200']
-import SpeciesDiagrams
-
-dot = circle 0.2 # fc black
-row p     = hcat' (with & sep .~ 0.1) . map (drawOne . p) $ [0..10]
-lRow x p  = hcat [text' 1 [x] <> phantom (square 1 :: D R2), strutX 0.5, row p]
-drawOne b = square 1 <> mconcat [dot||b]
-
-dia =
-  pad 1.1 .
-  centerXY .
-  vcat' (with & sep .~ 0.3) $
-  [ lRow '0' (const False)
-  , lRow '1' (==0)
-  , lRow 'X' (==1)
-  , lRow 'E' (const True)
-  ]
-\end{diagram}
-%$
-  \caption{Primitive species}
-  \label{fig:prims}
-\end{figure}
-
-\subsection{Species isomorphism}
-\label{sec:species-iso}
-
-We have now seen four primitive species: \Zero, \One, \X, and \E.  It
-turns out that each of them is the unit for a different monoid
-structure on species; we will look at each of these in turn, as well
-as an additional fifth monoid structure.  Before we get there,
-however, we need to take a brief detour to discuss isomorphism of
-species, since the monoid laws hold only up to isomorphism.
-
-Since species are functors, a \term{morphism} between species $F$ and
-$G$ is a natural transformation, that is, a transformation from
-$F$-shapes to $G$-shapes which works uniformly for all label
-types. Formally, the type of species morphisms is given by
-\begin{align*}
-  &- \mor - : \Species \to \Species \to \Type \\
-  &F \mor G = (\varphi : \impl{L : \FinType} \to F\ L \to G\ L)
-  \times \Natural\ \varphi
-\end{align*}
-where $\Natural\ \varphi$ is the proposition which states that $\varphi$ is
-\term{natural}, that is, the diagram shown in
-\pref{fig:species-morphism} commutes for all $L, L' : \FinType$ and
-all $\sigma : L \iso L'$.
-\begin{figure}[h!]
-  \centering
-  \centerline{
-    \xymatrix{
-      F\ L \ar[d]_{\varphi_L} \ar[r]^{F\ \sigma} & F\ L' \ar[d]^{\varphi_{L'}} \\
-      G\ L                    \ar[r]_{G\ \sigma} & G\ L'
-    }
-  }
-  \caption{Naturality for species morphisms}
-  \label{fig:species-morphism}
-\end{figure}
-Intuitively, $\varphi$ is natural if it does not depend on the type of
-the labels, that is, it acts uniformly for all choices of label set:
-it does not matter whether one first relabels an $F$-shape and then
-applies $\varphi$, or applies $\varphi$ first and later relabels.
-
-An \term{isomorphism} between species, denoted $F \natiso G$, is just
-a pair of inverse morphisms, that is, $\varphi : F \mor G$ and
-$\varphi^{-1} : G \mor F$ such that $\varphi^{-1}_L \comp \varphi_L =
-id_{FL}$ and $\varphi_L \comp \varphi^{-1}_L = id_{GL}$ for all $L :
-\FinType$.  Species isomorphism preserves all the interesting
-\emph{combinatorial} properties of species; hence in the combinatorics
-literature everything is always implicitly done up to
-isomorphism. However, species isomorphisms carry computational
-content, so when dealing with labelled structures we must be more
-careful and explicit in their use.
-
-It is worth noting that an inverse pair of ``bare'' morphisms, without
-naturality, constitute what is termed an \term{equipotence} between
-two species.  An equipotence preserves the \emph{number} of shapes of
-each size, but it does not necessarily preserve the structure of those
-shapes. As a classic example, the species of \emph{lists} and the
-species of \emph{permutations} are equipotent but not isomorphic:
-there are the same number of lists as permutations of $n$ labels
-(namely, $n!$), but there is no way to set up an isomorphism between
-them which is uniform over the labels: any such isomorphism
-necessarily depends on a linear ordering of the labels.  In a sense,
-permutations have ``more structure'' than lists, and this extra
-structure cannot be preserved by an isomorphism.  In any case,
-although equipotences are of interest to combinatorialists, so far
-they do not seem to be of much use computationally, so we will not
-consider them further in this paper.
-
-\subsection{Operations on species and labelled structures}
-\label{sec:species-ops}
-
-\todo{say something about how to interpret the picture schemas we will use}
 
 \paragraph{Sum}
 Given two species $F$ and $G$, we may form their sum. We use $\ssum$
@@ -1397,7 +1284,76 @@ coproduct of the two label types:
 $(\sprod, \One)$ also forms a commutative monoid up to species
 isomorphism.
 
-\paragraph{Composition}
+\todo{example: lists}
+
+\subsection{Species isomorphism}
+\label{sec:species-iso}
+
+We have now seen four primitive species: \Zero, \One, \X, and \E.  It
+turns out that each of them is the unit for a different monoid
+structure on species; we will look at each of these in turn, as well
+as an additional fifth monoid structure.  Before we get there,
+however, we need to take a brief detour to discuss isomorphism of
+species, since the monoid laws hold only up to isomorphism.
+
+Since species are functors, a \term{morphism} between species $F$ and
+$G$ is a natural transformation, that is, a transformation from
+$F$-shapes to $G$-shapes which works uniformly for all label
+types. Formally, the type of species morphisms is given by
+\begin{align*}
+  &- \mor - : \Species \to \Species \to \Type \\
+  &F \mor G = (\varphi : \impl{L : \FinType} \to F\ L \to G\ L)
+  \times \Natural\ \varphi
+\end{align*}
+where $\Natural\ \varphi$ is the proposition which states that $\varphi$ is
+\term{natural}, that is, the diagram shown in
+\pref{fig:species-morphism} commutes for all $L, L' : \FinType$ and
+all $\sigma : L \iso L'$.
+\begin{figure}[h!]
+  \centering
+  \centerline{
+    \xymatrix{
+      F\ L \ar[d]_{\varphi_L} \ar[r]^{F\ \sigma} & F\ L' \ar[d]^{\varphi_{L'}} \\
+      G\ L                    \ar[r]_{G\ \sigma} & G\ L'
+    }
+  }
+  \caption{Naturality for species morphisms}
+  \label{fig:species-morphism}
+\end{figure}
+Intuitively, $\varphi$ is natural if it does not depend on the type of
+the labels, that is, it acts uniformly for all choices of label set:
+it does not matter whether one first relabels an $F$-shape and then
+applies $\varphi$, or applies $\varphi$ first and later relabels.
+
+An \term{isomorphism} between species, denoted $F \natiso G$, is just
+a pair of inverse morphisms, that is, $\varphi : F \mor G$ and
+$\varphi^{-1} : G \mor F$ such that $\varphi^{-1}_L \comp \varphi_L =
+id_{FL}$ and $\varphi_L \comp \varphi^{-1}_L = id_{GL}$ for all $L :
+\FinType$.  Species isomorphism preserves all the interesting
+\emph{combinatorial} properties of species; hence in the combinatorics
+literature everything is always implicitly done up to
+isomorphism. However, species isomorphisms carry computational
+content, so when dealing with labelled structures we must be more
+careful and explicit in their use.
+
+It is worth noting that an inverse pair of ``bare'' morphisms, without
+naturality, constitute what is termed an \term{equipotence} between
+two species.  An equipotence preserves the \emph{number} of shapes of
+each size, but it does not necessarily preserve the structure of those
+shapes. As a classic example, the species of \emph{lists} and the
+species of \emph{permutations} are equipotent but not isomorphic:
+there are the same number of lists as permutations of $n$ labels
+(namely, $n!$), but there is no way to set up an isomorphism between
+them which is uniform over the labels: any such isomorphism
+necessarily depends on a linear ordering of the labels.  In a sense,
+permutations have ``more structure'' than lists, and this extra
+structure cannot be preserved by an isomorphism.  In any case,
+although equipotences are of interest to combinatorialists, so far
+they do not seem to be of much use computationally, so we will not
+consider them further in this paper.
+
+\subsection{Composition}
+\label{sec:composition}
 
 We may also define the \term{composition} of two species.
 Intuitively, $(F \scomp G)$-shapes consist of a single top-level
@@ -1540,7 +1496,10 @@ different size.
 
 \todo{illustration for $\compB$}
 
-\paragraph{Cartesian product}
+\todo{example: rose trees?}
+
+\subsection{Cartesian product}
+\label{sec:cartesian-product}
 
 As we saw earlier, the definition of the standard product operation on
 species partitioned the set of labels between the two subshapes.
@@ -1562,8 +1521,6 @@ directly model and observe it.
 
 \todo{illustration}
 
-\todo{example}
-
 To introduce a Cartesian product shape, one simply pairs two shapes on
 the same set of labels.  Introducing a Cartesian product structure is
 more interesting. One way to do it is to overlay an additional shape
@@ -1574,6 +1531,40 @@ $\cons{cprodR}$ which combines an $F$-structure and a $G$-shape.
 $(\scprod, \E)$ forms a commutative monoid up to species isomorphism;
 superimposing an $\E$-shape has no effect, since the $\E$-shape
 imposes no additional structure.
+
+\todo{examples: partition, filter, etc.?}
+
+\subsection{Other operations}
+\label{sec:other-ops}
+
+\todo{Some introduction here}
+
+\paragraph{Sets}
+The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L = \{L\}. \]
+That is, there is a single $\E$-shape for every label type (since, up
+to relabeling, all $L$s of the same size are equivalent).
+Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
+labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
+Note that this is how we actually implement $\E$: we insist that $L$ be
+enumerable (which is actually a weaker requirement than having a
+$\Finite$ proof), and the shape stores this enumeration as an 
+\emph{abstract} set.
+
+Note that if $\E$-shapes are sets, then labelled
+$\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
+are \emph{bags}: any particular data element may occur multiple times
+(each time associated with a different, unique label).
+
+$\E$-shapes also have a trivial introduction form, $\cons{e} : \E\ L$,
+along with a corresponding introduction form for $\E$-structures which
+simply requires the mapping from labels to values:
+\begin{align*}
+\lab{\cons{e}} &: (L \to A) \to \LStr \E L A \\
+\lab{\cons{e}} &= |allocate| ...
+\end{align*}
+\todo{finish}
+
+\todo{eliminator.  Explain why it is problematic?}
 
 \paragraph{Cardinality restriction}
 
@@ -1593,24 +1584,24 @@ observe that an existing label type has the size that it has:
 \[ \cons{sized} : \Finite L \to \LStr F L A \to \LStr {\OfSize\ F\
   ||L||} L A. \]
 
-We could also generalize to arbitrary predicates on natural numbers,
-as in
-\begin{align*}
-&\OfSize' : \Species \to (\N \to \Type) \to \Species \\
-&\OfSize'\ F\ P = \lam{L}{(m : \N) \times P\ m \times (\Fin m \iso L)
-  \times F\ L}
-\end{align*}
-The original $\OfSize$ can be recovered by setting $P\ m \defn (m =
-n)$.  However, $\OfSize'$ is difficult to compute with, since $P$ is
-an opaque function.  In practice, $P\ m \defn (m \leq n)$ and $P\ m
-\defn (m \geq n)$ (along with equality) cover the vast majority of
-cases we care about, so as a practical tradeoff we can add explicit
-combinators $\cons{OfSizeLTE}$ and $\cons{OfSizeGTE}$ representing these
-predicates, with parallel introduction forms:
-\begin{align*}
-  \OfSizeLTE\ F\ n\ L &= (L \subseteq \Fin n) \times F\ L \\
-  \OfSizeGTE\ F\ n\ L &= (L \supseteq \Fin n) \times F\ L
-\end{align*}
+% We could also generalize to arbitrary predicates on natural numbers,
+% as in
+% \begin{align*}
+% &\OfSize' : \Species \to (\N \to \Type) \to \Species \\
+% &\OfSize'\ F\ P = \lam{L}{(m : \N) \times P\ m \times (\Fin m \iso L)
+%   \times F\ L}
+% \end{align*}
+% The original $\OfSize$ can be recovered by setting $P\ m \defn (m =
+% n)$.  However, $\OfSize'$ is difficult to compute with, since $P$ is
+% an opaque function.  In practice, $P\ m \defn (m \leq n)$ and $P\ m
+% \defn (m \geq n)$ (along with equality) cover the vast majority of
+% cases we care about, so as a practical tradeoff we can add explicit
+% combinators $\cons{OfSizeLTE}$ and $\cons{OfSizeGTE}$ representing these
+% predicates, with parallel introduction forms:
+% \begin{align*}
+%   \OfSizeLTE\ F\ n\ L &= (L \subseteq \Fin n) \times F\ L \\
+%   \OfSizeGTE\ F\ n\ L &= (L \supseteq \Fin n) \times F\ L
+% \end{align*}
 
 \paragraph{Derivative and pointing}
 
@@ -1679,33 +1670,6 @@ peculiar way---and while this is perfectly workable in an untyped,
 set-theoretic setting, we do not yet know how to interpret it in a
 typed, constructive way.
 
-% Note that the label set given to $F$ is the set of \emph{all $(G\
-%   L)$-shapes}.  Giving $G$-shapes as labels for $F$ is the same as
-% $\scomp$; the difference is that with $\scomp$ the labels are
-% partitioned among all the $G$-shapes, but here the complete set of
-% labels is given to each $G$-shape.  This means that a particular label
-% could occur \emph{many} times in an $(F \fcomp G)$-shape, since it
-% will occur at least once in each $G$-shape, and the $F$-shape may
-% contain many $G$-shapes.
-
-% $(\fcomp, \pt{\E})$ forms a (non-commutative) monoid up to species
-% isomorphism.
-
-\todo{Give some examples.  Show that we can use recursion from the
-  host language.}
-
-% \section{Unlabelled structures}
-
-% \bay{``unlabelled'' is a terrible name for this, we need to come up
-%   with a better one.  In any case, the definition is equivalence
-%   classes of labelled structures.  Concretely, we always have to work
-%   with specific representatives of equivalence classes, and there is
-%   not always a nice way to choose a ``canonical'' representative.
-%   Instead, we can build relabelling into operations like zip so that
-%   some ``conversion'' is done in order to first relabel things so they
-%   match.  Such conversion is allowed when working with an equivalence
-%   class since it doesn't matter which representative we use.}
-
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
 
@@ -1721,28 +1685,6 @@ typed, constructive way.
     runtime code is future work.
   \end{itemize}
 }
-
-\todo{be sure to discuss recursion.}
-
-\section{Programming with Labelled Structures}
-\label{sec:programming}
-
-\todo{
-  Give some examples of using our implementation.
-  \begin{itemize}
-  \item $n$-dimensional vectors.
-  \item filter and partition.
-  \item Foldable.  Traversable.
-  \item Various flavours of trees
-  \item finite maps.  Bags.
-  \item length-indexed vectors?
-  \end{itemize}
-}
-
-\subsection{Partition stuff}
-\label{sec:partition}
-
-\todo{write about partition, filter, take...?}
 
 \subsection{Vector mappings}
 \label{sec:vecmap}

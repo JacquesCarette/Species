@@ -271,6 +271,19 @@ don't think this is the right way to go, i.e. pushing shape into the labels.}
 % "unlabelled" structures (urgh, unlabelled is a really bad name!) gets
 % to first permute the labels so they match up before doing the zip.
 
+% \section{Unlabelled structures}
+
+% \bay{``unlabelled'' is a terrible name for this, we need to come up
+%   with a better one.  In any case, the definition is equivalence
+%   classes of labelled structures.  Concretely, we always have to work
+%   with specific representatives of equivalence classes, and there is
+%   not always a nice way to choose a ``canonical'' representative.
+%   Instead, we can build relabelling into operations like zip so that
+%   some ``conversion'' is done in order to first relabel things so they
+%   match.  Such conversion is allowed when working with an equivalence
+%   class since it doesn't matter which representative we use.}
+
+
 \subsection{Arrays}
 \label{sec:arrays}
 
