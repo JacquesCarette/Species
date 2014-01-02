@@ -45,6 +45,16 @@
 
 %format inv(a) = a "^{-1}"
 
+%format sumN = sum "_\N"
+%format sumTy = sum "_\Type"
+
+%format allocateV = allocate "_V"
+%format mapV = map "_V"
+%format foldV = fold "_V"
+%format appendV = append "_V"
+%format concatV = concat "_V"
+%format sumV = sum "_V"
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
 
@@ -317,11 +327,11 @@
 
 
 \scw{I've been thinking about the structure of this paper, trying to make it
-tell its story more effectively. 
+tell its story more effectively.
 The focus of the paper should be on labelled structures. The fact that they
 are directly inspired by combinatorial species is great and should be
 mentioned repeatedly, but in the end, it is not what the paper is about.
-Our introduction mostly works with this format, but we could bring it out. 
+Our introduction mostly works with this format, but we could bring it out.
 I'm imagining a progression like:
 \begin{itemize}
 \item What is a labelled structure? A decomposition of data structure. More
@@ -339,7 +349,7 @@ formally, a labelled shape combined with a mapping from labels to data values.
     that is unobservable for algebraic datatypes.
   \item Although labels have structure, we make it convenient to work up to (partial)
     isomorphism. ``Relabeling'' models certain operations on data, sometimes
-    more efficiently that with more standard representations.  
+    more efficiently that with more standard representations.
   \item We can choose a definition of mapping that lets us reason about memory
     allocation and layout.
 \end{itemize}
@@ -365,14 +375,26 @@ explanations, but we need to be more explicit about what we are doing. Sec 6
 also doesn't really connect to the finite map/array examples mentioned
 before. Can we show an example of constructing an array?  }
 
-
+\jc{Right.  The more we worked on this, the more the picture evolved, and
+I think Stephanie's comments really illustrates our current state best.  I
+would be quite happy with the paper layout that she suggests.  Although
+there is one item which needs serious re-thinking: the emphasis on 'finite'.
+As things currently stand, our use of 'finite' keeps getting smaller and
+smaller.  In a number of places, I think we could weaken the definition
+of finiteness too (from an isomorphism to simply requiring a surjection 
+from some bounded set of naturals onto our labels, with no injectivity
+requirement; in other places we need an (unordered) enumeration instead).}
+\jc{Regarding array examples: we do not have any code on arrays that works
+at the moment.  We do have code for 1D sized vectors that mostly works.
+We have all sorts of other examples that also work.  We should really agree 
+on which examples we'll pull from, and make sure they fully work.}
 
 \section{Introduction}
 \label{sec:intro}
 
-The theory of combinatorial species, as it relates to the theory and
-practice of programming languages, has long seemed to the authors ``an
-answer looking for a question'': the theory is too beautiful, and too
+The theory of combinatorial species \citation{joyal,bll}, as it relates to the
+theory and practice of programming languages, has long seemed to the authors
+``an answer looking for a question'': the theory is too beautiful, and too
 ``obviously'' related to algebraic data types, to have no applications
 whatsoever.  Teasing out the precise relationship between species and
 data types, however, has proved challenging, for two reasons. First,
@@ -396,7 +418,9 @@ decomposing data structures as shapes plus data
 \citep{abbott_categories_2003, jay-shapely}, with labels mediating
 between the two.  Informally, this pairing of a labelled shape
 (corresponding to a species) and a mapping from labels to data values
-is what we call a \term{labelled structure}.  For example,
+is what we call a \term{labelled structure}\footnote{Following
+Flajolet et al's lead \citation{FlSaZi91,FlajoletZC94}.}.
+For example,
 \pref{fig:labelled-structure-example} illustrates a labelled tree
 shape paired with a mapping from labels to data.  A \emph{family} of
 labelled structures refers to a class of structures parameterized over
@@ -459,6 +483,18 @@ results in a different labelled structure, whereas there are many
 labelled tree structures that will ``collapse'' to the same algebraic
 data structure, which differ only in the way they are labelled.
 
+\jc{Give a forward reference to how we can associate canonical labels
+to algebraic data types?}
+
+\jc{Comment to be moved to the right place, but it came to mind while I
+was reading the above: this `late' collapse joins up nicely with HTT 
+and higher-categorical thinking.  In this style, rather than quotienting
+early (to find an efficient representation eagerly), it is thought best
+to wait and record the collapse through adjoining an groupoid of 
+isomorphisms [think identity types].  The `best' picture may then 
+emerge much later from a \emph{composition} of isomorphisms, rather than
+directly from the first isomorphism encountered.}
+
 \paragraph{Finite maps}
 
 Since the definition of a labelled structure already includes the
@@ -469,6 +505,11 @@ directly model multiple finite map implementations (\todo{see section
   ???}).
 
 \paragraph{Vectors and arrays}
+
+\jc{As I said above, I am uncomfortable with saying too much about
+multi-dimensional arrays until our implementation catches up.  I think 
+what I'll do is finish this read through/edit pass, then work on the array
+ideas, so that we can keep this example family in place.}
 
 Vectors, and multi-dimensional arrays more generally, can be modeled as
 finite maps with nontrivial structure on their labels---for example,
@@ -526,6 +567,7 @@ dia = vcat' (with & sep .~ 5)
 
 Though this bears many similarities to previous approaches, there is
 one key difference: whereas previous approaches have used a fixed,
+\jc{citations to previous approaches?}
 canonical set of labels (or left the labels entirely implicit),
 species naturally lead one to work
 \emph{parametrically}\scw{???}\bay{What do you find confusing about this?} over labels,
@@ -535,13 +577,15 @@ to some interesting benefits.  For example:
 \begin{itemize}
 \item It allows us to unify ``implicitly labelled'' structures (such as
   algebraic data types) and ``explicitly labelled'' structures (such as
-  arrays or finite maps) under the same framework.
+  vectors and finite maps) under the same framework.
 \item Some operations (for example, reversing a vector, taking the
   transpose of a 2D array, or altering the keys of a finite map) can
   be more naturally described as \emph{operations on labels}, leading
   to benefits in both reasoning and efficiency (see \todo{section ?}).
-  \scw{Are we sure that it is more efficient? What about the copying that 
-    may need to be done to adjust the labels/maps?}
+  \scw{Are we sure that it is more efficient? What about the copying that
+    may need to be done to adjust the labels/maps?}\jc{It should be more
+    efficient for large data think local index and distributed data --
+    there was an ICFP talk about exactly this.}
 \item Value-level \emph{sharing} can be easily modelled via shared
   labels (see \todo{section?})---in contrast, this is not possible if
   every structure has a fixed set of canonical labels.
@@ -551,20 +595,27 @@ to some interesting benefits.  For example:
   structures (see \todo{section?}).
 \item It opens the possibility of taking labels and relabellings from
   a category other than $\B$ (as is done, for example, with
-  $\mathbb{L}$-species \cite[chapter 5]{bll}).  We conjecture that
-  this has also benefits in a computational setting, though exploring
+  $\mathbb{L}$-species \cite{Joyal86}, \cite[chapter 5]{bll}).  We conjecture 
+  that this has also benefits in a computational setting, though exploring
   this idea in more detail is left to future work.
 \end{itemize}
 
-In addition, species are traditionally defined over \emph{finite} sets
-of labels.  In a classical setting, this is little more than a
-footnote; when ported to a constructive setting, however, the notion
+\jc{The paragraph below goes in a different direction, but in the text
+it reads as if it were a continuation of value-level sharing.  We should
+visually indicate this break - maybe via subsections?}
+It is important to remember that species are defined over \emph{finite}
+sets of labels.  In a classical setting, while finiteness is a crucial part of
+the definition, it is otherwise a fairly implicit feature of the actual
+theory.  Combinatorialists do not need to remind themselves of this 
+finiteness condition, as it is a pervasive axiom that you can only ``count''
+finite collections of objects.  When ported to a 
+constructive setting, however, the notion
 of finiteness takes on nontrivial computational content and
 significance.  In particular, we are naturally led to work up to
 computationally relevant \emph{equivalences} (and \emph{partial
   equivalences}) on labels.  Working up to equivalence in this way
 confers additional expressive power, allowing us to model efficient
-label operations (\eg matrix transpose) without copying.  In fact,
+label operations (\eg partition) without copying.  In fact,
 this is one of the key ingredients in modeling memory layout and
 allocation (see \todo{section?}).
 
@@ -588,7 +639,7 @@ In more detail, our contributions are as follows:
 \end{itemize}
 
 It is worth mentioning that in previous work
-\citep{Carette_Uszkay_2008_species, yorgey-2010-species} we
+\citep{carette_species, yorgey-2010-species} we
 conjectured that the benefits of the theory of species would lie
 primarily in its ability to describe data types with \term{symmetry}
 (\ie\ quotient types \cite{quotient-types}).  That promise has not
@@ -596,33 +647,12 @@ gone away; but we were amused to discover that a functor category
 would seem to shed its brightest light on low-level issues like memory
 allocation, layout and sharing.
 
-% \jc{I am starting to think that our interesting points and our take
-%     home points have slowly swapped position over time}
-%   Take-home points:
-%   \begin{itemize}
-%   \item Labelled structures capture a wide range of data structures.
-%   \item Combinators! ($\times 2!$ --- type level and value level)
-%   \end{itemize}
-
-%   Other interesting but not take-home points:
-%   \begin{itemize}
-%   \item fun with isos
-%   \item labels as abstract model of memory
-%   \item labels make sharing easy
-%   \end{itemize}
-% \end{todoP}
-
-\section{Preliminaries}
+\section{Theoretical setting}
 \label{sec:prelim}
 
-We begin with some necessary preliminaries.
-
-\subsection{Homotopy type theory}
-\label{sec:HoTT}
-
-In the remainder of this paper, we work within \emph{homotopy type
-  theory} (HoTT)~\cite{hott}. We do not actually need much complex
-machinery from the theory, and simply summarize the most important
+We have found it quite convenient to work within (a small fragment of)
+\emph{homotopy type theory} (HoTT)~\cite{hott}.  We do not actually need much
+complex machinery from the theory, and simply summarize the most important
 ideas and notation here.  Everything in this paper could be formalized
 in most any standard constructive type theory; we choose to work in
 HoTT because of its emphasis on equality and isomorphism, which plays
@@ -630,8 +660,17 @@ a large role.  In fact, it seems likely that there are deeper
 connections between homotopy type theory and the theory of species,
 but exploring these connections is left to future work.
 
-The type theory is equipped with an empty type \TyZero, a unit type
-\TyOne (with inhabitant $\unit$), coproducts (with constructors $\inl$
+The concept of \term{finiteness} plays a central (but implicit) r\^{o}le in 
+the theory of combinatorial species, primarily through the pervasive use
+of generating functions.  While its r\^{o}le is not as central in our
+setting, it is important enough to give the precise definition we use,
+seeing as there are multiple constructive interpretations of finiteness.
+
+\subsection{A fragment of homotopy type theory}
+\label{sec:HoTT}
+
+The type theory we work with is equipped with an empty type \TyZero, a unit
+type \TyOne (with inhabitant $\unit$), coproducts (with constructors $\inl$
 and $\inr$), dependent pairs (with projections $\outl$ and $\outr$),
 dependent functions, a hierarchy of type universes $\Type_0$,
 $\Type_1$, $\Type_2$\dots (we usually omit the subscripts), and a
@@ -674,15 +713,14 @@ equivalence $T\ \sigma : T\ A \iso T\ B$.\footnote{Formally, this is
 C) = (\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso
 (\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
 
-\scw{Should we be explicit about what ``dimension'' we are working in?
-  Equivalences between data are informative, but equivalences between
-  equivalences are not.}
+\noindent For our purposes, this is sufficient:  in other words,
+equivalences between labels are informative, but equivalences between
+equivalences yield no further useful information.
 
 \subsection{Finiteness}
 \label{sec:finiteness}
 
-The concept of \term{finiteness} plays a central role in the theory of
-species.\scw{Do we ever say why?} There are many possible constructive interpretations of
+There are many possible constructive interpretations of
 finiteness \todo{make a citation:
   \url{http://ncatlab.org/nlab/show/finite+set}}; the one we need is
 the simplest: a finite set is one which is in bijection to a canonical
@@ -712,26 +750,17 @@ will in general pass around types \emph{together with} some specific
 finiteness proof.  We can encapsulate this by defining \[ \FinType
 \defn (L : \Type) \times \Finite L \] as the universe of finite types.
 
-\todo{Revisit this!  Having $\FinType$ everywhere is somewhat
-  problematic, since \eg I am not sure that an equivalence $L_1 \iso
-  L_2$ where $L_1, L_2 : \FinType$ really means what we want.  We
-  still don't have a very good story/understanding of where we need
-  the finite evidence and where we don't.}
-
 It is not hard to see that the size of a finite type is determined
 uniquely. That is, if $f_1, f_2 : \Finite L$ are any two witnesses that
-$L$ is finite, then $\outl(f_1) = \outl(f_2)$. \scw{Define
-  outl}\bay{outl is defined in the ``preliminaries'' section, as one
-  of the projections for product types.  Should we make it more
-  explicit?  It's pretty standard.} (As proof, note that if
+$L$ is finite, then $\outl(f_1) = \outl(f_2)$.  (As proof, note that if
 $f_1 = (n_1, i_1)$ and $f_2 = (n_2, i_2)$, then $i_2^{-1} \comp i_1 :
 \Fin{n_1} \iso \Fin{n_2}$, from which we can derive $n_1 = n_2$ by
-double induction.) In a slight abuse of notation, we therefore write
+double induction.) In a slight abuse of notation, we write
 $\size{L}$ to denote this size.  Computationally, this corresponds to
 applying $\outl$ to some finiteness proof; but since it does not
 matter which proof we use, we simply leave it implicit, being careful
 to only use $\size -$ in a context where a suitable finiteness proof
-could be obtained.
+can be obtained.
 
 \section{Combinatorial Species}
 \label{sec:species}
@@ -746,8 +775,8 @@ could be obtained.
 Our theory of labelled structures is inspired by, and directly based
 upon, the theory of \term{combinatorial species} \cite{joyal}.  We
 give a brief introduction to it here; the reader interested in a
-fuller treatment should consult \citet{bll}.  \todo{point the reader
-  to our own prior work on species + FP?}
+fuller treatment should consult \citet{bll}.  Functional programmers
+may wish to start with~\cite{yorgey-2010-species}.
 
 \subsection{Species, set-theoretically}
 \label{sec:set-species}
@@ -761,7 +790,7 @@ both definitions and the relationship between them.
 \begin{definition}
 A \term{species} is a pair of mappings, both called $F$, that
 \begin{itemize}
-\item sends any finite set $L$ (of \term{labels}) to a finite set
+\item sends any finite set $L$ (of \term{labels}) to a set
   $F(L)$ (of \term{shapes}), and
 \item sends any bijection on finite sets $\sigma : L \leftrightarrow L'$ (a
   \term{relabelling}) to a function $F(\sigma) : F(L) \to F(L')$,
@@ -783,9 +812,11 @@ additionally satisfying the following functoriality conditions:
 
 Using the language of category theory, this definition can be pithily
 summed up by saying that a species is a functor $F : \B \to
-\FinSet$, where $\B$ is the category of finite sets whose morphisms
-are bijections, and $\FinSet$ is the category of finite sets whose
-morphisms are arbitrary (total) functions.
+\Set$, where $\B$ is the category of finite sets whose morphisms
+are bijections, and $\Set$ is the category of sets whose
+morphisms are arbitrary (total) functions.  Note that we could have
+chosen $\FinSet$ as codomain with very few changes, but $\Set$ is now
+traditional.
 
 We call $F(L)$ the set of ``$F$-shapes with
 labels drawn from $L$'', or simply ``$F$-shapes on $L$'', or even
@@ -803,7 +834,7 @@ data associated with the labels) and bare labelled \emph{shapes}
 
 Here we see that the formal notion of ``shape'' is actually quite
 broad, so broad as to make one squirm: a shape is just an element of
-some arbitrary finite set!  In practice, however, we are interested
+some arbitrary set!  In practice, however, we are interested
 not in arbitrary species but in ones built up algebraically from a set
 of primitives and operations.  In that case the corresponding shapes
 will have more structure as well. First, however, we must put species
@@ -818,51 +849,93 @@ use it as a foundation for data structures, it is necessary to first
 ``port'' the definition from set theory to constructive type theory.
 
 As before, a species is a pair of maps, one mapping label types to
-sets of shapes, and one relabelling shapes. However, the species type
+sets of shapes, and one relabelling shapes. However, the $\Species$ type
 also requires proofs of the functoriality conditions for the
 relabeling function.
 \begin{align*}
 \Species & \defn (\shapes : \FinType \to \Type) \\
          & \times (\relabel : (L_1, L_2 : \FinType) \to (L_1 \iso L_2) \to
            (\shapes\ L_1 \to \shapes\ L_2)) \\
-         & \times ((L : \FinType) \to \relabel \id_L = \id_{(\shapes L)}) \\
+         & \times ((L : \FinType) \to \relabel \id_L = \id_{\shapes L}) \\
          & \times ((L_1, L_2, L_3 : \FinType) \to (\sigma : L_2 \iso
-         L_3) \\ &\to (\tau : L_1 \iso L_2) \to
-(\relabel (\sigma \comp \tau) = \relabel \sigma \comp \relabel \tau))
+         L_3) \\ &\qquad\to (\tau : L_1 \iso L_2) \to
+(\relabel\ (\sigma \comp \tau) = \relabel \sigma \comp \relabel \tau))
 \end{align*}
 
 Where the meaning is clear from context, we will use simple
-application to denote the action of a species on both objects and
-arrows. That is, if $F : \Species$, we will just write $F\ L$ or $F\
-\sigma$ without explicitly projecting out the $\shapes$ and $\relabel$
-functions.
+application to denote the action of a species on both label types and
+relabellings. That is, if $F : \Species$, $L, L' : \FinType$, and $\sigma
+: L \iso L'$, we will just write $F\ L : \Type$ or $F\ \sigma : F\
+L \to F\ L'$ without explicitly projecting out the $\shapes$ and
+$\relabel$ functions.
 
-In \pref{sec:set-species}, we said the codomain of species is
-\emph{finite} types, but in the above definition the codomain of
-$\shapes$ is $\Type$ rather than $\FinType$.  Constructively, the
-finiteness of the codomain does not seem very important---all the
-basic definitions and constructions work unchanged.  One place where
-the finiteness of the codomain comes into play is in setting up
-homomorphisms from species to generating functions with coefficients
-taken from $\N$---though we conjecture that taking coefficients from
-the ring over the one-point compactification of the naturals, $\N \cup
-\{\infty\}$, works just as well.  There may be some theorems (\eg
-molecular species decomposition, or the implicit species theorem) which
-only hold with a finite codomain---we are interested to port standard
-theorems about species to a constructive setting, and see where the
-finiteness is required.
+Like with general species whose codomain is $\Set$, note that we use
+$\Type$ rather than $\FinType$.  There are situations where finiteness
+of the codomain matters, although we will not encounter them here.
+\jc{I would comment out the following, basically because I think it is
+false.}
+\bay{One place where the finiteness of the codomain comes into
+play is in setting up homomorphisms from species to generating
+functions with coefficients taken from $\N$---though we conjecture
+that taking coefficients from the semi-ring over the one-point
+compactification of the naturals, $\N \cup \{\infty\}$, works just as
+well.  There may be some theorems (\eg molecular species
+decomposition, or the implicit species theorem) which only hold with a
+finite codomain---in the future, we plan to port some standard
+theorems about species to a constructive setting to see where the
+finiteness is required.}
 
 It is interesting to note that an equivalence $L_1 \iso L_2$ between
 constructively finite types $L_1,L_2 : \FinType$, as required by
-$\relabel$, contains more than meets the eye.  Since \[ \FinType \defn
-(L : \Type) \times \Finite L \equiv (L : \Type) \times (n : \N) \times
-(\Fin n \iso L), \] such equivalences contain not just an equivalence
-between the underlying types, but also an
+$\relabel$, contains more than first meets the eye.  Since \[ \FinType
+\defn (L : \Type) \times \Finite L \equiv (L : \Type) \times (n : \N)
+\times (\Fin n \iso L), \] such equivalences contain not just an
+equivalence between the underlying types, but also an
 equivalence-between-equivalences requiring them to be finite ``in the
 same way'', that is, to yield the same equivalence with $\Fin n$ after
-mapping from one to the other.  The situation can be pictured
-\todo{finish}.
+mapping from one to the other.  The situation can be pictured as shown
+in \pref{fig:fin-equiv}, where the diagram necessarily contains only
+triangles: corresponding elements of $L_1$ and $L_2$ on the sides
+correspond to the same element of $\Fin n$ on the bottom row.
+\begin{figure}
+  \centering
+  \begin{diagram}[width=150]
+import           Data.Bits                      (xor)
+import           SpeciesDiagrams
 
+mkList n d f = hcat' (with & sep .~ 2 & catMethod .~ Distrib)
+  (zipWith named (map f [0::Int ..]) (replicate n d))
+
+n :: Int
+n = 8
+
+dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
+      [ "l1"  ||> (l1 # rotateBy (-1/3))
+      , "fin" ||> fin
+      , "l2"  ||> (l2 # rotateBy (1/3))
+      ]
+      # mkConnections
+      # centerXY # pad 1.2
+      # flip appends
+        [ (unit_Y                  , text' 4 "Fin n")
+        , (unit_Y # rotateBy (-1/3), text' 4 "L₁"   )
+        , (unit_Y # rotateBy (1/3) , text' 4 "L₂"   )
+        ]
+  where
+    fin = mkList n dot (`xor` 1) # centerXY
+    l1  = mkList n dot id # centerXY
+    l2  = mkList n dot ((n-1) -) # centerXY
+    dot = circle 0.5 # fc grey
+    mkConnections = applyAll
+      [  withNames [a .> i, b .> i] $ \[p,q] -> atop (location p ~~ location q)
+      || (a,b) <- take 3 . (zip <*> tail) . cycle $ ["l1", "fin", "l2"]
+      ,  i <- [0 .. (n-1)]
+      ]
+  \end{diagram}
+  \caption{An equivalence between constructively finite types contains
+  only triangles}
+  \label{fig:fin-equiv}
+\end{figure}
 Intuitively, this means that if $L_1, L_2 : \FinType$, an equivalence
 $L_1 \iso L_2$ cannot contain ``too much'' information: it only tells
 us how the underlying types of $L_1$ and $L_2$ relate, preserving the
@@ -870,43 +943,54 @@ fact that they can both be put in correspondence with $\Fin n$ for
 some $n$.  In particular, it cannot encode a nontrivial permutation on
 $\Fin n$.
 
-\section{Mappings}
+\section{Mappings from labels to data}
 \label{sec:mappings}
 
 \todo{high-level explanation}
 
-\subsection{Mappings, take I}
+\subsection{Simple Mappings}
 \label{sec:storage}
 
 Our goal is to define a labelled structure as a labelled shape paired
 with a \emph{mapping} from labels to data.  What, precisely, do we
-mean by a \emph{mapping}?  In fact, we can leave the notion of mapping
-abstract: we require only that a type $\Store L A$ representing
-mappings from $L$ to $A$ come equipped with the following operations:
+mean by a \emph{mapping}?  In fact, we need not pin down a particular
+implementation.  We require only that implementations of $\Store - - : \FinType
+\to \Type \to \Type$ come equipped with the following operations:
 \begin{align*}
-  |allocate| &: \Finite L \to (L \to A) \to \Store L A \\
+  |allocate| &: (L \to A) \to \Store L A \\
   |index|  &: \Store L A \to L \to A \\
   |append| &: \Store {L_1} A \to \Store {L_2} A \to \Store {(L_1 + L_2)} A \\
   |concat| &: \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times
     L_2)} A \\
-%  |replace| &: \DecEq L \to L \to A \to \Store L A \to A \times \Store L A \\
   |map| &: (A \to B) \to \Store L A \to \Store L B \\
   |zipWith| &: (A \to B \to C) \to \Store L A \to \Store L B \to \Store L C \\
   |reindex|  &: (L' \iso L) \to \Store L A \to \Store {L'} A
 \end{align*}
-\todo{not sure if we need |replace|} It's worth walking through
-some informal descriptions of the semantics of these operations.
+One could also imagine requiring similar operations like $|replace| :
+L \to A \to \Store L A \to A \times \Store L A$, but these are the
+operations we need in the context of this paper. The semantics of
+these operations can be specified by various laws (for example,
+|allocate| and |index| are inverse; |index| and |reindex| commute
+appropriately with the other operations; and so on). For now, we will
+content ourselves with some informal descriptions of the semantics.
+
+\bay{The interesting thing that needs to be worked out here is what
+  type formers mean when ``lifted'' to $\FinType$ (and whether it even
+  makes sense to lift them thus).  \eg if $L_1,L_2 : \FinType$, then
+  what is $L_1 + L_2$?  Note, presumably it has to include a proof $\outr(L_1) +
+  \outr(L_2) \iso \Fin(|L_1| + |L_2|)$, which encodes a canonical
+  choice of how to do the summing.}
 
 \begin{itemize}
 \item First, |allocate| is the sole means of constructing $\Store L A$
-  values. It takes not only a function $L \to A$ but also a
-  constructive proof that $L$ is finite.  Intuitively, the finiteness
-  proof is necessary because allocation may require some intensional
-  knowledge about the type $L$.  For example, as explained below we
-  may implement $\Store L A$ using a vector of $A$ values; allocating
-  such a vector requires knowing the size of $L$.  Specifying not just
-  a size but an equivalence with $\Fin n$ may additionally afford the
-  caller of |allocate| some control over how elements are laid out.
+  values, taking a function $L \to A$ as a specification of the
+  mapping. Note that since $L : \FinType$, implementations of
+  |allocate| also have access to a constructive proof that $L$ is
+  finite.  Intuitively, this is necessary because allocation may
+  require some intensional knowledge about the type $L$.  For example,
+  as explained below, we may implement $\Store L A$ using a vector of
+  $A$ values; allocating such a vector requires knowing the size of
+  $L$.
 \item |index| allows looking up data by label.
 \item |append| and |concat| are ``structural'' operations, allowing us
   to combine two mappings into one, or collapse nested mappings,
@@ -918,47 +1002,95 @@ some informal descriptions of the semantics of these operations.
   expresses the functoriality of $\Store - A$: we can change from one
   type of labels to another by specifying an equivalence between them.
 \end{itemize}
-These intuitions can be formalized by various unsurprising laws (for
-example, |allocate| followed by |index| should recover the original
-function; |index| and |reindex| commute with other operations in the
-appropriate ways; and so on). \todo{is it worth actually
+ \todo{is it worth actually
   formulating/spelling out the laws?  are any of them particularly
   interesting? are there any interesting choices to be made?}
+
+The keen-eyed, categorically-oriented reader might well notice that
+these encode properties of the functor category $\left[\FinSet,C\right]$,
+for an arbitrary category $C$, except for $|allocate|$ which requires more
+structure.  $|allocate|$ bears close resemblance to the Yoneda embedding,
+which is why $\Set$ is nowadays chosen as the codomain for species.
 
 We can give a particularly simple implementation using a function
 arrow to represent $\StoreSym$ (presented here using Haskell-like
 notation):
 
 \begin{spec}
-  allocate _       = id
+  allocate         = id
   index            = id
   append f g       = either f g
   concat           = curry
   map              = (.)
   zipWith z f g    = \l -> z (f l) (g l)
-  reindex i f      = f . im
+  reindex i f      = f . i
 \end{spec}
 
-Note that the implementation of |allocate| does not make use of the
-$\Finite L$ argument at all, and the implementation of |reindex| uses a
-slight abuse of notation to treat $s : L' \iso L$ as a function
-$L' \to L$.
+Note that the implementation of |allocate| does not take into account
+the finiteness of $L$ at all, and the implementation of |reindex| uses
+a slight abuse of notation to treat $s : L' \iso L$ as a function $L'
+\to L$.
+
+\subsection{Vector mappings}
+\label{sec:vecmap}
 
 A more interesting implementation uses finite vectors to store the $A$
-values.  In particular, we assume a type $|Vec| : \N \to \Type \to
-\Type$ of length-indexed vectors, supporting standard operations
+values.  This gives a very detailed view of the memory layout, allocation
+and manipulation required for storing the data associated with labelled
+structures.  As we will see, for mappings based on (length-indexed)
+vectors, \emph{finiteness} is crucial, and the finiteness proofs are
+all computationally relevant.
+
+In particular, we assume a type $|Vec| : \N \to \Type \to
+\Type$ of length-indexed vectors, supporting operations
 \begin{align*}
-  allocateV &: (n : \N) \to (\Fin n \to A) \to \Vect n A \\
-  (!)       &: \Vect n A \to \Fin n \to A \\
-  appendV   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \\
-  concatV   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \\
-  mapV      &: (A \to B) \to (\Vect n A \to \Vect n B) \\
+  |allocateV| &: (n : \N) \to (\Fin n \to A) \to \Vect n A \\
+  |(!)|       &: \Vect n A \to \Fin n \to A \\
+  |mapV|      &: (A \to B) \to (\Vect n A \to \Vect n B) \\
+  |foldV|     &: R \to (R \to A \to R) \to \Vect n A \to R \\
+  |appendV|   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \times
+  (\Fin m + \Fin n \iso \Fin{(m + n)}) \\
+  |concatV|   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \times
+  (\Fin m \times \Fin n \iso \Fin (m \cdot n))\\
+  |sumV|      &: (|ns| : \Vect m \N) \to |mapV (\n -> Vec n A) ns| \\
+  &\qquad \to \Vect {(|sumN ns|)} A \times
+  (|sumTy|\ (|mapV|\ \Fin{}\ |ns|) \iso \Fin (|sumN ns|))
 %  imapV     &: (\Fin n \to A \to B) \to (\Vect n A \to \Vect n B) \\
 %  zipWithV  &: (A \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C
 \end{align*}
+Note that in addition to computing new vectors, |appendV| and
+|concatV| also yield isomorphisms which encode the precise
+relationship bewteen the indices of the input and output vectors.  For
+example, if |appendV v1 v2 = (v,e)|, then it must be the case that |v1
+! m = v !  (e (inl m))|.  Similarly, |v ! m ! n = v' ! (e (m,n))| when
+|concatV v = (v',e)|. |sumV| is a generalized version of |concatV|
+allowing the concatenation of a collection of vectors of varying
+length,
+\begin{equation*}
+  \begin{minipage}[c]{200pt}
+  \hfill
+  \begin{diagram}[height=15]
+    dia = pad 1.1 . centerXY
+        . hcat' (with & sep .~ 0.5) . map (hcat . flip replicate (square 1))
+        $ [ 4, 2, 5 ]
+  \end{diagram}
+  %$
+  \end{minipage}
+  \stackrel{|sumV|}{\longrightarrow}
+  \begin{minipage}[c]{200pt}
+  \begin{diagram}[height=15]
+    dia = pad 1.1 . centerXY
+        . hcat . flip replicate (square 1) . sum
+        $ [ 4, 2, 5 ]
+  \end{diagram}
+  %$
+  \end{minipage}
+\end{equation*}
+with |sumN = foldV 0 (+)| and |sumTy = foldV undefined (+)|.
 
-We then define \[ \Store L A \defn \sum_{n : \N} (L \iso \Fin n)
-\times \Vect n A, \] and implement the required operations as follows:
+Given such a type $\cons{Vec}$, we may define \[ \Store L A \defn \sum_{n :
+  \N} (L \iso \Fin n) \times \Vect n A, \] and implement the required
+operations as follows:
 
 \begin{itemize}
 \item The implementation of |allocate| uses the provided $\Finite L$
@@ -986,41 +1118,32 @@ We then define \[ \Store L A \defn \sum_{n : \N} (L \iso \Fin n)
 \item At first blush it may seem that |zipWith| would be equally
   straightforward to implement in terms of a function $|zipWithV| : (A
   \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C$ (if we had
-  such a function), but it is more subtle.  The problem is that the
-  $(L \iso \Fin n)$ proofs have real computational content: zipping on
-  labels may not coincide with zipping on indices.  \todo{picture}
-  Since we want to zip on indices, |zipWith| must compose the given
-  equivalences to obtain the correspondence between the label mappings
-  used by the two input vectors:
+  such a function).  The problem, however, is that the $(L \iso \Fin
+  n)$ proofs have real computational content: zipping on labels may
+  not coincide with zipping on indices. \todo{need some pictures to
+    make this more clear?} Since we want to zip on indices, |zipWith|
+  must compose the given equivalences to obtain the correspondence
+  between the label mappings used by the two input vectors:
   \begin{spec}
     zipWith f (n, i1, v1) (_, i2, v2) = (n, i2, v)
       where v = allocateV n (\k -> f (v1 ! (i1 . inv(i2)) k) (v2 ! k))
   \end{spec}
   Note that the output of |zipWith f s1 s2| reuses the label
   equivalence |i2| from |s2|.  Of course we could instead have chosen
-  to reuse |i1| instead, but these are the only possible choices.  One
-  could imagine an optimizing compiler that could compile |zipWith|
-  into in-place update on |s2| when it could prove that the old value
-  was no longer needed.
+  to reuse |i1| instead, but these are the only possible choices.
+  Given the choice of |i2|,  an optimizing compiler can compile |zipWith|
+  into in-place update on |s2| when it can prove that the old value
+  is no longer needed.
 
-\item |append| is straightforward to implement via |appendV|, with a
-  small twist:
+\item |append| is straightforward to implement via |appendV|:
   \begin{spec}
-    append (n1, i1, v1) (n2, i2, v2) = (n1+n2, sumEqv n1 n2 i1 i2, appendV v1 v2)
+    append (n1, i1, v1) (n2, i2, v2) = (n1+n2, e . (i1 + i2), v)
+      where (v,e) = appendV v1 v2
   \end{spec}
-  Appending vectors of lengths $n_1$ and $n_2$ gives one of length
-  $n_1 + n_2$, and |appendV| will combine the vectors in the
-  appropriate way.  However, what is meant by |sumEqv n1 n2 i1 i2|?
-  Evidently we need \[ |sumEqv| : (n_1, n_2 : \N) \to (L_1 \iso
-  \Fin{n_1}) \to (L_2 \iso \Fin{n_2}) \to (L_1 + L_2 \iso \Fin{(n_1 +
-    n_2)}), \] which we can construct as the composite \[ L_1 + L_2
-  \stackrel{i_1 + i_2}{\iso} \Fin{n_1} + \Fin{n_2}
-  \stackrel{|appendFin|}{\iso} \Fin{(n_1 + n_2)}, \] given
-  $|appendFin| : \Fin{n_1} + \Fin{n_2} \iso \Fin{(n_1 + n_2)}$ which
-  ``does the same thing'' as |appendV|. That is, |appendFin|
-  calculates ``where the input indices end up'' in the output.
-
-  \todo{picture?}
+  Note that we construct the required label equivalence as the
+  composite \[ L_1 + L_2 \stackrel{i_1 + i_2}{\iso} \Fin{n_1} +
+  \Fin{n_2} \stackrel{e}{\iso} \Fin{(n_1 + n_2)}, \] using the index
+  equivalence |e| returned by |appendV|.
 
 \item |concat| is implemented similarly to |append|: we multiply the
   sizes, use |concatV| on the input vector-of-vectors, and compute the
@@ -1040,7 +1163,7 @@ both high-level concerns as well as low-level operational details.
 
 Note that when |appendV| and |concatV| cannot be optimized to in-place
 updates, they must allocate an entire new vector in memory.  To avoid
-this in exchange for some bookkeeping overhead, we could make a deep
+this, in exchange for some bookkeeping overhead, we could make a deep
 embedding out of the vector operations, turning |appendV| and
 |concatV| (and possibly |allocateV| and |mapV| as well) into
 \emph{constructors} in a new data type.  This results in something
@@ -1070,13 +1193,8 @@ A partial equivalence $A \subseteq B$ is given by:
 \item a proof that for all $b : B$, if $|project b| = \cons{inr}(a)$
   then |embed a = b|.
 \end{itemize}
-
 That is, there is a 1-1 correspondence between all the elements of $A$
-and \emph{some} (possibly all) of the elements of $B$.  The situation
-can be visualized as follows:
-
-% XXX
-\todo{picture}
+and \emph{some} (possibly all) of the elements of $B$.
 
 Note that an isomorphism $f \mkIso g : A \iso B$ can be made into a
 partial equivalence trivially by setting $|embed| = f$ and $|project|
@@ -1091,8 +1209,8 @@ equivalence.\footnote{Happily, using the Haskell \texttt{lens} library
   \cite{lens}, this all works out automatically: the representations
   of equivalences and partial equivalences (which \texttt{lens} calls
   \emph{prisms}) are such that equivalences simply \emph{are} partial
-  equivalences, and they compose as one would expect, using the
-  standard function composition operator.}
+  equivalences, and they compose as one would expect (albeit
+  ``backwards''), using the standard function composition operator.}
 
 % On the other hand, we could drop |project|, that is, we could take
 % something like \[ \cons{SubFinite}\ L \defn (n : \N) \times (|embed| :
@@ -1117,6 +1235,7 @@ The implementation of $\Store L A$ as a function arrow does not need
 to change at all.  However, the vector implementation does indeed need
 to change, in some interesting ways.  First of all, we store a partial
 equivalence instead of an equivalence along with the vector:
+\jc{So that $\iso$ should be $\subseteq$?}
 
 \[ \Store L A \defn \sum_{n : \N} (L \iso \Fin n) \times \Vect n A, \]
 
@@ -1205,14 +1324,15 @@ that is, a labelled structure over the species $F$, parameterized by a
 type $L$ of labels and a type $A$ of data, consists of
 \begin{itemize}
 \item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape; and
-\item a mapping $\Store L A$ from labels to data values (defined
-  below).
+\item a mapping $\Store L A$ from labels to data values (as defined
+  in the previous section).
 \end{itemize}
 
 Depending on the representation used for the map type $\Store L A$, a
 given labelled structure can have multiple distinct
 representations. Ideally, this extra representation detail should be
-unobservable when programming with labelled structures. In addition,
+unobservable when writing programs using labelled structures (although they
+will likely have an effect on resource usage). In addition,
 species, and hence labelled structures, are functorial in the label
 type, so the precise nature of the labels should not be observable
 either---that is, computing some function of a labelled structure
@@ -1225,10 +1345,19 @@ hide the extra detail.
   result before and after relabeling is inconsistent with our story
   about operations on arrays as label operations.  There is something
   more subtle going on here but I am not sure what.}
+\jc{That is because species based on $\B$ alone cannot model arrays.
+This is why you need more 'visible' structure on the label set to be
+able to do anything except relabelling.  Another approach is to move
+the structure to the shape component -- which we can't do in time for this
+paper.}
 
 \subsection{Labelled eliminators}
 \label{sec:labelled-eliminators}
 
+\jc{The `problem' with this definition is that it does not fully 
+correspond to the Haskell implementation.  In particular, we don't really
+have access to (the type) L from within the eliminator.  And the most
+interesting examples require a slight generalization.}
 The generic type of eliminators for labelled $F$-structures, $\Elim_F
 : \Type \to \Type \to \Type$, is defined by
 \begin{equation*}
@@ -1334,7 +1463,11 @@ even for binary product, and it is instructive to see why.  We are
 given values $x : \LStr {F \sprod G} L A$ and $y : \LStr {F \sprod G}
 L B$, and we may assume that we have suitable functions $|zip|_F$ and
 $|zip|_G$.  We need to somehow produce a value of type $\LStr {F
-  \sprod G} L {A \times B}$.  Expanding the definitions of $\LStr - -
+  \sprod G} L {A \times B}$.  \jc{The following seems to use an
+older notion of Mapping?  Shouldn't the last bit be $\Store L A$? Also,
+$\times$ is actually not defined (yet!).  Lastly, where does the Finite
+come from?  That also seems to be from an older version.}
+Expanding the definitions of $\LStr - -
 -$ and $\sprod$, we find that $x$ has the type \[ x : \Finite L \times
 \sum_{L_1, L_2 : \FinType} \left( (L_1 + L_2 \iso L) \times F\ L_1
   \times G\ L_2 \right) \times \Vect{(\size L)}{A} \] where we have
@@ -1412,6 +1545,9 @@ operations are ``structural'', \ie operate on nontrivial shapes
 (\eg matrix multiplication) whereas some (\eg transpose) are best
 expressed as operations on structured labels.
 
+\jc{I am rather dubious about this whole section.  It is not wrong, but
+I also don't think it is ready for prime time.  More fundamentally, I 
+don't think this is the right way to go, i.e. pushing shape into the labels.}
 % The shape of 2D arrays, for example, is $L_m \comp L_n$ (if we consider 2D
 % arrays as a data structure where the ordering of elements is
 % significant).  But $Path(L_m \comp L_n) \sim (Fin m, Fin n)$, so we can convert
@@ -1534,11 +1670,23 @@ usual set-theoretic definition is
 
   \todo{eliminator}
 
+  Combinatorialists often regard the species $\X$ as a ``variable''.
+  Roughly speaking, this can be justified by thinking of the inhabitant
+  of $L$ as the actual variable, and the species $\X$ then 
+  \emph{represents} the action of subtituting an arbitrary value for
+  that label in the structure.  In that sense $\X$ does act operationally
+  as a variable.  However $\X$ does \emph{not} act like a binder.
+
 \paragraph{Sets}
-The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L =
-\TyOne. \] That is, there is a single $\E$-shape for every label type.
+The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L = \{L\}. \]
+That is, there is a single $\E$-shape for every label type (since, up
+to relabeling, all $L$s of the same size are equivalent).
 Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
 labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
+Note that this is how we actually implement $\E$: we insist that $L$ be
+enumerable (which is actually a weaker requirement than having a
+$\Finite$ proof), and the shape stores this enumeration as an 
+\emph{abstract} set.
 
 Note that if $\E$-shapes are sets, then labelled
 $\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
@@ -1737,6 +1885,8 @@ dia = theDia # centerXY # pad 1.1
     \caption{Species product}
     \label{fig:product}
   \end{figure}
+\jc{Shouldn't $\Sigma$ be used explicitly here, to further emphasize the 
+fact that $L_1$ and $L_2$ are externally invisible?}
 \begin{equation*}
   (F \sprod G)\ L = (L_1, L_2 : \FinType) \times (L_1 + L_2 \iso L) \times F\ L_1 \times G\ L_2
 \end{equation*}
@@ -1758,6 +1908,7 @@ size-indexing scheme, where we replace natural numbers with finite
 types, addition with coproduct, multiplication with product, and
 equality with isomorphism.
 
+\jc{once again?  We have not mentioned them yet...}
 Finally, this definition highlights once again the fundamental
 difference between \emph{container types} and \emph{labelled shapes}.
 Given two functors representing container types, their product is
@@ -1935,7 +2086,7 @@ not partition the labels:\[ (F \scprod G)\ L = F\ L \times G\ L \]
 This is the ``na\"ive'' version of product that one might expect from
 experience with generic programming.
 
-Cartesian product works very differently With labelled shapes,
+Cartesian product works very differently with labelled shapes,
 however.  It is important to remember that a mapping $\Store L A$
 still only assigns a single $A$ value to each label; but labels can
 occur twice (or more) in an $(F \times G)$-shape.  This lets us
@@ -1955,7 +2106,6 @@ more interesting. One way to do it is to overlay an additional shape
 on top of an existing structure: \[ \cons{cprodL} : F\ L \to \LStr G L A
 \to \LStr {F \scprod G} L A. \] There is also a corresponding
 $\cons{cprodR}$ which combines an $F$-structure and a $G$-shape.
-\todo{picture}
 
 $(\scprod, \E)$ forms a commutative monoid up to species isomorphism;
 superimposing an $\E$-shape has no effect, since the $\E$-shape
@@ -2101,7 +2251,7 @@ typed, constructive way.
   \item Link to (public) git repo
   \item Heavy use of DataKinds etc. to simulate dep types (cite Hasochism)
   \item Needs to use existentially quantified labels in place of
-    dependency, e.g. for $\compB$.
+    dependency, e.g. for $\compB$.  And for products.
   \item Uses the lens lib for isos and subset.
   \item A lot of overhead; actually compiling such things to efficient
     runtime code is future work.
@@ -2115,13 +2265,22 @@ typed, constructive way.
 
 \todo{
   Give some examples of using our implementation.
-  e.g. $n$-dimensional vectors.
+  \begin{itemize}
+  \item $n$-dimensional vectors.
+  \item filter and partition.  
+  \item Foldable.  Traversable.
+  \item Various flavours of trees
+  \item finite maps.  Bags.
+  \item length-indexed vectors?
+  \end{itemize}
 }
 
 
 \subsection{Arrays}
 \label{sec:arrays}
 
+\jc{Until we have the code in the repo back to working, I would completely
+remove this.  I am not sure we can get this done in time.}
 As an extended example and a good way to explore some of the
 combinators which are possible, we now present a framework for
 programming with (arbitrary-dimensional) \emph{arrays}.
@@ -2302,6 +2461,8 @@ shapes would be much more difficult to work with).
 \begin{itemize}
 \item containers, naturally
 \item shapely types
+\item stuff types
+\item combstruct and other species implementations
 \item species in general
 \end{itemize}
 
