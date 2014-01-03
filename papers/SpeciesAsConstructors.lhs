@@ -922,14 +922,13 @@ of \term{mappings}. We need not pin down a particular implementation
 for $\StoreNP - -$; we require only that it come equipped with the
 following operations:
 \begin{align*}
-  |allocate| &: (L \to A) \to \Store L A \\
-  |index|  &: \Store L A \to L \to A \\
+  |allocate| &: (\under L \to A) \to \Store L A \\
+  |index|  &: \Store L A \to \under L \to A \\
   |map| &: (A \to B) \to \Store L A \to \Store L B \\
-  |reindex| &: (L' \iso L) \to \Store L A \to \Store {L'} A
+  |reindex| &: (L' \iso L) \to \Store L A \to \Store {L'} A \\
   |zipWith| &: (A \to B \to C) \to \Store L A \to \Store L B \to \Store L C \\
   |append| &: (\under{L_1} + \under{L_2} \iso \under{L}) \to \Store {L_1} A \to \Store {L_2} A \to \Store L A \\
-  |concat| &: (\under{L_1} \times \under{L_2} \iso \under{L}) \to \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times
-    L_2)} A \\
+  |concat| &: (\under{L_1} \times \under{L_2} \iso \under{L}) \to \Store {L_1} {\Store {L_2} A} \to \Store L A
 \end{align*}
 One could also imagine requiring other operations like $|replace| : L
 \to A \to \Store L A \to A \times \Store L A$, but these are the
@@ -941,7 +940,7 @@ content ourselves with some informal descriptions of the semantics.
 
 \begin{itemize}
 \item First, |allocate| is the sole means of constructing $\Store L A$
-  values, taking a function $L \to A$ as a specification of the
+  values, taking a function $\under L \to A$ as a specification of the
   mapping. Note that since $L : \FinType$, implementations of
   |allocate| also have access to an equivalence $\under L \iso \Fin
   {\size L}$.  Intuitively, this is important because allocation may
@@ -980,24 +979,23 @@ resemblance to the Yoneda embedding, which is why $\Set$ is nowadays
 chosen as the codomain for species. \bay{This paragraph is too terse;
   I don't really understand it.  Can you elaborate a bit?}
 
-We can give a particularly simple implementation using a function
-arrow to represent $\StoreSym$ (presented here using Haskell-like
-notation):
+We can give a particularly simple implementation with $\Store L A
+\defn \under L \to A$, presented here using Haskell-like notation:
 
 \begin{spec}
   allocate         = id
   index            = id
-  append f g       = either f g
-  concat           = curry
   map              = (.)
-  zipWith z f g    = \l -> z (f l) (g l)
   reindex i f      = f . i
+  zipWith z f g    = \l -> z (f l) (g l)
+  append e f g     = either f g . inv(e)
+  concat e f       = curry f . inv(e)
 \end{spec}
 
 Note that the implementation of |allocate| does not take into account
-the finiteness of $L$ at all, and the implementation of |reindex| uses
-a slight abuse of notation to treat $s : L' \iso L$ as a function $L'
-\to L$.
+the finiteness of $L$ at all.  In \todo{where?} we explore a more
+interesting implementation which does make use of the finiteness of
+$L$.
 
 \section{The algebra of species and labelled structures}
 \label{sec:algebraic}
