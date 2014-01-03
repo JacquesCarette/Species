@@ -2,6 +2,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE GADTs         #-}
 {-# LANGUAGE RankNTypes    #-}
+{-# LANGUAGE TypeFamilies  #-}
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -19,7 +20,7 @@ module Data.Species.List
 
       -- * Eliminators
 
-    , elimList, gelimList
+    , elimList, gelimList, toListElim
 
     )
     where
@@ -32,6 +33,7 @@ import           Data.Fin (Fin(..))
 import           Data.Fin.Isos
 import           Data.Finite (finite_Either, finite_Fin)
 import           Data.Type.Nat
+import           Data.Species.Convert
 import           Data.Species.Elim
 import           Data.Species.Shape
 import           Data.Species.Types
@@ -103,6 +105,12 @@ elimList r f = mapElimShape (view isoL)
                  (elimOne r)
                  (elimProd $ const (elimX $ \a -> fmap (f a) (elimList r f)))
 
+toListElim :: Elim L l a [a]
+toListElim = elimList [] (:)
+
+toList :: (Storage s, Eq l) => Sp L s l a -> [a]
+toList = elim toListElim
+
 -- | A generalized eliminator for labelled list structures, which actually
 --   treats the label as a objects (but not first class, as their type
 --   is existentially quantified).
@@ -113,3 +121,10 @@ gelimList r f = mapGElimShape (view isoL)
         (gelimProd $ \pf -> 
             (gelimX $ \(l,a) -> fmap (f ((view pf (Left l)),a)) 
                       (gelimList r (\(l,a) -> f ((view pf (Right l)),a)) )))
+
+instance ImpLabelled [a] where
+  type EltType [a] = a
+  type ShapeOf [a] = L
+  elimLabelled     = toListElim
+  toLabelled       = fromList
+

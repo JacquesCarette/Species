@@ -22,8 +22,6 @@ import           Data.Species.Shape
 import           Data.Species.Types
 import           Data.Storage
 
-import           Data.Species.List
-
 ------------------------------------------------------------
 -- Converting between containers and labelled structures
 ------------------------------------------------------------
@@ -117,12 +115,6 @@ instance ( Functor f
   elimLabelled
     = elimComp (Compose <$> elimLabelled) elimLabelled
 -}
-
-instance ImpLabelled [a] where
-  type EltType [a] = a
-  type ShapeOf [a] = L
-  elimLabelled     = elimList [] (:)
-  toLabelled       = fromList
 
 -- For the Explicitly labelled structures.  The biggest difference is
 -- that an eliminator asks for a Finite proof - and thus so does 
