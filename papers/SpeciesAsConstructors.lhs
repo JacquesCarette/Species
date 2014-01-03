@@ -701,19 +701,7 @@ type $A \iso B$ to be implicitly used as functions $A \to B$ where it
 does not cause confusion.  We use the notation $\mkIso$ for
 constructing equivalences from a pair of functions. That is, if $f : A
 \to B$ and $g : B \to A$ are inverse, then $f \mkIso g : A \iso B$;
-the proof that $f$ and $g$ are inverse is left implicit.  For $T :
-\Type \to \Type$ and $\sigma : A \iso B$ we can also construct the
-equivalence $T\ \sigma : T\ A \iso T\ B$.\footnote{Formally, this is
-  justified by the univalence axiom and the guaranteed functoriality
-  of $T$.} For example, $\sigma \times (\sigma \to C) : A \times (A
-\to C) \iso B \times (B \to C)$, given by \[ \sigma \times (\sigma \to
-C) = (\lam{(a,f)}{(\sigma\ a, f \comp \sigma^{-1})} \mkIso
-(\lam{(b,g)}{(\sigma^{-1}\ b, f \comp \sigma)}) \]
-
-\noindent For our purposes, this is sufficient:  in other words,
-equivalences between labels are informative, but equivalences between
-equivalences yield no further useful information. \bay{This sentence
-  makes no sense to me.  What are we trying to say here?}
+the proof that $f$ and $g$ are inverse is left implicit.
 
 \subsection{Finiteness}
 \label{sec:finiteness}
