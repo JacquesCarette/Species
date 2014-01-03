@@ -13,12 +13,15 @@ import           Control.Monad.Supply
 import           Control.Monad.Writer
 import qualified Data.Foldable        as F
 import qualified Data.Traversable     as T
+import qualified Data.MultiSet        as MS
 
 import           Data.Species.Elim
 import           Data.Species.List
 import           Data.Species.Shape
+import           Data.Species.Shuffle (forgetShape)
 import           Data.Species.Types
 import qualified Data.Storage         as S
+import qualified Data.Set.Abstract    as Set
 
 -- can get a L-structure from just Foldable
 fromFold :: (F.Foldable f, S.Storage s) => f a -> Sp' L s a
@@ -60,6 +63,15 @@ instance (Eq l, S.Storage s) => F.Foldable (Sp (f # L) s l) where
 instance F.Foldable (Sp' (f # L) s) where
   foldr f b (SpEx (Struct (CProd _ f2) elts)) =
     elim (elimList b f) (Struct f2 elts)
+
+-- Actually, in Haskell, all species are Foldable:
+instance (Set.Enumerable l, Eq l, S.Storage s) => F.Foldable (Sp f s l) where
+  foldr f b sp = elim k (forgetShape sp)
+    where k = elimE $ \s -> MS.fold f b $ Set.smap snd s
+-- The above is 'wrong' in the sense that it should restrict f to be
+-- associative-commutative.  Otherwise we can observe the order in which
+-- things are fed to MS.fold, and then create a list from that.  That is
+-- what fromFold above shows.  
 
 {-
 
