@@ -2,7 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 -- | A simple model of abstract (mathematical) sets.
-module Data.Set.Abstract (Set, enumerate, elimSet, emptySet, union, 
+module Data.Set.Abstract (Set, enumerate, elimSet, emptySet, isEmpty, union, 
   Enumerable(..), setToMS, smap, adjoin, injectionMap) where
 
 import           Control.Lens
@@ -44,6 +44,11 @@ enumerate f@(F finite) = Set $ map (view finite) (fins (size f))
 
 -- | The empty set
 emptySet = Set []
+
+-- | Check if the set is empty
+isEmpty :: Set l -> Bool
+isEmpty (Set []) = True
+isEmpty (Set _)  = False
 
 -- | Convert from an abstract set to a MultiSet
 setToMS :: Set a -> MS.MultiSet a

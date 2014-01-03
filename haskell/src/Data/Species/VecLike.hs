@@ -22,6 +22,7 @@ import           Data.Fin.Isos (finSum, finSum')
 import           Data.Iso
 import           Data.Finite
 import           Data.Species.Shape
+import           Data.Species.Shuffle
 import           Data.Species.Types
 import qualified Data.Type.Nat            as N
 import           Data.Type.Nat.Inequality
@@ -148,7 +149,7 @@ findIndices :: (S.Storage s, Set.Enumerable l, Eq l) =>
           Sp f s l a -> (a -> Bool) -> E l
 findIndices sp p = elim k (Struct gl es)
   where sp' = partition sp p
-        Struct (CProd fl gl) es = sp'
+        Struct (CProd _ gl) es = sp'
         k = elimProd $ \pf -> elimE $ \s -> elimE $ const
                (E $ Set.injectionMap (\(l,_) -> view pf (Left l)) s)
 
@@ -172,3 +173,22 @@ lcat l1 l2 = case (Vec.fromList l1, Vec.fromList l2) of
                $ lappend (fromVec v1) (fromVec v2)
 
 -- TODO: once the Vector implementation is done, do that too.
+
+
+----------------------------------------------------------------
+-- Eliminators are, of course, folds.  So let's give an example.
+-- Again we use partition to get the fundamental information, and then
+-- extract it from there.
+all :: (S.Storage s, Set.Enumerable l, Eq l) => Sp f s l a -> (a -> Bool) -> Bool
+all sp p = elim k (Struct gl es)
+  where sp' = partition sp p
+        Struct (CProd _ gl) es = sp'
+        k = elimProd (const $ elimE (const $ elimE Set.isEmpty))
+
+-- With a=Bool, we can implement 'and' and 'or';
+-- with a=Int, sum and product, etc.  This is basically because all of
+-- those are associative-commutative operations, and so we can simply
+-- *forget* all the structure to get it done!
+product :: (S.Storage s, Set.Enumerable l, Eq l) => Sp f s l Int -> Int
+product sp = elim k (forgetShape sp)
+  where k = elimE $ \s -> MS.fold (*) 0 $ Set.smap snd s
