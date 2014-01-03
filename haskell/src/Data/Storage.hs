@@ -60,6 +60,9 @@ class Storage s where
   -- Ideally we would have a unversally quantified constraint (forall
   -- l. Functor (s l)), but Haskell doesn't let us express that.
 
+  -- | Keyed Map over the label and contents
+  skmap :: (l -> a -> b) -> s l a -> s l b
+
   -- | Zip together two storage blocks with the same label type.
   zipWith :: (a -> b -> c) -> s l a -> s l b -> s l c
 
@@ -87,6 +90,7 @@ instance Storage (->) where
   replace l a f         = (f l, \l' -> if l == l' then a else f l')
   zipWith               = liftA2
   smap                  = (.)
+  skmap km f l          = km l $ f l
   append f g iso l      = either f g $ view (from iso) l
 --  concat                = uncurry
   initialize f          = f

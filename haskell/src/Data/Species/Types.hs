@@ -105,6 +105,9 @@ relabel = view . relabelI
 instance Functor (s l) => Functor (Sp f s l) where
   fmap = over (elts . mapped)
 
+-- | We can also do a 'mapWithKey', called imap for vectors:
+lmap :: Storage s => (l -> a -> b) -> Sp f s l a -> Sp f s l b
+lmap f (Struct s es) = Struct s (skmap f es)
 ------------------------------------------------------------
 --  Reshaping
 
