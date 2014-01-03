@@ -76,7 +76,7 @@ class Storage s where
   initialize :: (l -> a) -> s l a
   
 -- | A storage block of zero size.
-emptyStorage :: Storage s => s (Fin Z) a
+emptyStorage :: (Storage s) => s (Fin Z) a
 emptyStorage = allocate finite_Fin absurd
 
 instance Storage (->) where
@@ -97,8 +97,8 @@ class Storage s => LabelledStorage s where
 instance LabelledStorage (->) where
   gindex f l = (l, f l)
 
-{- 
-   Comment out this for now, will get back to it later.
+{-
+--   Comment out this for now, will get back to it later.
 
 -- A HashMap can *almost* be made an instance of Storage, save for a
 -- sane way to implement reindex.  And since that is rather crucial,
@@ -128,8 +128,12 @@ instance Storage FinHashMap where
   -- furthermore, since the maps are total, intersection is total too
   zipWith g (FHM f1 h1) (FHM _ h2) = FHM f1 (HM.intersectionWith g h1 h2)
   smap g (FHM f h)                 = FHM f (HM.map g h)
-  append (FHM f1 h1) (FHM f2 h2)   = 
-      FHM (finite_Either f1 f2) (HM.union (rekey Left h1) (rekey Right h2))
+  append (FHM f1 h1) (FHM f2 h2) i = 
+      -- FHM (finite_Either f1 f2) (HM.union (rekey Left h1) (rekey Right h2))
+      FHM (F $ (iso . i)) (rekey (view i) (HM.union (rekey Left h1) (rekey Right h2)))
+      where
+        pf = finite_Either f1 f2 
+        F iso = pf
 
 {-
   initialize h          = h
