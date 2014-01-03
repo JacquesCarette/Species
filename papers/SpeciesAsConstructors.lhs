@@ -132,7 +132,7 @@
 \newcommand{\Type}{\ensuremath{\mathcal{U}}}
 \newcommand{\FinType}{\ensuremath{\Type_{\text{Fin}}}}
 \newcommand{\size}[1]{\ensuremath{||#1||}}
-\newcommand{\underlying}[1]{\ensuremath{\left\lfloor #1 \right\rfloor}}
+\newcommand{\under}[1]{\ensuremath{\left\lfloor #1 \right\rfloor}}
 
 \newcommand{\lab}[1]{\ensuremath{\left\langle #1 \right\rangle}}
 
@@ -750,7 +750,7 @@ suitable finiteness proof can be obtained.  We also write $|L|$, when
 $L : \FinType$, to denote the projection of the natural number size
 stored in $L$.
 
-Finally, we use $\underlying - : \FinType \to \Type$ to project out the
+Finally, we use $\under - : \FinType \to \Type$ to project out the
 underlying type from a finite type, forgetting the finiteness
 evidence.
 
@@ -907,81 +907,70 @@ fact that they can both be put in correspondence with $\Fin n$ for
 some $n$.  In particular, it cannot also encode a nontrivial
 permutation on $\Fin n$.
 
-\section{Labelled structures}
+\section{Labelled structures and mappings}
 \label{sec:mappings}
 
-Formally, we may define families of labelled structures as follows:
+To recover a notion of \emph{data structure}, we must pair species,
+\ie labelled shapes, with mappings from labels to data.
+Formally, we define families of labelled structures by
 \begin{align*}
    &\LStr - - - : \Species \to \Type \to \Type \to \Type \\
    &\LStr F L A = F\ L \times \Store L A
 \end{align*}
-that is, a labelled structure over the species $F$, parameterized by a
-type $L$ of labels and a type $A$ of data, consists of
-\begin{itemize}
-\item a shape of type $F\ L$, \ie\ an $L$-labelled $F$-shape; and
-\item a mapping $\Store L A$ from labels to data values (as defined
-  in the previous section).
-\end{itemize}
-
-\todo{transition}
-
-\subsection{Simple Mappings}
-\label{sec:storage}
-
-Our goal is to define a labelled structure as a labelled shape paired
-with a \emph{mapping} from labels to data.  What, precisely, do we
-mean by a \emph{mapping}?  In fact, we need not pin down a particular
-implementation.  We require only that implementations of $\Store - - : \FinType
-\to \Type \to \Type$ come equipped with the following operations:
+where $\StoreNP - - : \FinType \to \Type \to \Type$ constructs the type
+of \term{mappings}. We need not pin down a particular implementation
+for $\StoreNP - -$; we require only that it come equipped with the
+following operations:
 \begin{align*}
   |allocate| &: (L \to A) \to \Store L A \\
   |index|  &: \Store L A \to L \to A \\
-  |append| &: \Store {L_1} A \to \Store {L_2} A \to \Store {(L_1 + L_2)} A \\
-  |concat| &: \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times
-    L_2)} A \\
   |map| &: (A \to B) \to \Store L A \to \Store L B \\
+  |reindex| &: (L' \iso L) \to \Store L A \to \Store {L'} A
   |zipWith| &: (A \to B \to C) \to \Store L A \to \Store L B \to \Store L C \\
-  |reindex|  &: (L' \iso L) \to \Store L A \to \Store {L'} A
+  |append| &: (\under{L_1} + \under{L_2} \iso \under{L}) \to \Store {L_1} A \to \Store {L_2} A \to \Store L A \\
+  |concat| &: (\under{L_1} \times \under{L_2} \iso \under{L}) \to \Store {L_1} {\Store {L_2} A} \to \Store {(L_1 \times
+    L_2)} A \\
 \end{align*}
-One could also imagine requiring similar operations like $|replace| :
-L \to A \to \Store L A \to A \times \Store L A$, but these are the
+One could also imagine requiring other operations like $|replace| : L
+\to A \to \Store L A \to A \times \Store L A$, but these are the
 operations we need in the context of this paper. The semantics of
 these operations can be specified by various laws (for example,
 |allocate| and |index| are inverse; |index| and |reindex| commute
 appropriately with the other operations; and so on). For now, we will
 content ourselves with some informal descriptions of the semantics.
 
-\bay{The interesting thing that needs to be worked out here is what
-  type formers mean when ``lifted'' to $\FinType$ (and whether it even
-  makes sense to lift them thus).  \eg if $L_1,L_2 : \FinType$, then
-  what is $L_1 + L_2$?  Note, presumably it has to include a proof $\outr(L_1) +
-  \outr(L_2) \iso \Fin(|L_1| + |L_2|)$, which encodes a canonical
-  choice of how to do the summing.}
-
 \begin{itemize}
 \item First, |allocate| is the sole means of constructing $\Store L A$
   values, taking a function $L \to A$ as a specification of the
   mapping. Note that since $L : \FinType$, implementations of
-  |allocate| also have access to a constructive proof that $L$ is
-  finite.  Intuitively, this is necessary because allocation may
+  |allocate| also have access to an equivalence $\under L \iso \Fin
+  {\size L}$.  Intuitively, this is important because allocation may
   require some intensional knowledge about the type $L$.  For example,
-  as explained below, we may implement $\Store L A$ using a vector of
+  as explained \todo{where?}, we may implement $\Store L A$ using a vector of
   $A$ values; allocating such a vector requires knowing the size of
   $L$.
 \item |index| allows looking up data by label.
-\item |append| and |concat| are ``structural'' operations, allowing us
-  to combine two mappings into one, or collapse nested mappings,
-  respectively.
 \item |map| ensures that $\Store L -$ is functorial.
-\item |zipWith| gives us a way to combine the contents of two mappings
-  labelwise.
 \item $|reindex| : (L' \iso L) \to \Store L A \to \Store {L'} A$
   expresses the functoriality of $\Store - A$: we can change from one
   type of labels to another by specifying an equivalence between them.
+\item |zipWith| gives us a way to combine the contents of two mappings
+  labelwise.
+\item |append| and |concat| are ``structural'' operations, allowing us
+  to combine two mappings into one, or collapse nested mappings,
+  respectively. One might na\"ively expect them to have types like
+  $|append| : \Store {L_1} A \to \Store {L_2} A \to \Store {(L_1 +
+    L_2)} A$, but this is not even well-typed: $L_1$ and $L_2$ are
+  elements of $\FinType$, not $\Type$, and there is no obvious way to
+  lift $+$ to operate over $\FinType$.  In particular, there are many
+  possible ways to combine equivalences $\under{L_1} \iso
+  \Fin{\size{L_1}}$ and $\under{L_2} \iso \Fin{\size{L_2}}$ into an
+  equivalence $\under{L_1} + \under{L_2} \iso \Fin{(\size{L_1} +
+    \size{L_2})}$, and no canonical way to pick one. (Should the
+  elements of $L_1$ come first? $L_2$? Should they be interleaved
+  somehow?) Intuitively, the extra argument to |append| provides
+  precisely this missing information (and similarly for |concat|).
 \end{itemize}
- \todo{is it worth actually
-  formulating/spelling out the laws?  are any of them particularly
-  interesting? are there any interesting choices to be made?}
 
 The keen-eyed, categorically-oriented reader might well notice that
 these encode properties of the functor category $\left[\FinSet,C\right]$,
