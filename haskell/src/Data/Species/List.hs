@@ -77,7 +77,7 @@ nil = list $ inl one
 cons :: (Storage s, Eq l) => a -> Sp L s l a -> Sp L s (Either (Fin (S Z)) l) a
 cons a (Struct shp es) = 
   Struct (list_ (inr_ (prod_ x_ shp))) 
-         (append (allocate finite_Fin (const a)) es)
+         (append (allocate finite_Fin (const a)) es id)
 
 -- | Convert a Haskell list to a list structure (with existentially quantified
 --   labels).

@@ -169,7 +169,7 @@ empty = Struct (e_ S.emptySet) emptyStorage
 econs :: (Storage s) => a -> Sp E s l a -> Sp E s (Either (Fin (S Z)) l) a
 econs x (Struct (E s) stor) = 
   Struct (E (S.union (S.enumerate finite_Fin) s)) 
-         (append (allocate finite_Fin (const x)) stor)
+         (append (allocate finite_Fin (const x)) stor id)
 
 -- probably could forgo the Vector by using snatToInt
 e' :: Storage s => [a] -> Sp' E s a
@@ -205,7 +205,7 @@ inr' = withSp inr
 prod :: (Storage s, Eq l1, Eq l2)
      => Sp f s l1 a -> Sp g s l2 a -> Sp (f * g) s (Either l1 l2) a
 prod (Struct sf esf) (Struct sg esg) =
-    Struct (prod_ sf sg) (append esf esg)
+    Struct (prod_ sf sg) (append esf esg id)
 
 prod' :: Sp' f s a -> Sp' g s a -> Sp' (f * g) s a
 prod' (SpEx f) (SpEx g) = SpEx (prod f g)
@@ -270,7 +270,7 @@ part :: (Storage s, Eq l1, Eq l2)
   -> (l1 -> a) -> (l2 -> a) -> (Either l1 l2 <-> l) -> Sp (E * E) s l a
 part finl1 finl2 f g i = 
   Struct (part_ (S.enumerate finl1) (S.enumerate finl2) i) 
-         (reindex i $ append (allocate finl1 f) (allocate finl2 g))
+         (append (allocate finl1 f) (allocate finl2 g) i)
 
 -- It is not clear that we can create a part' because this witnesses a subset
 -- relation on labels, which seems difficult to abstract

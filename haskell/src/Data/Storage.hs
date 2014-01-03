@@ -6,6 +6,7 @@
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE ConstraintKinds       #-}
 {-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE RankNTypes            #-}
 
 module Data.Storage
     ( Storage(..)
@@ -16,14 +17,16 @@ module Data.Storage
 
 import Prelude hiding (zip, zipWith, concat)
 import GHC.Exts
+import Data.Either (either)
 
-import Control.Lens (review,retagged)
+import Control.Lens (view,review,retagged,from)
 import Control.Applicative (liftA2)
 
 import qualified Data.HashMap.Lazy as HM
 import Data.HashMap.Lazy ((!))
 import Data.Hashable
 
+import Data.Iso
 import Data.Type.Nat
 import Data.Fin
 import Data.Finite
@@ -62,7 +65,7 @@ class Storage s where
 
   -- | Combine two storage blocks into one, taking the disjoint union
   --   of their label types.
-  append :: s l1 a -> s l2 a -> s (Either l1 l2) a
+  append :: s l1 a -> s l2 a -> Either l1 l2 <-> l -> s l a
 
   -- | Collapse nested blocks of storage into one, taking the pair of
   --   their label types.
@@ -84,8 +87,7 @@ instance Storage (->) where
   replace l a f         = (f l, \l' -> if l == l' then a else f l')
   zipWith               = liftA2
   smap                  = (.)
-  append f _ (Left l1)  = f l1
-  append _ g (Right l2) = g l2
+  append f g iso l      = either f g $ view (from iso) l
 --  concat                = uncurry
   initialize f          = f
 
