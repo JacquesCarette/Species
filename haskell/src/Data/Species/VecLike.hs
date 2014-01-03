@@ -132,3 +132,24 @@ partition' :: (a -> Bool) -> [a] -> ([a],[a])
 partition' p lst = case Vec.fromList lst of
   Vec.SomeVec v -> 
       N.natty (Vec.size v) $ extractBothLFA $ partitionLFA (fromVec v) p
+
+----------------------------------------------------------------
+-- Like vectors, we can append labelled structures: this is exactly 
+-- what species product gives.
+sappend :: (S.Storage s, Eq l1, Eq l2) => Sp f s l1 a -> Sp g s l2 a -> Sp (f * g) s (Either l1 l2) a
+sappend = prod
+
+lappend :: (Eq l1, Eq l2) => Sp L.L (->) l1 a -> Sp L.L (->) l2 a -> Sp (L.L * L.L) (->) (Either l1 l2) a
+lappend = sappend
+
+-- we can concatenate two lists this way.  (This would be cleaner with
+-- vectors...
+lcat :: [a] -> [a] -> [a]
+lcat l1 l2 = case (Vec.fromList l1, Vec.fromList l2) of
+  (Vec.SomeVec v1, Vec.SomeVec v2) -> 
+      N.natty (Vec.size v1) $ N.natty (Vec.size v2) $
+           elim (elimProd $ const (L.elimList (L.elimList [] (:)) e2))
+               $ lappend (fromVec v1) (fromVec v2)
+  where e2 _ _ = L.elimList [] (:)
+
+-- TODO: once the Vector implementation is done, do that too.
