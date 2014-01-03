@@ -161,11 +161,6 @@
 \DeclareMathOperator{\elim}{elim}
 \DeclareMathOperator{\DecEq}{DecEq}
 
-\newcommand{\mor}{\Rightarrow}
-% \newcommand{\mor}{\stackrel{\bullet}{\rightarrow}}
-\newcommand{\natiso}{\Leftrightarrow}
-% \newcommand{\natiso}{\stackrel{\bullet}{\longleftrightarrow}}
-
 \newcommand{\ssum}{\boxplus}
 \newcommand{\sprod}{\boxdot}
 \newcommand{\scomp}{\boxcircle}
@@ -381,12 +376,12 @@ would be quite happy with the paper layout that she suggests.  Although
 there is one item which needs serious re-thinking: the emphasis on 'finite'.
 As things currently stand, our use of 'finite' keeps getting smaller and
 smaller.  In a number of places, I think we could weaken the definition
-of finiteness too (from an isomorphism to simply requiring a surjection 
+of finiteness too (from an isomorphism to simply requiring a surjection
 from some bounded set of naturals onto our labels, with no injectivity
 requirement; in other places we need an (unordered) enumeration instead).}
 \jc{Regarding array examples: we do not have any code on arrays that works
 at the moment.  We do have code for 1D sized vectors that mostly works.
-We have all sorts of other examples that also work.  We should really agree 
+We have all sorts of other examples that also work.  We should really agree
 on which examples we'll pull from, and make sure they fully work.}
 
 \section{Introduction}
@@ -487,11 +482,11 @@ data structure, which differ only in the way they are labelled.
 to algebraic data types?}
 
 \jc{Comment to be moved to the right place, but it came to mind while I
-was reading the above: this `late' collapse joins up nicely with HTT 
+was reading the above: this `late' collapse joins up nicely with HTT
 and higher-categorical thinking.  In this style, rather than quotienting
 early (to find an efficient representation eagerly), it is thought best
-to wait and record the collapse through adjoining an groupoid of 
-isomorphisms [think identity types].  The `best' picture may then 
+to wait and record the collapse through adjoining an groupoid of
+isomorphisms [think identity types].  The `best' picture may then
 emerge much later from a \emph{composition} of isomorphisms, rather than
 directly from the first isomorphism encountered.}
 
@@ -507,7 +502,7 @@ directly model multiple finite map implementations (\todo{see section
 \paragraph{Vectors and arrays}
 
 \jc{As I said above, I am uncomfortable with saying too much about
-multi-dimensional arrays until our implementation catches up.  I think 
+multi-dimensional arrays until our implementation catches up.  I think
 what I'll do is finish this read through/edit pass, then work on the array
 ideas, so that we can keep this example family in place.}
 
@@ -1022,36 +1017,43 @@ theory.  At its core, this theory is not new; what is new is porting
 it to a constructive setting, and the introduction and elimination
 forms for labelled structures built on top of these species.
 
-Formally, to define a species we must define its action on both label
-types and label equivalences.  However, we will only give the actions
-on label types: if the action of a species on the label type $L$ is
-given by $F\ L$, its action on equivalences $\sigma$ can be derived by
-syntactically replacing $L$ by $\sigma$ in the definition of $F$
-(using our convention that $F\ \sigma : F\ L_1 \iso F\ L_2$ when
-$\sigma : L_1 \iso L_2$). Moreover, this action on equivalences is
-automatically functorial.
-
 \subsection{Algebraic data types}
 \label{sec:primitive}
 
-\todo{we begin by exhibiting species/labelled structures which
-  correspond to algebraic data types, i.e. polynomial functors.}
+We begin by exhibiting species, \ie labelled structures, which
+correspond to familiar algebraic data types.
 
-\todo{say something about how to interpret the picture schemas we will use}
+\todo{say something about how to interpret the picture schemas we will
+  use}
 
 \paragraph{Zero}
-  The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
-  unique species with no shapes whatsoever, defined by its action on
-  finite types as
+The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
+unique species with no shapes whatsoever, defined by
   \begin{equation*}
-  \Zero\ L = \TyZero
+  \Zero\ L = \TyZero.
   \end{equation*}
   Of course, it has no introduction form.
 
 \paragraph{One}
 The \emph{one} or \emph{unit} species, denoted $\One$, is the species
-with a single shape of size $0$ (that is, containing no labels).  The
-usual set-theoretic definition is
+with a single shape of size $0$ (that is, containing no labels),
+defined by
+\[ \One\ L = \TyZero \iso L. \] That is, a $\One$-shape consists
+solely of a proof that $L$ is empty.\footnote{\citet{yeh-k-species}
+  mentions something equivalent, namely, that the unit species can be
+  defined as the hom-functor $\B(\varnothing, -)$, though he certainly
+  does not have constructive type theory in mind.}  (Note that there
+is at most one such proof.)
+
+There is a trivial introduction form for $\One$, also denoted $\One$,
+which creates a $\One$-shape using the canonical label set $\Fin\ 0$,
+that is, \[ \One : \One\ (\Fin\ 0). \] We also have an introduction
+form for labelled $\One$-structures, \[ \lab{\One} : \LStr \One
+{\Fin\,0} A. \] In general, species introduction forms will use a
+canonical label type if there is one; other label types may be
+obtained via relabelling.
+
+  Note that the usual set-theoretic definition is
   \[ \One\ L =
   \begin{cases}
     \{\bullet\} & ||L|| = 0 \\
@@ -1066,27 +1068,6 @@ usual set-theoretic definition is
   size---but this is not manifestly obvious. It's also strange that we
   have to pull some arbitrary one-element set out of thin air.
 
-  The corresponding type-theoretic definition, on the other hand, is
-  \[ \One\ L = \TyZero \iso L. \] That is, a $\One$-shape consists
-  solely of a proof that $L$ is
-  empty.\footnote{\citet{Yeh-calculus-virtual-K} mentions something
-    equivalent, namely, that the unit species can be defined as the
-    hom-functor $\B(\varnothing, -)$, though he certainly does not
-    have constructive type theory in mind.}  (Note that there is at
-  most one such proof.)
-
-  There is a trivial introduction form for $\One$, also denoted
-  $\One$, which creates a $\One$-shape using the canonical label set
-  $\Fin\ 0$, that is, \[ \One : \One\ (\Fin\ 0). \] We also have an
-  introduction form for labelled $\One$-structures, \[ \lab{\One} : \LStr
-  \One {\Fin\,0} A. \]
-
-  In general, species introduction forms will use a canonical label
-  type if there is one; other label types may be obtained via
-  relabelling.
-
-  \todo{eliminator}
-
 \paragraph{Singleton}
   The \emph{singleton} species, denoted $\X$, is defined by
   \[ \X\ L = \TyOne \iso L, \] that is, an $\X$-shape is just a proof
@@ -1100,21 +1081,18 @@ usual set-theoretic definition is
   must provide the single value of type $A$ which is to be stored in
   the single location: \[ \lab{\cons{x}} : A \to \LStr \X {\Fin 1} A. \]
 
-  \todo{eliminator}
-
   Combinatorialists often regard the species $\X$ as a ``variable''.
   Roughly speaking, this can be justified by thinking of the inhabitant
-  of $L$ as the actual variable, and the species $\X$ then 
+  of $L$ as the actual variable, and the species $\X$ then
   \emph{represents} the action of subtituting an arbitrary value for
   that label in the structure.  In that sense $\X$ does act operationally
-  as a variable.  However $\X$ does \emph{not} act like a binder.
+  as a variable.  However, $\X$ does \emph{not} act like a binder.
 
 \paragraph{Sum}
 Given two species $F$ and $G$, we may form their sum. We use $\ssum$
 to denote the sum of two species to distinguish it from $+$, which
-denotes a sum of types. The definition is straightforward, and
-unsurprising to anyone who has ever done any generic programming: \[
-(F \ssum G)\ L = F\ L + G\ L. \] That is, a labelled $(F \ssum G)$-shape is
+denotes a sum of types. The definition is straightforward: \[ (F \ssum
+G)\ L = F\ L + G\ L. \] That is, a labelled $(F \ssum G)$-shape is
 either a labelled $F$-shape or a labelled $G$-shape (\pref{fig:sum}).
 
   \begin{figure}
@@ -1142,12 +1120,12 @@ dia = theDia # centerXY # pad 1.1
 
 As the reader is invited to check, $(\ssum,\Zero)$ forms a commutative
 monoid structure on species, up to species isomorphism.  That is, one
-can define natural isomorphisms
+can define equivalences
 \begin{align*}
 &\cons{plusAssoc} : \impl{F, G, H : \Species} \to ((F \ssum G) \ssum H
-\natiso F \ssum (G \ssum H)) \\
-&\cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \natiso F) \\
-&\cons{plusComm} : \impl{F, G : \Species} \to (F \ssum G \natiso G
+\iso F \ssum (G \ssum H)) \\
+&\cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \iso F) \\
+&\cons{plusComm} : \impl{F, G : \Species} \to (F \ssum G \iso G
 \ssum F)
 \end{align*}
 
@@ -1189,7 +1167,7 @@ dia = theDia # centerXY # pad 1.1
     \caption{Species product}
     \label{fig:product}
   \end{figure}
-\jc{Shouldn't $\Sigma$ be used explicitly here, to further emphasize the 
+\jc{Shouldn't $\Sigma$ be used explicitly here, to further emphasize the
 fact that $L_1$ and $L_2$ are externally invisible?}
 \begin{equation*}
   (F \sprod G)\ L = (L_1, L_2 : \FinType) \times (L_1 + L_2 \iso L) \times F\ L_1 \times G\ L_2
@@ -1238,72 +1216,6 @@ $(\sprod, \One)$ also forms a commutative monoid up to species
 isomorphism.
 
 \todo{example: lists}
-
-\subsection{Species isomorphism}
-\label{sec:species-iso}
-
-We have now seen four primitive species: \Zero, \One, \X, and \E.  It
-turns out that each of them is the unit for a different monoid
-structure on species; we will look at each of these in turn, as well
-as an additional fifth monoid structure.  Before we get there,
-however, we need to take a brief detour to discuss isomorphism of
-species, since the monoid laws hold only up to isomorphism.
-
-Since species are functors, a \term{morphism} between species $F$ and
-$G$ is a natural transformation, that is, a transformation from
-$F$-shapes to $G$-shapes which works uniformly for all label
-types. Formally, the type of species morphisms is given by
-\begin{align*}
-  &- \mor - : \Species \to \Species \to \Type \\
-  &F \mor G = (\varphi : \impl{L : \FinType} \to F\ L \to G\ L)
-  \times \Natural\ \varphi
-\end{align*}
-where $\Natural\ \varphi$ is the proposition which states that $\varphi$ is
-\term{natural}, that is, the diagram shown in
-\pref{fig:species-morphism} commutes for all $L, L' : \FinType$ and
-all $\sigma : L \iso L'$.
-\begin{figure}[h!]
-  \centering
-  \centerline{
-    \xymatrix{
-      F\ L \ar[d]_{\varphi_L} \ar[r]^{F\ \sigma} & F\ L' \ar[d]^{\varphi_{L'}} \\
-      G\ L                    \ar[r]_{G\ \sigma} & G\ L'
-    }
-  }
-  \caption{Naturality for species morphisms}
-  \label{fig:species-morphism}
-\end{figure}
-Intuitively, $\varphi$ is natural if it does not depend on the type of
-the labels, that is, it acts uniformly for all choices of label set:
-it does not matter whether one first relabels an $F$-shape and then
-applies $\varphi$, or applies $\varphi$ first and later relabels.
-
-An \term{isomorphism} between species, denoted $F \natiso G$, is just
-a pair of inverse morphisms, that is, $\varphi : F \mor G$ and
-$\varphi^{-1} : G \mor F$ such that $\varphi^{-1}_L \comp \varphi_L =
-id_{FL}$ and $\varphi_L \comp \varphi^{-1}_L = id_{GL}$ for all $L :
-\FinType$.  Species isomorphism preserves all the interesting
-\emph{combinatorial} properties of species; hence in the combinatorics
-literature everything is always implicitly done up to
-isomorphism. However, species isomorphisms carry computational
-content, so when dealing with labelled structures we must be more
-careful and explicit in their use.
-
-It is worth noting that an inverse pair of ``bare'' morphisms, without
-naturality, constitute what is termed an \term{equipotence} between
-two species.  An equipotence preserves the \emph{number} of shapes of
-each size, but it does not necessarily preserve the structure of those
-shapes. As a classic example, the species of \emph{lists} and the
-species of \emph{permutations} are equipotent but not isomorphic:
-there are the same number of lists as permutations of $n$ labels
-(namely, $n!$), but there is no way to set up an isomorphism between
-them which is uniform over the labels: any such isomorphism
-necessarily depends on a linear ordering of the labels.  In a sense,
-permutations have ``more structure'' than lists, and this extra
-structure cannot be preserved by an isomorphism.  In any case,
-although equipotences are of interest to combinatorialists, so far
-they do not seem to be of much use computationally, so we will not
-consider them further in this paper.
 
 \subsection{Composition}
 \label{sec:composition}
@@ -1500,7 +1412,7 @@ Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
 labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
 Note that this is how we actually implement $\E$: we insist that $L$ be
 enumerable (which is actually a weaker requirement than having a
-$\Finite$ proof), and the shape stores this enumeration as an 
+$\Finite$ proof), and the shape stores this enumeration as an
 \emph{abstract} set.
 
 Note that if $\E$-shapes are sets, then labelled
@@ -1596,7 +1508,7 @@ should be pointed:
 \end{align*}
 
 The relationship bewteen pointing and derivative is given by the
-isomorphism \[ \pt F \natiso \X \sprod F'. \] The right-to-left
+equivalence \[ \pt F \iso \X \sprod F'. \] The right-to-left
 direction is straightforward to implement, requiring only some
 relabeling.  The left-to-right direction, on the other hand, requires
 modelling an analogue of ``subtraction'': the given label type $L$
@@ -1669,7 +1581,7 @@ In particular, we assume a type $|Vec| : \N \to \Type \to
 %  zipWithV  &: (A \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C
 \end{align*}
 Note that in addition to computing new vectors, |appendV| and
-|concatV| also yield isomorphisms which encode the precise
+|concatV| also yield equivalences which encode the precise
 relationship bewteen the indices of the input and output vectors.  For
 example, if |appendV v1 v2 = (v,e)|, then it must be the case that |v1
 ! m = v !  (e (inl m))|.  Similarly, |v ! m ! n = v' ! (e (m,n))| when
@@ -1810,7 +1722,7 @@ able to do anything except relabelling.  Another approach is to move
 the structure to the shape component -- which we can't do in time for this
 paper.}
 
-\jc{The `problem' with this definition is that it does not fully 
+\jc{The `problem' with this definition is that it does not fully
 correspond to the Haskell implementation.  In particular, we don't really
 have access to (the type) L from within the eliminator.  And the most
 interesting examples require a slight generalization.}
