@@ -167,8 +167,8 @@ lcat :: [a] -> [a] -> [a]
 lcat l1 l2 = case (Vec.fromList l1, Vec.fromList l2) of
   (Vec.SomeVec v1, Vec.SomeVec v2) -> 
       N.natty (Vec.size v1) $ N.natty (Vec.size v2) $
-           elim (elimProd $ const (L.elimList (L.elimList [] (:)) e2))
+           elim (elimProd 
+               $ const (L.elimList L.toListElim (\_ _ -> L.toListElim)))
                $ lappend (fromVec v1) (fromVec v2)
-  where e2 _ _ = L.elimList [] (:)
 
 -- TODO: once the Vector implementation is done, do that too.
