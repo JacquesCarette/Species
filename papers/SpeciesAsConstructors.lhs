@@ -973,10 +973,12 @@ content ourselves with some informal descriptions of the semantics.
 \end{itemize}
 
 The keen-eyed, categorically-oriented reader might well notice that
-these encode properties of the functor category $\left[\FinSet,C\right]$,
-for an arbitrary category $C$, except for $|allocate|$ which requires more
-structure.  $|allocate|$ bears close resemblance to the Yoneda embedding,
-which is why $\Set$ is nowadays chosen as the codomain for species.
+these encode properties of the functor category
+$\left[\FinSet,C\right]$, for an arbitrary category $C$, except for
+$|allocate|$ which requires more structure.  $|allocate|$ bears close
+resemblance to the Yoneda embedding, which is why $\Set$ is nowadays
+chosen as the codomain for species. \bay{This paragraph is too terse;
+  I don't really understand it.  Can you elaborate a bit?}
 
 We can give a particularly simple implementation using a function
 arrow to represent $\StoreSym$ (presented here using Haskell-like
