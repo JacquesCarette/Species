@@ -75,7 +75,6 @@ import           Data.Iso
 import           Data.Storage
 import           Data.Type.List
 import qualified Data.Vec           as V
-import qualified Data.MultiSet      as MS
 import qualified Data.Set.Abstract  as S
 
 -- | The type of eliminators for labelled structures.  A value of type
@@ -151,8 +150,8 @@ elimProd el = Elim $ \(Prod fShp gShp pf) m ->
 -- | Create an eliminator for 'E' by specifying a mapping from 
 --   *pairs* (label, value) to eventual result.
 --   Think of all the '*WithKey' routines for inspiration.
-elimE ::  (MS.MultiSet (l,a) -> r) -> Elim E l a r
-elimE f = Elim $ \(E s) m -> f (S.smap (\l -> (l, m l)) s)
+elimE ::  (S.Set (l,a) -> r) -> Elim E l a r
+elimE f = Elim $ \(E s) m -> f (S.adjoin m s)
 
 -- | Create an eliminator for @(Comp f g)@-structures containing @a@'s
 --   from a way to eliminate @g@-structures containing @a@'s to some
@@ -235,6 +234,7 @@ gelimProd el = GElim $ \(Prod fShp gShp pf) m ->
           GElim g -> g gShp mg
 
 -- | The generalized eliminator for E is now quite simple.
-gelimE ::  (MS.MultiSet (l,a) -> r) -> GElim E l a r
-gelimE f = GElim $ \(E s) m -> f (S.smap m s)
+-- (but the new implementation with adjoin is silly - review this)
+gelimE ::  (S.Set (l,a) -> r) -> GElim E l a r
+gelimE f = GElim $ \(E s) m -> f (S.adjoin (snd . m) s)
 

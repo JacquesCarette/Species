@@ -43,7 +43,7 @@ fromMS = e' . MS.elems
 instance ImpLabelled (MS.MultiSet a) where
   type EltType (MS.MultiSet a) = a
   type ShapeOf (MS.MultiSet a) = E
-  elimLabelled          = elimE (MS.mapMonotonic snd)
+  elimLabelled          = elimE (S.smap snd)
   toLabelled            = fromMS
 
 toMS :: (Eq l, Storage s) => Sp E s l a -> MS.MultiSet a
@@ -85,7 +85,7 @@ node a ts = arbo' $ prod' (x' a) (compJ'' ts)
 
 -- | An eliminator for labelled general tree structures, the equivalent of
 --   'foldr'.  Explicitly polymorphic on the labels.
-elimArbo :: (forall l1. a -> MS.MultiSet (l1, r) -> r) -> Elim Arbo l a r
+elimArbo :: (forall l1. a -> S.Set (l1, r) -> r) -> Elim Arbo l a r
 elimArbo f =
   mapElimShape (view isoArbo) $
     elimProd (const $ elimX (\a -> elimComp (elimE (f a)) (elimArbo f)))
@@ -98,7 +98,7 @@ fromSetTree (SetTree a st) = node a (fromMS (MS.mapMonotonic fromSetTree st))
 instance ImpLabelled (SetTree a) where
   type EltType (SetTree a) = a
   type ShapeOf (SetTree a) = Arbo
-  elimLabelled             = elimArbo (\a ms -> SetTree a (MS.mapMonotonic snd ms))
+  elimLabelled             = elimArbo (\a ms -> SetTree a (S.smap snd ms))
   toLabelled               = fromSetTree
 
 ------------------------------------------------------------------------------
@@ -115,13 +115,17 @@ fromFHM (FHM fin hm) = e fin (\l -> hm ! l)
 toFHM :: (Eq l, Hashable l, Storage s) => Finite l -> Sp E s l a -> FinHashMap l a
 toFHM finl s = elim (elimExpLabelled finl) s
 
+-- Note the use of MS.fold here; we could instead implement a fold on our
+-- abstract sets, but that feels like we would be revealing too much
+-- information.  Of course, what we have here is not really better!  It
+-- is entirely correct though.  This really needs to be done in Agda...
 instance (Hashable l, Eq l) => ExpLabelled (FinHashMap l a) where
   type EltLT     (FinHashMap l a) = a
   type ShapeOfLT (FinHashMap l a) = E
   type LabelType (FinHashMap l a) = l
   toExpLabelled                   = fromFHM
   elimExpLabelled pf              = elimE f 
-    where f ms = FHM pf (MS.fold (\(l,x) hm -> HM.insert l x hm) HM.empty ms)
+    where f s = FHM pf (MS.fold (\(l,x) hm -> HM.insert l x hm) HM.empty (S.smap id s))
 
 ------------------------------------------------------------------------------
 -- | Haskell's FiniteMap is also (essentially) a labelled bag, but this time
@@ -146,7 +150,7 @@ instance (Ord l, Eq l) => ExpLabelled (FinMap l a) where
   type LabelType (FinMap l a) = l
   toExpLabelled               = fromFM
   elimExpLabelled pf          = elimE f 
-    where f ms = FM pf (MS.fold (\(l,x) hm -> Map.insert l x hm) Map.empty ms)
+    where f s = FM pf (MS.fold (\(l,x) hm -> Map.insert l x hm) Map.empty (S.smap id s))
 
 ------------------------------------------------------------------------------
 -- | Length-indexed vectors are more interesting.

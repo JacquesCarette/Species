@@ -14,7 +14,9 @@ module Data.Species.VecLike where
 import           Prelude hiding (filter)
 import           Control.Lens (iso,view,from)
 import           Data.Type.Equality
+import qualified Data.MultiSet            as MS
 
+import           Data.BFunctor
 import qualified Data.Fin                 as F
 import           Data.Fin.Isos (finSum, finSum')
 import           Data.Iso
@@ -132,6 +134,23 @@ partition' :: (a -> Bool) -> [a] -> ([a],[a])
 partition' p lst = case Vec.fromList lst of
   Vec.SomeVec v -> 
       N.natty (Vec.size v) $ extractBothLFA $ partitionLFA (fromVec v) p
+
+-- We can just as easily implement, for all Species:
+-- 1. elem
+-- 2. find
+-- 3. findIndex (returns Maybe l)
+-- 4. elemIndex (returns Maybe l)
+--
+-- More interestingly, we can do findIndices too, by again re-using
+-- Partition.  Since that is not entirely obvious, here is the 
+-- complete implementation:
+findIndices :: (S.Storage s, Set.Enumerable l, Eq l) => 
+          Sp f s l a -> (a -> Bool) -> E l
+findIndices sp p = elim k (Struct gl es)
+  where sp' = partition sp p
+        Struct (CProd fl gl) es = sp'
+        k = elimProd $ \pf -> elimE $ \s -> elimE $ const
+               (E $ Set.injectionMap (\(l,_) -> view pf (Left l)) s)
 
 ----------------------------------------------------------------
 -- Like vectors, we can append labelled structures: this is exactly 

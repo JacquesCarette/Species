@@ -3,7 +3,7 @@
 
 -- | A simple model of abstract (mathematical) sets.
 module Data.Set.Abstract (Set, enumerate, elimSet, emptySet, union, 
-  Enumerable(..), setToMS, smap) where
+  Enumerable(..), setToMS, smap, adjoin, injectionMap) where
 
 import           Control.Lens
 import           Data.BFunctor
@@ -24,6 +24,15 @@ newtype Set a = Set [a]
 -- that clearer still.
 smap :: (a -> b) -> Set a -> MS.MultiSet b
 smap f (Set l) = MS.mapMonotonic f $ MS.fromDistinctAscList l
+
+-- adjoin the value of a function to the set.  Since the a's are unique,
+-- the result is guaranteed to be as well.
+adjoin :: (a -> b) -> Set a -> Set (a,b)
+adjoin f (Set l) = Set $ map (\x -> (x, f x)) l
+
+-- Map an injective function onto a Set.  This one can be mis-used
+injectionMap :: (a -> b) -> Set a -> Set b
+injectionMap f (Set l) = Set $ map f l
 
 instance BFunctor Set where
   bmap i = iso (\(Set as) -> Set (map (view i) as))
