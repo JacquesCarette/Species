@@ -131,8 +131,8 @@
 
 \newcommand{\Type}{\ensuremath{\mathcal{U}}}
 \newcommand{\FinType}{\ensuremath{\Type_{\text{Fin}}}}
-
 \newcommand{\size}[1]{\ensuremath{||#1||}}
+\newcommand{\underlying}[1]{\ensuremath{\left\lfloor #1 \right\rfloor}}
 
 \newcommand{\lab}[1]{\ensuremath{\left\langle #1 \right\rangle}}
 
@@ -703,6 +703,8 @@ constructing equivalences from a pair of functions. That is, if $f : A
 \to B$ and $g : B \to A$ are inverse, then $f \mkIso g : A \iso B$;
 the proof that $f$ and $g$ are inverse is left implicit.
 
+\todo{explain univalence axiom and transport}
+
 \subsection{Finiteness}
 \label{sec:finiteness}
 
@@ -722,44 +724,42 @@ class IsFinite a where
 \end{spec}
 The idea is that the statement ``the type $A$ is finite'' translates
 to ``$A$ is an instance of the |IsFinite| class''.  However, this is
-not what we want.  The bare statement ``the type $A$ is finite''
-intuitively corresponds to the \emph{propositional truncation}
-$\||\Finite A\||$, that is, the knowledge simply that $\Finite A$ is
-inhabited, without knowing anything specific about the inhabitant.
-This is a rather different beast than a type class instance
-$|IsFinite|\ A$, which corresponds to a \emph{canonical choice} of an
-inhabitant of $\Finite A$.  Inhabitants of $\Finite A$, however, have
-nontrivial computational content; it really matters \emph{which}
-inhabitant we have.  Thus, instead of simply passing around types and
-requiring them to have an implicit, canonical finiteness proof, we
-will in general pass around types \emph{together with} some specific
-finiteness proof.  We can encapsulate this by defining \[ \FinType
-\defn (L : \Type) \times \Finite L \] as the universe of finite types.
+not what we want.  An instance $|IsFinite|\ A$ corresponds to a
+\emph{canonical choice} of an inhabitant of $\Finite A$, but
+inhabitants of $\Finite A$ have nontrivial computational content; it
+really matters \emph{which} inhabitant we have.  Thus, instead of
+simply passing around types and requiring them to have an implicit,
+canonical finiteness proof, we will in general pass around types
+\emph{together with} some specific finiteness proof.  We can
+encapsulate this by defining \[ \FinType \defn (A : \Type) \times
+\Finite A \] as the universe of finite types.
+
+\todo{add discussion here of problems with using $\Fin n$, ``too
+  much'' information, truncation, etc.?}
 
 It is not hard to see that the size of a finite type is determined
-uniquely. That is, if $(n_1,i_1)$ and $(n_2,i_2) : \Finite L$ are any
-two witnesses that $L$ is finite, then $n_1 = n_2$.  (As proof, note
-that $i_2^{-1} \comp i_1 : \Fin{n_1} \iso \Fin{n_2}$, from which we
-can derive $n_1 = n_2$ by double induction.) In a slight abuse of
-notation, we write $\size{L}$ to denote this size.  Computationally,
+uniquely. That is, if $(n_1,e_1)$ and $(n_2,e_2) : \Finite A$ are any
+two witnesses that $A$ is finite, then $n_1 = n_2$.  As proof, note
+that $e_2^{-1} \comp e_1 : \Fin{n_1} \iso \Fin{n_2}$, from which we
+can derive $n_1 = n_2$ by double induction. In a slight abuse of
+notation, we write $\size{A}$ to denote this size.  Computationally,
 this corresponds to applying $\outl$ to some finiteness proof; but
 since it does not matter which proof we use, we simply leave it
 implicit, being careful to only use $\size -$ in a context where a
-suitable finiteness proof can be obtained.
+suitable finiteness proof can be obtained.  We also write $|L|$, when
+$L : \FinType$, to denote the projection of the natural number size
+stored in $L$.
+
+Finally, we use $\underlying - : \FinType \to \Type$ to project out the
+underlying type from a finite type, forgetting the finiteness
+evidence.
 
 \section{Combinatorial Species}
 \label{sec:species}
 
-% We want to think of each labelled structure as \emph{indexed by} its
-% set of labels (or, more generally, by the \emph{size} of the set of
-% labels).  We can accomplish this by a mapping from label sets to all
-% the structures built from them, with some extra properties to
-% guarantee that we really do get the same family of structures no
-% matter what set of labels we happen to choose.
-
 Our theory of labelled structures is inspired by, and directly based
-upon, the theory of \term{combinatorial species} \cite{joyal}.  We
-give a brief introduction to it here; the reader interested in a
+upon, the theory of \term{combinatorial species} \citep{joyal}.  We
+give only a brief introduction to it here; the reader interested in a
 fuller treatment should consult \citet{bll}.  Functional programmers
 may wish to start with~\cite{yorgey-2010-species}.
 
@@ -819,11 +819,12 @@ data associated with the labels) and bare labelled \emph{shapes}
 
 Here we see that the formal notion of ``shape'' is actually quite
 broad, so broad as to make one squirm: a shape is just an element of
-some arbitrary set!  In practice, however, we are interested
-not in arbitrary species but in ones built up algebraically from a set
-of primitives and operations.  In that case the corresponding shapes
-will have more structure as well. First, however, we must put species
-and labelled structures on a firmer computational basis.
+some arbitrary set!  In practice, however, we are interested not in
+arbitrary species but in ones built up algebraically from a set of
+primitives and operations.  In that case the corresponding shapes will
+have more structure as well; we explore this in \pref{sec:algebraic}.
+For the moment, we turn to a constructive, type-theoretic definition
+of species.
 
 \subsection{Species, constructively}
 \label{sec:constructive-species}
@@ -832,54 +833,32 @@ The foregoing set-theoretic definition of species is perfectly
 serviceable in the context of classical combinatorics, but in order to
 use it as a foundation for data structures, it is necessary to first
 ``port'' the definition from set theory to constructive type theory.
+In fact, doing so results in a greatly simplified definition: we
+merely define \[ \Species \defn \FinType \to \Type. \] The rest of the
+definition comes ``for free'' from the structure of our type theory!
+In particular, given any $F : \Species$, we get \[ \relabel : (L_1
+\iso L_2) \to (F\ L_1 \to F\ L_2) \] via the univalence
+axiom\footnote{For particular $F$--- including those defined
+  algebraically, as explained in \pref{sec:algebraic}---we can get
+  away without using the univalence axiom.} and transport, and
+$\relabel$ automatically respects identity and composition.  Of
+course, this is one of the great strengths of type theory as a
+foundation for mathematics: everything is structural and hence
+functorial, natural, continuous, \dots, and we do not have to waste
+time ruling out bizarre constructions which violate these obvious and
+desirable properties, or proving that our constructions do satisfy
+them.
 
-As before, a species is a pair of maps, one mapping label types to
-sets of shapes, and one relabelling shapes. However, the $\Species$ type
-also requires proofs of the functoriality conditions for the
-relabeling function.
-\begin{align*}
-\Species & \defn (\shapes : \FinType \to \Type) \\
-         & \times (\relabel : (L_1, L_2 : \FinType) \to (L_1 \iso L_2) \to
-           (\shapes\ L_1 \to \shapes\ L_2)) \\
-         & \times ((L : \FinType) \to \relabel \id_L = \id_{\shapes L}) \\
-         & \times ((L_1, L_2, L_3 : \FinType) \to (\sigma : L_2 \iso
-         L_3) \\ &\qquad\to (\tau : L_1 \iso L_2) \to
-(\relabel\ (\sigma \comp \tau) = \relabel \sigma \comp \relabel \tau))
-\end{align*}
-
-Where the meaning is clear from context, we will use simple
-application to denote the action of a species on both label types and
-relabellings. That is, if $F : \Species$, $L, L' : \FinType$, and $\sigma
-: L \iso L'$, we will just write $F\ L : \Type$ or $F\ \sigma : F\
-L \to F\ L'$ without explicitly projecting out the $\shapes$ and
-$\relabel$ functions.
-
-Like with general species whose codomain is $\Set$, note that we use
-$\Type$ rather than $\FinType$.  There are situations where finiteness
-of the codomain matters, although we will not encounter them here.
-\jc{I would comment out the following, basically because I think it is
-false.}
-\bay{One place where the finiteness of the codomain comes into
-play is in setting up homomorphisms from species to generating
-functions with coefficients taken from $\N$---though we conjecture
-that taking coefficients from the semi-ring over the one-point
-compactification of the naturals, $\N \cup \{\infty\}$, works just as
-well.  There may be some theorems (\eg molecular species
-decomposition, or the implicit species theorem) which only hold with a
-finite codomain---in the future, we plan to port some standard
-theorems about species to a constructive setting to see where the
-finiteness is required.}
-
-It is interesting to note that an equivalence $L_1 \iso L_2$ between
+It is important to note that an equivalence $L_1 \iso L_2$ between
 constructively finite types $L_1,L_2 : \FinType$, as required by
 $\relabel$, contains more than first meets the eye.  Since \[ \FinType
-\defn (L : \Type) \times \Finite L \equiv (L : \Type) \times (n : \N)
-\times (\Fin n \iso L), \] such equivalences contain not just an
-equivalence between the underlying types, but also an
-equivalence-between-equivalences requiring them to be finite ``in the
-same way'', that is, to yield the same equivalence with $\Fin n$ after
-mapping from one to the other.  The situation can be pictured as shown
-in \pref{fig:fin-equiv}, where the diagram necessarily contains only
+\defn (L : \Type) \times (n : \N) \times (\Fin n \iso L), \] such
+equivalences contain not just an equivalence between the underlying
+types, but also a second-order equivalence-between-equivalences
+requiring the types to be isomorphic to $\Fin n$ ``in the same way'',
+that is, to yield the same equivalence with $\Fin n$ after mapping
+from one to the other.  The situation can be pictured as shown in
+\pref{fig:fin-equiv}, where the diagram necessarily contains only
 triangles: corresponding elements of $L_1$ and $L_2$ on the sides
 correspond to the same element of $\Fin n$ on the bottom row.
 \begin{figure}
@@ -925,8 +904,8 @@ Intuitively, this means that if $L_1, L_2 : \FinType$, an equivalence
 $L_1 \iso L_2$ cannot contain ``too much'' information: it only tells
 us how the underlying types of $L_1$ and $L_2$ relate, preserving the
 fact that they can both be put in correspondence with $\Fin n$ for
-some $n$.  In particular, it cannot encode a nontrivial permutation on
-$\Fin n$.
+some $n$.  In particular, it cannot also encode a nontrivial
+permutation on $\Fin n$.
 
 \section{Labelled structures}
 \label{sec:mappings}
