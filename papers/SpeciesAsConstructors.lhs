@@ -1275,7 +1275,7 @@ encoding is to use an arbitrary type of $F$-labels, and then store a
 mapping from these labels to the label types used for the $G$-shapes.
 Additionally, we store an equivalence witnessing the fact that the
 $G$-labels constitute a partition of the overall label type.
-Formally, \[ (F \scomp G)\ L = (L_F : \Type) \times F\ L_F \times
+Formally, \[ (F \scomp G)\ L = \sum{L_F : \Type} F\ L_F \times
 (Ls_G : \StoreNP {L_F} \Type) \times (L \iso \cons{sum}\ Ls_G) \times
 \cons{map}\ G\ Ls_G. \]  We assume a function $\cons{sum} : \Store J
 \Type \to \Type$ which computes the sum of all the types in the range
@@ -1313,10 +1313,7 @@ is not commutative\footnote{Interestingly, a relatively recent paper
   Incorporating this into our framework will, we conjecture, have
   important applications to multidimensional arrays.}: an $F$-shape of
 $G$-shapes is quite different from a $G$-shape of $F$-shapes.  It is,
-however, still associative, and in fact $(\scomp, \X)$ forms a monoid:
-Intuitively, an ``$F$-shape of $X$-shapes'' corresponds to an
-application of |map id| to an $F$-shape, and ``an $X$-shape of
-$F$-shapes'' to an application of |id|.
+however, still associative, and in fact $(\scomp, \X)$ forms a monoid.
 
 The space of introduction forms for composition structures is
 nontrivial.  We will not separately consider introduction forms for
@@ -1327,8 +1324,8 @@ of structures, copying the provided $G$ structure into every location
 of the $F$ structure and pairing up both their labels and data
 (\pref{fig:compP}):
 \begin{equation*}
-  - \compP - : \LStr F {L_1} A \to \LStr G {L_2} B \to \LStr {F
-  \scomp G} {L_1 \times L_2} {A \times B}
+  - \compP - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} A \to \LStr G {L_2} B \to \LStr {F
+  \scomp G} L {A \times B}
 \end{equation*}
 \begin{figure}
   \centering
@@ -1365,8 +1362,8 @@ of a special form, but is convenient when it suffices.
 
 We also have $\compA$ (``ap''), defined by
 \begin{equation*}
-  - \compA - : \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
-    \scomp G} {L_1 \times L_2} B.
+  - \compA - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
+    \scomp G} L B.
 \end{equation*}
 $\compA$ is equivalent in power to $\compP$: in particular, |x compP y =
 (map (,) x) compA y|, where $(,) : A \to B \to A \times B$ denotes the
@@ -1381,8 +1378,8 @@ There is another introduction form for composition ($\compJ$,
 ``join'') which is a generalization of the |join| ($\mu$) function of
 a monad:
 \begin{equation*}
-  - \compJ - : \LStr F {L_1} {\LStr G {L_2} A} \to \LStr {F \scomp
-  G} {L_1 \times L_2} A
+  - \compJ - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} {\LStr G {L_2} A} \to \LStr {F \scomp
+  G} L A
 \end{equation*}
 $\compJ$ takes a labelled $F$-structure filled with labelled
 $G$-structures, and turns it into a labelled $(F \scomp G)$-structure.
@@ -1398,8 +1395,9 @@ which is made possible by $\compB$ (``bind''), the last and most
 general introduction form for composition, which can be seen as a
 generalization of a monadic bind operation |(>>=)|.
 \begin{equation*}
-  - \compB - : \LStr F {L_1} A \to ((l : L_1) \to A \to \LStr G
-  {L_2\,l} B) \to \LStr {F \scomp G} {(l : L_1) \times L_2\,l} B
+  - \compB - : \left(\sum_{l : \under{L_1}} \under{L_2\,l} \right) \iso \under
+    L \to \LStr F {L_1} A \to \left(\prod_{l : L_1} A \to \LStr G
+  {L_2\,l} B\right) \to \LStr {F \scomp G} L B
 \end{equation*}
 Here, $L_2$ is actually a \emph{family} of types, indexed over $L_1$,
 so each $G$ subshape can have a different type of labels, and hence a
