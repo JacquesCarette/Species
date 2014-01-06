@@ -1,12 +1,6 @@
 + [X] redo vector methods to return isomorphisms when appropriate
 + [ ] implement/explain concat (write out on paper)
-+ [ ] example motivating partial isos: decomposition (write out
-      on paper first)
-+ [ ] write about append/concat for version of storage with subsetting
-+ [ ] write about defragmentation
-  + [ ] explain GCBP
 + [ ] redo section on eliminators.  Can observe the labels or not.
-+ [ ] need to redo section on zipping.
 + [ ] add eliminators for species etc.
 + [ ] species pictures, based on written notes
   + [ ] improvements
