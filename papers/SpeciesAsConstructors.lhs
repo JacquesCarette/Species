@@ -1264,14 +1264,17 @@ dia = theDia # centerXY # pad 1.1
 \end{figure}
 
 Composition ($\scomp$), unlike sum ($\ssum$) and product ($\sprod$),
-is not commutative\footnote{Interestingly, a recent paper XXX introduces
-  XXX which seems to represent a sort of ``commutative composition'';
-  XXX future work. \todo{finish}}: an $F$-shape of $G$-shapes is quite different from
-a $G$-shape of $F$-shapes.  It is, however, still associative, and in
-fact $(\scomp, \X)$ forms a monoid: Intuitively, an ``$F$-shape of
-$X$-shapes'' corresponds to an application of |map id| to an
-$F$-shape, and ``an $X$-shape of $F$-shapes'' to an application of
-|id|.
+is not commutative\footnote{Interestingly, a relatively recent paper
+  of \citet{Maia2008arithmetic} introduces a new monoidal structure on
+  species, the \term{arithmetic product}, which according to one
+  intuition represents a sort of ``commutative composition''.
+  Incorporating this into our framework will, we conjecture, have
+  important applications to multidimensional arrays.}: an $F$-shape of
+$G$-shapes is quite different from a $G$-shape of $F$-shapes.  It is,
+however, still associative, and in fact $(\scomp, \X)$ forms a monoid:
+Intuitively, an ``$F$-shape of $X$-shapes'' corresponds to an
+application of |map id| to an $F$-shape, and ``an $X$-shape of
+$F$-shapes'' to an application of |id|.
 
 The space of introduction forms for composition structures is
 nontrivial.  We will not separately consider introduction forms for
