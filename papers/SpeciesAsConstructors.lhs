@@ -1173,55 +1173,52 @@ dia = theDia # centerXY # pad 1.1
     \caption{Species product}
     \label{fig:product}
   \end{figure}
-\jc{Shouldn't $\Sigma$ be used explicitly here, to further emphasize the
-fact that $L_1$ and $L_2$ are externally invisible?}
 \begin{equation*}
-  (F \sprod G)\ L = (L_1, L_2 : \FinType) \times (L_1 + L_2 \iso L) \times F\ L_1 \times G\ L_2
+  (F \sprod G)\ L = \sum_{L_1, L_2 : \FinType} (\under{L_1} + \under{L_2} \iso \under{L}) \times F\ L_1 \times G\ L_2
 \end{equation*}
 For comparison, in set theory the definition is usually presented
 as \[ (F \sprod G)\ L = \sum_{L_1 \uplus L_2 = L} F\ L_1 \times G\
-L_2 \] which lacks any computational evidence for the relationship of
-$L_1$ and $L_2$ to $L$.  The intuition is that each label represents a
-unique ``location'' which can hold a data value, so the locations in
-the two paired shapes should be disjoint.
+L_2 \] which is obviously similar, but lacks any computational
+evidence for the relationship of $L_1$ and $L_2$ to $L$.
 
-Another good way to gain intuition is to imagine indexing species not
-by label types, but by natural number sizes.  Then it is easy to see
-that we would have \[ (F \sprod G)_n = (n_1, n_2 : \N) \times (n_1 +
-n_2 = n) \times F_{n_1} \times G_{n_2}, \] that is, an $(F \sprod
-G)$-shape of size $n$ consists of an $F$-shape of size $n_1$ and a
-$G$-shape of size $n_2$, where $n_1 + n_2 = n$.  Indexing by labels is
-a generalization (a \emph{categorification}, in fact) of this
+The intuition behind partitioning the labels in this way is that each
+label represents a unique ``location'' which can hold a data value, so
+the locations in the two paired shapes should be disjoint. Another
+good way to gain intuition is to imagine indexing species not by label
+types, but by natural number sizes.  Then it is easy to see that we
+would have \[ (F \sprod G)_n = \sum_{n_1, n_2 : \N} (n_1 + n_2 = n)
+\times F_{n_1} \times G_{n_2}, \] that is, an $(F \sprod G)$-shape of
+size $n$ consists of an $F$-shape of size $n_1$ and a $G$-shape of
+size $n_2$, where $n_1 + n_2 = n$.  Indexing by labels is a
+generalization (a \emph{categorification}, in fact) of this
 size-indexing scheme, where we replace natural numbers with finite
 types, addition with coproduct, multiplication with product, and
 equality with isomorphism.
 
-\jc{once again?  We have not mentioned them yet...}
-Finally, this definition highlights once again the fundamental
-difference between \emph{container types} and \emph{labelled shapes}.
-Given two functors representing container types, their product is
-defined as $(F \times G)\ A = F\ A \times G\ A$---that is, an
-$(F\times G)$-structure containing values of type $A$ is a pair of an
-$F$-structure and a $G$-structure, both containing values of type $A$.
-On the other hand, when dealing with labels instead of data values, we
-have to carefully account for the way the labels are distributed among
-the two shapes.
+Finally, this definition highlights a fundamental difference between
+\emph{container types} and \emph{labelled shapes}.  Given two functors
+representing container types, their product is defined as $(F \times
+G)\ A = F\ A \times G\ A$---that is, an $(F\times G)$-structure
+containing values of type $A$ is a pair of an $F$-structure and a
+$G$-structure, both containing values of type $A$.  On the other hand,
+when dealing with labels instead of data values, we have to carefully
+account for the way the labels are distributed between the two shapes.
 
-One introduces a labelled $(F \sprod G)$-shape by pairing a labelled $F$-shape and a
-labelled $G$-shape, using a canonical label set formed as the
-coproduct of the two label types:
+One introduces a labelled $(F \sprod G)$-shape by pairing a labelled
+$F$-shape and a labelled $G$-shape, using a label set isomorphic to
+the coproduct of the two label types:
 \begin{align*}
-  - \sprod - &: F\ L_1 \to G\ L_2 \to (F \sprod G)\ (L_1 +
-  L_2) \\
-  - \lab{\sprod} - &: \LStr F {L_1} A \to \LStr G {L_2} A \to
-  \LStr {F \sprod G} {L_1 + L_2} A
+  - \sprod - &: (\under{L_1} + \under{L_2} \iso \under{L}) \to F\ L_1
+  \to G\ L_2 \to (F \sprod G)\ L \\
+  - \lab{\sprod} - &: (\under{L_1} + \under{L_2} \iso \under{L}) \to \LStr F {L_1} A \to \LStr G {L_2} A \to
+  \LStr {F \sprod G} L A
 \end{align*}
-\todo{show how to implement $\lab{\sprod}$}
+% \todo{show how to implement $\lab{\sprod}$}
 
 $(\sprod, \One)$ also forms a commutative monoid up to species
 isomorphism.
 
-\todo{example: lists}
+As an example, \todo{example: lists}
 
 \subsection{Composition}
 \label{sec:composition}
@@ -1539,18 +1536,18 @@ functional programming community~\citep{Huet_zipper,
 species.  That is, $F'$-shapes consist of $F$-shapes with one
 distinguished location (a ``hole'') that contains no data.  Formally,
 we may define
-\[ F'\ L = (L' : \Type) \times (L' \iso \TyOne + L) \times F\ L' \]
+\[ F'\ L = (L' : \Type) \times (\under{L'} \iso \TyOne + \under{L}) \times F\ L' \]
 \todo{picture}
 
 Note that a mapping $\Store L A$ associates data to every label
-in the underlying $F\ L'$ structure but one, since $L' \iso \TyOne +
-L$.
+in the underlying $F\ L'$ structure but one, since $\under{L'} \iso \TyOne +
+\under{L}$.
 
 To introduce a derivative structure, we require an input structure
 whose label type is already in the form $\TyOne + L$:
 \begin{align*}
-  \cons{d} &: F\ (\TyOne + L) \to F'\ L \\
-  \lab{\cons{d}} &: \LStr F {\TyOne + L} A \to A \times \LStr {F'} L A
+  \cons{d} &: (\under{L'} \iso \TyOne + \under{L}) \to F\ L' \to F'\ L \\
+  \lab{\cons{d}} &: (\under{L'} \iso \TyOne + \under{L}) \to \LStr F {\TyOne + L} A \to A \times \LStr {F'} L A
 \end{align*}
 The idea with $\lab{\cons{d}}$ is that we get back the $A$ that used
 to be labelled by $\TyOne$, paired with a derivative structure with
