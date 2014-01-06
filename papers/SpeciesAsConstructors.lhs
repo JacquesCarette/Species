@@ -1313,6 +1313,7 @@ theDia
 
 dia = theDia # centerXY # pad 1.1
   \end{diagram}
+  %$
   \caption{Constructing a composition with $\compP$}
   \label{fig:compP}
 \end{figure}
@@ -1328,9 +1329,11 @@ We also have $\compA$ (``ap''), defined by
 $\compA$ is equivalent in power to $\compP$: in particular, |x compP y =
 (map (,) x) compA y|, where $(,) : A \to B \to A \times B$ denotes the
 constructor for pair types, and |x compA y = map eval (x compP y)|,
-where $|eval| : (A \to B) \times A \to B$.  \todo{say something about
-  parallel with Haskell's |Applicative| and monoidal functors; cite
-  monoidal functors paper I forget}
+where $|eval| : (A \to B) \times A \to B$.
+
+% \todo{say something about
+%   parallel with Haskell's |Applicative| and monoidal functors; cite
+%   monoidal functors paper I forget}
 
 There is another introduction form for composition ($\compJ$,
 ``join'') which is a generalization of the |join| ($\mu$) function of
