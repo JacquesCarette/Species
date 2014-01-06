@@ -1139,7 +1139,12 @@ and \mbox{-structures}:
 &\lab{\inr} : \LStr G L A \to \LStr {F \ssum G} L A
 \end{align*}
 
-\todo{eliminator}
+As a simple example, the species $\One \ssum \X$ corresponds to the
+familiar |Maybe| type from Haskell, with $\lab{\inl} \lab{\One}$
+playing the role of |Nothing| and $\lab{\inr} \comp \lab{\cons{x}}$
+playing the role of |Just|.  Note that $\LStr {\One \ssum \X} L A$ is
+only inhabited for certain $L$, and moreover that the size of $L$
+determines the possible structure of an inhabitant.
 
 \paragraph{Product}
 The product of two species $F$ and $G$ consists of paired $F$- and
