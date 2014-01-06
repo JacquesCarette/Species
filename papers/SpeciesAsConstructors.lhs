@@ -1293,17 +1293,17 @@ import SpeciesDiagrams
 theDia
   = hcat' (with & sep.~1)
     [ vcat' (with & sep.~0.2)
-      [ nd (text' 1 "F") (map (lf . Lab . Right . show) [3,2,1])
+      [ nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
         # drawSpT # centerX
       , text' 1 "⊗"
-      , nd (text' 1 "G") (map (lf . Lab . Right . (:[])) "ba")
+      , nd (text' 1 "G") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [3..4] ]
         # drawSpT # centerX
       ]
       # centerY
     , text' 1 "="
     , nd (text' 1 "F")
-      [  nd (text' 1 "G") (map (lf . Lab . Right . (f:)) ["b","a"])
-      || f <- "321"
+      [  nd' (sLabels !! f) (text' 1 "G") [ lf' (sLabels !! g) (Leaf (vcat' (with & sep .~ 0.1) <$> mapM (Just . leafData) [f,g])) || g <- [3,4]]
+      || f <- [0..2]
       ]
       # drawSpT
     ]
@@ -1339,8 +1339,6 @@ a monad:
 $\compJ$ takes a labelled $F$-structure filled with labelled
 $G$-structures, and turns it into a labelled $(F \scomp G)$-structure.
 
-\todo{illustration for $\compJ$}
-
 $\compJ$, unlike $\compP$ and $\compA$, allows constructing an $(F
 \scomp G)$-structure where the $G$-shapes are not all the same.  Note,
 however, that all the $G$-structures are restricted to use the same
@@ -1357,9 +1355,61 @@ generalization of a monadic bind operation |(>>=)|.
 \end{equation*}
 Here, $L_2$ is actually a \emph{family} of types, indexed over $L_1$,
 so each $G$ subshape can have a different type of labels, and hence a
-different size.
+different size (\pref{fig:compB}).
 
-\todo{illustration for $\compB$}
+\begin{figure}
+  \centering
+  \begin{diagram}[width=250]
+import           Control.Arrow                  (first)
+import           Data.Tree
+import           Diagrams.Prelude hiding (arrow)
+import           SpeciesDiagrams
+
+theDia
+  = hcat' (with & sep .~ 1)
+    [ vcat' (with & sep .~ 0.5)
+      [ nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
+        # drawSpT # centerX
+      , bindOp # scale 0.2 # lw 0.03
+      , cat' unitY (with & sep .~ 0.3)
+        [ mkMapping l l (drawSpT g) || (l,g) <- zip [0..2] gs ]
+        # centerXY
+      ]
+      # centerY
+    , text' 1 "="
+    , nd (text' 1 "F") (zipWith labelSp [0..2] gs)
+      # drawSpT
+    ]
+  where
+    labelSp l (Node (_,n) ts) = Node (Just (sLabels !! l), n) ts
+
+bindOp :: Diagram B R2
+bindOp = circle 1 <> joiner # clipBy (circle 1)
+  where
+    joiner = fromOffsets [unitX, unitY]
+           # rotateBy (1/8)
+           # scaleY (1/2)
+           # sized (Width 2)
+           # centerXY
+
+gs :: [SpT]
+gs = map mkG [[0,1],[2],[3,4]]
+  where
+    mkG ls = nd (text' 1 "G") [ lf' (sLabels !! l) (Leaf (Just $ leafData (3+l))) || l <- ls ]
+
+mkMapping l a g =
+  hcat' (with & sep .~ 0.3)
+    [ (sLabels !! l) origin (0.5 ^& 0) |||||| leafData a
+    , arrow 0.5 mempty
+    , g
+    ]
+
+dia = theDia # centerXY # pad 1.1
+  \end{diagram}
+  %$
+  \caption{Constructing a composition with $\compB$}
+  \label{fig:compB}
+\end{figure}
 
 \todo{example: rose trees?}
 

@@ -24,6 +24,7 @@ labR, arrowGap :: Double
 labR     = 0.3
 arrowGap = 0.2
 
+aLabels :: [Diagram B R2]
 aLabels = map (sized (Dims (4*labR) (4*labR)))
   [ circle 1
   , triangle 1
@@ -34,6 +35,28 @@ aLabels = map (sized (Dims (4*labR) (4*labR)))
   , circle 1 # scaleX 1.618
   , circle 1 # scaleY 1.618
   ]
+
+type EdgeLabel = P2 -> P2 -> Diagram B R2
+
+sLabels :: [EdgeLabel]
+sLabels =
+  [ connStyle mempty
+  , connStyle $ (mempty # lw 0.05)
+  , connStyle $ (mempty # dashing [0.1,0.1] 0)
+  , connStyle $ (mempty # dashing [0.05,0.15] 0)
+  , connStyle $ (mempty # dashing [0.05,0.05,0.1,0.05] 0)
+  , \p q -> let v = 0.03 *^ normalized (perp (q .-. p))
+            in ((p .+^ v) ~~ (q .+^ v)) <> ((p .-^ v) ~~ (q .-^ v))
+  ]
+  where
+    connStyle sty p q = (p ~~ q) # applyStyle sty
+    perp = rotateBy (1/4)
+
+labSty :: Int -> Maybe EdgeLabel
+labSty i = Just (sLabels !! i)
+
+leafData :: Int -> Diagram B R2
+leafData i = (aLabels !! i) # sized (Dims labR labR) # fc black <> square (labR*1.5) # fc white
 
 text' :: Double -> String -> Diagram B R2
 text' d s = (stroke $ textSVG' (TextOpts s lin INSIDE_H KERN False d d)) # fc black # lw 0
@@ -127,27 +150,37 @@ arrow len l =
 (|-|) :: Diagram B R2 -> Diagram B R2 -> Diagram B R2
 x |-| y = x ||| strutX 1 ||| y
 
-data SpN = Lab (Either Int String) | Leaf (Maybe (Diagram B R2)) | Hole | Point | Sp (Diagram B R2) CircleFrac | Bag
+data SpN = Lab (Either Int String)
+         | Leaf (Maybe (Diagram B R2))
+         | Hole
+         | Point
+         | Sp (Diagram B R2) CircleFrac
+         | Bag
 
-type SpT = Tree SpN
+type SpT = Tree (Maybe EdgeLabel, SpN)
 
-drawSpT' :: T2 -> SymmLayoutOpts SpN -> Tree SpN -> Diagram B R2
+drawSpT' :: T2 -> SymmLayoutOpts (Maybe EdgeLabel, SpN) -> SpT -> Diagram B R2
 drawSpT' tr slopts
   = transform tr
-  . renderTree' (drawSpN' (inv tr)) drawSpE
+  . renderTree' (drawSpN' (inv tr) . snd) drawSpE
   . symmLayout' slopts
 
-drawSpT :: Tree SpN -> Diagram B R2
+drawSpT :: SpT -> Diagram B R2
 drawSpT = drawSpT' (rotation (1/4 :: CircleFrac))
-                   (with { slHSep = 0.5, slVSep = 2})
+                   (with { slHSep = 0.5, slVSep = 2, slWidth = slw })
+  where
+    slw (_, Leaf (Just d)) = (-width d/2, width d/2)
+    slw (_, sp@(Sp _ _)) = let w = width (drawSpN' (rotation (1/4 :: CircleFrac)) sp)
+                           in  (-w/2, w/2)
+    slw _ = 0
 
 drawSpN' :: Transformation R2 -> SpN -> Diagram B R2
-drawSpN' _  (Lab (Left n))  = lab n # scale 0.5
-drawSpN' tr (Lab (Right t)) = (drawSpN' tr (Leaf Nothing) ||| strutX (labR/2) ||| text' 0.3 t) # transform tr
+drawSpN' _  (Lab (Left n))    = lab n # scale 0.5
+drawSpN' tr (Lab (Right t))   = (drawSpN' tr (Leaf Nothing) ||| strutX (labR/2) ||| text' 0.3 t) # transform tr
 drawSpN' _  (Leaf Nothing)  = circle (labR/2) # fc black
 drawSpN' _  (Leaf (Just d)) = d
-drawSpN' _  Hole     = circle (labR/2) # lw (labR / 10) # fc white
-drawSpN' tr Point    = drawSpN' tr (Leaf Nothing) <> drawSpN' tr Hole # scale 1.7
+drawSpN' _  Hole              = circle (labR/2) # lw (labR / 10) # fc white
+drawSpN' tr Point             = drawSpN' tr (Leaf Nothing) <> drawSpN' tr Hole # scale 1.7
 drawSpN' tr (Sp s f) = ( arc (3/4 - f/2) (3/4 + f/2) # scale 0.3
                        |||
                        strutX 0.1
@@ -163,24 +196,31 @@ drawSpN' _  Bag     =
 drawSpN :: SpN -> Diagram B R2
 drawSpN = drawSpN' mempty
 
-drawSpE :: (TrailLike b, HasStyle b) => (t, Point (V b)) -> (SpN, Point (V b)) -> b
-drawSpE (_,p) (Hole,q) = (p ~~ q) # dashing [0.05,0.05] 0
-drawSpE (_,p) (_,q)    = p ~~ q
+drawSpE :: (t, P2) -> ((Maybe EdgeLabel, SpN), P2) -> Diagram B R2
+drawSpE (_,p) ((_,Hole),q) = (p ~~ q) # dashing [0.05,0.05] 0
+drawSpE (_,p) ((Just f,_), q) = f p q
+drawSpE (_,p) (_,q) = p ~~ q
 
-nd :: Diagram B R2 -> Forest SpN -> Tree SpN
-nd x = Node (Sp x (1/2))
+nd :: Diagram B R2 -> Forest (Maybe EdgeLabel, SpN) -> SpT
+nd x = Node (Nothing, Sp x (1/3))
 
-lf :: a -> Tree a
-lf x = Node x []
+nd' :: EdgeLabel -> Diagram B R2 -> Forest (Maybe EdgeLabel, SpN) -> SpT
+nd' l x = Node (Just l, Sp x (1/3))
+
+lf :: a -> Tree (Maybe EdgeLabel, a)
+lf x = Node (Nothing, x) []
+
+lf' :: EdgeLabel -> a -> Tree (Maybe EdgeLabel, a)
+lf' l x = Node (Just l, x) []
 
 struct :: Int -> String -> Diagram B R2
 struct n x = drawSpT (struct' n x)
            # centerXY
 
-struct' :: Int -> String -> Tree SpN
+struct' :: Int -> String -> SpT
 struct' n x = struct'' n (text' 1 x <> rect 2 1 # lw 0)
 
-struct'' :: Int -> Diagram B R2 -> Tree SpN
+struct'' :: Int -> Diagram B R2 -> SpT
 struct'' n d = nd d (replicate n (lf (Leaf Nothing)))
 
 linOrd :: [Int] -> Diagram B R2
