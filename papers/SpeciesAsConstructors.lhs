@@ -1049,9 +1049,8 @@ There is a trivial introduction form for $\One$, also denoted $\One$,
 which creates a $\One$-shape using the canonical label set $\Fin\ 0$,
 that is, \[ \One : \One\ (\Fin\ 0). \] We also have an introduction
 form for labelled $\One$-structures, \[ \lab{\One} : \LStr \One
-{\Fin\,0} A. \] In general, species introduction forms will use a
-canonical label type if there is one; other label types may be
-obtained via relabelling.
+{\Fin 0} A \] (here $\Fin 0$ denotes the type $\Fin 0$ paired with the
+unique isomorphism from it to itself).
 
   Note that the usual set-theoretic definition is
   \[ \One\ L =
@@ -1077,9 +1076,11 @@ obtained via relabelling.
   equivalence to $\unit$.
 
   $\X$-shapes, as with $\One$, have a trivial introduction form,
-  \[ \cons{x} : \X\ (\Fin\ 1). \]  To introduce an $\X$-structure, one
+  \[ \cons{x} : \X\ (\Fin\ 1). \] To introduce an $\X$-structure, one
   must provide the single value of type $A$ which is to be stored in
-  the single location: \[ \lab{\cons{x}} : A \to \LStr \X {\Fin 1} A. \]
+  the single location: \[ \lab{\cons{x}} : A \to \LStr \X {\Fin 1}
+  A. \] Again, $\Fin 1 : \FinType$ here stands for $\Fin 1 : \Type$
+  together with the unique isomorphism from $\Fin 1$ to itself.
 
   Combinatorialists often regard the species $\X$ as a ``variable''.
   Roughly speaking, this can be justified by thinking of the inhabitant
