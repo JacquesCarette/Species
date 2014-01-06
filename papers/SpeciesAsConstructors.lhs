@@ -133,6 +133,7 @@
 \newcommand{\FinType}{\ensuremath{\Type_{\text{Fin}}}}
 \newcommand{\size}[1]{\ensuremath{||#1||}}
 \newcommand{\under}[1]{\ensuremath{\left\lfloor #1 \right\rfloor}}
+\newcommand{\lift}[1]{\ensuremath{\left\lceil #1 \right\rceil}}
 
 \newcommand{\lab}[1]{\ensuremath{\left\langle #1 \right\rangle}}
 
@@ -181,6 +182,8 @@
 \newcommand{\StoreSym}{\Mapsto}
 \newcommand{\StoreNP}[2]{\ensuremath{#1 \StoreSym #2}}
 \newcommand{\Store}[2]{(\StoreNP{#1}{#2})}
+
+\newcommand{\List}{\mathsf{List}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -700,6 +703,8 @@ the proof that $f$ and $g$ are inverse is left implicit.
 
 \todo{explain univalence axiom and transport}
 
+\todo{mention inductive definitions}
+
 \subsection{Finiteness}
 \label{sec:finiteness}
 
@@ -1046,11 +1051,12 @@ solely of a proof that $L$ is empty.\footnote{\citet{yeh-k-species}
 is at most one such proof.)
 
 There is a trivial introduction form for $\One$, also denoted $\One$,
-which creates a $\One$-shape using the canonical label set $\Fin\ 0$,
-that is, \[ \One : \One\ (\Fin\ 0). \] We also have an introduction
-form for labelled $\One$-structures, \[ \lab{\One} : \LStr \One
-{\Fin 0} A \] (here $\Fin 0$ denotes the type $\Fin 0$ paired with the
-unique isomorphism from it to itself).
+which creates a $\One$-shape using the canonical label set
+$\lift{\Fin\ 0} : \FinType$, that is, \[ \One : \One\ \lift{\Fin\
+  0}. \] (In general, $\lift{\Fin n} : \FinType$ denotes the type
+$\Fin n : \Type$ paired with the identity equivalence).  We also have
+an introduction form for labelled $\One$-structures, \[ \lab{\One} :
+\LStr \One {\lift{\Fin 0}} A. \]
 
   Note that the usual set-theoretic definition is
   \[ \One\ L =
@@ -1076,11 +1082,10 @@ unique isomorphism from it to itself).
   equivalence to $\unit$.
 
   $\X$-shapes, as with $\One$, have a trivial introduction form,
-  \[ \cons{x} : \X\ (\Fin\ 1). \] To introduce an $\X$-structure, one
+  \[ \cons{x} : \X\ \lift{\Fin\ 1}. \] To introduce an $\X$-structure, one
   must provide the single value of type $A$ which is to be stored in
-  the single location: \[ \lab{\cons{x}} : A \to \LStr \X {\Fin 1}
-  A. \] Again, $\Fin 1 : \FinType$ here stands for $\Fin 1 : \Type$
-  together with the unique isomorphism from $\Fin 1$ to itself.
+  the single location: \[ \lab{\cons{x}} : A \to \LStr \X {\lift{\Fin 1}}
+  A. \]
 
   Combinatorialists often regard the species $\X$ as a ``variable''.
   Roughly speaking, this can be justified by thinking of the inhabitant
@@ -1123,12 +1128,15 @@ As the reader is invited to check, $(\ssum,\Zero)$ forms a commutative
 monoid structure on species, up to species isomorphism.  That is, one
 can define equivalences
 \begin{align*}
-&\cons{plusAssoc} : \impl{F, G, H : \Species} \to ((F \ssum G) \ssum H
-\iso F \ssum (G \ssum H)) \\
-&\cons{zeroPlusL} : \impl{F : \Species} \to (\Zero \ssum F \iso F) \\
-&\cons{plusComm} : \impl{F, G : \Species} \to (F \ssum G \iso G
-\ssum F)
+  \cons{plusAssoc} &: (F \ssum G) \ssum H
+  \iso F \ssum (G \ssum H) \\
+  \cons{zeroPlusL} &: \Zero \ssum F \iso F \\
+  \cons{plusComm} &: F \ssum G \iso G \ssum F
 \end{align*}
+We remark that unfolding definitions, an equivalence $F \iso G$
+between two $\Species$ is seen to be a natural isomorphism between $F$
+and $G$ as functors; this is precisely the usual definition of
+isomorphism between species.
 
 As expected, there are two introduction forms for $(F \ssum G)$-shapes
 and \mbox{-structures}:
@@ -1208,17 +1216,48 @@ One introduces a labelled $(F \sprod G)$-shape by pairing a labelled
 $F$-shape and a labelled $G$-shape, using a label set isomorphic to
 the coproduct of the two label types:
 \begin{align*}
-  - \sprod - &: (\under{L_1} + \under{L_2} \iso \under{L}) \to F\ L_1
+  - \sprod_- - &: (\under{L_1} + \under{L_2} \iso \under{L}) \to F\ L_1
   \to G\ L_2 \to (F \sprod G)\ L \\
-  - \lab{\sprod} - &: (\under{L_1} + \under{L_2} \iso \under{L}) \to \LStr F {L_1} A \to \LStr G {L_2} A \to
+  - \lab{\sprod}_- - &: (\under{L_1} + \under{L_2} \iso \under{L}) \to \LStr F {L_1} A \to \LStr G {L_2} A \to
   \LStr {F \sprod G} L A
 \end{align*}
+The isomorphism arguments are written as subscripts to $\sprod$ and $\lab{\sprod}$.
 % \todo{show how to implement $\lab{\sprod}$}
 
-$(\sprod, \One)$ also forms a commutative monoid up to species
-isomorphism.
+As an example, we may now encode the standard algebraic data type of
+lists, represented by the inductively-defined species satisfying
+$\List \iso \One \ssum (\X \sprod \List)$ (for convenience, in what
+follows we leave implicit the constructor witnessing this
+equivalence).  We can then define the usual constructors $\cons{nil}$
+and $\cons{cons}$ as follows:
+\begin{align*}
+  &\cons{nil} : \LStr{\List}{\Fin 0} A \\
+  &\cons{nil} \defn \lab{\inl} \lab{\One} \\
+  &\cons{cons} : A \to \LStr \List L A \to (\Fin 1 + \under L \iso
+  \under{L'}) \to \LStr \List {L'} A \\
+  &\cons{cons}\ a\ (|shape|,|elts|)\ e \defn (\inr\ (\cons{x} \sprod_e
+  |shape|), |append|\ e\ (|allocate|\ (\lambda x. a))\ |elts|)
+\end{align*}
+The interesting thing to note here is the extra equivalence passed as
+an argument to $\cons{cons}$, specifying the precise way in which the
+old label type augmented with an extra distinguished label is
+isomorphic to the new label type.  Again, one might intuitively expect
+something like \[ \cons{cons} : A \to \LStr \List L A \to \LStr \List
+{\lift{\Fin 1} + L} A, \] but this is nonsensical: we cannot take the
+coproduct of two elements of $\FinType$, as it is underspecified.  For
+implementations of $\StoreNP - -$ which make use of the equivalence to
+$\Fin n$ stored in $\FinType$ values (we give an example of one such
+implementation in \todo{where?}), the extra equivalence given as an
+argument to \cons{cons} allows us to influence the particular way in
+which the list elements are stored in memory.  \todo{why is this
+  interesting? Give an example?} For lists, this is not very
+interesting, and we would typically use a variant $\cons{cons'} : A
+\to \LStr \List L A \to \LStr \List {\cons{inc}(L)} A$ making use of a
+canonical construction $\cons{inc}(-) : \FinType \to \FinType$ with
+$\Fin 1 + \under L \iso \under{\cons{inc}(L)}$.
 
-As an example, \todo{example: lists}
+\todo{What else needs to be said about lists? e.g. converting to and
+  from Haskell lists?  generic eliminators?}
 
 \subsection{Composition}
 \label{sec:composition}
