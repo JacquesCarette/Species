@@ -2000,6 +2000,16 @@ that looks very much like generalized tries
   Just put as much as we need to be able to use eliminators in our
   examples.}
 
+\bay{With our old-style eliminators (i.e. the ones which were required
+  to work for all label types), we had to sort of CPS-encode them to
+  make it work.  Building up an eliminator using the combinators like
+  |elimE|, |elimProd|, etc. corresponds to writing a CPS-encoded
+  computation.  It occurred to me the other day, though, that with our
+  ``generalized'' eliminators, which can look at the labels, this is
+  unnecessary.  We can just directly pattern-match on labelled
+  structures.  So I think we should downplay the whole eliminator
+  thing and just write our examples in a direct style.}
+
 % Depending on the representation used for the map type $\Store L A$, a
 % given labelled structure can have multiple distinct
 % representations. Ideally, this extra representation detail should be
@@ -2013,47 +2023,47 @@ that looks very much like generalized tries
 % defining a type of \emph{eliminators} for labelled structures which
 % hide the extra detail.
 
-\bay{Argh, it just hit me that this story about getting the same
-  result before and after relabeling is inconsistent with our story
-  about operations on arrays as label operations.  There is something
-  more subtle going on here but I am not sure what.}
-\jc{That is because species based on $\B$ alone cannot model arrays.
-This is why you need more 'visible' structure on the label set to be
-able to do anything except relabelling.  Another approach is to move
-the structure to the shape component -- which we can't do in time for this
-paper.}
+% \bay{Argh, it just hit me that this story about getting the same
+%   result before and after relabeling is inconsistent with our story
+%   about operations on arrays as label operations.  There is something
+%   more subtle going on here but I am not sure what.}
+% \jc{That is because species based on $\B$ alone cannot model arrays.
+% This is why you need more 'visible' structure on the label set to be
+% able to do anything except relabelling.  Another approach is to move
+% the structure to the shape component -- which we can't do in time for this
+% paper.}
 
-\jc{The `problem' with this definition is that it does not fully
-correspond to the Haskell implementation.  In particular, we don't really
-have access to (the type) L from within the eliminator.  And the most
-interesting examples require a slight generalization.}
-The generic type of eliminators for labelled $F$-structures, $\Elim_F
-: \Type \to \Type \to \Type$, is defined by
-\begin{equation*}
-  \Elim_F\ A\ R \defn (L : \Type) \to F\ L \to \DecEq L \to \Store L A \to R
-\end{equation*}
-where $\DecEq L$ represents decidable equality for $L$. There are a
-few subtle issues here which are worth spelling out in detail. First,
-note that $\Elim_F$ is parameterized by $A$ (the type of data elements
-stored in the labelled structure being eliminated) and $R$ (the type
-of the desired result), but \emph{not} by $L$.  Rather, an eliminator
-of type $\Elim_F\ A\ R$ must be parametric in $L$; defining an
-eliminator which works only for certain label types is not allowed.
-The second point is that we assume that $\Store L A$ is held abstract;
-an eliminator cannot make use of any details of a particular
-implementation for $\Store L A$, but only its abstract interface (in
-particular, the |index| function).
+% \jc{The `problem' with this definition is that it does not fully
+% correspond to the Haskell implementation.  In particular, we don't really
+% have access to (the type) L from within the eliminator.  And the most
+% interesting examples require a slight generalization.}
+% The generic type of eliminators for labelled $F$-structures, $\Elim_F
+% : \Type \to \Type \to \Type$, is defined by
+% \begin{equation*}
+%   \Elim_F\ A\ R \defn (L : \Type) \to F\ L \to \DecEq L \to \Store L A \to R
+% \end{equation*}
+% where $\DecEq L$ represents decidable equality for $L$. There are a
+% few subtle issues here which are worth spelling out in detail. First,
+% note that $\Elim_F$ is parameterized by $A$ (the type of data elements
+% stored in the labelled structure being eliminated) and $R$ (the type
+% of the desired result), but \emph{not} by $L$.  Rather, an eliminator
+% of type $\Elim_F\ A\ R$ must be parametric in $L$; defining an
+% eliminator which works only for certain label types is not allowed.
+% The second point is that we assume that $\Store L A$ is held abstract;
+% an eliminator cannot make use of any details of a particular
+% implementation for $\Store L A$, but only its abstract interface (in
+% particular, the |index| function).
 
-Decidable equality on $L$ allows the eliminator to observe value-level
-sharing.  If $\DecEq L$ is left out, we have \[ (L : \Type) \to F\ L
-\to \Store L A \to R, \] which by parametricity is equivalent to \[ F\
-A \to R. \] That is, if we do not observe the sharing (\ie\ if we do not
-consult the decidable equality on $L$, to see which labels occur more
-than once), then semantically speaking we might as well simply replace
-the labels in the $F$-shape with their corresponding $A$ values, and
-then eliminate that. However, from an operational point of view, even
-without any sharing, filling in the $F$-shape with data might involve
-undesirable copying of large amounts of data.
+% Decidable equality on $L$ allows the eliminator to observe value-level
+% sharing.  If $\DecEq L$ is left out, we have \[ (L : \Type) \to F\ L
+% \to \Store L A \to R, \] which by parametricity is equivalent to \[ F\
+% A \to R. \] That is, if we do not observe the sharing (\ie\ if we do not
+% consult the decidable equality on $L$, to see which labels occur more
+% than once), then semantically speaking we might as well simply replace
+% the labels in the $F$-shape with their corresponding $A$ values, and
+% then eliminate that. However, from an operational point of view, even
+% without any sharing, filling in the $F$-shape with data might involve
+% undesirable copying of large amounts of data.
 
 % Including this here for reference (probably doesn't need to actually
 % go in the paper):
@@ -2085,35 +2095,35 @@ undesirable copying of large amounts of data.
 % where the last step follows from the free theorem, taking l' = a, q =
 % id, and g = p.
 
-We can always derive decidable equality for any type with a $\Finite$
-proof, by mapping to $\Fin n$ and comparing for equality.  However, we
-do not expose the actual $\Finite L$ witness to eliminators.  The
-reason is that given a value of $\Finite L$, one can observe an
-induced linear order on the elements of $L$, using the usual linear
-order on the associated natural numbers. However, this would again
-break functoriality: an eliminator would be able to observe some of
-the effects of relabeling. Given only $\DecEq L \times (L \to A)$,
-there is no way to enumerate the elements of $L$ or observe any order
-relation on them.  One can only traverse the shape $F\ L$ and feed
-encountered $L$ values into the $(L \to A)$ function to learn the
-associated data values, possibly consulting the provided decidable
-equality to find out which labels are shared.
+% We can always derive decidable equality for any type with a $\Finite$
+% proof, by mapping to $\Fin n$ and comparing for equality.  However, we
+% do not expose the actual $\Finite L$ witness to eliminators.  The
+% reason is that given a value of $\Finite L$, one can observe an
+% induced linear order on the elements of $L$, using the usual linear
+% order on the associated natural numbers. However, this would again
+% break functoriality: an eliminator would be able to observe some of
+% the effects of relabeling. Given only $\DecEq L \times (L \to A)$,
+% there is no way to enumerate the elements of $L$ or observe any order
+% relation on them.  One can only traverse the shape $F\ L$ and feed
+% encountered $L$ values into the $(L \to A)$ function to learn the
+% associated data values, possibly consulting the provided decidable
+% equality to find out which labels are shared.
 
-Note that if we do want to observe sharing, the given formulation is
-not actually very convenient; for example, if we want to know whether
-a given label $l : L$ is shared, we have to traverse the entire
-$F$-structure and test every label for equality with $l$.  In
-practice, there may be equivalent, more operationally convenient
-formulations.
+% Note that if we do want to observe sharing, the given formulation is
+% not actually very convenient; for example, if we want to know whether
+% a given label $l : L$ is shared, we have to traverse the entire
+% $F$-structure and test every label for equality with $l$.  In
+% practice, there may be equivalent, more operationally convenient
+% formulations.
 
-We can ``run'' an eliminator,
-\[ \elim : \Elim_F\ A\ R \to \LStr F L A \to R, \] by taking apart the
-labelled structure and using it to construct the proper arguments to
-the eliminator.
+% We can ``run'' an eliminator,
+% \[ \elim : \Elim_F\ A\ R \to \LStr F L A \to R, \] by taking apart the
+% labelled structure and using it to construct the proper arguments to
+% the eliminator.
 
-\todo{mention in this section that this doesn't give you any help in
-  eliminating $F\ L$, which for some species $F$ may be nontrivial
-  (\eg anything with symmetry).  Future work.}
+% \todo{mention in this section that this doesn't give you any help in
+%   eliminating $F\ L$, which for some species $F$ may be nontrivial
+%   (\eg anything with symmetry).  Future work.}
 
 
 
