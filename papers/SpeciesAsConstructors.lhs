@@ -634,15 +634,16 @@ unlabelled structures via equivalence classes of labelled ones.
 \section{Theoretical setting}
 \label{sec:prelim}
 
-We have found it quite convenient to work within (a small fragment of)
-\emph{homotopy type theory} (HoTT)~\citep{hottbook}.  We do not actually need much
-complex machinery from the theory, and simply summarize the most important
-ideas and notation here.  Everything in this paper could be formalized
-in most any standard constructive type theory; we choose to work in
-HoTT because of its emphasis on equality and isomorphism, which plays
-a large role.  In fact, it seems likely that there are deeper
-connections between homotopy type theory and the theory of species,
-but exploring these connections is left to future work.
+We have found it convenient to work within \emph{homotopy type theory}
+(HoTT).  However, we do not need much complex machinery from the
+theory, and simply summarize the most important ideas and notation
+here; interested readers should consult the HoTT book~\citep{hottbook}
+for more details.  Everything in this paper could be formalized in
+most any standard constructive type theory; we choose to work in HoTT
+because of its emphasis on equality and isomorphism, which meshes well
+with the theory of species.  In fact, it seems likely that there are
+deeper connections between the two theories, but exploring these
+connections is left to future work.
 
 The concept of \term{finiteness} plays a central (but implicit) role in
 the theory of combinatorial species, primarily through the pervasive use
@@ -654,46 +655,48 @@ finiteness.
 \subsection{A fragment of homotopy type theory}
 \label{sec:HoTT}
 
-The type theory we work with is equipped with an empty type \TyZero, a unit
-type \TyOne (with inhabitant $\unit$), coproducts (with constructors $\inl$
-and $\inr$), dependent pairs (with projections $\outl$ and $\outr$),
-dependent functions, a hierarchy of type universes $\Type_0$,
-$\Type_1$, $\Type_2$\dots (we usually omit the subscripts), and a
-notion of propositional equality.  Instead of writing the traditional
-$\sum_{x : A} B(x)$ for the type of dependent pairs and $\prod_{x:A}
-B(x)$ for dependent functions, we will often use the Agda-like
-\citep{Agda} notations $(x:A) \times B(x)$ and $(x:A) \to B(x)$,
-respectively (though we still occasionally use $\Sigma$ and $\Pi$ for
-emphasis).  We continue to use the standard abbreviations $A \times B$
-and $A \to B$ for non-dependent pair and function types, that is, when
-$x$ does not appear free in $B$. Also, to reduce clutter, we sometimes
-make use of implicit quantification: free type variables in a
-type---like $A$ and $B$ in $A \times (B \to \N)$---are implicitly
-universally quantified, like $(A : \Type) \to (B : \Type) \to A \times
-(B \to \N)$.
+The type theory we work with is equipped with an empty type \TyZero, a
+unit type \TyOne (with inhabitant $\unit$), coproducts (with
+constructors $\inl$ and $\inr$), dependent pairs (with projections
+$\outl$ and $\outr$), dependent functions, a hierarchy of type
+universes $\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the
+subscripts), and a notion of propositional equality.  The theory also
+allows inductive definitions.  In particular, we use $\N : \Type$ to
+denote the type of natural numbers, and $\Fin : \N \to \Type$ the
+usual indexed type of canonical finite sets.
 
-We use $\N : \Type$ to denote the usual inductively defined type of
-natural numbers, with constructors $\NatZ : \N$ and $\NatS : \N \to
-\N$.  We also make use of the usual indexed type of canonical finite
-sets $\Fin : \N \to \Type$, with constructors $\FinZ : \impl{n :
-\N} \to \Fin (\NatS n)$ and $\FinS : \impl {n : \N} \to \Fin n \to \Fin
-(\NatS n)$.
+Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
+dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
+will often use the Agda-like \citep{Agda} notations $(x:A) \times
+B(x)$ and $(x:A) \to B(x)$, respectively (though we still occasionally
+use $\Sigma$ and $\Pi$ for emphasis).  We continue to use the standard
+abbreviations $A \times B$ and $A \to B$ for non-dependent pair and
+function types, that is, when $x$ does not appear free in $B$. Also,
+to reduce clutter, we sometimes make use of implicit quantification:
+free type variables in a type---like $A$ and $B$ in $A \times (B \to
+\N)$---are implicitly universally quantified, like $(A : \Type) \to (B
+: \Type) \to A \times (B \to \N)$.
 
-$A \iso B$ is the type of \term{equivalences} between $A$ and $B$
-(intuitively, pairs of inverse functions $f : A \to B$ and $g : B \to
-A$).\footnote{The precise details are more subtle \cite[chap.
-  4]{hottbook}, but unimportant for our purposes.}  We overload the
-notations $\id$ and $\comp$ to denote the identity equivalence and
-equivalence composition respectively; we also allow equivalences of
-type $A \iso B$ to be implicitly used as functions $A \to B$ where it
-does not cause confusion.  We use the notation $\mkIso$ for
-constructing equivalences from a pair of functions. That is, if $f : A
-\to B$ and $g : B \to A$ are inverse, then $f \mkIso g : A \iso B$;
-the proof that $f$ and $g$ are inverse is left implicit.
+$A \iso B$ is the type of \term{equivalences} between $A$ and $B$;
+intuitively, an equivalence is a pair of inverse functions $f : A \to
+B$ and $g : B \to A$).\footnote{The precise details are more subtle
+  \cite[chap.  4]{hottbook}, but unimportant for our purposes.}  We
+overload the notations $\id$ and $\comp$ to denote the identity
+equivalence and equivalence composition respectively; we also allow
+equivalences of type $A \iso B$ to be implicitly used as functions $A
+\to B$ where it does not cause confusion.  We use the notation
+$\mkIso$ for constructing equivalences from a pair of functions. That
+is, if $f : A \to B$ and $g : B \to A$ are inverse, then $f \mkIso g :
+A \iso B$; the proof that $f$ and $g$ are inverse is left implicit.
 
-\todo{explain univalence axiom and transport}
-
-\todo{mention inductive definitions}
+A few remarks about propositional equality are also in order. First,
+the structure of the type theory guarantees that functions are always
+functorial with respect to equality, that is, if $e : x = y$ and $f$
+is a function of an appropriate type, then $f(x) = f(y)$.  Given $e$
+we also have $P(x) \to P(b)$ for any type family $P$, called the
+\term{transport} of $P(x)$ along $e$.  Finally, a consequence of the
+\emph{univalence axiom} is that an equivalence $A \iso B$ can be
+converted to the propositional equality $A = B$ (and vice versa).
 
 \subsection{Finiteness}
 \label{sec:finiteness}
