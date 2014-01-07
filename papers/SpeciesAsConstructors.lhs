@@ -373,19 +373,19 @@ explanations, but we need to be more explicit about what we are doing. Sec 6
 also doesn't really connect to the finite map/array examples mentioned
 before. Can we show an example of constructing an array?  }
 
-\jc{Right.  The more we worked on this, the more the picture evolved, and
-I think Stephanie's comments really illustrates our current state best.  I
-would be quite happy with the paper layout that she suggests.  Although
-there is one item which needs serious re-thinking: the emphasis on 'finite'.
-As things currently stand, our use of 'finite' keeps getting smaller and
-smaller.  In a number of places, I think we could weaken the definition
-of finiteness too (from an isomorphism to simply requiring a surjection
-from some bounded set of naturals onto our labels, with no injectivity
-requirement; in other places we need an (unordered) enumeration instead).}
-\jc{Regarding array examples: we do not have any code on arrays that works
-at the moment.  We do have code for 1D sized vectors that mostly works.
-We have all sorts of other examples that also work.  We should really agree
-on which examples we'll pull from, and make sure they fully work.}
+%\jc{Right.  The more we worked on this, the more the picture evolved, and
+%I think Stephanie's comments really illustrates our current state best.  I
+%would be quite happy with the paper layout that she suggests.  Although
+%there is one item which needs serious re-thinking: the emphasis on 'finite'.
+%As things currently stand, our use of 'finite' keeps getting smaller and
+%smaller.  In a number of places, I think we could weaken the definition
+%of finiteness too (from an isomorphism to simply requiring a surjection
+%from some bounded set of naturals onto our labels, with no injectivity
+%requirement; in other places we need an (unordered) enumeration instead).}
+%\jc{Regarding array examples: we do not have any code on arrays that works
+%at the moment.  We do have code for 1D sized vectors that mostly works.
+%We have all sorts of other examples that also work.  We should really agree
+%on which examples we'll pull from, and make sure they fully work.}
 
 \section{Introduction}
 \label{sec:intro}
@@ -484,15 +484,6 @@ data structure, which differ only in the way they are labelled.
 \jc{Give a forward reference to how we can associate canonical labels
 to algebraic data types?}
 
-\jc{Comment to be moved to the right place, but it came to mind while I
-was reading the above: this `late' collapse joins up nicely with HTT
-and higher-categorical thinking.  In this style, rather than quotienting
-early (to find an efficient representation eagerly), it is thought best
-to wait and record the collapse through adjoining an groupoid of
-isomorphisms [think identity types].  The `best' picture may then
-emerge much later from a \emph{composition} of isomorphisms, rather than
-directly from the first isomorphism encountered.}
-
 \paragraph{Finite maps}
 
 Since the definition of a labelled structure already includes the
@@ -504,17 +495,14 @@ directly model multiple finite map implementations (\todo{see section
 
 \paragraph{Vectors and arrays}
 
-\jc{As I said above, I am uncomfortable with saying too much about
-multi-dimensional arrays until our implementation catches up.  I think
-what I'll do is finish this read through/edit pass, then work on the array
-ideas, so that we can keep this example family in place.}
-
 Vectors, and multi-dimensional arrays more generally, can be modeled as
 finite maps with nontrivial structure on their labels---for example,
 2D arrays have labels from a product type.  Real-world
 programs that deal with arrays often care about the precise way in
-which the arrays are allocated and laid out in memory; we can directly
-model this (\todo{section ???}).
+which the arrays are allocated and laid out in memory. It is possible
+to model this as well, but we largely leave that to future work.  Here
+we concentrate on labelled structures with ``trivial'' structure on the
+labels.
 
 \paragraph{Value-level sharing}
 
@@ -567,8 +555,7 @@ Though this bears many similarities to previous approaches, there is
 one key difference: whereas previous approaches \citep{jay-shapely,
 abbott_categories_2003} use a fixed, canonical set of labels (or
 left the labels entirely implicit), species naturally lead one to work
-\emph{parametrically}\scw{???}\bay{What do you find confusing about
-  this?} over labels, giving the labels a much more prominent role.
+directly with the labels, given them a much more prominent role.
 Bringing the mediating labels to the fore in this way is, to our
 knowledge, novel, and leads to some interesting benefits.  For
 example:
@@ -578,12 +565,9 @@ example:
   vectors and finite maps) under the same framework.
 \item Some operations (for example, reversing a vector, taking the
   transpose of a 2D array, or altering the keys of a finite map) can
-  be more naturally described as \emph{operations on labels}, leading
-  to benefits in both reasoning and efficiency (see \todo{section ?}).
-  \scw{Are we sure that it is more efficient? What about the copying that
-    may need to be done to adjust the labels/maps?}\jc{It should be more
-    efficient for large data think local index and distributed data --
-    there was an ICFP talk about exactly this.}
+  be more naturally described as \emph{operations on labels}, 
+  definitely leading to benefits reasoning (and we conjecture to 
+  efficiency as well) (see \todo{section ?}).
 \item Value-level \emph{sharing} can be easily modelled via shared
   labels (see \todo{section?})---in contrast, this is not possible if
   every structure has a fixed set of canonical labels.
@@ -1939,6 +1923,15 @@ rings of formal power series. \todo{future work making connections to
 \todo{functor composition}
 
 \todo{Port to Agda, together with proofs of species properties?}
+
+\jc{Regarding labels on ADTs (like lists):
+this `late' collapse joins up nicely with HTT
+and higher-categorical thinking.  In this style, rather than quotienting
+early (to find an efficient representation eagerly), it is thought best
+to wait and record the collapse through adjoining an groupoid of
+isomorphisms [think identity types].  The `best' picture may then
+emerge much later from a \emph{composition} of isomorphisms, rather than
+directly from the first isomorphism encountered.}
 
 \paragraph{Symmetric shapes}
 
