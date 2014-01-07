@@ -1115,7 +1115,7 @@ The above relies on the property that $|all|$ is equivalent to having
 the $|snd|$ set of a partition be empty -- something that can be coded up
 directly.
 
-The definition of the $|\product|$ of two labelled structures may not make this
+The definition of the $|product|$ of two labelled structures may not make this
 entirely transparent, but it allows us to implement \emph{concatenation}.
 Just as \cons{partition} is the heart of many of the routines described 
 above, \cons{product} corresponds to concatenation of lists, concatenation
@@ -1177,6 +1177,36 @@ specializations of the code above for specific structures.
 It should be pointed out that an even more idiomatic implementation of
 \cons{lensSp} would first \emph{point} the $f$-structure, and then using
 that as its focus, derive a lens for it.
+
+\paragraph{take} \jc{Not sure about this one.}  If we also fix the type
+of labels such that they are canonically ordered, other functions can also
+be implemented generically, such as \cons{take}.
+\begin{code}
+take :: forall f a q n s. 
+  Sp f s (F.Fin q) a -> N.SNat q -> N.SNat n -> (n <= q) 
+     -> Sp (f # Part) s (F.Fin q) a
+take (Struct f i) qq n pf =
+  case minus qq n pf of
+    Minus (m :: N.SNat m) Refl ->
+      case N.plusComm m n of
+        Refl -> Struct (cprod_ f (part_ sn sm isom)) i
+          where isom :: Either (F.Fin n) (F.Fin m) <-> F.Fin q
+                isom = iso (finSum n m) (finSum' n m)
+                sn = N.natty n $ Set.enumerate finite_Fin
+                sm = N.natty m $ Set.enumerate finite_Fin
+\end{code}
+This is much more involved.  It requires quite a lot of data: an $f$-structure
+labelled with natural numbers with $q$ labels, a witness for $q$, a witness
+for $n$ (the number of data we want to ``take''), and a proof that this is less
+than $q$, \ie\ that there is indeed enough data to fulfill this request.
+We again superimpose a \cons{Part} structure onto the $f$-structure.  The
+dependence on the ordering is natural for \cons{take}, but not for
+labelled structures.
+
+We can easily imagine a variant of this, where rather than picking the
+``first $n$'' labels, we instead choose a specific subset of labels.  This
+would be a much more (labelled-structure) idiomatic version of \cons{take}.
+
 
 \jc{rest of section 5 is below}
 \todo{add eliminators / eliminator combinators for each primitive + operation?}
