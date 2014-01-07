@@ -297,9 +297,9 @@
   intuitively consist of a labelled shape together with a mapping from
   labels to data. Labelled structures thus subsume algebraic data
   types as well as ``labelled'' types such as arrays and finite maps.
-  The idea of decomposing container structures into shapes and data is
-  an old one. The novel idea is to explicitly mediate the
-  decomposition with arbitrary labels, and we demonstrate benefits of
+  This idea of decomposing container structures into shapes and data
+  is an old one; our novel contribution is to explicitly mediate the
+  decomposition with arbitrary labels. We demonstrate the benefits of
   this approach in implementing and reasoning about operations
   naturally expressed as operations on labels, explicitly modelling
   value-level sharing, and reasoning about memory allocation and
@@ -324,54 +324,54 @@
 % Languages, Types
 
 
-\scw{I've been thinking about the structure of this paper, trying to make it
-tell its story more effectively.
-The focus of the paper should be on labelled structures. The fact that they
-are directly inspired by combinatorial species is great and should be
-mentioned repeatedly, but in the end, it is not what the paper is about.
-Our introduction mostly works with this format, but we could bring it out.
-I'm imagining a progression like:
-\begin{itemize}
-\item What is a labelled structure? A decomposition of data structure. More
-formally, a labelled shape combined with a mapping from labels to data values.
-\item What is novel about this definition?
-\begin{itemize}
-  \item Labels must be drawn from some finite set, but can have their own
-  structure
-  \item We define the mapping from labels to data values abstractly. It
-    doesn't need to be injective.
-\end{itemize}
-\item What is important about our definition?
-\begin{itemize}
-  \item Non-injective mappings represent sharing in data structures, something
-    that is unobservable for algebraic datatypes.
-  \item Although labels have structure, we make it convenient to work up to (partial)
-    isomorphism. ``Relabeling'' models certain operations on data, sometimes
-    more efficiently that with more standard representations.
-  \item We can choose a definition of mapping that lets us reason about memory
-    allocation and layout.
-\end{itemize}
-\end{itemize}
-However, once we are past the introduction, the story gets muddled. Part of
-this may be that I'm more of a fan of a top-down presentation, whereas the
-current state is more bottom-up. Perhaps we could use more concrete examples
-of what we are trying to do in Section 2 (although explaining them informally)
-before diving into the mathematical preliminaries. Section 3 is called
-``Cominatorial Species'', though perhaps we should call it ``Labelled
-shapes''. I'm not sure how important it is to start with the set-theoretic
-definition first. Why not start with the real definition, and then later
-explain why it is different in type theory than in set theory?  Are there
-interesting examples of labelled shapes we can give at the end of section 3?
-Or remarks to make about labels?  Section 4 dives into mappings. We present
-mappings as one thing, but then change it to something else in 4.3. Why not
-just start with the definition that we want in the first place?  Section 5
-seems a little strange to me because it starts talking about eliminators
-before talking about where we get labelled structures in the first place
-(Section 6). And section 6 mixes the construction of labelled shapes with the
-construction of labelled structures. Maybe it makes sense to combine these
-explanations, but we need to be more explicit about what we are doing. Sec 6
-also doesn't really connect to the finite map/array examples mentioned
-before. Can we show an example of constructing an array?  }
+% \scw{I've been thinking about the structure of this paper, trying to make it
+% tell its story more effectively.
+% The focus of the paper should be on labelled structures. The fact that they
+% are directly inspired by combinatorial species is great and should be
+% mentioned repeatedly, but in the end, it is not what the paper is about.
+% Our introduction mostly works with this format, but we could bring it out.
+% I'm imagining a progression like:
+% \begin{itemize}
+% \item What is a labelled structure? A decomposition of data structure. More
+% formally, a labelled shape combined with a mapping from labels to data values.
+% \item What is novel about this definition?
+% \begin{itemize}
+%   \item Labels must be drawn from some finite set, but can have their own
+%   structure
+%   \item We define the mapping from labels to data values abstractly. It
+%     doesn't need to be injective.
+% \end{itemize}
+% \item What is important about our definition?
+% \begin{itemize}
+%   \item Non-injective mappings represent sharing in data structures, something
+%     that is unobservable for algebraic datatypes.
+%   \item Although labels have structure, we make it convenient to work up to (partial)
+%     isomorphism. ``Relabeling'' models certain operations on data, sometimes
+%     more efficiently that with more standard representations.
+%   \item We can choose a definition of mapping that lets us reason about memory
+%     allocation and layout.
+% \end{itemize}
+% \end{itemize}
+% However, once we are past the introduction, the story gets muddled. Part of
+% this may be that I'm more of a fan of a top-down presentation, whereas the
+% current state is more bottom-up. Perhaps we could use more concrete examples
+% of what we are trying to do in Section 2 (although explaining them informally)
+% before diving into the mathematical preliminaries. Section 3 is called
+% ``Cominatorial Species'', though perhaps we should call it ``Labelled
+% shapes''. I'm not sure how important it is to start with the set-theoretic
+% definition first. Why not start with the real definition, and then later
+% explain why it is different in type theory than in set theory?  Are there
+% interesting examples of labelled shapes we can give at the end of section 3?
+% Or remarks to make about labels?  Section 4 dives into mappings. We present
+% mappings as one thing, but then change it to something else in 4.3. Why not
+% just start with the definition that we want in the first place?  Section 5
+% seems a little strange to me because it starts talking about eliminators
+% before talking about where we get labelled structures in the first place
+% (Section 6). And section 6 mixes the construction of labelled shapes with the
+% construction of labelled structures. Maybe it makes sense to combine these
+% explanations, but we need to be more explicit about what we are doing. Sec 6
+% also doesn't really connect to the finite map/array examples mentioned
+% before. Can we show an example of constructing an array?  }
 
 %\jc{Right.  The more we worked on this, the more the picture evolved, and
 %I think Stephanie's comments really illustrates our current state best.  I
@@ -410,15 +410,15 @@ hinder adoption and understanding in a computational context.
 
 From a computational point of view, the right way to think about
 species is as \emph{labelled shapes} which do not contain any data.
-To recover a notion of \emph{data} structures, one must add a (notion
-of) mapping from labels to data.  This leads to the familiar idea of
-decomposing data structures as shapes plus data
-\citep{banger1993foundation, jay-shapely, abbott_categories_2003},
-with labels mediating between the two.  Informally, this pairing of a
-labelled shape (corresponding to a species) and a mapping from labels
-to data values is what we call a \term{labelled
-  structure}\footnote{Following Flajolet et al's lead
-  \citep{FlSaZi91,FlajoletZC94}.}.  For example,
+To recover \emph{data} structures, one must add a notion of mapping
+from labels to data.  This leads to the familiar idea of decomposing
+data structures as shapes plus data \citep{banger1993foundation,
+  jay-shapely, abbott_categories_2003}, with the new twist that
+arbitrary labels are used to mediate between the two.  Informally,
+this pairing of a labelled shape (corresponding to a species) and a
+mapping from labels to data values is what we call a \term{labelled
+  structure}\footnote{Following Flajolet \etal's lead
+  \citeyearpar{FlSaZi91,FlajoletZC94}.}.  For example,
 \pref{fig:labelled-structure-example} illustrates a labelled tree
 shape paired with a mapping from labels to data.  A \emph{family} of
 labelled structures refers to a class of structures parameterized over
@@ -476,39 +476,41 @@ data for labels.  For example, the labelled tree structure in
 \pref{fig:labelled-structure-example} represents the tree containing
 \texttt{A} at its root, \texttt{N} as the left child, and so on.  Note
 that the family of labelled tree structures is quite a bit larger than
-the usual tree type: every possible labelling of a given tree shape
+the usual type of trees: every possible labelling of a given tree shape
 results in a different labelled structure, whereas there are many
 labelled tree structures that will ``collapse'' to the same algebraic
 data structure, which differ only in the way they are labelled.
 
-\jc{Give a forward reference to how we can associate canonical labels
-to algebraic data types?}
+% \jc{Give a forward reference to how we can associate canonical labels
+% to algebraic data types?}\bay{We took that out.}
 
 \paragraph{Finite maps and bags}
 
 Since the definition of a labelled structure already includes the
 notion of a mapping from labels to data, we may encode finite maps
 simply by using \emph{sets} of labels as shapes, \ie\ shapes with no
-structure other than containing some labels. 
-
-At the other end of the spectrum, if we say that all sets of labels
-are equivalent, \ie\ that our structure is invariant under the full
-symmetric group, then the same implementation gives us \emph{bags},
-also known as multisets.
+structure other than containing some labels. If we ignore the labels,
+the same implementation gives us \emph{bags}, also known as multisets.
+\bay{This used to say something like ``if we say that all sets of
+  labels are equivalent, i.e. our structure is invariant under the
+  full symmetric group, then ... bags...'' but that doesn't make sense
+  to me: finite maps are \emph{also} invariant under the symmetric
+  group.  Whether we ``pay attention'' to the labels has nothing to do
+  with symmetry groups.}
 %Furthermore, we can
 %directly model multiple finite map implementations (\todo{see section
 %  ???}).
 
 \paragraph{Vectors and arrays}
 
-Vectors, and multi-dimensional arrays more generally, can be modeled as
-finite maps with nontrivial structure on their labels---for example,
-2D arrays have labels from a product type.  Real-world
+Vectors, and multi-dimensional arrays more generally, can be modeled
+as finite maps with nontrivial structure on their labels---for
+example, 2D arrays have labels from a product type.  Real-world
 programs that deal with arrays often care about the precise way in
 which the arrays are allocated and laid out in memory. It is possible
-to model this as well, but we largely leave that to future work.  Here
-we concentrate on labelled structures with ``trivial'' structure on the
-labels.
+to model this as well, but we largely leave that to future work.  In
+the present paper, we concentrate on labelled structures with
+``trivial'' structure on the labels.
 
 \paragraph{Value-level sharing}
 
@@ -557,56 +559,39 @@ dia = vcat' (with & sep .~ 5)
   \label{fig:tree-list-share}
 \end{figure}
 
-Though this bears many similarities to previous approaches, there is
-one key difference: whereas previous approaches \citep{jay-shapely,
-abbott_categories_2003} use a fixed, canonical set of labels (or
-left the labels entirely implicit), species naturally lead one to work
-directly with the labels, given them a much more prominent role.
-Bringing the mediating labels to the fore in this way is, to our
-knowledge, novel, and leads to some interesting benefits.  For
-example:
-\begin{itemize}
-\item It allows us to unify ``implicitly labelled'' structures (such as
-  algebraic data types) and ``explicitly labelled'' structures (such as
-  vectors and finite maps) under the same framework.
-\item Some operations (for example, reversing a vector, taking the
-  transpose of a 2D array, or altering the keys of a finite map) can
-  be more naturally described as \emph{operations on labels}, 
-  definitely leading to benefits reasoning (and we conjecture to 
-  efficiency as well) (see \todo{section ?}).
-\item Value-level \emph{sharing} can be easily modelled via shared
-  labels (see \todo{section?})---in contrast, this is not possible if
-  every structure has a fixed set of canonical labels.
-\item In fact, labels share some of the properties of memory
-  addresses, \ie\ pointers, and taking this analogy seriously lets us
-  reason about memory allocation and layout for stored data
-  structures (see \todo{section?}).
-\item It opens the possibility of taking labels and relabellings from
-  a category other than $\B$ (as is done, for example, with
-  $\mathbb{L}$-species \citep{Joyal86}, \citep[chap. 5]{bll}).  We
-  conjecture that this has also benefits in a computational setting,
-  though exploring this idea in more detail is left to future work.
-\end{itemize}
+\subsection{Contributions}
+\label{sec:contributions}
 
-\jc{The paragraph below goes in a different direction, but in the text
-  it reads as if it were a continuation of value-level sharing.  We
-  should visually indicate this break - maybe via subsections?}  It is
-important to remember that species are defined over \emph{finite} sets
-of labels.  In a classical setting, while finiteness is a crucial part
-of the definition, it is otherwise a fairly implicit feature of the
-actual theory.  Combinatorialists do not need to remind themselves of
-this finiteness condition, as it is a pervasive axiom that you can
-only ``count'' finite collections of objects.  When ported to a
+Though our work bears similarities to previous approaches 5that
+separate shapes and data \citep{banger1993foundation, jay-shapely,
+  abbott_categories_2003}, there is a key difference, directly
+inspired by the theory of species. Whereas previous approaches use a
+fixed, canonical set of labels (or left the labels entirely implicit),
+species naturally lead us to work directly with the labels, giving
+them a much more prominent role.  Bringing the mediating labels to the
+fore in this way is, to our knowledge, novel, and leads to some
+interesting benefits, outlined below.
+
+Furthermore, species are defined over \emph{finite} sets of labels.
+In a classical setting, while finiteness is a crucial part of the
+definition, it is an otherwise fairly implicit feature of the actual
+theory.  Combinatorialists do not need to remind themselves of this
+finiteness condition, as it is a pervasive axiom that you can only
+``count'' finite collections of objects.  When ported to a
 constructive setting, however, the notion of finiteness takes on
 nontrivial computational content and significance.  In particular, we
 are naturally led to work up to computationally relevant
-\emph{equivalences} (and \emph{partial equivalences}) on labels.
-Working up to equivalence in this way confers additional expressive
-power, allowing us to model efficient label operations (\eg partition)
-without copying.  This is also one of the key ingredients in modeling
-memory layout and allocation (see \todo{section?}).
+\emph{equivalences} on labels.  Working up to equivalence in this way
+confers additional expressive power, allowing us to model efficient
+label operations (\eg partition) without copying.  bay{We had
+  something here about memory layout and allocation, but I'm not sure
+  we really talk about that anymore.}
+% This is also one of
+% the key ingredients in modeling memory layout and allocation (see
+% \todo{section?}).
 
 In more detail, our contributions are as follows:
+
 \begin{itemize}
 \item We describe a ``port'' of combinatorial species from set theory
   to constructive type theory, making the theory more directly
@@ -616,20 +601,35 @@ In more detail, our contributions are as follows:
 \item We define a generic framework for \term{labelled types} on top
   of this basis, showing how to include them in practical
   programming languages.
-\item We describe some novel introduction forms for structures built
-  as the composition of other structures (\pref{sec:species-ops}).
+\item We unify ``implicitly labelled'' structures (such as algebraic
+  data types) and ``explicitly labelled'' structures (such as vectors
+  and finite maps) under the same framework.
+\item We show how certain operations (for example, reversing a vector,
+  taking the transpose of a 2D array, or altering the keys of a finite
+  map) can be more naturally described as \emph{operations on labels},
+  leading to benefits in reasoning---and, we conjecture, to efficiency
+  as well (see \todo{section ?}).
+\item We model value-level \emph{sharing} via shared labels (see
+  \todo{section?})---in contrast, this is not possible if every
+  structure has a fixed set of canonical labels.
+% \item In fact, labels share some of the properties of memory
+%   addresses, \ie\ pointers, and taking this analogy seriously lets us
+%   reason about memory allocation and layout for stored data
+%   structures (see \todo{section?}).
 \item We give extended examples showing the utility of labelled types,
   including \todo{?}
 \end{itemize}
 
-It is worth mentioning that in previous work
-\citep{carette_species, yorgey-2010-species} we
-conjectured that the benefits of the theory of species would lie
-primarily in its ability to describe data types with \term{symmetry}
-(\ie\ quotient types \cite{quotient-types}).  That promise has not
-gone away; but we were amused to discover that a functor category
-would seem to shed its brightest light on low-level issues like memory
-allocation, layout and sharing.
+It is worth mentioning that in previous work \citep{carette_species,
+  yorgey-2010-species} we conjectured that the benefits of the theory
+of species would lie primarily in its ability to describe data types
+with \term{symmetry} (\ie\ quotient types \citep{hofmann1995quotient,
+  abbott_quotient}).  That promise has not gone away; but we now
+believe that a solid understanding of labelled structures is a
+prerequisite for tackling symmetry.  In a sense, this is unsurprising,
+since introducing species as explicitly labelled objects was one of
+Joyal's great insights, allowing the encoding of symmetric and
+unlabelled structures via equivalence classes of labelled ones.
 
 \section{Theoretical setting}
 \label{sec:prelim}
@@ -2129,6 +2129,12 @@ rings of formal power series. \todo{future work making connections to
   computation?}
 
 \todo{extend to $\cons{Countable}\ L = \Finite L + L \iso \N$?}
+
+% \item It opens the possibility of taking labels and relabellings from
+%   a category other than $\B$ (as is done, for example, with
+%   $\mathbb{L}$-species \citep{Joyal86}, \citep[chap. 5]{bll}).  We
+%   conjecture that this has also benefits in a computational setting,
+%   though exploring this idea in more detail is left to future work.
 
 \todo{assumptions on categories needed for various operations.}
 
