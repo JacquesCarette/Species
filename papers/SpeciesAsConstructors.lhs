@@ -484,14 +484,20 @@ data structure, which differ only in the way they are labelled.
 \jc{Give a forward reference to how we can associate canonical labels
 to algebraic data types?}
 
-\paragraph{Finite maps}
+\paragraph{Finite maps and bags}
 
 Since the definition of a labelled structure already includes the
 notion of a mapping from labels to data, we may encode finite maps
 simply by using \emph{sets} of labels as shapes, \ie\ shapes with no
-structure other than containing some labels. Furthermore, we can
-directly model multiple finite map implementations (\todo{see section
-  ???}).
+structure other than containing some labels. 
+
+At the other end of the spectrum, if we say that all sets of labels
+are equivalent, \ie\ that our structure is invariant under the full
+symmetric group, then the same implementation gives us \emph{bags},
+also known as multisets.
+%Furthermore, we can
+%directly model multiple finite map implementations (\todo{see section
+%  ???}).
 
 \paragraph{Vectors and arrays}
 
@@ -984,16 +990,123 @@ $L$.
 \section{The algebra of species and labelled structures}
 \label{sec:algebraic}
 
+\subsection{Examples}
+
+\jc{This subsection really should be a long ``todo'', but this restricts
+formatting too much, so I am typing this in as a subsection.  Its contents
+should be moved to somewhere appropriate, when we figure out what that is.}
+
+What examples do we have, other than the usual ones?  Some highlights:
+\begin{itemize}
+\item \emph{Rose Trees}.  These require product, sum (through list), X,
+composition and recursion.  The use of composition is where things are
+most interesting, as this is more `direct' than in usual Haskell.
+\item \emph{Arbo}, i.e. rooted arbitrary arity trees where the sub-trees
+are \emph{unordered}.  Requires replacing L from Rose trees with an E.
+\item \emph{MultiSet} (\ie\ bag), \emph{HashMap} (qua finite map).  As far as 
+labelled structures goes, these are the same ($|Sp E s l a|$)!  However,
+for MultiSet, the labels are \emph{implicit}, whereas they are \emph{explicit}
+for a finite map.
+\item \emph{Partition}.  While this is just $|E * E|$, this is at the root
+of many examples.
+\end{itemize}
+That list could easily be extended.
+
+But quickly the question turns to: but what can we do with these?  And this is
+indeed where things do get interesting.  There are a number of functions
+that one is accustomed to see implemented for vectors, lists, sets and bags,
+finite maps, and like structures.  Interestingly, a lot of these can be
+generalized to all labelled structures.  Take for example \cons{partition}.  
+By using partition $|Part|$ and sharing (via cartesian product), we can 
+achieve this.
+
+First, we can use a predicate (on data) to divide the \emph{labels} into
+two disjoint sets (which is exactly the definition of a partition in
+mathematics):
+\begin{code}
+partition :: (S.Storage s, Set.Enumerable l, Eq l) => 
+          Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
+partition (Struct f stor) p = Struct (cprod_ f k) stor
+  where sel = S.smap p stor
+        k = part_ Set.enumS Set.enumS
+                  (iso (\l -> case l of {Left a -> a; Right a -> a}) 
+                       (\l -> if (S.index sel l) then Left l else Right l) )
+\end{code}
+The $|partition|$ function \emph{superimposes} a second structure on the old
+(without changing the data in any way). 
+
+Of course, if we want to actually take this information and ``extract'' the
+result (in the usual meaning of splitting the structure into two 
+distinct pieces), we need to provide a means to do this.
+
+We can extract \emph{both} parts into lists, by pulling apart the 
+Cartesian Product, then using an eliminator over the $\List$ structure (to
+get the ordering) but using the information from the ``partition'' to 
+make our choices of where to put each element.  Note how the elements
+themselves take no part in this choice.  
+\begin{code}
+extractBoth :: (S.LabelledStorage s, Set.Enumerable l, Eq l) => 
+    Sp (L.L # Part) s l a -> ([a], [a])
+extractBoth sp = 
+  let (lsp, part) = decompL sp
+  in gelim (L.gelimList ([],[])
+      (\(l,a) (ll,rl) -> 
+        case part of 
+          Prod _ _ eiso ->
+            case view (from eiso) l of
+              Left _  -> (a:ll,rl)
+              Right _ -> (ll,a:rl))) lsp
+\end{code}
+
+To actually implement the Prelude partition, we have to specialize the
+above two functions to work over a $\List$, using a specific label set and
+mapping \footnote{LFA stands for 'list-fin-arrow'}.
+\begin{code}
+partitionLFA :: N.Natural n => Sp L.L (->) (F.Fin n) a -> (a -> Bool) -> Sp (L.L # Part) (->) (F.Fin n) a
+partitionLFA = partition
+
+extractBothLFA :: N.Natural n => Sp (L.L # Part) (->) (F.Fin n) a -> ([a],[a])
+extractBothLFA = extractBoth
+\end{code}
+
+Putting all these pieces together (along with some standard routines for dealing
+with length-indexed vectors), we reimplement the Prelude's $|partition|$:
+\begin{code}
+partition' :: (a -> Bool) -> [a] -> ([a],[a])
+partition' p lst = case Vec.fromList lst of
+  Vec.SomeVec v -> 
+      N.natty (Vec.size v) $ extractBothLFA $ partitionLFA (fromVec v) p
+\end{code}
+
+Using very similar techniques (\cons{partition} stays the same, only 
+\cons{extract} needs to change), we can easily implement \cons{filter},
+\cons{elem} and \cons{find}.  With a bit more work, \cons{findIndex} and
+\cons{elemIndex} as well\footnote{We use the names from \cons{Data.Vector}}.
+We can implement more complex routines too, such as \cons{findIndices}:
+\begin{code}
+findIndices :: (S.Storage s, Set.Enumerable l, Eq l) => 
+          Sp f s l a -> (a -> Bool) -> E l
+findIndices sp p = elim k (Struct gl es)
+  where sp' = partition sp p
+        Struct (CProd _ gl) es = sp'
+        k = elimProd $ \pf -> elimE $ \s -> elimE $ const
+               (E $ Set.injectionMap (\(l,_) -> view pf (Left l)) s)
+\end{code}
+Again, $|partition|$ is important, but the labels are key.  It is important
+to remember that all algebraic data types are labelled structures: when
+we add labels, we add ``addresses'' to each datum in a structure, which can
+be used to retrieve them at a later point.  In other words, our
+\emph{abstract labels} play the role traditionally taken by \emph{pointers}
+in low-level languages.
 \todo{
   Give some examples of using our implementation.  I've marked places
   in the following section where it seems natural for them to go.
   \begin{itemize}
-  \item $n$-dimensional vectors.
   \item filter and partition.
   \item Foldable.  Traversable.
   \item Various flavours of trees
   \item finite maps.  Bags.
-  \item length-indexed vectors?
+  \item $n$-dimensional vectors.
   \end{itemize}
 }
 
