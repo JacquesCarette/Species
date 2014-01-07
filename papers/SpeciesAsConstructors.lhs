@@ -1874,10 +1874,10 @@ In particular, we assume a type $|Vec| : \N \to \Type \to
   |appendV|   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \times
   (\Fin m + \Fin n \iso \Fin{(m + n)}) \\
   |concatV|   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \times
-  (\Fin m \times \Fin n \iso \Fin (m \cdot n))\\
-  |sumV|      &: (|ns| : \Vect m \N) \to |mapV (\n -> Vec n A) ns| \\
-  &\qquad \to \Vect {(|sumN ns|)} A \times
-  (|sumTy|\ (|mapV|\ \Fin{}\ |ns|) \iso \Fin (|sumN ns|))
+  (\Fin m \times \Fin n \iso \Fin (m \cdot n))
+  % |sumV|      &: (|ns| : \Vect m \N) \to |mapV (\n -> Vec n A) ns| \\
+  % &\qquad \to \Vect {(|sumN ns|)} A \times
+  % (|sumTy|\ (|mapV|\ \Fin{}\ |ns|) \iso \Fin (|sumN ns|))
 %  imapV     &: (\Fin n \to A \to B) \to (\Vect n A \to \Vect n B) \\
 %  zipWithV  &: (A \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C
 \end{align*}
@@ -1886,41 +1886,43 @@ Note that in addition to computing new vectors, |appendV| and
 relationship bewteen the indices of the input and output vectors.  For
 example, if |appendV v1 v2 = (v,e)|, then it must be the case that |v1
 ! m = v !  (e (inl m))|.  Similarly, |v ! m ! n = v' ! (e (m,n))| when
-|concatV v = (v',e)|. |sumV| is a generalized version of |concatV|
-allowing the concatenation of a collection of vectors of varying
-length,
-\begin{equation*}
-  \begin{minipage}[c]{200pt}
-  \hfill
-  \begin{diagram}[height=15]
-    dia = pad 1.1 . centerXY
-        . hcat' (with & sep .~ 0.5) . map (hcat . flip replicate (square 1))
-        $ [ 4, 2, 5 ]
-  \end{diagram}
-  %$
-  \end{minipage}
-  \stackrel{|sumV|}{\longrightarrow}
-  \begin{minipage}[c]{200pt}
-  \begin{diagram}[height=15]
-    dia = pad 1.1 . centerXY
-        . hcat . flip replicate (square 1) . sum
-        $ [ 4, 2, 5 ]
-  \end{diagram}
-  %$
-  \end{minipage}
-\end{equation*}
-with |sumN = foldV 0 (+)| and |sumTy = foldV undefined (+)|.
+|concatV v = (v',e)|.
+
+% |sumV| is a generalized version of |concatV|
+% allowing the concatenation of a collection of vectors of varying
+% length,
+% \begin{equation*}
+%   \begin{minipage}[c]{200pt}
+%   \hfill
+%   \begin{diagram}[height=15]
+%     dia = pad 1.1 . centerXY
+%         . hcat' (with & sep .~ 0.5) . map (hcat . flip replicate (square 1))
+%         $ [ 4, 2, 5 ]
+%   \end{diagram}
+%   %$
+%   \end{minipage}
+%   \stackrel{|sumV|}{\longrightarrow}
+%   \begin{minipage}[c]{200pt}
+%   \begin{diagram}[height=15]
+%     dia = pad 1.1 . centerXY
+%         . hcat . flip replicate (square 1) . sum
+%         $ [ 4, 2, 5 ]
+%   \end{diagram}
+%   %$
+%   \end{minipage}
+% \end{equation*}
+% with |sumN = foldV 0 (+)| and |sumTy = foldV undefined (+)|.
 
 Given such a type $\cons{Vec}$, we may define \[ \Store L A \defn \sum_{n :
-  \N} (L \iso \Fin n) \times \Vect n A, \] and implement the required
+  \N} (\under L \iso \Fin n) \times \Vect n A, \] and implement the required
 operations as follows:
 
 \begin{itemize}
-\item The implementation of |allocate| uses the provided $\Finite L$
-  proof to determine the size of the vector to be allocated, as well
-  as the initial layout of the values.
+\item The implementation of |allocate| uses the (implicitly provided)
+  proof $(n, iso) : \Finite {\under L}$ to determine the size of the
+  vector to be allocated, as well as the initial layout of the values.
   \begin{spec}
-    allocate fin@(n, iso) f = (n, fin, allocateV n (f . iso))
+    allocate {n,iso} f = (n, inv(iso), allocateV n (f . iso))
   \end{spec}
 
 \item To reindex, there is no need to allocate a new vector; |reindex|
@@ -1943,10 +1945,10 @@ operations as follows:
   \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C$ (if we had
   such a function).  The problem, however, is that the $(L \iso \Fin
   n)$ proofs have real computational content: zipping on labels may
-  not coincide with zipping on indices. \todo{need some pictures to
-    make this more clear?} Since we want to zip on indices, |zipWith|
-  must compose the given equivalences to obtain the correspondence
-  between the label mappings used by the two input vectors:
+  not coincide with zipping on indices. Since we want to zip on
+  indices, |zipWith| must compose the given equivalences to obtain the
+  correspondence between the label mappings used by the two input
+  vectors:
   \begin{spec}
     zipWith f (n, i1, v1) (_, i2, v2) = (n, i2, v)
       where v = allocateV n (\k -> f (v1 ! (i1 . inv(i2)) k) (v2 ! k))
@@ -1960,13 +1962,14 @@ operations as follows:
 
 \item |append| is straightforward to implement via |appendV|:
   \begin{spec}
-    append (n1, i1, v1) (n2, i2, v2) = (n1+n2, e . (i1 + i2), v)
-      where (v,e) = appendV v1 v2
+    append e (n1, i1, v1) (n2, i2, v2) = (n1+n2, e . (i1 + i2) . f, v)
+      where (v,f) = appendV v1 v2
   \end{spec}
   Note that we construct the required label equivalence as the
-  composite \[ L_1 + L_2 \stackrel{i_1 + i_2}{\iso} \Fin{n_1} +
-  \Fin{n_2} \stackrel{e}{\iso} \Fin{(n_1 + n_2)}, \] using the index
-  equivalence |e| returned by |appendV|.
+  composite \[ \under L \stackrel{e}{\iso} \under{L_1} + \under{L_2}
+  \stackrel{i_1 + i_2}{\iso} \Fin{n_1} + \Fin{n_2} \stackrel{f}{\iso}
+  \Fin{(n_1 + n_2)}, \] using the provided equivalence |e| and the
+  index equivalence |f| returned by |appendV|.
 
 \item |concat| is implemented similarly to |append|: we multiply the
   sizes, use |concatV| on the input vector-of-vectors, and compute the
@@ -2000,6 +2003,16 @@ that looks very much like generalized tries
   Just put as much as we need to be able to use eliminators in our
   examples.}
 
+\bay{With our old-style eliminators (i.e. the ones which were required
+  to work for all label types), we had to sort of CPS-encode them to
+  make it work.  Building up an eliminator using the combinators like
+  |elimE|, |elimProd|, etc. corresponds to writing a CPS-encoded
+  computation.  It occurred to me the other day, though, that with our
+  ``generalized'' eliminators, which can look at the labels, this is
+  unnecessary.  We can just directly pattern-match on labelled
+  structures.  So I think we should downplay the whole eliminator
+  thing and just write our examples in a direct style.}
+
 % Depending on the representation used for the map type $\Store L A$, a
 % given labelled structure can have multiple distinct
 % representations. Ideally, this extra representation detail should be
@@ -2013,47 +2026,47 @@ that looks very much like generalized tries
 % defining a type of \emph{eliminators} for labelled structures which
 % hide the extra detail.
 
-\bay{Argh, it just hit me that this story about getting the same
-  result before and after relabeling is inconsistent with our story
-  about operations on arrays as label operations.  There is something
-  more subtle going on here but I am not sure what.}
-\jc{That is because species based on $\B$ alone cannot model arrays.
-This is why you need more 'visible' structure on the label set to be
-able to do anything except relabelling.  Another approach is to move
-the structure to the shape component -- which we can't do in time for this
-paper.}
+% \bay{Argh, it just hit me that this story about getting the same
+%   result before and after relabeling is inconsistent with our story
+%   about operations on arrays as label operations.  There is something
+%   more subtle going on here but I am not sure what.}
+% \jc{That is because species based on $\B$ alone cannot model arrays.
+% This is why you need more 'visible' structure on the label set to be
+% able to do anything except relabelling.  Another approach is to move
+% the structure to the shape component -- which we can't do in time for this
+% paper.}
 
-\jc{The `problem' with this definition is that it does not fully
-correspond to the Haskell implementation.  In particular, we don't really
-have access to (the type) L from within the eliminator.  And the most
-interesting examples require a slight generalization.}
-The generic type of eliminators for labelled $F$-structures, $\Elim_F
-: \Type \to \Type \to \Type$, is defined by
-\begin{equation*}
-  \Elim_F\ A\ R \defn (L : \Type) \to F\ L \to \DecEq L \to \Store L A \to R
-\end{equation*}
-where $\DecEq L$ represents decidable equality for $L$. There are a
-few subtle issues here which are worth spelling out in detail. First,
-note that $\Elim_F$ is parameterized by $A$ (the type of data elements
-stored in the labelled structure being eliminated) and $R$ (the type
-of the desired result), but \emph{not} by $L$.  Rather, an eliminator
-of type $\Elim_F\ A\ R$ must be parametric in $L$; defining an
-eliminator which works only for certain label types is not allowed.
-The second point is that we assume that $\Store L A$ is held abstract;
-an eliminator cannot make use of any details of a particular
-implementation for $\Store L A$, but only its abstract interface (in
-particular, the |index| function).
+% \jc{The `problem' with this definition is that it does not fully
+% correspond to the Haskell implementation.  In particular, we don't really
+% have access to (the type) L from within the eliminator.  And the most
+% interesting examples require a slight generalization.}
+% The generic type of eliminators for labelled $F$-structures, $\Elim_F
+% : \Type \to \Type \to \Type$, is defined by
+% \begin{equation*}
+%   \Elim_F\ A\ R \defn (L : \Type) \to F\ L \to \DecEq L \to \Store L A \to R
+% \end{equation*}
+% where $\DecEq L$ represents decidable equality for $L$. There are a
+% few subtle issues here which are worth spelling out in detail. First,
+% note that $\Elim_F$ is parameterized by $A$ (the type of data elements
+% stored in the labelled structure being eliminated) and $R$ (the type
+% of the desired result), but \emph{not} by $L$.  Rather, an eliminator
+% of type $\Elim_F\ A\ R$ must be parametric in $L$; defining an
+% eliminator which works only for certain label types is not allowed.
+% The second point is that we assume that $\Store L A$ is held abstract;
+% an eliminator cannot make use of any details of a particular
+% implementation for $\Store L A$, but only its abstract interface (in
+% particular, the |index| function).
 
-Decidable equality on $L$ allows the eliminator to observe value-level
-sharing.  If $\DecEq L$ is left out, we have \[ (L : \Type) \to F\ L
-\to \Store L A \to R, \] which by parametricity is equivalent to \[ F\
-A \to R. \] That is, if we do not observe the sharing (\ie\ if we do not
-consult the decidable equality on $L$, to see which labels occur more
-than once), then semantically speaking we might as well simply replace
-the labels in the $F$-shape with their corresponding $A$ values, and
-then eliminate that. However, from an operational point of view, even
-without any sharing, filling in the $F$-shape with data might involve
-undesirable copying of large amounts of data.
+% Decidable equality on $L$ allows the eliminator to observe value-level
+% sharing.  If $\DecEq L$ is left out, we have \[ (L : \Type) \to F\ L
+% \to \Store L A \to R, \] which by parametricity is equivalent to \[ F\
+% A \to R. \] That is, if we do not observe the sharing (\ie\ if we do not
+% consult the decidable equality on $L$, to see which labels occur more
+% than once), then semantically speaking we might as well simply replace
+% the labels in the $F$-shape with their corresponding $A$ values, and
+% then eliminate that. However, from an operational point of view, even
+% without any sharing, filling in the $F$-shape with data might involve
+% undesirable copying of large amounts of data.
 
 % Including this here for reference (probably doesn't need to actually
 % go in the paper):
@@ -2085,35 +2098,35 @@ undesirable copying of large amounts of data.
 % where the last step follows from the free theorem, taking l' = a, q =
 % id, and g = p.
 
-We can always derive decidable equality for any type with a $\Finite$
-proof, by mapping to $\Fin n$ and comparing for equality.  However, we
-do not expose the actual $\Finite L$ witness to eliminators.  The
-reason is that given a value of $\Finite L$, one can observe an
-induced linear order on the elements of $L$, using the usual linear
-order on the associated natural numbers. However, this would again
-break functoriality: an eliminator would be able to observe some of
-the effects of relabeling. Given only $\DecEq L \times (L \to A)$,
-there is no way to enumerate the elements of $L$ or observe any order
-relation on them.  One can only traverse the shape $F\ L$ and feed
-encountered $L$ values into the $(L \to A)$ function to learn the
-associated data values, possibly consulting the provided decidable
-equality to find out which labels are shared.
+% We can always derive decidable equality for any type with a $\Finite$
+% proof, by mapping to $\Fin n$ and comparing for equality.  However, we
+% do not expose the actual $\Finite L$ witness to eliminators.  The
+% reason is that given a value of $\Finite L$, one can observe an
+% induced linear order on the elements of $L$, using the usual linear
+% order on the associated natural numbers. However, this would again
+% break functoriality: an eliminator would be able to observe some of
+% the effects of relabeling. Given only $\DecEq L \times (L \to A)$,
+% there is no way to enumerate the elements of $L$ or observe any order
+% relation on them.  One can only traverse the shape $F\ L$ and feed
+% encountered $L$ values into the $(L \to A)$ function to learn the
+% associated data values, possibly consulting the provided decidable
+% equality to find out which labels are shared.
 
-Note that if we do want to observe sharing, the given formulation is
-not actually very convenient; for example, if we want to know whether
-a given label $l : L$ is shared, we have to traverse the entire
-$F$-structure and test every label for equality with $l$.  In
-practice, there may be equivalent, more operationally convenient
-formulations.
+% Note that if we do want to observe sharing, the given formulation is
+% not actually very convenient; for example, if we want to know whether
+% a given label $l : L$ is shared, we have to traverse the entire
+% $F$-structure and test every label for equality with $l$.  In
+% practice, there may be equivalent, more operationally convenient
+% formulations.
 
-We can ``run'' an eliminator,
-\[ \elim : \Elim_F\ A\ R \to \LStr F L A \to R, \] by taking apart the
-labelled structure and using it to construct the proper arguments to
-the eliminator.
+% We can ``run'' an eliminator,
+% \[ \elim : \Elim_F\ A\ R \to \LStr F L A \to R, \] by taking apart the
+% labelled structure and using it to construct the proper arguments to
+% the eliminator.
 
-\todo{mention in this section that this doesn't give you any help in
-  eliminating $F\ L$, which for some species $F$ may be nontrivial
-  (\eg anything with symmetry).  Future work.}
+% \todo{mention in this section that this doesn't give you any help in
+%   eliminating $F\ L$, which for some species $F$ may be nontrivial
+%   (\eg anything with symmetry).  Future work.}
 
 
 
