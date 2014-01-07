@@ -1874,10 +1874,10 @@ In particular, we assume a type $|Vec| : \N \to \Type \to
   |appendV|   &: \Vect m A \to \Vect n A \to \Vect {(m + n)} A \times
   (\Fin m + \Fin n \iso \Fin{(m + n)}) \\
   |concatV|   &: \Vect m {(\Vect n A)} \to \Vect {(m \cdot n)} A \times
-  (\Fin m \times \Fin n \iso \Fin (m \cdot n))\\
-  |sumV|      &: (|ns| : \Vect m \N) \to |mapV (\n -> Vec n A) ns| \\
-  &\qquad \to \Vect {(|sumN ns|)} A \times
-  (|sumTy|\ (|mapV|\ \Fin{}\ |ns|) \iso \Fin (|sumN ns|))
+  (\Fin m \times \Fin n \iso \Fin (m \cdot n))
+  % |sumV|      &: (|ns| : \Vect m \N) \to |mapV (\n -> Vec n A) ns| \\
+  % &\qquad \to \Vect {(|sumN ns|)} A \times
+  % (|sumTy|\ (|mapV|\ \Fin{}\ |ns|) \iso \Fin (|sumN ns|))
 %  imapV     &: (\Fin n \to A \to B) \to (\Vect n A \to \Vect n B) \\
 %  zipWithV  &: (A \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C
 \end{align*}
@@ -1886,41 +1886,43 @@ Note that in addition to computing new vectors, |appendV| and
 relationship bewteen the indices of the input and output vectors.  For
 example, if |appendV v1 v2 = (v,e)|, then it must be the case that |v1
 ! m = v !  (e (inl m))|.  Similarly, |v ! m ! n = v' ! (e (m,n))| when
-|concatV v = (v',e)|. |sumV| is a generalized version of |concatV|
-allowing the concatenation of a collection of vectors of varying
-length,
-\begin{equation*}
-  \begin{minipage}[c]{200pt}
-  \hfill
-  \begin{diagram}[height=15]
-    dia = pad 1.1 . centerXY
-        . hcat' (with & sep .~ 0.5) . map (hcat . flip replicate (square 1))
-        $ [ 4, 2, 5 ]
-  \end{diagram}
-  %$
-  \end{minipage}
-  \stackrel{|sumV|}{\longrightarrow}
-  \begin{minipage}[c]{200pt}
-  \begin{diagram}[height=15]
-    dia = pad 1.1 . centerXY
-        . hcat . flip replicate (square 1) . sum
-        $ [ 4, 2, 5 ]
-  \end{diagram}
-  %$
-  \end{minipage}
-\end{equation*}
-with |sumN = foldV 0 (+)| and |sumTy = foldV undefined (+)|.
+|concatV v = (v',e)|.
+
+% |sumV| is a generalized version of |concatV|
+% allowing the concatenation of a collection of vectors of varying
+% length,
+% \begin{equation*}
+%   \begin{minipage}[c]{200pt}
+%   \hfill
+%   \begin{diagram}[height=15]
+%     dia = pad 1.1 . centerXY
+%         . hcat' (with & sep .~ 0.5) . map (hcat . flip replicate (square 1))
+%         $ [ 4, 2, 5 ]
+%   \end{diagram}
+%   %$
+%   \end{minipage}
+%   \stackrel{|sumV|}{\longrightarrow}
+%   \begin{minipage}[c]{200pt}
+%   \begin{diagram}[height=15]
+%     dia = pad 1.1 . centerXY
+%         . hcat . flip replicate (square 1) . sum
+%         $ [ 4, 2, 5 ]
+%   \end{diagram}
+%   %$
+%   \end{minipage}
+% \end{equation*}
+% with |sumN = foldV 0 (+)| and |sumTy = foldV undefined (+)|.
 
 Given such a type $\cons{Vec}$, we may define \[ \Store L A \defn \sum_{n :
-  \N} (L \iso \Fin n) \times \Vect n A, \] and implement the required
+  \N} (\under L \iso \Fin n) \times \Vect n A, \] and implement the required
 operations as follows:
 
 \begin{itemize}
-\item The implementation of |allocate| uses the provided $\Finite L$
-  proof to determine the size of the vector to be allocated, as well
-  as the initial layout of the values.
+\item The implementation of |allocate| uses the (implicitly provided)
+  proof $(n, iso) : \Finite {\under L}$ to determine the size of the
+  vector to be allocated, as well as the initial layout of the values.
   \begin{spec}
-    allocate fin@(n, iso) f = (n, fin, allocateV n (f . iso))
+    allocate {n,iso} f = (n, inv(iso), allocateV n (f . iso))
   \end{spec}
 
 \item To reindex, there is no need to allocate a new vector; |reindex|
@@ -1943,10 +1945,10 @@ operations as follows:
   \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C$ (if we had
   such a function).  The problem, however, is that the $(L \iso \Fin
   n)$ proofs have real computational content: zipping on labels may
-  not coincide with zipping on indices. \todo{need some pictures to
-    make this more clear?} Since we want to zip on indices, |zipWith|
-  must compose the given equivalences to obtain the correspondence
-  between the label mappings used by the two input vectors:
+  not coincide with zipping on indices. Since we want to zip on
+  indices, |zipWith| must compose the given equivalences to obtain the
+  correspondence between the label mappings used by the two input
+  vectors:
   \begin{spec}
     zipWith f (n, i1, v1) (_, i2, v2) = (n, i2, v)
       where v = allocateV n (\k -> f (v1 ! (i1 . inv(i2)) k) (v2 ! k))
@@ -1960,13 +1962,14 @@ operations as follows:
 
 \item |append| is straightforward to implement via |appendV|:
   \begin{spec}
-    append (n1, i1, v1) (n2, i2, v2) = (n1+n2, e . (i1 + i2), v)
-      where (v,e) = appendV v1 v2
+    append e (n1, i1, v1) (n2, i2, v2) = (n1+n2, e . (i1 + i2) . f, v)
+      where (v,f) = appendV v1 v2
   \end{spec}
   Note that we construct the required label equivalence as the
-  composite \[ L_1 + L_2 \stackrel{i_1 + i_2}{\iso} \Fin{n_1} +
-  \Fin{n_2} \stackrel{e}{\iso} \Fin{(n_1 + n_2)}, \] using the index
-  equivalence |e| returned by |appendV|.
+  composite \[ \under L \stackrel{e}{\iso} \under{L_1} + \under{L_2}
+  \stackrel{i_1 + i_2}{\iso} \Fin{n_1} + \Fin{n_2} \stackrel{f}{\iso}
+  \Fin{(n_1 + n_2)}, \] using the provided equivalence |e| and the
+  index equivalence |f| returned by |appendV|.
 
 \item |concat| is implemented similarly to |append|: we multiply the
   sizes, use |concatV| on the input vector-of-vectors, and compute the
