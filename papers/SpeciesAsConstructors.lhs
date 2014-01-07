@@ -300,10 +300,11 @@
   This idea of decomposing container structures into shapes and data
   is an old one; our novel contribution is to explicitly mediate the
   decomposition with arbitrary labels. We demonstrate the benefits of
-  this approach in implementing and reasoning about operations
-  naturally expressed as operations on labels, explicitly modelling
-  value-level sharing, and reasoning about memory allocation and
-  layout.
+  this approach in \bay{What actual benefits do we demonstrate now?  I
+    think this original list is now out of date: ``implementing and
+    reasoning about operations naturally expressed as operations on
+    labels, explicitly modelling value-level sharing, and reasoning
+    about memory allocation and layout.''}
 
   The theory of labelled structures is built directly on the
   foundation of \emph{combinatorial species}, which serve to describe
@@ -725,10 +726,9 @@ simply passing around types and requiring them to have an implicit,
 canonical finiteness proof, we will in general pass around types
 \emph{together with} some specific finiteness proof.  We can
 encapsulate this by defining \[ \FinType \defn (A : \Type) \times
-\Finite A \] as the universe of finite types.
-
-\todo{add discussion here of problems with using $\Fin n$, ``too
-  much'' information, truncation, etc.?}
+\Finite A \] as the universe of finite types. We use $\under - :
+\FinType \to \Type$ to project out the underlying type from a finite
+type, forgetting the finiteness evidence.
 
 It is not hard to see that the size of a finite type is determined
 uniquely. That is, if $(n_1,e_1)$ and $(n_2,e_2) : \Finite A$ are any
@@ -743,9 +743,19 @@ suitable finiteness proof can be obtained.  We also write $|L|$, when
 $L : \FinType$, to denote the projection of the natural number size
 stored in $L$.
 
-Finally, we use $\under - : \FinType \to \Type$ to project out the
-underlying type from a finite type, forgetting the finiteness
-evidence.
+As a final remark, we note that an inhabitant of $\Finite A$ contains
+quite a lot of information, much more than one usually means by saying
+``$A$ is finite''.  For example, it encodes a total order and
+decidable equality on $A$, by transferring these properties along the
+equivalence from $\Fin n$.  This is often useful, but occasionally it
+gets us into trouble (\todo{reference section on E?}).  It may be that the
+right evidence for the finiteness of $A$ is not $(n : \N) \times (\Fin
+n \iso A)$ but the \term{propositional truncation} \[ (n : \N) \times
+\|| \Fin n \iso A \||, \] or something like it
+\cite[sect. 3.7]{hottbook}. In any case, we are reasonably certain
+that a complete story of labelled structures with symmetries will
+require a more nuanced conception of evidence for finiteness; we leave
+this to future work.
 
 \section{Combinatorial Species}
 \label{sec:species}
@@ -791,10 +801,10 @@ additionally satisfying the following functoriality conditions:
 Using the language of category theory, this definition can be pithily
 summed up by saying that a species is a functor $F : \B \to
 \Set$, where $\B$ is the category of finite sets whose morphisms
-are bijections, and $\Set$ is the category of sets whose
+are bijections, and $\Set$ is the usual category of sets whose
 morphisms are arbitrary (total) functions.  Note that we could have
 chosen $\FinSet$ as codomain with very few changes, but $\Set$ is now
-traditional.
+customary.
 
 We call $F(L)$ the set of ``$F$-shapes with
 labels drawn from $L$'', or simply ``$F$-shapes on $L$'', or even
@@ -807,7 +817,7 @@ In the existing literature, elements of $F(L)$ are usually called
 labelled shapes are themselves the primary objects of interest;
 however, in a computational context, we must be careful to distinguish
 between labelled \emph{structures} (which, in our terminology, have
-data associated with the labels) and bare labelled \emph{shapes}
+data associated to the labels) and bare labelled \emph{shapes}
 (which do not).
 
 Here we see that the formal notion of ``shape'' is actually quite
@@ -829,25 +839,21 @@ use it as a foundation for data structures, it is necessary to first
 In fact, doing so results in a greatly simplified definition: we
 merely define \[ \Species \defn \FinType \to \Type. \] The rest of the
 definition comes ``for free'' from the structure of our type theory!
-In particular, given any $F : \Species$, we get \[ \relabel : (L_1
-\iso L_2) \to (F\ L_1 \to F\ L_2) \] via the univalence
-axiom\footnote{For particular $F$--- including those defined
-  algebraically, as explained in \pref{sec:algebraic}---we can get
-  away without using the univalence axiom.} and transport, and
-$\relabel$ automatically respects identity and composition.  Of
-course, this is one of the great strengths of type theory as a
-foundation for mathematics: everything is structural and hence
-functorial, natural, continuous, \dots, and we do not have to waste
-time ruling out bizarre constructions which violate these obvious and
-desirable properties, or proving that our constructions do satisfy
-them.
+In particular, we have \[ \relabel : (F : \Species) \to (L_1 = L_2)
+\to (F\ L_1 \to F\ L_2) \] via transport, where and $\relabel$
+automatically respects identity and composition. This is
+one of the great strengths of type theory as a foundation for
+mathematics: everything is structural and hence functorial, natural,
+continuous, \dots, and we do not have to waste time ruling out bizarre
+constructions which violate these obvious and desirable properties, or
+proving that our constructions do satisfy them.
 
-It is important to note that an equivalence $L_1 \iso L_2$ between
+It is important to note that an equality $L_1 = L_2$ between
 constructively finite types $L_1,L_2 : \FinType$, as required by
 $\relabel$, contains more than first meets the eye.  Since \[ \FinType
 \defn (L : \Type) \times (n : \N) \times (\Fin n \iso L), \] such
-equivalences contain not just an equivalence between the underlying
-types, but also a second-order equivalence-between-equivalences
+equalities contain not just an equality between the underlying
+types, but also a second-order equality-between-equivalences
 requiring the types to be isomorphic to $\Fin n$ ``in the same way'',
 that is, to yield the same equivalence with $\Fin n$ after mapping
 from one to the other.  The situation can be pictured as shown in
@@ -893,8 +899,8 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
   only triangles}
   \label{fig:fin-equiv}
 \end{figure}
-Intuitively, this means that if $L_1, L_2 : \FinType$, an equivalence
-$L_1 \iso L_2$ cannot contain ``too much'' information: it only tells
+Intuitively, this means that if $L_1, L_2 : \FinType$, an equality
+$L_1 = L_2$ cannot contain ``too much'' information: it only tells
 us how the underlying types of $L_1$ and $L_2$ relate, preserving the
 fact that they can both be put in correspondence with $\Fin n$ for
 some $n$.  In particular, it cannot also encode a nontrivial
