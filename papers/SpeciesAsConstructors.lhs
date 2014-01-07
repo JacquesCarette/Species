@@ -2120,9 +2120,40 @@ the eliminator.
 \section{Related work}
 \label{sec:related}
 
+The work on \emph{containers} 
+\citep{abbott_quotient,abbott_deriv,abbott_categories_2003,alti:cont-tcs,alti:lics09} also aims to find a more general theory of data-structures which captures
+a large set of ``containers''.  The resulting theory is quite elegant.
+It involves \emph{shapes} and a family of \emph{position} types indexed by
+shapes.  More formally, it is a dependent pair of type $A \vdash B$ (which
+they write $A\lhd B$)
+which yields a functor $T_{A\lhd B} X$ defined to be
+$\Sigma a:A. X^{B\left(a\right)}$.  Roughly, their positions correspond
+to our labels, their shapes correspond to our labelled structures, and
+the associated functor maps positions to data values, much as our mappings
+associate data values to labels.  They have developped the theory quite far
+but, as of yet, there is no implementation of ``containers'', nor is there
+a fully developped dictionary linking concrete structures to the 
+corresponding abstract container.  It is thus quite difficult to do a 
+deeper comparison of the approaches.  We can nevertheless make a few simple
+observations.  It does not seem like the positions have ``structure'', or can
+easily be structured (the work on quotient containers~\citep{abbott_quotient}
+is quite involved).  There are fewer combinators for containers than for
+labelled structures: neither the cartesian product nor functorial composition
+seem to be present.  Thus there is as of yet no theory of sharing for
+containers.  But, having said all of that, containers are not restricted
+to finite sets of labels, which confers them extra generality beyond
+labelled structures.  To be clear: there are useful types (such as streams)
+which are containers and are not labelled structures.
+
+Shapely types \citep{jay-shapely} are closely related to containers --
+see~\citep[section 8]{abbott_categories_2003} for a careful explanation
+of the details.  Their result show that shapely types are those containers
+which are closest to labelled structures as in many settings of importance,
+shapely types are \emph{discretely finite} containers, which basically 
+amounts to saying that all shapes give rise to a finite number of positions
+(aka labels).
+
 \begin{itemize}
-\item containers, naturally
-\item shapely types
 \item stuff types
 \item combstruct and other species implementations
 \item species in general
