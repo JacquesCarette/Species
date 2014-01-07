@@ -970,13 +970,13 @@ content ourselves with some informal descriptions of the semantics.
   precisely this missing information (and similarly for |concat|).
 \end{itemize}
 
-The keen-eyed, categorically-oriented reader might well notice that
-these encode properties of the functor category
-$\left[\FinSet,C\right]$, for an arbitrary category $C$, except for
-$|allocate|$ which requires more structure.  $|allocate|$ bears close
-resemblance to the Yoneda embedding, which is why $\Set$ is nowadays
-chosen as the codomain for species. \bay{This paragraph is too terse;
-  I don't really understand it.  Can you elaborate a bit?}
+% The keen-eyed, categorically-oriented reader might well notice that
+% these encode properties of the functor category
+% $\left[\FinSet,C\right]$, for an arbitrary category $C$, except for
+% $|allocate|$ which requires more structure.  $|allocate|$ bears close
+% resemblance to the Yoneda embedding, which is why $\Set$ is nowadays
+% chosen as the codomain for species. \bay{This paragraph is too terse;
+%   I don't really understand it.  Can you elaborate a bit?}
 
 We can give a particularly simple implementation with $\Store L A
 \defn \under L \to A$, presented here using Haskell-like notation:
