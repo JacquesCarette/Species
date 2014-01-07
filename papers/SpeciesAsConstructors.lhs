@@ -996,6 +996,7 @@ $L$.
 formatting too much, so I am typing this in as a subsection.  Its contents
 should be moved to somewhere appropriate, when we figure out what that is.}
 
+\paragraph{Structures}
 What examples do we have, other than the usual ones?  Some highlights:
 \begin{itemize}
 \item \emph{Rose Trees}.  These require product, sum (through list), X,
@@ -1012,6 +1013,7 @@ of many examples.
 \end{itemize}
 That list could easily be extended.
 
+\paragraph{Functions over all structures}
 But quickly the question turns to: but what can we do with these?  And this is
 indeed where things do get interesting.  There are a number of functions
 that one is accustomed to see implemented for vectors, lists, sets and bags,
@@ -1040,10 +1042,11 @@ result (in the usual meaning of splitting the structure into two
 distinct pieces), we need to provide a means to do this.
 
 We can extract \emph{both} parts into lists, by pulling apart the 
-Cartesian Product, then using an eliminator over the $\List$ structure (to
-get the ordering) but using the information from the ``partition'' to 
-make our choices of where to put each element.  Note how the elements
-themselves take no part in this choice.  
+Cartesian Product, then using a (generalized) eliminator over the $\List$
+structure (to get the ordering) but using the information from the
+``partition'' to make our choices of where to put each element.  Note how the
+elements themselves take no part in this choice, but the isomorphism which
+is part of the product plays a key role.
 \begin{code}
 extractBoth :: (S.LabelledStorage s, Set.Enumerable l, Eq l) => 
     Sp (L.L # Part) s l a -> ([a], [a])
@@ -1098,18 +1101,84 @@ we add labels, we add ``addresses'' to each datum in a structure, which can
 be used to retrieve them at a later point.  In other words, our
 \emph{abstract labels} play the role traditionally taken by \emph{pointers}
 in low-level languages.
-\todo{
-  Give some examples of using our implementation.  I've marked places
-  in the following section where it seems natural for them to go.
-  \begin{itemize}
-  \item filter and partition.
-  \item Foldable.  Traversable.
-  \item Various flavours of trees
-  \item finite maps.  Bags.
-  \item $n$-dimensional vectors.
-  \end{itemize}
-}
 
+Other functions which traditionally rely on $|Traversable|$ can be
+implemented straightforwardly.  We give $|all|$ as an example:
+\begin{code}
+all :: (S.Storage s, Set.Enumerable l, Eq l) => Sp f s l a -> (a -> Bool) -> Bool
+all sp p = elim k (Struct gl es)
+  where sp' = partition sp p
+        Struct (CProd _ gl) es = sp'
+        k = elimProd (const $ elimE (const $ elimE Set.isEmpty))
+\end{code}
+The above relies on the property that $|all|$ is equivalent to having
+the $|snd|$ set of a partition be empty -- something that can be coded up
+directly.
+
+The definition of the $|\product|$ of two labelled structures may not make this
+entirely transparent, but it allows us to implement \emph{concatenation}.
+Just as \cons{partition} is the heart of many of the routines described 
+above, \cons{product} corresponds to concatenation of lists, concatenation
+of vectors, union of finite maps, union of bags, and so on. \jc{code
+omitted, see \cons{lcat} in VecLike}.
+
+\paragraph{Foldable}  Since we can extract a list from
+an arbitrary \cons{Foldable} functor, we can just as easily get an
+(implicitly) labelled $L$-structure from \cons{Foldable}.  In the opposite
+direction, we can also get \cons{Foldable} from the presence of an
+$L$-structure; more explicitly:
+\begin{code}
+instance F.Foldable (Sp' (f # L) s) where
+  foldr f b (SpEx (Struct (CProd _ f2) elts)) = elim (elimList b f) (Struct f2 elts)
+\end{code}
+\noindent This strongly indicates that \cons{Foldable} is really about
+\emph{order}: it does not matter what $f$-structure we have, as long as we
+have a superimposed linear order on the labels \emph{without the labels 
+themselves being ordered}, we have enough information for ``folding''.
+
+Following this idea, we can use this to implement many useful functions
+such as \cons{sum}, \cons{product}, \cons{and}, \cons{or} over arbitrary
+labelled structures.
+\begin{code}
+product :: (S.Storage s, Set.Enumerable l, Eq l) => Sp f s l Int -> Int
+product sp = elim k (forgetShape sp)
+  where k = elimE $ \s -> Data.MultiSet.fold (*) 0 $ Set.smap snd s
+\end{code}
+
+While the above is perfectly correct, Haskell is also perfectly happy with
+\begin{code}
+instance (Set.Enumerable l, Eq l, S.Storage s) => F.Foldable (Sp f s l) where
+  foldr g b sp = elim k (forgetShape sp)
+    where k = elimE $ \s -> MS.fold g b $ Set.smap snd s
+\end{code}
+\noindent we are not.  It basically says that all labelled structures are
+\cons{Foldable}, which we do not want.  The error in the above is that
+\cons{MS.fold} \emph{says} that it works for an arbitrary order of the 
+underlying elements, but this is not checked.  Worse, by using a
+non-associative function $|f|$, we can actually \emph{observe} the order that
+was used, something we should most definitely not be able to do.  To be 
+correct, the above should \emph{restrict} $|g|$ to be an 
+\emph{associative, commutative} function, but alas, this cannot be done
+in Haskell.  The ``fault'', such as it is, really lies in the 
+$|Data.MultiSet|$ package exposing a much too general notion of \cons{fold}.
+
+\paragraph{Lens}
+The labels allow even more: we can create a \emph{lens} for any labelled
+structure which focuses on an arbitrary label:
+\begin{code}
+lensSp :: (S.Storage s, S.LabelConstraint s l) => l -> Lens' (Sp f s l a) a
+lensSp lbl = 
+    lens (\(Struct _ e) -> S.index e lbl)
+         (\(Struct sh e) a -> Struct sh (snd $ S.replace lbl a e))
+\end{code}
+\noindent The vast majority of the instances of \cons{Lens} are simply
+specializations of the code above for specific structures.
+
+It should be pointed out that an even more idiomatic implementation of
+\cons{lensSp} would first \emph{point} the $f$-structure, and then using
+that as its focus, derive a lens for it.
+
+\jc{rest of section 5 is below}
 \todo{add eliminators / eliminator combinators for each primitive + operation?}
 
 We now return to the observation from \pref{sec:set-species} that we
