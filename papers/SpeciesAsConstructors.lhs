@@ -379,20 +379,6 @@
 % also doesn't really connect to the finite map/array examples mentioned
 % before. Can we show an example of constructing an array?  }
 
-%\jc{Right.  The more we worked on this, the more the picture evolved, and
-%I think Stephanie's comments really illustrates our current state best.  I
-%would be quite happy with the paper layout that she suggests.  Although
-%there is one item which needs serious re-thinking: the emphasis on 'finite'.
-%As things currently stand, our use of 'finite' keeps getting smaller and
-%smaller.  In a number of places, I think we could weaken the definition
-%of finiteness too (from an isomorphism to simply requiring a surjection
-%from some bounded set of naturals onto our labels, with no injectivity
-%requirement; in other places we need an (unordered) enumeration instead).}
-%\jc{Regarding array examples: we do not have any code on arrays that works
-%at the moment.  We do have code for 1D sized vectors that mostly works.
-%We have all sorts of other examples that also work.  We should really agree
-%on which examples we'll pull from, and make sure they fully work.}
-
 \section{Introduction}
 \label{sec:intro}
 
@@ -491,9 +477,6 @@ the usual type of trees: every possible labelling of a given tree shape
 results in a different labelled structure, whereas there are many
 labelled tree structures that will ``collapse'' to the same algebraic
 data structure, which differ only in the way they are labelled.
-
-% \jc{Give a forward reference to how we can associate canonical labels
-% to algebraic data types?}\bay{We took that out.}
 
 \paragraph{Finite maps and bags}
 
@@ -594,11 +577,7 @@ nontrivial computational content and significance.  In particular, we
 are naturally led to work up to computationally relevant
 \emph{equivalences} on labels.  Working up to equivalence in this way
 confers additional expressive power, allowing us to model efficient
-label operations (\eg partition) without copying.  \bay{We had
-  something here about memory layout and allocation, but I'm not sure
-  we really talk about that anymore.} \jc{We do, the whole Vector Mapping
-subsection is about that, and is important.}
-This is also one of
+label operations (\eg partition) without copying.  This is also one of
 the key ingredients in modeling memory layout and allocation (\pref{sec:vecmap}).
 
 In more detail, our contributions are as follows:
@@ -618,10 +597,7 @@ In more detail, our contributions are as follows:
 \item We show how certain operations (for example, altering the keys 
   of a finite map) can be more naturally described as \emph{operations 
   on labels}, leading to benefits in reasoning---and, we conjecture, to 
-  efficiency as well (\pref{sec:programming}).\jc{I removed the reversing
-  list and transpose examples as we don't actually have them.  However,
-  with some weasely words, I would be ok with adding them
-  back.}\bay{I'm fine with removing them.}
+  efficiency as well (\pref{sec:programming}).
 \item We model value-level \emph{sharing} via shared labels
   (\pref{sec:cartesian-product})---in contrast, this is not possible
   if every structure has a fixed set of canonical labels.
@@ -675,8 +651,7 @@ universes $\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the
 subscripts), and a notion of propositional equality.  The theory also
 allows inductive definitions.  In particular, we use $\N : \Type_0$ to
 denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
-usual indexed type of canonical finite sets. \jc{should we, in this case,
-make it precise that $\N : \Type_0$?}\bay{Sure, done.}
+usual indexed type of canonical finite sets.
 
 Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
 dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
@@ -1395,6 +1370,7 @@ We also have $\compA$ (``ap''), with type
   effect that the isomorphism argument is notated as a subscript.
   (Note that there is a similar note for $\sprod$.)  Do you think
   that's sufficient?  Or do we need to come up with different notation?}
+\jc{sufficient, but now the order of arguments is confusing...}
 $\compA$ is equivalent in power to $\compP$: in particular, |x compP y =
 (map (,) x) compA y|, where $(,) : A \to B \to A \times B$ denotes the
 constructor for pair types, and |x compA y = map eval (x compP y)|,
@@ -1424,7 +1400,7 @@ $G$-structures of different shapes and sizes inside an $F$-structure,
 which is made possible by $\compB$ (``bind''), the last and most
 general introduction form for composition, which can be seen as a
 generalization of a monadic bind operation |(>>=)|.
-\jc{same issues as with ap}
+\jc{same issues as with ap, still}
 \begin{equation*}
   - \compB_- - : \left(\sum_{l : \under{L_1}} \under{L_2\ l} \right) \iso \under
     L \to \LStr F {L_1} A \to \left(\prod_{l : L_1} A \to \LStr G
@@ -1763,6 +1739,7 @@ decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[ L \iso
 
 \jc{Functor or Functorial?}\bay{I seem to recall that BLL have
   ``functor'', though I don't have my copy with me at the moment.}
+\jc{I have it (actually both, English and French).  Functorial.}
 It is worth mentioning the operation of \emph{functor composition},
 which set-theoretically is defined as the ``na\"ive'' composition
 
