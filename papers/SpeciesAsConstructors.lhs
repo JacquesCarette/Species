@@ -701,7 +701,14 @@ is a function of an appropriate type, then $f(x) = f(y)$.  Given $e$
 we also have $P(x) \to P(b)$ for any type family $P$, called the
 \term{transport} of $P(x)$ along $e$.  Finally, a consequence of the
 \emph{univalence axiom} is that an equivalence $A \iso B$ can be
-converted to the propositional equality $A = B$ (and vice versa).
+converted to the propositional equality $A = B$ (and vice versa).  The
+intuitive idea is to formally encode the common mathematical practice
+of treating isomorphic things as identical.  It is important to keep
+in mind that an equality $e : A = B$ can thus have nontrivial
+computational content.  In other words, $A = B$ means not that $A$ and
+$B$ are identical, but merely that they can be used
+interchangeably---and moreover, interchanging them may require some
+work, computationally speaking.
 
 \subsection{Finiteness}
 \label{sec:finiteness}
@@ -847,25 +854,28 @@ merely define \[ \Species \defn \FinType \to \Type. \] The rest of the
 definition comes ``for free'' from the structure of our type theory!
 In particular, we have \[ \relabel : (F : \Species) \to (L_1 = L_2)
 \to (F\ L_1 \to F\ L_2) \] via transport, where and $\relabel$
-automatically respects identity and composition. This is
-one of the great strengths of type theory as a foundation for
-mathematics: everything is structural and hence functorial, natural,
-continuous, \dots, and we do not have to waste time ruling out bizarre
-constructions which violate these obvious and desirable properties, or
-proving that our constructions do satisfy them.
+automatically respects identity and composition. This is one of the
+great strengths of type theory as a foundation for mathematics:
+everything is functorial, natural, continuous, \dots, and we do not
+have to waste time ruling out bizarre constructions which violate
+these obvious and desirable properties, or proving that our
+constructions do satisfy them.
 
 It is important to note that an equality $L_1 = L_2$ between
 constructively finite types $L_1,L_2 : \FinType$, as required by
 $\relabel$, contains more than first meets the eye.  Since \[ \FinType
 \defn (L : \Type) \times (n : \N) \times (\Fin n \iso L), \] such
-equalities contain not just an equality between the underlying
-types, but also a second-order equality-between-equivalences
-requiring the types to be isomorphic to $\Fin n$ ``in the same way'',
-that is, to yield the same equivalence with $\Fin n$ after mapping
-from one to the other.  The situation can be pictured as shown in
-\pref{fig:fin-equiv}, where the diagram necessarily contains only
-triangles: corresponding elements of $L_1$ and $L_2$ on the sides
-correspond to the same element of $\Fin n$ on the bottom row.
+equalities contain not just an equality $\under{L_1} = \under{L_2}$
+between the underlying types (typically constructed from an
+equivalence $\under{L_1} \iso \under{L_2}$ via univalence), but also
+an equality between their sizes, and a second-order
+equality-between-equivalences requiring the types to be isomorphic to
+$\Fin n$ ``in the same way'', that is, to yield the same equivalence
+with $\Fin n$ after mapping from one to the other.  The situation can
+be pictured as shown in \pref{fig:fin-equiv}, where the diagram
+necessarily contains only triangles: corresponding elements of $L_1$
+and $L_2$ on the sides correspond to the same element of $\Fin n$ on
+the bottom row.
 \begin{figure}
   \centering
   \begin{diagram}[width=150]
