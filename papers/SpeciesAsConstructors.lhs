@@ -1895,8 +1895,7 @@ to be labelled by $\TyOne$, paired with a derivative structure with
 that value missing.
 
 A related operation is that of \term{pointing}.  A pointed $F$-shape
-is an $F$-shape with a particular label distinguished. \todo{picture}
-Formally,
+is an $F$-shape with a particular label distinguished.  Formally,
 \[ \pt{F}\ L = L \times F\ L. \]
 Introducing a pointed structure simply requires specifying which label
 should be pointed:
@@ -1906,12 +1905,12 @@ should be pointed:
 \end{align*}
 
 The relationship bewteen pointing and derivative is given by the
-equivalence \[ \pt F \iso \X \sprod F'. \] The right-to-left
-direction is straightforward to implement, requiring only some
-relabelling.  The left-to-right direction, on the other hand, requires
-modelling an analogue of ``subtraction'': the given label type $L$
-must be decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[
-L \iso \left(\sum_{l':L} l' \neq l \right) + \left(\sum_{l':L} l' = l
+equivalence \[ \pt F \iso \X \sprod F'. \] The right-to-left direction
+is straightforward to implement, requiring only some relabelling.  The
+left-to-right direction, on the other hand, requires modelling an
+analogue of ``subtraction'' on types: the given label type $L$ must be
+decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[ L \iso
+\left(\sum_{l':L} l' \neq l \right) + \left(\sum_{l':L} l' = l
 \right). \]
 
 \paragraph{Functor composition}
