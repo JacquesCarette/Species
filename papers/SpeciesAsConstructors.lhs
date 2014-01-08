@@ -2166,8 +2166,31 @@ shapely types are \emph{discretely finite} containers, which basically
 amounts to saying that all shapes give rise to a finite number of positions
 (aka labels).
 
+Another approach is that of \textit{Container Types Categorically}
+\citep{ContainerTypesCat}.  They define containers as monotone
+endofunctors $F$ on \cons{Rel} (aka a \emph{relator}) which has a
+\emph{membership relation}; this latter concept turns out to be a special
+kind of lax natural transformation from $F$ to the identity functor.  
+This approach is again rather difficult to adequately compare to ours.
+There is again overlap, but no inclusion in either direction.
+
+From the categorical perspective, \emph{stuff types}
+\citep{BaezDolan01,Morton2006}, brilliantly explained in
+Byrne's Master's Thesis \citep{Byrne2005}, are directly related to species.
+These are functors from some arbitrary groupoid $X$ to the groupoid of
+finite sets and bijections.  Faithful stuff types are equivalent to 
+species.  But these work much like containers: stuff types map a structure to 
+its underlying set (which can be though of as positions), instead of 
+mapping labels to structures.  In a different direction,
+\emph{polynomial functors} also generalize species~\citep{kock2012data},
+and seem a categorically very solid foundation for an even more general
+approach to data type constructors.  Unfortunately, no one has yet to 
+unravel these definitions into something suitable for implementation.
+Similarly, \emph{generalised species of structures}~\citep{Fiore08} may
+also be another interesting direction.  But in all these cases, there 
+remains much work to be done to bridge between theory and practice.
+
 \begin{itemize}
-\item stuff types
 \item combstruct and other species implementations
 \item species in general
 \end{itemize}
