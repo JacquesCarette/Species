@@ -1761,7 +1761,8 @@ decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[ L \iso
 
 \paragraph{Functor composition}
 
-\jc{Functor or Functorial?}
+\jc{Functor or Functorial?}\bay{I seem to recall that BLL have
+  ``functor'', though I don't have my copy with me at the moment.}
 It is worth mentioning the operation of \emph{functor composition},
 which set-theoretically is defined as the ``na\"ive'' composition
 
@@ -1996,7 +1997,9 @@ would be a much more (labelled-structure) idiomatic version of \cons{take}.
 \label{sec:vecmap}
 
 \todo{where should this go?  Right before some example that needs it?}
-\jc{I am thinking it might even become its own section.}
+\jc{I am thinking it might even become its own section.}\bay{OK, I
+  think you're probably right.  Maybe we just need to massage it to
+  introduce it/give it better context.}
 
 A more interesting implementation uses finite vectors to store the $A$
 values.  We use this as a model for a consecutive block of memory.
@@ -2279,9 +2282,9 @@ also aims to find a more general theory of data structures which
 captures a large set of ``containers''.  The resulting theory is quite
 elegant.  It involves \emph{shapes} and a family of \emph{position}
 types indexed by shapes.  More formally, it is a dependent pair of
-types $A \vdash B$ \bay{What does this notation mean?  I have never
+types $A : \Type$ and $B : A \to \Type$ \bay{What does this notation mean?  I have never
   seen it before.}  \jc{It is all over the containers papers.  But maybe
-best to rewrite is in more conventional notation indeed.} (which they 
+best to rewrite is in more conventional notation indeed.}\bay{How's that?} (which they 
 write $A\lhd B$) which yields a
 functor $T_{A\lhd B} X$ defined as $\Sigma a:A. X^{B\left(a\right)}$.
 Roughly, their positions correspond to our labels, their shapes
@@ -2304,7 +2307,7 @@ labelled structures: for example, neither the cartesian product nor
 functorial composition seem to be present.  Thus there is as of yet no
 theory of sharing for containers, nor is there a fine grained theory of
 storage.  Having said all of that, however, containers are not restricted to
-finite sets of labels, makes them more general than labelled structures: there
+finite sets of labels, which makes them more general than labelled structures: there
 are useful types (such as streams) which are containers but not labelled
 structures.  And therein seems to be the main difference: the extra
 generality allows containers to encapsulate fancier types, while our
