@@ -1743,24 +1743,25 @@ decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[ L \iso
 \left(\sum_{l':L} l' \neq l \right) + \left(\sum_{l':L} l' = l
 \right). \]
 
-\paragraph{Functor composition}
+\paragraph{Functorial composition}
 
 \jc{Functor or Functorial?}\bay{I seem to recall that BLL have
   ``functor'', though I don't have my copy with me at the moment.}
-\jc{I have it (actually both, English and French).  Functorial.}
-It is worth mentioning the operation of \emph{functor composition},
+\jc{I have it (actually both, English and French).  Functorial.}\bay{I
+  stand corrected.  In that case I think we should follow BLL.}
+It is worth mentioning the operation of \emph{functorial composition},
 which set-theoretically is defined as the ``na\"ive'' composition
 
 \[ (F \fcomp G)\ L \defn F\ (G\ L). \]
 
-Just as with Cartesian product, functor composition allows encoding
+Just as with Cartesian product, functorial composition allows encoding
 structures with sharing---for example, the species of simple,
 undirected graphs can be specified as \[ \mathcal{G} \defn (\E \sprod \E)
 \fcomp (\X^2 \sprod \E), \] describing a graph as a subset ($\E \sprod
 \E$) of all ($\fcomp$) ordered pairs chosen from the complete set of
 vertex labels ($\X^2 \sprod \E$).
 
-However, functor composition mixes up labels and shapes in the most
+However, functorial composition mixes up labels and shapes in the most
 peculiar way---and while this is perfectly workable in an untyped,
 set-theoretic setting, we do not yet know how to interpret it in a
 typed, constructive way.
@@ -2290,7 +2291,7 @@ is part of what is generated.  As a result, with containers, it does
 not seem that the positions can easily be given extra structure (the
 work on quotient containers~\citep{abbott_quotient} is quite
 involved).  There are fewer combinators for containers than for
-labelled structures: for example, neither the cartesian product nor
+labelled structures: for example, neither the Cartesian product nor
 functorial composition seem to be present.  Thus there is as of yet no
 theory of sharing for containers, nor is there a fine grained theory of
 storage.  Having said all of that, however, containers are not restricted to
@@ -2372,7 +2373,7 @@ constructive type theory.  But already many different threads of
 work are clear to us.
 
 \paragraph{Capture more of the extant theory.}  Several of the 
-species operations (such as pointing, functor composition and arithmetic
+species operations (such as pointing, functorial composition and arithmetic
 product) seem quite powerful, but we have yet to leverage them properly.
 Similarly, we have made very little use of \term{symmetry} beyond the
 extreme cases (ADTs have none, and $\E$ has all symmetries).  For example,
