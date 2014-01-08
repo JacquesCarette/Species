@@ -398,7 +398,7 @@
 
 The theory of combinatorial species \citation{joyal,bll}, as it relates to the
 theory and practice of programming languages, has long seemed to the authors
-``an answer looking for a question'': the theory is too beautiful, and too
+as ``an answer looking for a question'': the theory is too beautiful, and too
 ``obviously'' related to algebraic data types, to have no applications
 whatsoever.  Teasing out the precise relationship between species and
 data types, however, has proved challenging, for two reasons. First,
@@ -419,8 +419,8 @@ species is as \emph{labelled shapes} which do not contain any data.
 To recover \emph{data} structures, one must add a notion of mapping
 from labels to data.  This leads to the familiar idea of decomposing
 data structures as shapes plus data \citep{banger1993foundation,
-  jay-shapely, abbott_categories_2003}, with the new twist that
-arbitrary labels are used to mediate between the two.  Informally,
+  jay-shapely, ContainerTypesCat, abbott_categories_2003}, with the new 
+twist that arbitrary labels are used to mediate between the two.  Informally,
 this pairing of a labelled shape (corresponding to a species) and a
 mapping from labels to data values is what we call a \term{labelled
   structure}\footnote{Following Flajolet \etal's lead
@@ -465,7 +465,10 @@ Note that the mapping from labels to data values need not be
 injective, so the same value of type $A$ may be associated to multiple
 labels, as illustrated in \pref{fig:labelled-structure-example}.
 However, the mapping must of course be functional, that is, each label
-is assigned to exactly one value.
+is assigned to exactly one value. \jc{To me, this is not entirely clear
+in the picture.  Wouldn't it be best to separate the boxes for each letter
+and have the solid circle and the horizontal rectangle each have arrows
+to the S box?}
 
 For now, we leave the notion of ``labelled shape'' abstract; we will
 return to define it more precisely in \pref{sec:species}.  Instead, we
@@ -568,11 +571,11 @@ dia = vcat' (with & sep .~ 5)
 \subsection{Contributions}
 \label{sec:contributions}
 
-Though our work bears similarities to previous approaches 5that
+Though our work bears similarities to previous approaches that
 separate shapes and data \citep{banger1993foundation, jay-shapely,
-  abbott_categories_2003}, there is a key difference, directly
-inspired by the theory of species. Whereas previous approaches use a
-fixed, canonical set of labels (or left the labels entirely implicit),
+ContainerTypesCat, abbott_categories_2003}, there is a key difference, 
+directly inspired by the theory of species. Whereas previous approaches 
+use a fixed, canonical set of labels (or left the labels entirely implicit),
 species naturally lead us to work directly with the labels, giving
 them a much more prominent role.  Bringing the mediating labels to the
 fore in this way is, to our knowledge, novel, and leads to some
@@ -589,9 +592,10 @@ nontrivial computational content and significance.  In particular, we
 are naturally led to work up to computationally relevant
 \emph{equivalences} on labels.  Working up to equivalence in this way
 confers additional expressive power, allowing us to model efficient
-label operations (\eg partition) without copying.  bay{We had
+label operations (\eg partition) without copying.  \bay{We had
   something here about memory layout and allocation, but I'm not sure
-  we really talk about that anymore.}
+  we really talk about that anymore.} \jc{We do, the whole Vector Mapping
+subsection is about that, and is important.}
 % This is also one of
 % the key ingredients in modeling memory layout and allocation (see
 % \todo{section?}).
@@ -610,11 +614,12 @@ In more detail, our contributions are as follows:
 \item We unify ``implicitly labelled'' structures (such as algebraic
   data types) and ``explicitly labelled'' structures (such as vectors
   and finite maps) under the same framework.
-\item We show how certain operations (for example, reversing a vector,
-  taking the transpose of a 2D array, or altering the keys of a finite
-  map) can be more naturally described as \emph{operations on labels},
-  leading to benefits in reasoning---and, we conjecture, to efficiency
-  as well (see \todo{section ?}).
+\item We show how certain operations (for example, altering the keys 
+  of a finite map) can be more naturally described as \emph{operations 
+  on labels}, leading to benefits in reasoning---and, we conjecture, to 
+  efficiency as well (see \todo{section ?}).\jc{I removed the reversing
+  list and transpose examples as we don't actually have them.  However,
+  with some weasely words, I would be ok with adding them back.}
 \item We model value-level \emph{sharing} via shared labels
   (\pref{sec:cartesian-product})---in contrast, this is not possible
   if every structure has a fixed set of canonical labels.
@@ -653,10 +658,9 @@ connections is left to future work.
 
 The concept of \term{finiteness} plays a central (but implicit) role in
 the theory of combinatorial species, primarily through the pervasive use
-of generating functions.  While its role is not as central in our
-setting, it is important enough to give the precise definition we use,
-seeing as there are multiple constructive interpretations of
-finiteness.
+of generating functions.  As it remains important in our setting
+setting, we give the precise definition we use, seeing as there are multiple
+constructive interpretations of finiteness.
 
 \subsection{A fragment of homotopy type theory}
 \label{sec:HoTT}
@@ -669,7 +673,8 @@ universes $\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the
 subscripts), and a notion of propositional equality.  The theory also
 allows inductive definitions.  In particular, we use $\N : \Type$ to
 denote the type of natural numbers, and $\Fin : \N \to \Type$ the
-usual indexed type of canonical finite sets.
+usual indexed type of canonical finite sets. \jc{should we, in this case,
+make it precise that $\N : \Type_0$?}
 
 Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
 dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
@@ -685,7 +690,7 @@ free type variables in a type---like $A$ and $B$ in $A \times (B \to
 
 $A \iso B$ is the type of \term{equivalences} between $A$ and $B$;
 intuitively, an equivalence is a pair of inverse functions $f : A \to
-B$ and $g : B \to A$).\footnote{The precise details are more subtle
+B$ and $g : B \to A$.\footnote{The precise details are more subtle
   \cite[chap.  4]{hottbook}, but unimportant for our purposes.}  We
 overload the notations $\id$ and $\comp$ to denote the identity
 equivalence and equivalence composition respectively; we also allow
@@ -753,8 +758,8 @@ notation, we write $\size{A}$ to denote this size.  Computationally,
 this corresponds to applying $\outl$ to some finiteness proof; but
 since it does not matter which proof we use, we simply leave it
 implicit, being careful to only use $\size -$ in a context where a
-suitable finiteness proof can be obtained.  We also write $|L|$, when
-$L : \FinType$, to denote the projection of the natural number size
+suitable finiteness proof can be obtained.  We also write $\size L$
+when $L : \FinType$, to denote the projection of the natural number size
 stored in $L$.
 
 As a final remark, we note that an inhabitant of $\Finite A$ contains
@@ -776,7 +781,7 @@ this to future work.
 
 Our theory of labelled structures is inspired by, and directly based
 upon, the theory of \term{combinatorial species} \citep{joyal}.  We
-give only a brief introduction to it here; the reader interested in a
+give a brief introduction to it here; the reader interested in a
 fuller treatment should consult \citet{bll}.  Functional programmers
 may wish to start with~\cite{yorgey-2010-species}.
 
@@ -854,7 +859,7 @@ In fact, doing so results in a greatly simplified definition: we
 merely define \[ \Species \defn \FinType \to \Type. \] The rest of the
 definition comes ``for free'' from the structure of our type theory!
 In particular, we have \[ \relabel : (F : \Species) \to (L_1 = L_2)
-\to (F\ L_1 \to F\ L_2) \] via transport, where and $\relabel$
+\to (F\ L_1 \to F\ L_2) \] via transport, where $\relabel$
 automatically respects identity and composition. This is one of the
 great strengths of type theory as a foundation for mathematics:
 everything is functorial, natural, continuous, \dots, and we do not
@@ -969,6 +974,7 @@ content ourselves with some informal descriptions of the semantics.
 \item $|reindex| : (L' \iso L) \to \Store L A \to \Store {L'} A$
   expresses the functoriality of $\Store - A$: we can change from one
   type of labels to another by specifying an equivalence between them.
+  \jc{should we mention that this and |map| make $\Store - - $ into a Profunctor?}
 \item |zipWith| gives us a way to combine the contents of two mappings
   labelwise.
 \item |append| and |concat| are ``structural'' operations, allowing us
@@ -1008,7 +1014,7 @@ We can give a particularly simple implementation with $\Store L A
   concat e f       = curry f . inv(e)
 \end{spec}
 
-Note that the implementation of |allocate| does not take into account
+Note that this implementation of |allocate| does not take into account
 the finiteness of $L$ at all.  In~\pref{sec:vecmap} we explore a more
 interesting implementation which does make use of the finiteness of
 $L$.
@@ -1162,8 +1168,8 @@ As a simple example, the species $\One \ssum \X$ corresponds to the
 familiar |Maybe| type from Haskell, with $\lab{\inl} \lab{\One}$
 playing the role of |Nothing| and $\lab{\inr} \comp \lab{\cons{x}}$
 playing the role of |Just|.  Note that $\LStr {\One \ssum \X} L A$ is
-only inhabited for certain $L$, and moreover that the size of $L$
-determines the possible structure of an inhabitant.
+only inhabited for certain $L$ (those of size $1$), and moreover that 
+this size restriction determines the possible structure of an inhabitant.
 
 \paragraph{Product}
 The product of two species $F$ and $G$ consists of paired $F$- and
@@ -1375,6 +1381,7 @@ We also have $\compA$ (``ap''), with type
   - \compA - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
     \scomp G} L B.
 \end{equation*}
+\jc{You give ap 2 arguments, but it has 3, which is quite confusing}
 $\compA$ is equivalent in power to $\compP$: in particular, |x compP y =
 (map (,) x) compA y|, where $(,) : A \to B \to A \times B$ denotes the
 constructor for pair types, and |x compA y = map eval (x compP y)|,
@@ -1404,6 +1411,7 @@ $G$-structures of different shapes and sizes inside an $F$-structure,
 which is made possible by $\compB$ (``bind''), the last and most
 general introduction form for composition, which can be seen as a
 generalization of a monadic bind operation |(>>=)|.
+\jc{same issues as with ap}
 \begin{equation*}
   - \compB - : \left(\sum_{l : \under{L_1}} \under{L_2\ l} \right) \iso \under
     L \to \LStr F {L_1} A \to \left(\prod_{l : L_1} A \to \LStr G
@@ -1474,7 +1482,8 @@ Haskell type |Rose| defined as |data Rose a = Node a [Rose a]|, but
 the explicit use of composition allows \todo{what??}
 
 The most general type for the \cons{node} constructor is complex,
-since it must deal with a list of subtrees all having different label
+since it must deal with a list of subtrees\jc{should we say substructure
+instead?} all having different label
 types.  As a compromise, we can make use of a variant type
 representing labelled structures with an existentially quantified
 label type:
