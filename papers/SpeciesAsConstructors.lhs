@@ -2228,7 +2228,7 @@ that looks very much like generalized tries
 \label{sec:related}
 
 The work on \emph{containers}
-\citep{abbott_quotient,abbott_deriv,abbott_categories_2003,alti:cont-tcs,alti:lics09}
+\citep{abbott_categories_2003,abbott_deriv,abbott_quotient,alti:cont-tcs,alti:lics09}
 also aims to find a more general theory of data structures which
 captures a large set of ``containers''.  The resulting theory is quite
 elegant.  It involves \emph{shapes} and a family of \emph{position}
@@ -2315,7 +2315,7 @@ relevance to programming.  We have also not yet really touched the
 \emph{calculus} aspects of the theory; while the derivative is by now
 well-known, integration~\citep{Rajan93} has not really been explored.
 There are also new variants on
-species~\citep{Menni2008,aguiar2010monoidal,Schmitt93hopfalgebras}
+species~\citep{Schmitt93hopfalgebras,Menni2008,aguiar2010monoidal}
 with nontrivial applications to combinatorics, and possible
 applications to programming as well. Species have even been applied to
 the study of attribute grammars~\citep{Mishna03b}.
