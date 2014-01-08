@@ -2357,25 +2357,40 @@ the study of attribute grammars~\citep{Mishna03b}.
 \section{Future work}
 \label{sec:future}
 
-It is worth noting that much of the power of the theory of
-species---at least in the context of combinatorics---can be traced to
-fruitful homomorphisms between algebraic descriptions of species and
-rings of formal power series. \todo{future work making connections to
-  computation?}
+We have only started our translation of the theory of species to
+constructive type theory.  But already many different threads of 
+work are clear to us.
 
-\todo{extend to $\cons{Countable}\ L = \Finite L + L \iso \N$?}
+\paragraph{Capture more of the extant theory.}  Several of the 
+species operations (such as pointing, functor composition and arithmetic
+product) seem quite powerful, but we have yet to leverage them properly.
+Similarly, we have made very little use of \term{symmetry} beyond the
+extreme cases (ADTs have none, and $\E$ has all symmetries).  For example,
+a \term{cycle} is like a list, except
+that it is invariant under cyclic rotation of its labels.  One area
+where cycles are especially useful is in computational geometry: we
+can represent an (oriented) polygon, for example, as a labelled cycle
+shape, with each label mapping to a point in space.
+%\todo{picture of a polygon represented with labelled cycle}
 
-% \item It opens the possibility of taking labels and relabellings from
-%   a category other than $\B$ (as is done, for example, with
-%   $\mathbb{L}$-species \citep{Joyal86}, \citep[chap. 5]{bll}).  We
-%   conjecture that this has also benefits in a computational setting,
-%   though exploring this idea in more detail is left to future work.
+We have also not yet pursued weighted species, multisorted species, nor
+virtual species, all of which look quite promising for applications.
+We can also investigate other categories of labels:  for example,
+  $\mathbb{L}$-species \citep{Joyal86}, \citep[chap. 5]{bll} use
+  linearly ordered labels; the link with Girard's normal functors
+  \citep{Girard1988} is also worth pursuing in more detail.
+  We firmly believe that alternate categories of labels will have
+  significant benefits in a computational setting.
+
+\paragraph{Memory allocation}
+
+\paragraph{Categorical requirements}
 
 \todo{assumptions on categories needed for various operations.}
-
-\todo{functor composition}
-
 \todo{Port to Agda, together with proofs of species properties?}
+\todo{extend to $\cons{Countable}\ L = \Finite L + L \iso \N$?}
+
+\paragraph{HoTT and reversible programming}
 
 \jc{Regarding labels on ADTs (like lists):
 this `late' collapse joins up nicely with HTT
@@ -2386,24 +2401,11 @@ isomorphisms [think identity types].  The `best' picture may then
 emerge much later from a \emph{composition} of isomorphisms, rather than
 directly from the first isomorphism encountered.}
 
-\paragraph{Symmetric shapes}
-
-We have not yet defined precisely what counts as a ``shape'', but one
-interesting possibility is the use of shapes with some sort of
-\term{symmetry}.  For example, a \term{cycle} is like a list, except
-that it is invariant under cyclic rotation of its labels.  One area
-where cycles are especially useful is in computational geometry: we
-can represent an (oriented) polygon, for example, as a labelled cycle
-shape, with each label mapping to a point in space.
-
-\todo{picture of a polygon represented with labelled cycle}
-
-\bay{should we include cycles at all?  Our system can't handle them
-  although they fit from a theoretical point of view\dots}
-
-An \emph{unordered pair} is another sort of shape with symmetry: it is
-like an ordered pair but invariant under swapping.  Unordered pairs
-can be used to represent undirected graph edges, \todo{other stuff?}
+It is worth noting that much of the power of the theory of
+species---at least in the context of combinatorics---can be traced to
+fruitful homomorphisms between algebraic descriptions of species and
+rings of formal power series. \todo{future work making connections to
+  computation?}
 
 \section{Conclusion}
 \label{sec:conclusion}
