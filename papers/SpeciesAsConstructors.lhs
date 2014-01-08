@@ -1363,7 +1363,13 @@ We also have $\compA$ (``ap''), with type
   effect that the isomorphism argument is notated as a subscript.
   (Note that there is a similar note for $\sprod$.)  Do you think
   that's sufficient?  Or do we need to come up with different notation?}
-\jc{sufficient, but now the order of arguments is confusing...}
+\jc{sufficient, but now the order of arguments is
+  confusing...}\bay{Indeed. Do you have any ideas how to make it less
+  confusing?  We could switch the order of arguments to take the
+  equivalence in between the other two arguments, but that seems ugly
+  to me, and makes the type signature harder to read (which is why I
+  didn't do it that way in the first place).  The other alternative, I
+  suppose, is to pick a different notation.}
 $\compA$ is equivalent in power to $\compP$: in particular, |x compP y =
 (map (,) x) compA y|, where $(,) : A \to B \to A \times B$ denotes the
 constructor for pair types, and |x compA y = map eval (x compP y)|,
