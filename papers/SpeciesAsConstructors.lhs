@@ -946,8 +946,6 @@ content ourselves with some informal descriptions of the semantics.
   type of labels to another by specifying an equivalence between
   them. |map| and |reindex| together thus give $\Store - -$ the
   structure of a profunctor.
-  \jc{should we mention that this and |map| make $\Store - - $ into a
-    Profunctor?}\bay{Sure, how's that?}
 \item |zipWith| gives us a way to combine the contents of two mappings
   labelwise.
 \item |append| and |concat| are ``structural'' operations, allowing us
@@ -1751,10 +1749,6 @@ decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[ L \iso
 
 \paragraph{Functorial composition}
 
-\jc{Functor or Functorial?}\bay{I seem to recall that BLL have
-  ``functor'', though I don't have my copy with me at the moment.}
-\jc{I have it (actually both, English and French).  Functorial.}\bay{I
-  stand corrected.  In that case I think we should follow BLL.}
 It is worth mentioning the operation of \emph{functorial composition},
 which set-theoretically is defined as the ``na\"ive'' composition
 
