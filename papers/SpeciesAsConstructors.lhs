@@ -1363,7 +1363,13 @@ We also have $\compA$ (``ap''), with type
   effect that the isomorphism argument is notated as a subscript.
   (Note that there is a similar note for $\sprod$.)  Do you think
   that's sufficient?  Or do we need to come up with different notation?}
-\jc{sufficient, but now the order of arguments is confusing...}
+\jc{sufficient, but now the order of arguments is
+  confusing...}\bay{Indeed. Do you have any ideas how to make it less
+  confusing?  We could switch the order of arguments to take the
+  equivalence in between the other two arguments, but that seems ugly
+  to me, and makes the type signature harder to read (which is why I
+  didn't do it that way in the first place).  The other alternative, I
+  suppose, is to pick a different notation.}
 $\compA$ is equivalent in power to $\compP$: in particular, |x compP y =
 (map (,) x) compA y|, where $(,) : A \to B \to A \times B$ denotes the
 constructor for pair types, and |x compA y = map eval (x compP y)|,
@@ -1731,7 +1737,7 @@ Introducing a pointed structure simply requires specifying which label
 should be pointed:
 \begin{align*}
 \cons{p} &: L \to F\ L \to \pt{F}\ L \\
-\cons{p} &: L \to \LStr F L A \to \LStr{\pt{F}} L A
+\lab{\cons{p}} &: L \to \LStr F L A \to \LStr{\pt{F}} L A
 \end{align*}
 
 The relationship bewteen pointing and derivative is given by the
@@ -1743,24 +1749,25 @@ decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[ L \iso
 \left(\sum_{l':L} l' \neq l \right) + \left(\sum_{l':L} l' = l
 \right). \]
 
-\paragraph{Functor composition}
+\paragraph{Functorial composition}
 
 \jc{Functor or Functorial?}\bay{I seem to recall that BLL have
   ``functor'', though I don't have my copy with me at the moment.}
-\jc{I have it (actually both, English and French).  Functorial.}
-It is worth mentioning the operation of \emph{functor composition},
+\jc{I have it (actually both, English and French).  Functorial.}\bay{I
+  stand corrected.  In that case I think we should follow BLL.}
+It is worth mentioning the operation of \emph{functorial composition},
 which set-theoretically is defined as the ``na\"ive'' composition
 
 \[ (F \fcomp G)\ L \defn F\ (G\ L). \]
 
-Just as with Cartesian product, functor composition allows encoding
+Just as with Cartesian product, functorial composition allows encoding
 structures with sharing---for example, the species of simple,
 undirected graphs can be specified as \[ \mathcal{G} \defn (\E \sprod \E)
 \fcomp (\X^2 \sprod \E), \] describing a graph as a subset ($\E \sprod
 \E$) of all ($\fcomp$) ordered pairs chosen from the complete set of
 vertex labels ($\X^2 \sprod \E$).
 
-However, functor composition mixes up labels and shapes in the most
+However, functorial composition mixes up labels and shapes in the most
 peculiar way---and while this is perfectly workable in an untyped,
 set-theoretic setting, we do not yet know how to interpret it in a
 typed, constructive way.
@@ -1768,29 +1775,31 @@ typed, constructive way.
 \section{Programming with Labelled Structures}
 \label{sec:programming}
 
-\paragraph{Functions over all structures}
-But quickly the question turns to: but what can we do with these?  And this is
-indeed where things do get interesting.  There are a number of functions
-that one is accustomed to see implemented for vectors, lists, sets and bags,
-finite maps, and like structures.  Interestingly, a lot of these can be
-generalized to all labelled structures.  Take for example \cons{partition}.
-By using partition $|Part|$ and sharing (via cartesian product), we can
-achieve this.
+\todo{bit more intro here?}
 
-First, we can use a predicate (on data) to divide the \emph{labels} into
-two disjoint sets (which is exactly the definition of a partition in
-mathematics):
-\begin{code}
-partition :: (S.Storage s, Set.Enumerable l, Eq l) =>
-          Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
-partition (Struct f stor) p = Struct (cprod_ f k) stor
-  where sel = S.smap p stor
-        k = part_ Set.enumS Set.enumS
-                  (iso (\l -> case l of {Left a -> a; Right a -> a})
-                       (\l -> if (S.index sel l) then Left l else Right l) )
-\end{code}
-The $|partition|$ function \emph{superimposes} a second structure on the old
-(without changing the data in any way).
+There are a number of standard functions on vectors, lists, sets and
+bags, finite maps, and similar structures, which we can generalize once
+and for all for all labelled structures.
+
+For example, we can implement a |partition| function using the species
+$\Part$ of partitions (\pref{sec:sets}) and Cartesian product
+(\pref{sec:cartesian-product}). The idea is to usea predicate on data
+to divide the labels into disjoint sets.  We then \emph{superimpose}
+(via Cartesian product) a second structure on the old, recording this
+new information about the labels, without changing the data in any way.
+\begin{align*}
+&|partition| : \LStr F L A \to (A \to 2) \to \LStr{F \scprod \Part} L
+A \\
+&|partition|\ (f, |elts|)\ p \defn ((f, |part|), |elts|)\\
+& \quad \mathbf{where} \\
+& \quad\quad |part| \defn \unit \sprod_e \unit \\
+& \quad\quad |e| : \left( \sum_{l : \under L} p\ (|elts ! l|) =
+  \cons{True} \right) + \left( \sum_{l : \under L} p\ (|elts ! l|) =
+  \cons{False}\right) \iso \under L
+\end{align*}
+In the end, the superimposed $\Part$ structure contains nothing but an
+equivalence showing how the original labels map into a disjoint union
+indicating the results of the predicate.
 
 Of course, if we want to actually take this information and ``extract'' the
 result (in the usual meaning of splitting the structure into two
@@ -2288,7 +2297,7 @@ is part of what is generated.  As a result, with containers, it does
 not seem that the positions can easily be given extra structure (the
 work on quotient containers~\citep{abbott_quotient} is quite
 involved).  There are fewer combinators for containers than for
-labelled structures: for example, neither the cartesian product nor
+labelled structures: for example, neither the Cartesian product nor
 functorial composition seem to be present.  Thus there is as of yet no
 theory of sharing for containers, nor is there a fine grained theory of
 storage.  Having said all of that, however, containers are not restricted to
@@ -2370,7 +2379,7 @@ constructive type theory.  But already many different threads of
 work are clear to us.
 
 \paragraph{Capture more of the extant theory.}  Several of the 
-species operations (such as pointing, functor composition and arithmetic
+species operations (such as pointing, functorial composition and arithmetic
 product) seem quite powerful, but we have yet to leverage them properly.
 Similarly, we have made very little use of \term{symmetry} beyond the
 extreme cases (ADTs have none, and $\E$ has all symmetries).  For example,
