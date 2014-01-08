@@ -612,9 +612,9 @@ In more detail, our contributions are as follows:
   map) can be more naturally described as \emph{operations on labels},
   leading to benefits in reasoning---and, we conjecture, to efficiency
   as well (see \todo{section ?}).
-\item We model value-level \emph{sharing} via shared labels (see
-  \todo{section?})---in contrast, this is not possible if every
-  structure has a fixed set of canonical labels.
+\item We model value-level \emph{sharing} via shared labels
+  (\pref{sec:cartesian-product})---in contrast, this is not possible
+  if every structure has a fixed set of canonical labels.
 % \item In fact, labels share some of the properties of memory
 %   addresses, \ie\ pointers, and taking this analogy seriously lets us
 %   reason about memory allocation and layout for stored data
@@ -750,9 +750,9 @@ quite a lot of information, much more than one usually means by saying
 ``$A$ is finite''.  For example, it encodes a total order and
 decidable equality on $A$, by transferring these properties along the
 equivalence from $\Fin n$.  This is often useful, but occasionally it
-gets us into trouble (\todo{reference section on E?}).  It may be that the
-right evidence for the finiteness of $A$ is not $(n : \N) \times (\Fin
-n \iso A)$ but the \term{propositional truncation} \[ (n : \N) \times
+gets us into trouble (\pref{sec:sets}).  It may be that the right
+evidence for the finiteness of $A$ is not $(n : \N) \times (\Fin n
+\iso A)$ but the \term{propositional truncation} \[ (n : \N) \times
 \|| \Fin n \iso A \||, \] or something like it
 \cite[sect. 3.7]{hottbook}. In any case, we are reasonably certain
 that a complete story of labelled structures with symmetries will
@@ -946,9 +946,9 @@ content ourselves with some informal descriptions of the semantics.
   |allocate| also have access to an equivalence $\under L \iso \Fin
   {\size L}$.  Intuitively, this is important because allocation may
   require some intensional knowledge about the type $L$.  For example,
-  as explained \todo{where?}, we may implement $\Store L A$ using a vector of
-  $A$ values; allocating such a vector requires knowing the size of
-  $L$.
+  as explained in~\pref{sec:vecmap}, we may implement $\Store L A$
+  using a vector of $A$ values; allocating such a vector requires
+  knowing the size of $L$.
 \item |index| allows looking up data by label.
 \item |map| ensures that $\Store L -$ is functorial.
 \item $|reindex| : (L' \iso L) \to \Store L A \to \Store {L'} A$
@@ -994,7 +994,7 @@ We can give a particularly simple implementation with $\Store L A
 \end{spec}
 
 Note that the implementation of |allocate| does not take into account
-the finiteness of $L$ at all.  In \todo{where?} we explore a more
+the finiteness of $L$ at all.  In~\pref{sec:vecmap} we explore a more
 interesting implementation which does make use of the finiteness of
 $L$.
 
@@ -1220,7 +1220,6 @@ would be a much more (labelled-structure) idiomatic version of \cons{take}.
 
 
 \jc{rest of section 5 is below}
-\todo{add eliminators / eliminator combinators for each primitive + operation?}
 
 We now return to the observation from \pref{sec:set-species} that we
 do not really want to work directly with the definition of species,
@@ -1233,10 +1232,23 @@ forms for labelled structures built on top of these species.
 \label{sec:primitive}
 
 We begin by exhibiting species, \ie labelled structures, which
-correspond to familiar algebraic data types.
+correspond to familiar algebraic data types. As a visual aid,
+throughout the following section we will use schematic illustrations
+as typified in~\pref{fig:species-schematic}.  The edges of the tree
+visually represent different labels; the leaves of the tree represent
+data associated with those labels.  The root of the tree shows the
+species structure put on the labels (in this case, $F$).
+\begin{figure}
+  \centering
+  \begin{diagram}[width=100]
+import SpeciesDiagrams
 
-\todo{say something about how to interpret the picture schemas we will
-  use}
+dia = nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
+    # drawSpT # centerXY # pad 1.1
+  \end{diagram}
+  \caption{Schematic of a typical $(F\ L)$-structure} 
+  \label{fig:species-schematic}
+\end{figure}
 
 \paragraph{Zero}
 The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
@@ -1602,9 +1614,9 @@ which is made possible by $\compB$ (``bind''), the last and most
 general introduction form for composition, which can be seen as a
 generalization of a monadic bind operation |(>>=)|.
 \begin{equation*}
-  - \compB - : \left(\sum_{l : \under{L_1}} \under{L_2\,l} \right) \iso \under
+  - \compB - : \left(\sum_{l : \under{L_1}} \under{L_2\ l} \right) \iso \under
     L \to \LStr F {L_1} A \to \left(\prod_{l : L_1} A \to \LStr G
-  {L_2\,l} B\right) \to \LStr {F \scomp G} L B
+  {L_2\ l} B\right) \to \LStr {F \scomp G} L B
 \end{equation*}
 Here, $L_2$ is actually a \emph{family} of types, indexed over $L_1$,
 so each $G$ subshape can have a different type of labels, and hence a
