@@ -2387,6 +2387,13 @@ Another route of investigation are \emph{tensorial species}
 than \Set.  These seem to be directly related to our vector mappings
 (section~\ref{sec:vecmap}).  
 
+Lastly, there are several powerful theorems (like the molecular
+decomposition and the implicit species theorem) that we have yet to
+leverage.  In the case of (small) finitary species, the molecular 
+decomposition theorem could be used as a powerful means to specialize
+complex species code down to much simpler operations on a few well
+understood cases.
+
 \paragraph{Memory allocation}  One of the most intriguing aspects of
 this elaboration of labelled structures are the close links with
 memory allocation and layout.  This could lead to a uniform mechanism
@@ -2398,11 +2405,24 @@ multi-dimensional arrays in a principled manner), we hope to be able
 to give a more uniform explanation for various memory layout strategies
 commonly used in high-performance linear algebra computations.
 
+Along with this, there is a particular labelled structure, \emph{subset},
+which is particularly interesting.  Combinatorially, it is equivalent to
+a partition, \ie\ $\E \sprod \E$.  However, semantically a subset 
+corresponds to only the \emph{left} component of that product, and the right 
+component should be ignored.  In other words, we can use subset to indicate
+that only a subset of labels need be stored.
+
 \paragraph{Categorical requirements}
 
-\todo{assumptions on categories needed for various operations.}
-\todo{Port to Agda, together with proofs of species properties?}
-\todo{extend to $\cons{Countable}\ L = \Finite L + L \iso \N$?}
+As is clear from the species literature, there are quite a number of 
+useful variations in the exact categories used for species.  We have 
+not been able to find a systematic treatment giving minimal assumptions
+required for the validity of the various constructions (sum, product, cartesian
+product, etc).  We plan to pursue this quite formally, by first porting
+our implementation to Agda, as a means to prove the various properties.
+
+In particular, outside of combinatorial uses, it is unclear exactly 
+where \emph{finiteness} is crucial.
 
 \paragraph{HoTT and reversible programming}
 
