@@ -2260,10 +2260,27 @@ Similarly, \emph{generalised species of structures}~\citep{Fiore08} may
 also be another interesting direction.  But in all these cases, there 
 remains much work to be done to bridge between theory and practice.
 
-\begin{itemize}
-\item combstruct and other species implementations
-\item species in general
-\end{itemize}
+Species have been the source of many implementations.  For enumerative
+combinatorics, Darwin~\citep{Berg85}, LUO~\citep{FlajoletSalvyZimmermann1989a},
+combstruct~\citep{FlSa95}, Aldor-Combinat~\citep{Aldor-Combinat} and
+MuPAD-Combinat~\citep{Mupad-Combinat} are the best known.  Most do not
+model the full spectrum of species combinators, but they make up for that
+by generally implementing very sophisticated algorithms for enumeration
+and generation, both exhaustive and random.  The Haskell species package
+\citep{species}, described in \citep{yorgey-2010-species}, is a fairly
+direct implementation of the theory of species of structures, without
+attempting to use this theory as a foundations for data-structures.
+
+Lastly, we should not that we have used but a small fraction of the 
+theory of species.  The book~\citep{bll} alone still contains a vast
+trove of further examples (sometimes buried deep in the exercises!) of
+relevance to programming.  And we have not yet really touched the
+\emph{calculus} aspects; while the derivative is by now well-known,
+integration~\citep{Rajan93} as not really been explored.  Also, 
+further to the existing variants on species, new ones have since 
+appeared~\citep{Menni2008,aguiar2010monoidal,Schmitt93hopfalgebras} with
+nontrivial applications to combinatorics.  Species have even been applied
+to the study of attribute grammars~\citep{Mishna03b}.
 
 \section{Future work}
 \label{sec:future}
