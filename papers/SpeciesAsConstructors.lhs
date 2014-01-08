@@ -1847,11 +1847,39 @@ functional programming community~\citep{Huet_zipper,
   mcbride:derivative, abbott_deriv, regular_tree_types,
   mcbride_clowns_2008}, and it works in exactly the way one expects on
 species.  That is, $F'$-shapes consist of $F$-shapes with one
-distinguished location (a ``hole'') that contains no data.  Formally,
-we may define
-\[ F'\ L = (L' : \Type) \times (\under{L'} \iso \TyOne + \under{L}) \times F\ L' \]
-\todo{picture}
+distinguished location (a ``hole'') that contains no data
+(\pref{fig:derivative}).
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=250]
+import SpeciesDiagrams
 
+theDia
+  = hcat' (with & sep .~ 1)
+    [ struct 5 "F'"
+    , text' 1 "="
+    , nd (text' 1 "F")
+      ( replicate 2 (lf $ Leaf Nothing)
+        ++
+        [ lf'
+            (\p q -> (p ~~ q) # holeStyle)
+            (Leaf (Just (circle (labR/2) # holeStyle # fc white # withEnvelope (mempty :: Envelope R2))))
+        ]
+        ++
+        replicate 3 (lf $ Leaf Nothing)
+      )
+      # drawSpT
+    ]
+
+holeStyle = dashing [0.05,0.05] 0
+
+dia = theDia # centerXY # pad 1.1
+    \end{diagram}
+    \caption{Species differentiation}
+    \label{fig:derivative}
+  \end{figure}
+Formally, we may define
+\[ F'\ L = (L' : \Type) \times (\under{L'} \iso \TyOne + \under{L}) \times F\ L' \]
 Note that a mapping $\Store L A$ associates data to every label
 in the underlying $F\ L'$ structure but one, since $\under{L'} \iso \TyOne +
 \under{L}$.
@@ -1860,13 +1888,13 @@ To introduce a derivative structure, we require an input structure
 whose label type is already in the form $\TyOne + L$:
 \begin{align*}
   \cons{d} &: (\under{L'} \iso \TyOne + \under{L}) \to F\ L' \to F'\ L \\
-  \lab{\cons{d}} &: (\under{L'} \iso \TyOne + \under{L}) \to \LStr F {\TyOne + L} A \to A \times \LStr {F'} L A
+  \lab{\cons{d}} &: (\under{L'} \iso \TyOne + \under{L}) \to \LStr F {L'} A \to A \times \LStr {F'} L A
 \end{align*}
-The idea with $\lab{\cons{d}}$ is that we get back the $A$ that used
+The idea behind $\lab{\cons{d}}$ is that we get back the $A$ that used
 to be labelled by $\TyOne$, paired with a derivative structure with
 that value missing.
 
-\todo{talk about down operator, once we have figured out functor composition}
+% \todo{talk about down operator, once we have figured out functor composition}
 
 A related operation is that of \term{pointing}.  A pointed $F$-shape
 is an $F$-shape with a particular label distinguished. \todo{picture}
