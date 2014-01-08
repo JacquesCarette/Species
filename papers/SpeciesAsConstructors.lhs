@@ -398,7 +398,9 @@
 
 The theory of combinatorial species \citation{joyal,bll}, as it relates to the
 theory and practice of programming languages, has long seemed to the authors
-as ``an answer looking for a question'': the theory is too beautiful, and too
+as ``an answer looking for a question'' \bay{I notice you added the
+  word ``as'' here, but that doesn't sound right to me.  Perhaps we should
+  rephrase this entirely.}: the theory is too beautiful, and too
 ``obviously'' related to algebraic data types, to have no applications
 whatsoever.  Teasing out the precise relationship between species and
 data types, however, has proved challenging, for two reasons. First,
@@ -596,9 +598,8 @@ label operations (\eg partition) without copying.  \bay{We had
   something here about memory layout and allocation, but I'm not sure
   we really talk about that anymore.} \jc{We do, the whole Vector Mapping
 subsection is about that, and is important.}
-% This is also one of
-% the key ingredients in modeling memory layout and allocation (see
-% \todo{section?}).
+This is also one of
+the key ingredients in modeling memory layout and allocation (\pref{sec:vecmap}).
 
 In more detail, our contributions are as follows:
 
@@ -617,16 +618,17 @@ In more detail, our contributions are as follows:
 \item We show how certain operations (for example, altering the keys 
   of a finite map) can be more naturally described as \emph{operations 
   on labels}, leading to benefits in reasoning---and, we conjecture, to 
-  efficiency as well (see \todo{section ?}).\jc{I removed the reversing
+  efficiency as well (\pref{sec:programming}).\jc{I removed the reversing
   list and transpose examples as we don't actually have them.  However,
-  with some weasely words, I would be ok with adding them back.}
+  with some weasely words, I would be ok with adding them
+  back.}\bay{I'm fine with removing them.}
 \item We model value-level \emph{sharing} via shared labels
   (\pref{sec:cartesian-product})---in contrast, this is not possible
   if every structure has a fixed set of canonical labels.
-% \item In fact, labels share some of the properties of memory
-%   addresses, \ie\ pointers, and taking this analogy seriously lets us
-%   reason about memory allocation and layout for stored data
-%   structures (see \todo{section?}).
+\item In fact, labels share some of the properties of memory
+   addresses, \ie\ pointers, and taking this analogy seriously lets us
+   reason about memory allocation and layout for stored data
+   structures (\pref{sec:vecmap}).
 \item We give extended examples showing the utility of labelled types,
   including \todo{?}
 \end{itemize}
@@ -656,11 +658,11 @@ with the theory of species.  In fact, it seems likely that there are
 deeper connections between the two theories, but exploring these
 connections is left to future work.
 
-The concept of \term{finiteness} plays a central (but implicit) role in
-the theory of combinatorial species, primarily through the pervasive use
-of generating functions.  As it remains important in our setting
-setting, we give the precise definition we use, seeing as there are multiple
-constructive interpretations of finiteness.
+The concept of \term{finiteness} plays a central (but implicit) role
+in the theory of combinatorial species, primarily through the
+pervasive use of generating functions.  As it remains important in our
+setting, we give the precise definition we use, seeing as there are
+multiple constructive interpretations of finiteness.
 
 \subsection{A fragment of homotopy type theory}
 \label{sec:HoTT}
@@ -671,10 +673,10 @@ constructors $\inl$ and $\inr$), dependent pairs (with projections
 $\outl$ and $\outr$), dependent functions, a hierarchy of type
 universes $\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the
 subscripts), and a notion of propositional equality.  The theory also
-allows inductive definitions.  In particular, we use $\N : \Type$ to
-denote the type of natural numbers, and $\Fin : \N \to \Type$ the
+allows inductive definitions.  In particular, we use $\N : \Type_0$ to
+denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
 usual indexed type of canonical finite sets. \jc{should we, in this case,
-make it precise that $\N : \Type_0$?}
+make it precise that $\N : \Type_0$?}\bay{Sure, done.}
 
 Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
 dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
@@ -973,8 +975,11 @@ content ourselves with some informal descriptions of the semantics.
 \item |map| ensures that $\Store L -$ is functorial.
 \item $|reindex| : (L' \iso L) \to \Store L A \to \Store {L'} A$
   expresses the functoriality of $\Store - A$: we can change from one
-  type of labels to another by specifying an equivalence between them.
-  \jc{should we mention that this and |map| make $\Store - - $ into a Profunctor?}
+  type of labels to another by specifying an equivalence between
+  them. |map| and |reindex| together thus give $\Store - -$ the
+  structure of a profunctor.
+  \jc{should we mention that this and |map| make $\Store - - $ into a
+    Profunctor?}\bay{Sure, how's that?}
 \item |zipWith| gives us a way to combine the contents of two mappings
   labelwise.
 \item |append| and |concat| are ``structural'' operations, allowing us
@@ -1047,6 +1052,7 @@ import SpeciesDiagrams
 dia = nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
     # drawSpT # centerXY # pad 1.1
   \end{diagram}
+  %$
   \caption{Schematic of a typical $(F\ L)$-structure}
   \label{fig:species-schematic}
 \end{figure}
@@ -1168,7 +1174,7 @@ As a simple example, the species $\One \ssum \X$ corresponds to the
 familiar |Maybe| type from Haskell, with $\lab{\inl} \lab{\One}$
 playing the role of |Nothing| and $\lab{\inr} \comp \lab{\cons{x}}$
 playing the role of |Just|.  Note that $\LStr {\One \ssum \X} L A$ is
-only inhabited for certain $L$ (those of size $1$), and moreover that 
+only inhabited for certain $L$ (those of size $0$ or $1$), and moreover that
 this size restriction determines the possible structure of an inhabitant.
 
 \paragraph{Product}
@@ -1340,9 +1346,10 @@ of structures, copying the provided $G$ structure into every location
 of the $F$ structure and pairing up both their labels and data
 (\pref{fig:compP}):
 \begin{equation*}
-  - \compP - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} A \to \LStr G {L_2} B \to \LStr {F
+  - \compP_- - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} A \to \LStr G {L_2} B \to \LStr {F
   \scomp G} L {A \times B}
 \end{equation*}
+The isomorphism argument is notated as a subscript to $\compP$.
 \begin{figure}
   \centering
   \begin{diagram}[width=250]
@@ -1378,10 +1385,16 @@ of a special form, but is convenient when it suffices.
 
 We also have $\compA$ (``ap''), with type
 \begin{equation*}
-  - \compA - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
+  - \compA_- - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
     \scomp G} L B.
 \end{equation*}
-\jc{You give ap 2 arguments, but it has 3, which is quite confusing}
+\jc{You give ap 2 arguments, but it has 3, which is quite
+  confusing}\bay{It is a bit confusing.  ``Morally'', ap and friends
+  are ``binary'' operators, but they also require an extra
+  isomorphism.  I added a note after the definition of $\compP$ to the
+  effect that the isomorphism argument is notated as a subscript.
+  (Note that there is a similar note for $\sprod$.)  Do you think
+  that's sufficient?  Or do we need to come up with different notation?}
 $\compA$ is equivalent in power to $\compP$: in particular, |x compP y =
 (map (,) x) compA y|, where $(,) : A \to B \to A \times B$ denotes the
 constructor for pair types, and |x compA y = map eval (x compP y)|,
@@ -1413,7 +1426,7 @@ general introduction form for composition, which can be seen as a
 generalization of a monadic bind operation |(>>=)|.
 \jc{same issues as with ap}
 \begin{equation*}
-  - \compB - : \left(\sum_{l : \under{L_1}} \under{L_2\ l} \right) \iso \under
+  - \compB_- - : \left(\sum_{l : \under{L_1}} \under{L_2\ l} \right) \iso \under
     L \to \LStr F {L_1} A \to \left(\prod_{l : L_1} A \to \LStr G
   {L_2\ l} B\right) \to \LStr {F \scomp G} L B
 \end{equation*}
@@ -1766,6 +1779,7 @@ set-theoretic setting, we do not yet know how to interpret it in a
 typed, constructive way.
 
 \section{Programming with Labelled Structures}
+\label{sec:programming}
 
 \paragraph{Functions over all structures}
 But quickly the question turns to: but what can we do with these?  And this is
