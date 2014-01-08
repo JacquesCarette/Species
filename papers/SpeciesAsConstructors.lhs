@@ -1238,15 +1238,16 @@ implementations of $\StoreNP - -$ which make use of the equivalence to
 $\Fin n$ stored in $\FinType$ values (we give an example of one such
 implementation in \pref{sec:vecmap}), the extra equivalence given as
 an argument to \cons{cons} allows us to influence the particular way
-in which the list elements are stored in memory.  \todo{why is this
-  interesting? Give an example?} For lists, this is not very
-interesting, and we would typically use a variant $\cons{cons'} : A
-\to \LStr \List L A \to \LStr \List {\cons{inc}(L)} A$ making use of a
+in which the list elements are stored in memory.  For lists, this is 
+not very interesting, and we would typically use a variant $\cons{cons'} 
+: A \to \LStr \List L A \to \LStr \List {\cons{inc}(L)} A$ making use of a
 canonical construction $\cons{inc}(-) : \FinType \to \FinType$ with
 $\Fin 1 + \under L \iso \under{\cons{inc}(L)}$.
 
 \todo{What else needs to be said about lists? e.g. converting to and
   from Haskell lists?  generic eliminators?}
+\jc{Mentioning that we can go to-and-fro would be good.  But maybe
+punt on eliminators until the section where we talk about them?}
 
 \subsection{Composition}
 \label{sec:composition}
@@ -1451,12 +1452,13 @@ dia = theDia # centerXY # pad 1.1
 As an example using composition, we can directly encode the type of
 ordered, rooted $n$-ary trees, sometimes known as \term{rose trees},
 as $\R \iso \X \sprod (\List \scomp \R)$.  This corresponds to the
-Haskell type |Rose| defined as |data Rose a = Node a [Rose a]|, but
-the explicit use of composition allows \todo{what??}
+Haskell type |Rose| defined as |data Rose a = Node a [Rose a]|.
+The explicit use of composition is useful when doing generation of such
+structures, as it allows switching of generation strategies at
+those points~\citep{UszkayThesis}.
 
 The most general type for the \cons{node} constructor is complex,
-since it must deal with a list of subtrees\jc{should we say substructure
-instead?} all having different label
+since it must deal with a list of subtrees all having different label
 types.  As a compromise, we can make use of a variant type
 representing labelled structures with an existentially quantified
 label type:
@@ -1466,6 +1468,8 @@ Using $\LStrE \R A$, we can write a constructor for $\R$ as follows:
 
 \todo{finish.  Make a picture?  Is the above even correct?  Is there
   anything interesting to say about what we get from composition?}
+\jc{I don't think we need a picture.  It looks correct.  I added something
+about what we get from composition.}
 
 \subsection{Sets, bags, and maps}
 \label{sec:sets}
@@ -1952,23 +1956,7 @@ We can easily imagine a variant of this, where rather than picking the
 ``first $n$'' labels, we instead choose a specific subset of labels.  This
 would be a much more (labelled-structure) idiomatic version of \cons{take}.
 
-\section{Labelled Structures in Haskell}
-\label{sec:haskell}
-
-\todo{
-  Interesting points of our implementation in Haskell.
-  \begin{itemize}
-  \item Link to (public) git repo
-  \item Heavy use of DataKinds etc. to simulate dep types (cite Hasochism)
-  \item Needs to use existentially quantified labels in place of
-    dependency, e.g. for $\compB$.  And for products.
-  \item Uses the lens lib for isos and subset.
-  \item A lot of overhead; actually compiling such things to efficient
-    runtime code is future work.
-  \end{itemize}
-}
-
-\subsection{Vector mappings}
+\section{Vector mappings}
 \label{sec:vecmap}
 
 \todo{where should this go?  Right before some example that needs it?}
@@ -2116,6 +2104,22 @@ embedding out of the vector operations, turning |appendV| and
 that looks very much like generalized tries
 \cite{Hinze-generalized-tries}.
 
+\section{Labelled Structures in Haskell}
+\label{sec:haskell}
+
+\todo{
+  Interesting points of our implementation in Haskell.
+  \begin{itemize}
+  \item Link to (public) git repo
+  \item Heavy use of DataKinds etc. to simulate dep types (cite Hasochism)
+  \item Needs to use existentially quantified labels in place of
+    dependency, e.g. for $\compB$.  And for products.
+  \item Uses the lens lib for isos and subset.
+  \item A lot of overhead; actually compiling such things to efficient
+    runtime code is future work.
+  \end{itemize}
+}
+
 \subsection{Labelled eliminators}
 \label{sec:labelled-eliminators}
 
@@ -2257,11 +2261,8 @@ also aims to find a more general theory of data structures which
 captures a large set of ``containers''.  The resulting theory is quite
 elegant.  It involves \emph{shapes} and a family of \emph{position}
 types indexed by shapes.  More formally, it is a dependent pair of
-types $A : \Type$ and $B : A \to \Type$ \bay{What does this notation mean?  I have never
-  seen it before.}  \jc{It is all over the containers papers.  But maybe
-best to rewrite is in more conventional notation indeed.}\bay{How's that?} (which they 
-write $A\lhd B$) which yields a
-functor $T_{A\lhd B} X$ defined as $\Sigma a:A. X^{B\left(a\right)}$.
+types $A : \Type$ and $B : A \to \Type$ (which they write $A\lhd B$) which
+yields a functor $T_{A\lhd B} X$ defined as $\Sigma a:A. X^{B\left(a\right)}$.
 Roughly, their positions correspond to our labels, their shapes
 correspond to our labelled shapes, and the associated functor maps
 positions to data values, much as our mappings associate data values
