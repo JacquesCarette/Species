@@ -351,7 +351,7 @@
 %   \item Non-injective mappings represent sharing in data structures, something
 %     that is unobservable for algebraic datatypes.
 %   \item Although labels have structure, we make it convenient to work up to (partial)
-%     isomorphism. ``Relabeling'' models certain operations on data, sometimes
+%     isomorphism. ``Relabelling'' models certain operations on data, sometimes
 %     more efficiently that with more standard representations.
 %   \item We can choose a definition of mapping that lets us reason about memory
 %     allocation and layout.
@@ -1774,7 +1774,7 @@ imposes no additional structure.
 
 The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L = \{L\}. \]
 That is, there is a single $\E$-shape for every label type (since, up
-to relabeling, all $L$s of the same size are equivalent).
+to relabelling, all $L$s of the same size are equivalent).
 Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
 labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
 Note that this is how we actually implement $\E$: we insist that $L$ be
@@ -1910,7 +1910,7 @@ should be pointed:
 The relationship bewteen pointing and derivative is given by the
 equivalence \[ \pt F \iso \X \sprod F'. \] The right-to-left
 direction is straightforward to implement, requiring only some
-relabeling.  The left-to-right direction, on the other hand, requires
+relabelling.  The left-to-right direction, on the other hand, requires
 modelling an analogue of ``subtraction'': the given label type $L$
 must be decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[
 L \iso \left(\sum_{l':L} l' \neq l \right) + \left(\sum_{l':L} l' = l
@@ -2126,7 +2126,7 @@ that looks very much like generalized tries
 % hide the extra detail.
 
 % \bay{Argh, it just hit me that this story about getting the same
-%   result before and after relabeling is inconsistent with our story
+%   result before and after relabelling is inconsistent with our story
 %   about operations on arrays as label operations.  There is something
 %   more subtle going on here but I am not sure what.}
 % \jc{That is because species based on $\B$ alone cannot model arrays.
@@ -2204,7 +2204,7 @@ that looks very much like generalized tries
 % induced linear order on the elements of $L$, using the usual linear
 % order on the associated natural numbers. However, this would again
 % break functoriality: an eliminator would be able to observe some of
-% the effects of relabeling. Given only $\DecEq L \times (L \to A)$,
+% the effects of relabelling. Given only $\DecEq L \times (L \to A)$,
 % there is no way to enumerate the elements of $L$ or observe any order
 % relation on them.  One can only traverse the shape $F\ L$ and feed
 % encountered $L$ values into the $(L \to A)$ function to learn the
