@@ -169,6 +169,7 @@
 \newcommand{\fcomp}{\boxbox}
 
 \newcommand{\LStr}[3]{\langle #1 \rangle_{#2}(#3)}
+\newcommand{\LStrE}[2]{\LStr{#1}{\bullet}{#2}}
 
 \newcommand{\compP}{\lab{\otimes}}
 \newcommand{\compA}{\lab{\oast}}
@@ -183,7 +184,8 @@
 \newcommand{\StoreNP}[2]{\ensuremath{#1 \StoreSym #2}}
 \newcommand{\Store}[2]{(\StoreNP{#1}{#2})}
 
-\newcommand{\List}{\mathsf{List}}
+\newcommand{\List}{\mathsf{L}}
+\newcommand{\R}{\mathsf{R}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -610,9 +612,9 @@ In more detail, our contributions are as follows:
   map) can be more naturally described as \emph{operations on labels},
   leading to benefits in reasoning---and, we conjecture, to efficiency
   as well (see \todo{section ?}).
-\item We model value-level \emph{sharing} via shared labels (see
-  \todo{section?})---in contrast, this is not possible if every
-  structure has a fixed set of canonical labels.
+\item We model value-level \emph{sharing} via shared labels
+  (\pref{sec:cartesian-product})---in contrast, this is not possible
+  if every structure has a fixed set of canonical labels.
 % \item In fact, labels share some of the properties of memory
 %   addresses, \ie\ pointers, and taking this analogy seriously lets us
 %   reason about memory allocation and layout for stored data
@@ -748,9 +750,9 @@ quite a lot of information, much more than one usually means by saying
 ``$A$ is finite''.  For example, it encodes a total order and
 decidable equality on $A$, by transferring these properties along the
 equivalence from $\Fin n$.  This is often useful, but occasionally it
-gets us into trouble (\todo{reference section on E?}).  It may be that the
-right evidence for the finiteness of $A$ is not $(n : \N) \times (\Fin
-n \iso A)$ but the \term{propositional truncation} \[ (n : \N) \times
+gets us into trouble (\pref{sec:sets}).  It may be that the right
+evidence for the finiteness of $A$ is not $(n : \N) \times (\Fin n
+\iso A)$ but the \term{propositional truncation} \[ (n : \N) \times
 \|| \Fin n \iso A \||, \] or something like it
 \cite[sect. 3.7]{hottbook}. In any case, we are reasonably certain
 that a complete story of labelled structures with symmetries will
@@ -944,9 +946,9 @@ content ourselves with some informal descriptions of the semantics.
   |allocate| also have access to an equivalence $\under L \iso \Fin
   {\size L}$.  Intuitively, this is important because allocation may
   require some intensional knowledge about the type $L$.  For example,
-  as explained \todo{where?}, we may implement $\Store L A$ using a vector of
-  $A$ values; allocating such a vector requires knowing the size of
-  $L$.
+  as explained in~\pref{sec:vecmap}, we may implement $\Store L A$
+  using a vector of $A$ values; allocating such a vector requires
+  knowing the size of $L$.
 \item |index| allows looking up data by label.
 \item |map| ensures that $\Store L -$ is functorial.
 \item $|reindex| : (L' \iso L) \to \Store L A \to \Store {L'} A$
@@ -992,7 +994,7 @@ We can give a particularly simple implementation with $\Store L A
 \end{spec}
 
 Note that the implementation of |allocate| does not take into account
-the finiteness of $L$ at all.  In \todo{where?} we explore a more
+the finiteness of $L$ at all.  In~\pref{sec:vecmap} we explore a more
 interesting implementation which does make use of the finiteness of
 $L$.
 
@@ -1218,7 +1220,6 @@ would be a much more (labelled-structure) idiomatic version of \cons{take}.
 
 
 \jc{rest of section 5 is below}
-\todo{add eliminators / eliminator combinators for each primitive + operation?}
 
 We now return to the observation from \pref{sec:set-species} that we
 do not really want to work directly with the definition of species,
@@ -1231,10 +1232,23 @@ forms for labelled structures built on top of these species.
 \label{sec:primitive}
 
 We begin by exhibiting species, \ie labelled structures, which
-correspond to familiar algebraic data types.
+correspond to familiar algebraic data types. As a visual aid,
+throughout the following section we will use schematic illustrations
+as typified in~\pref{fig:species-schematic}.  The edges of the tree
+visually represent different labels; the leaves of the tree represent
+data associated with those labels.  The root of the tree shows the
+species structure put on the labels (in this case, $F$).
+\begin{figure}
+  \centering
+  \begin{diagram}[width=100]
+import SpeciesDiagrams
 
-\todo{say something about how to interpret the picture schemas we will
-  use}
+dia = nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
+    # drawSpT # centerXY # pad 1.1
+  \end{diagram}
+  \caption{Schematic of a typical $(F\ L)$-structure} 
+  \label{fig:species-schematic}
+\end{figure}
 
 \paragraph{Zero}
 The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
@@ -1600,9 +1614,9 @@ which is made possible by $\compB$ (``bind''), the last and most
 general introduction form for composition, which can be seen as a
 generalization of a monadic bind operation |(>>=)|.
 \begin{equation*}
-  - \compB - : \left(\sum_{l : \under{L_1}} \under{L_2\,l} \right) \iso \under
+  - \compB - : \left(\sum_{l : \under{L_1}} \under{L_2\ l} \right) \iso \under
     L \to \LStr F {L_1} A \to \left(\prod_{l : L_1} A \to \LStr G
-  {L_2\,l} B\right) \to \LStr {F \scomp G} L B
+  {L_2\ l} B\right) \to \LStr {F \scomp G} L B
 \end{equation*}
 Here, $L_2$ is actually a \emph{family} of types, indexed over $L_1$,
 so each $G$ subshape can have a different type of labels, and hence a
@@ -1662,7 +1676,23 @@ dia = theDia # centerXY # pad 1.1
   \label{fig:compB}
 \end{figure}
 
-\todo{example: rose trees?}
+As an example using composition, we can directly encode the type of
+ordered, rooted $n$-ary trees, sometimes known as \term{rose trees},
+as $\R \iso \X \sprod (\List \scomp \R)$.  This corresponds to the
+Haskell type |Rose| defined as |data Rose a = Node a [Rose a]|, but
+the explicit use of composition allows \todo{what??}
+
+The most general type for the \cons{node} constructor is complex,
+since it must deal with a list of subtrees all having different label
+types.  As a compromise, we can make use of a variant type
+representing labelled structures with an existentially quantified
+label type:
+\[ \LStrE F A \defn \sum_{L : \FinType} \LStr F L A \]
+Using $\LStrE \R A$, we can write a constructor for $\R$ as follows:
+\[ \cons{nodeE} : A \to [\LStrE \R A] \to \LStrE \R A \]
+
+\todo{finish.  Make a picture?  Is the above even correct?  Is there
+  anything interesting to say about what we get from composition?}
 
 \subsection{Cartesian product}
 \label{sec:cartesian-product}
@@ -1683,9 +1713,47 @@ occur twice (or more) in an $(F \times G)$-shape.  This lets us
 of the same shape can all ``point to'' the same data.  In pure
 functional languages such as Haskell or Agda, sharing is a (mostly)
 unobservable operational detail; with a labelled structure we can
-directly model and observe it.
+directly model and observe it. \pref{fig:tree-list-cp} illustrates the
+Cartesian product of a binary tree and a list.
+\begin{figure}
+  \centering
+  \begin{diagram}[width=200]
+import           Data.List.Split
+import           Diagrams.TwoD.Layout.Tree
+import           Diagrams.TwoD.Path.Metafont
 
-\todo{illustration}
+import           SpeciesDiagrams
+
+leaf1 = circle 1 # fc white # named "l1"
+leaf2 = circle 1 # fc white # named "l2"
+
+tree = maybe mempty (renderTree (const leaf1) (~~))
+     . symmLayoutBin' with { slVSep = 4, slHSep = 6 }
+     $ (BNode () (BNode () (BNode () Empty (BNode () Empty Empty)) Empty) (BNode () (BNode () Empty Empty) (BNode () Empty Empty)))
+
+listL shp l = hcat . replicate 7 $ (shp # fc white # named l)
+
+connectAll l1 l2 perm =
+  withNameAll l1 $ \l1s ->
+  withNameAll l2 $ \l2s ->
+  applyAll (zipWith conn l1s (perm l2s))
+
+conn l1 l2 = beneath (lc grey . metafont $ location l1 .- leaving unit_Y <> arriving unit_Y -. endpt (location l2))
+
+dia = vcat' (with & sep .~ 5)
+  [ hcat' (with & sep .~ 5)
+    [ tree # centerY
+    , listL (circle 1) "l2" # centerY
+    ] # centerXY
+  , listL (square 2) "s" # centerXY
+  ]
+  # connectAll "l1" "s" id
+  # connectAll "l2" "s" (concat . map reverse . chunksOf 2)
+  # centerXY # pad 1.1
+  \end{diagram} %$
+  \caption{Superimposing a tree and a list on shared data}
+  \label{fig:tree-list-cp}
+\end{figure}
 
 To introduce a Cartesian product shape, one simply pairs two shapes on
 the same set of labels.  Introducing a Cartesian product structure is
@@ -1700,12 +1768,9 @@ imposes no additional structure.
 
 \todo{examples: partition, filter, etc.?}
 
-\subsection{Other operations}
-\label{sec:other-ops}
+\subsection{Sets, bags, and maps}
+\label{sec:sets}
 
-\todo{Some introduction here}
-
-\paragraph{Sets}
 The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L = \{L\}. \]
 That is, there is a single $\E$-shape for every label type (since, up
 to relabeling, all $L$s of the same size are equivalent).
@@ -1731,6 +1796,11 @@ simply requires the mapping from labels to values:
 \todo{finish}
 
 \todo{eliminator.  Explain why it is problematic?}
+
+\subsection{Other operations}
+\label{sec:other-ops}
+
+\todo{Some introduction here}
 
 \paragraph{Cardinality restriction}
 
