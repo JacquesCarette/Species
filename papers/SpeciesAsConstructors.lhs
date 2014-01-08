@@ -732,7 +732,9 @@ canonical finiteness proof, we will in general pass around types
 encapsulate this by defining \[ \FinType \defn (A : \Type) \times
 \Finite A \] as the universe of finite types. We use $\under - :
 \FinType \to \Type$ to project out the underlying type from a finite
-type, forgetting the finiteness evidence.
+type, forgetting the finiteness evidence.  We also use $\lift{\Fin n}
+: \FinType$ to denote the type $\Fin n : \Type$ paired with the
+identity equivalence.
 
 It is not hard to see that the size of a finite type is determined
 uniquely. That is, if $(n_1,e_1)$ and $(n_2,e_2) : \Finite A$ are any
@@ -1003,18 +1005,505 @@ $L$.
 \section{The algebra of species and labelled structures}
 \label{sec:algebraic}
 
-\subsection{Examples}
+We now return to the observation from \pref{sec:set-species} that we
+do not really want to work directly with the definition of species,
+but rather with an algebraic theory. In this section we explain such a
+theory.  At its core, this theory is not new; what is new is porting
+it to a constructive setting, and the introduction and elimination
+forms for labelled structures built on top of these species.
 
-\jc{This subsection really should be a long ``todo'', but this restricts
-formatting too much, so I am typing this in as a subsection.  Its contents
-should be moved to somewhere appropriate, when we figure out what that is.}
+\subsection{Algebraic data types}
+\label{sec:primitive}
 
-\paragraph{Structures}
-What examples do we have, other than the usual ones?  Some highlights:
+We begin by exhibiting species, \ie labelled shapes, which
+correspond to familiar algebraic data types. As a visual aid,
+throughout the following section we will use schematic illustrations
+as typified in~\pref{fig:species-schematic}.  The edges of the tree
+visually represent different labels; the leaves of the tree represent
+data associated with those labels.  The root of the tree shows the
+species shape applied to the labels (in this case, $F$).
+\begin{figure}
+  \centering
+  \begin{diagram}[width=100]
+import SpeciesDiagrams
+
+dia = nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
+    # drawSpT # centerXY # pad 1.1
+  \end{diagram}
+  \caption{Schematic of a typical $(F\ L)$-structure}
+  \label{fig:species-schematic}
+\end{figure}
+
+\paragraph{Zero}
+The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
+unique species with no shapes whatsoever, defined by
+  \begin{equation*}
+  \Zero\ L \defn \TyZero.
+  \end{equation*}
+
+\paragraph{One}
+The \emph{one} or \emph{unit} species, denoted $\One$, is the species
+with a single shape of size $0$ (that is, containing no labels),
+defined by
+\[ \One\ L \defn (\TyZero = L). \] That is, a $\One$-shape with labels
+drawn from $L$ consists solely of a proof that $L$ is
+empty.\footnote{\citet{yeh-k-species} mentions something equivalent,
+  namely, that the unit species can be defined as the hom-functor
+  $\B(\varnothing, -)$, though he certainly does not have constructive
+  type theory in mind.}  (Note that there is at most one such proof.)
+
+There is a trivial introduction form for $\One$, also denoted $\One$,
+which creates a $\One$-shape using the canonical label set
+$\lift{\Fin\ 0} : \FinType$, that is, \[ \One : \One\ \lift{\Fin\
+  0}. \] We also have an introduction form for labelled
+$\One$-structures, \[ \lab{\One} : \LStr \One {\lift{\Fin 0}} A. \]
+
+  Note that the usual set-theoretic definition is
+  \[ \One\ L =
+  \begin{cases}
+    \{\bullet\} & ||L|| = 0 \\
+    \varnothing & \text{otherwise}
+  \end{cases}
+  \]
+  However, this is confusing to the typical type theorist.  First, it
+  seems strange that the definition of $\One$ gets to ``look at'' $L$,
+  since species are supposed to be functorial.  In fact, the
+  definition does not violate functoriality---because it only ``looks
+  at'' the size of $L$, not its contents, and bijections preserve
+  size---but this is not manifestly obvious. It's also strange that we
+  have to pull some arbitrary one-element set out of thin air.
+
+\paragraph{Singleton}
+  The \emph{singleton} species, denoted $\X$, is defined by
+  \[ \X\ L \defn (\TyOne = L), \] that is, an $\X$-shape is just a proof
+  that $L$ has size $1$.  Again, there is at most one such proof.
+  Unlike $\One$, we may also think of an $\X$-shape as ``containing''
+  a single label of type $L$, which we may recover by applying the
+  equivalence to $\unit$.
+
+  $\X$-shapes, as with $\One$, have a trivial introduction form,
+  \[ \cons{x} : \X\ \lift{\Fin\ 1}. \] To introduce an $\X$-structure, one
+  must provide the single value of type $A$ which is to be stored in
+  the single location: \[ \lab{\cons{x}} : A \to \LStr \X {\lift{\Fin 1}}
+  A. \]
+
+  Combinatorialists often regard the species $\X$ as a ``variable''.
+  Roughly speaking, this can be justified by thinking of the inhabitant
+  of $L$ as the actual variable, and the species $\X$ then
+  \emph{represents} the action of subtituting an arbitrary value for
+  that label in the structure.  In that sense $\X$ does act operationally
+  as a variable.  However, $\X$ does \emph{not} act like a binder.
+
+\paragraph{Sum}
+Given two species $F$ and $G$, we may form their sum. We use $\ssum$
+to denote the sum of two species to distinguish it from $+$, which
+denotes a sum of types. The definition is straightforward: \[ (F \ssum
+G)\ L \defn F\ L + G\ L. \] That is, a labelled $(F \ssum G)$-shape is
+either a labelled $F$-shape or a labelled $G$-shape (\pref{fig:sum}).
+
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=250]
+import SpeciesDiagrams
+
+theDia
+  = hcat' (with & sep .~ 1)
+    [ struct 5 "F+G"
+    , text' 1 "="
+    , vcat
+      [ struct 5 "F"
+      , text' 1 "+"
+      , struct 5 "G"
+      ]
+      # centerY
+    ]
+
+dia = theDia # centerXY # pad 1.1
+    \end{diagram}
+    \caption{Species sum}
+    \label{fig:sum}
+  \end{figure}
+
+As the reader is invited to check, $(\ssum,\Zero)$ forms a commutative
+monoid structure on species, up to species isomorphism.  That is, one
+can define equivalences
+\begin{align*}
+  \cons{plusAssoc} &: (F \ssum G) \ssum H
+  \iso F \ssum (G \ssum H) \\
+  \cons{zeroPlusL} &: \Zero \ssum F \iso F \\
+  \cons{plusComm} &: F \ssum G \iso G \ssum F
+\end{align*}
+We remark that unfolding definitions, an equivalence $F \iso G$
+between two $\Species$ is seen to be a natural isomorphism between $F$
+and $G$ as functors; this is precisely the usual definition of
+isomorphism between species.
+
+As expected, there are two introduction forms for $(F \ssum G)$-shapes
+and \mbox{-structures}:
+\begin{align*}
+&\inl : F\ L \to (F \ssum G)\ L \\
+&\inr : G\ L \to (F \ssum G)\ L \\
+&\lab{\inl} : \LStr F L A \to \LStr {F \ssum G} L A \\
+&\lab{\inr} : \LStr G L A \to \LStr {F \ssum G} L A
+\end{align*}
+
+As a simple example, the species $\One \ssum \X$ corresponds to the
+familiar |Maybe| type from Haskell, with $\lab{\inl} \lab{\One}$
+playing the role of |Nothing| and $\lab{\inr} \comp \lab{\cons{x}}$
+playing the role of |Just|.  Note that $\LStr {\One \ssum \X} L A$ is
+only inhabited for certain $L$, and moreover that the size of $L$
+determines the possible structure of an inhabitant.
+
+\paragraph{Product}
+The product of two species $F$ and $G$ consists of paired $F$- and
+$G$-shapes, but with a twist: the label types $L_1$ and $L_2$ used for
+$F$ and $G$ are not necessarily the same as the label type $L$
+used for $(F \sprod G)$.  In fact, they must constitute a
+partition of $L$, in the sense that their sum is isomorphic to $L$ (\pref{fig:product}).
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=250]
+import SpeciesDiagrams
+
+theDia
+  = hcat' (with & sep .~ 1)
+    [ struct 5 "F•G"
+    , text' 1 "="
+    , vcat' (with & sep .~ 0.2)
+      [ struct 2 "F"
+      , struct 3 "G"
+      ]
+      # centerY
+    ]
+
+dia = theDia # centerXY # pad 1.1
+    \end{diagram}
+    \caption{Species product}
+    \label{fig:product}
+  \end{figure}
+\begin{equation*}
+  (F \sprod G)\ L \defn \sum_{L_1, L_2 : \FinType} (\under{L_1} + \under{L_2} \iso \under{L}) \times F\ L_1 \times G\ L_2
+\end{equation*}
+For comparison, in set theory the definition is usually presented
+as \[ (F \sprod G)\ L = \sum_{L_1 \uplus L_2 = L} F\ L_1 \times G\
+L_2 \] which is obviously similar, but lacks any computational
+evidence for the relationship of $L_1$ and $L_2$ to $L$.
+
+The intuition behind partitioning the labels in this way is that each
+label represents a unique ``location'' which can hold a data value, so
+the locations in the two paired shapes should be disjoint. Another
+good way to gain intuition is to imagine indexing species not by label
+types, but by natural number sizes.  Then it is easy to see that we
+would have \[ (F \sprod G)_n \defn \sum_{n_1, n_2 : \N} (n_1 + n_2 = n)
+\times F_{n_1} \times G_{n_2}, \] that is, an $(F \sprod G)$-shape of
+size $n$ consists of an $F$-shape of size $n_1$ and a $G$-shape of
+size $n_2$, where $n_1 + n_2 = n$.  Indexing by labels is a
+generalization (a \emph{categorification}, in fact) of this
+size-indexing scheme, where we replace natural numbers with finite
+types, addition with coproduct, and multiplication with product.
+
+Finally, this definition highlights a fundamental difference between
+\emph{container types} and \emph{labelled shapes}.  Given two functors
+representing container types, their product is defined as $(F \times
+G)\ A = F\ A \times G\ A$---that is, an $(F\times G)$-structure
+containing values of type $A$ is a pair of an $F$-structure and a
+$G$-structure, both containing values of type $A$.  On the other hand,
+when dealing with labels instead of data values, we have to carefully
+account for the way the labels are distributed between the two shapes.
+
+One introduces a labelled $(F \sprod G)$-shape by pairing a labelled
+$F$-shape and a labelled $G$-shape, using a label set isomorphic to
+the coproduct of the two label types:
+\begin{align*}
+  - \sprod_- - &: (\under{L_1} + \under{L_2} \iso \under{L}) \to F\ L_1
+  \to G\ L_2 \to (F \sprod G)\ L \\
+  - \lab{\sprod}_- - &: (\under{L_1} + \under{L_2} \iso \under{L}) \to \LStr F {L_1} A \to \LStr G {L_2} A \to
+  \LStr {F \sprod G} L A
+\end{align*}
+The isomorphism arguments are written as subscripts to $\sprod$ and $\lab{\sprod}$.
+
+As an example, we may now encode the standard algebraic data type of
+lists, represented by the inductively-defined species satisfying
+$\List \iso \One \ssum (\X \sprod \List)$ (for convenience, in what
+follows we leave implicit the constructor witnessing this
+equivalence).  We can then define the usual constructors $\cons{nil}$
+and $\cons{cons}$ as follows:
+\begin{align*}
+  &\cons{nil} : \LStr{\List}{\Fin 0} A \\
+  &\cons{nil} \defn \lab{\inl} \lab{\One} \\
+  &\cons{cons} : A \to \LStr \List L A \to (\Fin 1 + \under L \iso
+  \under{L'}) \to \LStr \List {L'} A \\
+  &\cons{cons}\ a\ (|shape|,|elts|)\ e \defn (\inr\ (\cons{x} \sprod_e
+  |shape|), |append|\ e\ (|allocate|\ (\lambda x. a))\ |elts|)
+\end{align*}
+The interesting thing to note here is the extra equivalence passed as
+an argument to $\cons{cons}$, specifying the precise way in which the
+old label type augmented with an extra distinguished label is
+isomorphic to the new label type.  Again, one might intuitively expect
+something like \[ \cons{cons} : A \to \LStr \List L A \to \LStr \List
+{\lift{\Fin 1} + L} A, \] but this is nonsensical: we cannot take the
+coproduct of two elements of $\FinType$, as it is underspecified.  For
+implementations of $\StoreNP - -$ which make use of the equivalence to
+$\Fin n$ stored in $\FinType$ values (we give an example of one such
+implementation in \pref{sec:vecmap}), the extra equivalence given as
+an argument to \cons{cons} allows us to influence the particular way
+in which the list elements are stored in memory.  \todo{why is this
+  interesting? Give an example?} For lists, this is not very
+interesting, and we would typically use a variant $\cons{cons'} : A
+\to \LStr \List L A \to \LStr \List {\cons{inc}(L)} A$ making use of a
+canonical construction $\cons{inc}(-) : \FinType \to \FinType$ with
+$\Fin 1 + \under L \iso \under{\cons{inc}(L)}$.
+
+\todo{What else needs to be said about lists? e.g. converting to and
+  from Haskell lists?  generic eliminators?}
+
+\subsection{Composition}
+\label{sec:composition}
+
+We may also define the \term{composition} of two species.
+Intuitively, $(F \scomp G)$-shapes consist of a single top-level
+$F$-shape, which itself contains labelled $G$-shapes in place of the
+usual labels, as illustrated in~\pref{fig:composition}.
+Set-theoretically, we have \[ (F \scomp G)\ L = \sum_{\pi \in
+  \cons{Par}(L)} F\ \pi \times \prod_{L' \in \pi} G\ L', \] where
+$\cons{Par}(L)$ denotes the set of all partitions of $L$ into nonempty
+subsets.  Note how this uses the elements of the partition $\pi$
+itself as labels on the $F$-structure.  A more natural type-theoretic
+encoding is to use an arbitrary type of $F$-labels, and then store a
+mapping from these labels to the label types used for the $G$-shapes.
+Additionally, we store an equivalence witnessing the fact that the
+$G$-labels constitute a partition of the overall label type.
+Formally, \[ (F \scomp G)\ L \defn \sum{L_F : \Type} F\ L_F \times
+(Ls_G : \StoreNP {L_F} \FinType) \times (\under L \iso |sum|\ (|map|\
+\under{-}\ Ls_G)) \times
+|map|\ G\ Ls_G. \]  We assume a function $|sum| : \Store J
+\Type \to \Type$ which computes the sum of all the types in the range
+of a mapping.
+
+\begin{figure}
+  \centering
+  \begin{diagram}[width=250]
+import SpeciesDiagrams
+
+theDia
+  = hcat' (with & sep .~ 1)
+    [ struct 6 "F∘G"
+    , text' 1 "="
+    , drawSpT
+      ( nd (text' 1 "F")
+        [ struct' 2 "G"
+        , struct' 3 "G"
+        , struct' 1 "G"
+        ]
+      ) # centerY
+    ]
+
+dia = theDia # centerXY # pad 1.1
+  \end{diagram}
+  \caption{Species composition}
+  \label{fig:composition}
+\end{figure}
+
+Composition ($\scomp$), unlike sum ($\ssum$) and product ($\sprod$),
+is not commutative\footnote{Interestingly, a relatively recent paper
+  of \citet{Maia2008arithmetic} introduces a new monoidal structure on
+  species, the \term{arithmetic product}, which according to one
+  intuition represents a sort of ``commutative composition''.
+  Incorporating this into our framework will, we conjecture, have
+  important applications to multidimensional arrays.}: an $F$-shape of
+$G$-shapes is quite different from a $G$-shape of $F$-shapes.  It is,
+however, still associative, and in fact $(\scomp, \X)$ forms a monoid.
+
+The space of introduction forms for composition structures is
+nontrivial.  We will not separately consider introduction forms for
+composition shapes, but study introduction forms for composition
+structures directly. At the simplest end of the spectrum, we can
+define an operator $\compP$ (``cross'') as a sort of cartesian product
+of structures, copying the provided $G$ structure into every location
+of the $F$ structure and pairing up both their labels and data
+(\pref{fig:compP}):
+\begin{equation*}
+  - \compP - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} A \to \LStr G {L_2} B \to \LStr {F
+  \scomp G} L {A \times B}
+\end{equation*}
+\begin{figure}
+  \centering
+  \begin{diagram}[width=250]
+import SpeciesDiagrams
+
+theDia
+  = hcat' (with & sep.~1)
+    [ vcat' (with & sep.~0.2)
+      [ nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
+        # drawSpT # centerX
+      , text' 1 "⊗"
+      , nd (text' 1 "G") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [3..4] ]
+        # drawSpT # centerX
+      ]
+      # centerY
+    , text' 1 "="
+    , nd (text' 1 "F")
+      [  nd' (sLabels !! f) (text' 1 "G") [ lf' (sLabels !! g) (Leaf (vcat' (with & sep .~ 0.1) <$> mapM (Just . leafData) [f,g])) || g <- [3,4]]
+      || f <- [0..2]
+      ]
+      # drawSpT
+    ]
+
+dia = theDia # centerXY # pad 1.1
+  \end{diagram}
+  %$
+  \caption{Constructing a composition with $\compP$}
+  \label{fig:compP}
+\end{figure}
+Of course, this is far from being a general introduction form for
+$\scomp$, since it only allows us to construct composition structures
+of a special form, but is convenient when it suffices.
+
+We also have $\compA$ (``ap''), with type
+\begin{equation*}
+  - \compA - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
+    \scomp G} L B.
+\end{equation*}
+$\compA$ is equivalent in power to $\compP$: in particular, |x compP y =
+(map (,) x) compA y|, where $(,) : A \to B \to A \times B$ denotes the
+constructor for pair types, and |x compA y = map eval (x compP y)|,
+where $|eval| : (A \to B) \times A \to B$.
+
+% \todo{say something about
+%   parallel with Haskell's |Applicative| and monoidal functors; cite
+%   monoidal functors paper I forget}
+
+There is another introduction form for composition ($\compJ$,
+``join'') which is a generalization of the |join| ($\mu$) function of
+a monad:
+\begin{equation*}
+  - \compJ - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} {\LStr G {L_2} A} \to \LStr {F \scomp
+  G} L A
+\end{equation*}
+$\compJ$ takes a labelled $F$-structure filled with labelled
+$G$-structures, and turns it into a labelled $(F \scomp G)$-structure.
+
+$\compJ$, unlike $\compP$ and $\compA$, allows constructing an $(F
+\scomp G)$-structure where the $G$-shapes are not all the same.  Note,
+however, that all the $G$-structures are restricted to use the same
+label set, $L_1$, so they still must all be equal in size.
+
+Most generally, of course, it should be possible to compose
+$G$-structures of different shapes and sizes inside an $F$-structure,
+which is made possible by $\compB$ (``bind''), the last and most
+general introduction form for composition, which can be seen as a
+generalization of a monadic bind operation |(>>=)|.
+\begin{equation*}
+  - \compB - : \left(\sum_{l : \under{L_1}} \under{L_2\ l} \right) \iso \under
+    L \to \LStr F {L_1} A \to \left(\prod_{l : L_1} A \to \LStr G
+  {L_2\ l} B\right) \to \LStr {F \scomp G} L B
+\end{equation*}
+Here, $L_2$ is actually a \emph{family} of types, indexed over $L_1$,
+so each $G$ subshape can have a different type of labels, and hence a
+different size (\pref{fig:compB}).
+
+\begin{figure}
+  \centering
+  \begin{diagram}[width=250]
+import           Control.Arrow                  (first)
+import           Data.Tree
+import           Diagrams.Prelude hiding (arrow)
+import           SpeciesDiagrams
+
+theDia
+  = hcat' (with & sep .~ 1)
+    [ vcat' (with & sep .~ 0.5)
+      [ nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
+        # drawSpT # centerX
+      , bindOp # scale 0.2 # lw 0.03
+      , cat' unitY (with & sep .~ 0.3)
+        [ mkMapping l l (drawSpT g) || (l,g) <- zip [0..2] gs ]
+        # centerXY
+      ]
+      # centerY
+    , text' 1 "="
+    , nd (text' 1 "F") (zipWith labelSp [0..2] gs)
+      # drawSpT
+    ]
+  where
+    labelSp l (Node (_,n) ts) = Node (Just (sLabels !! l), n) ts
+
+bindOp :: Diagram B R2
+bindOp = circle 1 <> joiner # clipBy (circle 1)
+  where
+    joiner = fromOffsets [unitX, unitY]
+           # rotateBy (1/8)
+           # scaleY (1/2)
+           # sized (Width 2)
+           # centerXY
+
+gs :: [SpT]
+gs = map mkG [[0,1],[2],[3,4]]
+  where
+    mkG ls = nd (text' 1 "G") [ lf' (sLabels !! l) (Leaf (Just $ leafData (3+l))) || l <- ls ]
+
+mkMapping l a g =
+  hcat' (with & sep .~ 0.3)
+    [ (sLabels !! l) origin (0.5 ^& 0) |||||| leafData a
+    , arrow 0.5 mempty
+    , g
+    ]
+
+dia = theDia # centerXY # pad 1.1
+  \end{diagram}
+  %$
+  \caption{Constructing a composition with $\compB$}
+  \label{fig:compB}
+\end{figure}
+
+As an example using composition, we can directly encode the type of
+ordered, rooted $n$-ary trees, sometimes known as \term{rose trees},
+as $\R \iso \X \sprod (\List \scomp \R)$.  This corresponds to the
+Haskell type |Rose| defined as |data Rose a = Node a [Rose a]|, but
+the explicit use of composition allows \todo{what??}
+
+The most general type for the \cons{node} constructor is complex,
+since it must deal with a list of subtrees all having different label
+types.  As a compromise, we can make use of a variant type
+representing labelled structures with an existentially quantified
+label type:
+\[ \LStrE F A \defn \sum_{L : \FinType} \LStr F L A \]
+Using $\LStrE \R A$, we can write a constructor for $\R$ as follows:
+\[ \cons{nodeE} : A \to [\LStrE \R A] \to \LStrE \R A \]
+
+\todo{finish.  Make a picture?  Is the above even correct?  Is there
+  anything interesting to say about what we get from composition?}
+
+\subsection{Sets, bags, and maps}
+\label{sec:sets}
+
+The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L \defn \{L\}. \]
+That is, there is a single $\E$-shape for every label type (since, up
+to relabelling, all $L$s of the same size are equivalent).
+Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
+labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
+Note that this is how we actually implement $\E$: we insist that $L$ be
+enumerable (which is actually a weaker requirement than having a
+$\Finite$ proof), and the shape stores this enumeration as an
+\emph{abstract} set.
+
+Note that if $\E$-shapes are sets, then labelled
+$\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
+are \emph{bags}: any particular data element may occur multiple times
+(each time associated with a different, unique label).
+
+$\E$-shapes also have a trivial introduction form, $\cons{e} : \E\ L$,
+along with a corresponding introduction form for $\E$-structures which
+simply requires the mapping from labels to values:
+\begin{align*}
+\lab{\cons{e}} &: (L \to A) \to \LStr \E L A \\
+\lab{\cons{e}} &= |allocate| ...
+\end{align*}
+\todo{finish}
+
+\todo{eliminator.  Explain why it is problematic?}
+
 \begin{itemize}
-\item \emph{Rose Trees}.  These require product, sum (through list), X,
-composition and recursion.  The use of composition is where things are
-most interesting, as this is more `direct' than in usual Haskell.
 \item \emph{Arbo}, i.e. rooted arbitrary arity trees where the sub-trees
 are \emph{unordered}.  Requires replacing L from Rose trees with an E.
 \item \emph{MultiSet} (\ie\ bag), \emph{HashMap} (qua finite map).  As far as
@@ -1024,7 +1513,214 @@ for a finite map.
 \item \emph{Partition}.  While this is just $|E * E|$, this is at the root
 of many examples.
 \end{itemize}
-That list could easily be extended.
+
+\subsection{Cartesian product}
+\label{sec:cartesian-product}
+
+As we saw earlier, the definition of the standard product operation on
+species partitioned the set of labels between the two subshapes.
+However, there is nothing to stop us from defining a different
+product-like operation, known as \term{Cartesian product}, which does
+not partition the labels:\[ (F \scprod G)\ L = F\ L \times G\ L \]
+This is the ``na\"ive'' version of product that one might initially
+expect.  However, Cartesian product works very differently with
+labelled shapes. It is important to remember that a mapping $\Store L
+A$ still only assigns a single $A$ value to each label; but labels can
+occur twice (or more) in an $(F \times G)$-shape.  This lets us
+\emph{explicitly} model value-level sharing, that is, multiple parts
+of the same shape can all ``point to'' the same data.  In pure
+functional languages such as Haskell or Agda, sharing is a (mostly)
+unobservable operational detail; with a labelled structure we can
+directly model and observe it. \pref{fig:tree-list-cp} illustrates the
+Cartesian product of a binary tree and a list.
+\begin{figure}
+  \centering
+  \begin{diagram}[width=200]
+import           Data.List.Split
+import           Diagrams.TwoD.Layout.Tree
+import           Diagrams.TwoD.Path.Metafont
+
+import           SpeciesDiagrams
+
+leaf1 = circle 1 # fc white # named "l1"
+leaf2 = circle 1 # fc white # named "l2"
+
+tree = maybe mempty (renderTree (const leaf1) (~~))
+     . symmLayoutBin' with { slVSep = 4, slHSep = 6 }
+     $ (BNode () (BNode () (BNode () Empty (BNode () Empty Empty)) Empty) (BNode () (BNode () Empty Empty) (BNode () Empty Empty)))
+
+listL shp l = hcat . replicate 7 $ (shp # fc white # named l)
+
+connectAll l1 l2 perm =
+  withNameAll l1 $ \l1s ->
+  withNameAll l2 $ \l2s ->
+  applyAll (zipWith conn l1s (perm l2s))
+
+conn l1 l2 = beneath (lc grey . metafont $ location l1 .- leaving unit_Y <> arriving unit_Y -. endpt (location l2))
+
+dia = vcat' (with & sep .~ 5)
+  [ hcat' (with & sep .~ 5)
+    [ tree # centerY
+    , listL (circle 1) "l2" # centerY
+    ] # centerXY
+  , listL (square 2) "s" # centerXY
+  ]
+  # connectAll "l1" "s" id
+  # connectAll "l2" "s" (concat . map reverse . chunksOf 2)
+  # centerXY # pad 1.1
+  \end{diagram} %$
+  \caption{Superimposing a tree and a list on shared data}
+  \label{fig:tree-list-cp}
+\end{figure}
+
+To introduce a Cartesian product shape, one simply pairs two shapes on
+the same set of labels.  Introducing a Cartesian product structure is
+more interesting. One way to do it is to overlay an additional shape
+on top of an existing structure: \[ \cons{cprodL} : F\ L \to \LStr G L A
+\to \LStr {F \scprod G} L A. \] There is also a corresponding
+$\cons{cprodR}$ which combines an $F$-structure and a $G$-shape.
+
+$(\scprod, \E)$ forms a commutative monoid up to species isomorphism;
+superimposing an $\E$-shape has no effect, since the $\E$-shape
+imposes no additional structure.
+
+\todo{examples: partition, filter, etc.?}
+
+\subsection{Other operations}
+\label{sec:other-ops}
+
+\todo{Some introduction here}
+
+\paragraph{Cardinality restriction}
+
+Another important operation on species is \term{cardinality
+  restriction}, which simply restricts a given species to only have
+shapes of certain sizes.  For example, if $\L$ is the species of
+lists, $\L_3$ is the species of lists with length exactly three, and
+$\L_{\geq 1}$ is the species of non-empty lists.  We can formalize a
+simple version of this, for restricting only to particular sizes, as
+follows:
+\begin{align*}
+&\OfSize : \Species \to \N \to \Species \\
+&\OfSize\ F\ n\ L \defn (\Fin n \iso L) \times F\ L
+\end{align*}
+The introduction form for $\OfSize$ is simple enough, allowing one to
+observe that an existing label type has the size that it has:
+\[ \cons{sized} : \Finite L \to \LStr F L A \to \LStr {\OfSize\ F\
+  ||L||} L A. \]
+
+% We could also generalize to arbitrary predicates on natural numbers,
+% as in
+% \begin{align*}
+% &\OfSize' : \Species \to (\N \to \Type) \to \Species \\
+% &\OfSize'\ F\ P = \lam{L}{(m : \N) \times P\ m \times (\Fin m \iso L)
+%   \times F\ L}
+% \end{align*}
+% The original $\OfSize$ can be recovered by setting $P\ m \defn (m =
+% n)$.  However, $\OfSize'$ is difficult to compute with, since $P$ is
+% an opaque function.  In practice, $P\ m \defn (m \leq n)$ and $P\ m
+% \defn (m \geq n)$ (along with equality) cover the vast majority of
+% cases we care about, so as a practical tradeoff we can add explicit
+% combinators $\cons{OfSizeLTE}$ and $\cons{OfSizeGTE}$ representing these
+% predicates, with parallel introduction forms:
+% \begin{align*}
+%   \OfSizeLTE\ F\ n\ L &= (L \subseteq \Fin n) \times F\ L \\
+%   \OfSizeGTE\ F\ n\ L &= (L \supseteq \Fin n) \times F\ L
+% \end{align*}
+
+\paragraph{Derivative and pointing}
+
+The \term{derivative} is a well-known operation on shapes in the
+functional programming community~\citep{Huet_zipper,
+  mcbride:derivative, abbott_deriv, regular_tree_types,
+  mcbride_clowns_2008}, and it works in exactly the way one expects on
+species.  That is, $F'$-shapes consist of $F$-shapes with one
+distinguished location (a ``hole'') that contains no data
+(\pref{fig:derivative}).
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=250]
+import SpeciesDiagrams
+
+theDia
+  = hcat' (with & sep .~ 1)
+    [ struct 5 "F'"
+    , text' 1 "="
+    , nd (text' 1 "F")
+      ( replicate 2 (lf $ Leaf Nothing)
+        ++
+        [ lf'
+            (\p q -> (p ~~ q) # holeStyle)
+            (Leaf (Just (circle (labR/2) # holeStyle # fc white # withEnvelope (mempty :: Envelope R2))))
+        ]
+        ++
+        replicate 3 (lf $ Leaf Nothing)
+      )
+      # drawSpT
+    ]
+
+holeStyle = dashing [0.05,0.05] 0
+
+dia = theDia # centerXY # pad 1.1
+    \end{diagram}
+    \caption{Species differentiation}
+    \label{fig:derivative}
+  \end{figure}
+Formally, we may define
+\[ F'\ L \defn (L' : \Type) \times (\under{L'} \iso \TyOne + \under{L}) \times F\ L' \]
+Note that a mapping $\Store L A$ associates data to every label
+in the underlying $F\ L'$ structure but one, since $\under{L'} \iso \TyOne +
+\under{L}$.
+
+To introduce a derivative structure, we require an input structure
+whose label type is already in the form $\TyOne + L$:
+\begin{align*}
+  \cons{d} &: (\under{L'} \iso \TyOne + \under{L}) \to F\ L' \to F'\ L \\
+  \lab{\cons{d}} &: (\under{L'} \iso \TyOne + \under{L}) \to \LStr F {L'} A \to A \times \LStr {F'} L A
+\end{align*}
+The idea behind $\lab{\cons{d}}$ is that we get back the $A$ that used
+to be labelled by $\TyOne$, paired with a derivative structure with
+that value missing.
+
+A related operation is that of \term{pointing}.  A pointed $F$-shape
+is an $F$-shape with a particular label distinguished.  Formally,
+\[ \pt{F}\ L \defn L \times F\ L. \]
+Introducing a pointed structure simply requires specifying which label
+should be pointed:
+\begin{align*}
+\cons{p} &: L \to F\ L \to \pt{F}\ L \\
+\cons{p} &: L \to \LStr F L A \to \LStr{\pt{F}} L A
+\end{align*}
+
+The relationship bewteen pointing and derivative is given by the
+equivalence \[ \pt F \iso \X \sprod F'. \] The right-to-left direction
+is straightforward to implement, requiring only some relabelling.  The
+left-to-right direction, on the other hand, requires modelling an
+analogue of ``subtraction'' on types: the given label type $L$ must be
+decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[ L \iso
+\left(\sum_{l':L} l' \neq l \right) + \left(\sum_{l':L} l' = l
+\right). \]
+
+\paragraph{Functor composition}
+
+It is worth mentioning the operation of \emph{functor composition},
+which set-theoretically is defined as the ``na\"ive'' composition
+
+\[ (F \fcomp G)\ L \defn F\ (G\ L). \]
+
+Just as with Cartesian product, functor composition allows encoding
+structures with sharing---for example, the species of simple,
+undirected graphs can be specified as \[ \mathcal{G} \defn (\E \sprod \E)
+\fcomp (\X^2 \sprod \E), \] describing a graph as a subset ($\E \sprod
+\E$) of all ($\fcomp$) ordered pairs chosen from the complete set of
+vertex labels ($\X^2 \sprod \E$).
+
+However, functor composition mixes up labels and shapes in the most
+peculiar way---and while this is perfectly workable in an untyped,
+set-theoretic setting, we do not yet know how to interpret it in a
+typed, constructive way.
+
+\section{Programming with Labelled Structures}
 
 \paragraph{Functions over all structures}
 But quickly the question turns to: but what can we do with these?  And this is
@@ -1219,718 +1915,6 @@ labelled structures.
 We can easily imagine a variant of this, where rather than picking the
 ``first $n$'' labels, we instead choose a specific subset of labels.  This
 would be a much more (labelled-structure) idiomatic version of \cons{take}.
-
-
-\jc{rest of section 5 is below}
-
-We now return to the observation from \pref{sec:set-species} that we
-do not really want to work directly with the definition of species,
-but rather with an algebraic theory. In this section we explain such a
-theory.  At its core, this theory is not new; what is new is porting
-it to a constructive setting, and the introduction and elimination
-forms for labelled structures built on top of these species.
-
-\subsection{Algebraic data types}
-\label{sec:primitive}
-
-We begin by exhibiting species, \ie labelled structures, which
-correspond to familiar algebraic data types. As a visual aid,
-throughout the following section we will use schematic illustrations
-as typified in~\pref{fig:species-schematic}.  The edges of the tree
-visually represent different labels; the leaves of the tree represent
-data associated with those labels.  The root of the tree shows the
-species structure put on the labels (in this case, $F$).
-\begin{figure}
-  \centering
-  \begin{diagram}[width=100]
-import SpeciesDiagrams
-
-dia = nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
-    # drawSpT # centerXY # pad 1.1
-  \end{diagram}
-  \caption{Schematic of a typical $(F\ L)$-structure}
-  \label{fig:species-schematic}
-\end{figure}
-
-\paragraph{Zero}
-The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
-unique species with no shapes whatsoever, defined by
-  \begin{equation*}
-  \Zero\ L = \TyZero.
-  \end{equation*}
-  Of course, it has no introduction form.
-
-\paragraph{One}
-The \emph{one} or \emph{unit} species, denoted $\One$, is the species
-with a single shape of size $0$ (that is, containing no labels),
-defined by
-\[ \One\ L = \TyZero \iso L. \] That is, a $\One$-shape consists
-solely of a proof that $L$ is empty.\footnote{\citet{yeh-k-species}
-  mentions something equivalent, namely, that the unit species can be
-  defined as the hom-functor $\B(\varnothing, -)$, though he certainly
-  does not have constructive type theory in mind.}  (Note that there
-is at most one such proof.)
-
-There is a trivial introduction form for $\One$, also denoted $\One$,
-which creates a $\One$-shape using the canonical label set
-$\lift{\Fin\ 0} : \FinType$, that is, \[ \One : \One\ \lift{\Fin\
-  0}. \] (In general, $\lift{\Fin n} : \FinType$ denotes the type
-$\Fin n : \Type$ paired with the identity equivalence).  We also have
-an introduction form for labelled $\One$-structures, \[ \lab{\One} :
-\LStr \One {\lift{\Fin 0}} A. \]
-
-  Note that the usual set-theoretic definition is
-  \[ \One\ L =
-  \begin{cases}
-    \{\bullet\} & ||L|| = 0 \\
-    \varnothing & \text{otherwise}
-  \end{cases}
-  \]
-  However, this is confusing to the typical type theorist.  First, it
-  seems strange that the definition of $\One$ gets to ``look at'' $L$,
-  since species are supposed to be functorial.  In fact, the
-  definition does not violate functoriality---because it only ``looks
-  at'' the size of $L$, not its contents, and bijections preserve
-  size---but this is not manifestly obvious. It's also strange that we
-  have to pull some arbitrary one-element set out of thin air.
-
-\paragraph{Singleton}
-  The \emph{singleton} species, denoted $\X$, is defined by
-  \[ \X\ L = \TyOne \iso L, \] that is, an $\X$-shape is just a proof
-  that $L$ has size $1$.  Again, there is at most one such proof.
-  Unlike $\One$, we may also think of an $\X$-shape as ``containing''
-  a single label of type $L$, which we may recover by applying the
-  equivalence to $\unit$.
-
-  $\X$-shapes, as with $\One$, have a trivial introduction form,
-  \[ \cons{x} : \X\ \lift{\Fin\ 1}. \] To introduce an $\X$-structure, one
-  must provide the single value of type $A$ which is to be stored in
-  the single location: \[ \lab{\cons{x}} : A \to \LStr \X {\lift{\Fin 1}}
-  A. \]
-
-  Combinatorialists often regard the species $\X$ as a ``variable''.
-  Roughly speaking, this can be justified by thinking of the inhabitant
-  of $L$ as the actual variable, and the species $\X$ then
-  \emph{represents} the action of subtituting an arbitrary value for
-  that label in the structure.  In that sense $\X$ does act operationally
-  as a variable.  However, $\X$ does \emph{not} act like a binder.
-
-\paragraph{Sum}
-Given two species $F$ and $G$, we may form their sum. We use $\ssum$
-to denote the sum of two species to distinguish it from $+$, which
-denotes a sum of types. The definition is straightforward: \[ (F \ssum
-G)\ L = F\ L + G\ L. \] That is, a labelled $(F \ssum G)$-shape is
-either a labelled $F$-shape or a labelled $G$-shape (\pref{fig:sum}).
-
-  \begin{figure}
-    \centering
-    \begin{diagram}[width=250]
-import SpeciesDiagrams
-
-theDia
-  = hcat' (with & sep .~ 1)
-    [ struct 5 "F+G"
-    , text' 1 "="
-    , vcat
-      [ struct 5 "F"
-      , text' 1 "+"
-      , struct 5 "G"
-      ]
-      # centerY
-    ]
-
-dia = theDia # centerXY # pad 1.1
-    \end{diagram}
-    \caption{Species sum}
-    \label{fig:sum}
-  \end{figure}
-
-As the reader is invited to check, $(\ssum,\Zero)$ forms a commutative
-monoid structure on species, up to species isomorphism.  That is, one
-can define equivalences
-\begin{align*}
-  \cons{plusAssoc} &: (F \ssum G) \ssum H
-  \iso F \ssum (G \ssum H) \\
-  \cons{zeroPlusL} &: \Zero \ssum F \iso F \\
-  \cons{plusComm} &: F \ssum G \iso G \ssum F
-\end{align*}
-We remark that unfolding definitions, an equivalence $F \iso G$
-between two $\Species$ is seen to be a natural isomorphism between $F$
-and $G$ as functors; this is precisely the usual definition of
-isomorphism between species.
-
-As expected, there are two introduction forms for $(F \ssum G)$-shapes
-and \mbox{-structures}:
-\begin{align*}
-&\inl : F\ L \to (F \ssum G)\ L \\
-&\inr : G\ L \to (F \ssum G)\ L \\
-&\lab{\inl} : \LStr F L A \to \LStr {F \ssum G} L A \\
-&\lab{\inr} : \LStr G L A \to \LStr {F \ssum G} L A
-\end{align*}
-
-As a simple example, the species $\One \ssum \X$ corresponds to the
-familiar |Maybe| type from Haskell, with $\lab{\inl} \lab{\One}$
-playing the role of |Nothing| and $\lab{\inr} \comp \lab{\cons{x}}$
-playing the role of |Just|.  Note that $\LStr {\One \ssum \X} L A$ is
-only inhabited for certain $L$, and moreover that the size of $L$
-determines the possible structure of an inhabitant.
-
-\paragraph{Product}
-The product of two species $F$ and $G$ consists of paired $F$- and
-$G$-shapes, but with a twist: the label types $L_1$ and $L_2$ used for
-$F$ and $G$ are not necessarily the same as the label type $L$
-used for $(F \sprod G)$.  In fact, they must constitute a
-partition of $L$, in the sense that their sum is isomorphic to $L$ (\pref{fig:product}).
-  \begin{figure}
-    \centering
-    \begin{diagram}[width=250]
-import SpeciesDiagrams
-
-theDia
-  = hcat' (with & sep .~ 1)
-    [ struct 5 "F•G"
-    , text' 1 "="
-    , vcat' (with & sep .~ 0.2)
-      [ struct 2 "F"
-      , struct 3 "G"
-      ]
-      # centerY
-    ]
-
-dia = theDia # centerXY # pad 1.1
-    \end{diagram}
-    \caption{Species product}
-    \label{fig:product}
-  \end{figure}
-\begin{equation*}
-  (F \sprod G)\ L = \sum_{L_1, L_2 : \FinType} (\under{L_1} + \under{L_2} \iso \under{L}) \times F\ L_1 \times G\ L_2
-\end{equation*}
-For comparison, in set theory the definition is usually presented
-as \[ (F \sprod G)\ L = \sum_{L_1 \uplus L_2 = L} F\ L_1 \times G\
-L_2 \] which is obviously similar, but lacks any computational
-evidence for the relationship of $L_1$ and $L_2$ to $L$.
-
-The intuition behind partitioning the labels in this way is that each
-label represents a unique ``location'' which can hold a data value, so
-the locations in the two paired shapes should be disjoint. Another
-good way to gain intuition is to imagine indexing species not by label
-types, but by natural number sizes.  Then it is easy to see that we
-would have \[ (F \sprod G)_n = \sum_{n_1, n_2 : \N} (n_1 + n_2 = n)
-\times F_{n_1} \times G_{n_2}, \] that is, an $(F \sprod G)$-shape of
-size $n$ consists of an $F$-shape of size $n_1$ and a $G$-shape of
-size $n_2$, where $n_1 + n_2 = n$.  Indexing by labels is a
-generalization (a \emph{categorification}, in fact) of this
-size-indexing scheme, where we replace natural numbers with finite
-types, addition with coproduct, multiplication with product, and
-equality with isomorphism.
-
-Finally, this definition highlights a fundamental difference between
-\emph{container types} and \emph{labelled shapes}.  Given two functors
-representing container types, their product is defined as $(F \times
-G)\ A = F\ A \times G\ A$---that is, an $(F\times G)$-structure
-containing values of type $A$ is a pair of an $F$-structure and a
-$G$-structure, both containing values of type $A$.  On the other hand,
-when dealing with labels instead of data values, we have to carefully
-account for the way the labels are distributed between the two shapes.
-
-One introduces a labelled $(F \sprod G)$-shape by pairing a labelled
-$F$-shape and a labelled $G$-shape, using a label set isomorphic to
-the coproduct of the two label types:
-\begin{align*}
-  - \sprod_- - &: (\under{L_1} + \under{L_2} \iso \under{L}) \to F\ L_1
-  \to G\ L_2 \to (F \sprod G)\ L \\
-  - \lab{\sprod}_- - &: (\under{L_1} + \under{L_2} \iso \under{L}) \to \LStr F {L_1} A \to \LStr G {L_2} A \to
-  \LStr {F \sprod G} L A
-\end{align*}
-The isomorphism arguments are written as subscripts to $\sprod$ and $\lab{\sprod}$.
-
-As an example, we may now encode the standard algebraic data type of
-lists, represented by the inductively-defined species satisfying
-$\List \iso \One \ssum (\X \sprod \List)$ (for convenience, in what
-follows we leave implicit the constructor witnessing this
-equivalence).  We can then define the usual constructors $\cons{nil}$
-and $\cons{cons}$ as follows:
-\begin{align*}
-  &\cons{nil} : \LStr{\List}{\Fin 0} A \\
-  &\cons{nil} \defn \lab{\inl} \lab{\One} \\
-  &\cons{cons} : A \to \LStr \List L A \to (\Fin 1 + \under L \iso
-  \under{L'}) \to \LStr \List {L'} A \\
-  &\cons{cons}\ a\ (|shape|,|elts|)\ e \defn (\inr\ (\cons{x} \sprod_e
-  |shape|), |append|\ e\ (|allocate|\ (\lambda x. a))\ |elts|)
-\end{align*}
-The interesting thing to note here is the extra equivalence passed as
-an argument to $\cons{cons}$, specifying the precise way in which the
-old label type augmented with an extra distinguished label is
-isomorphic to the new label type.  Again, one might intuitively expect
-something like \[ \cons{cons} : A \to \LStr \List L A \to \LStr \List
-{\lift{\Fin 1} + L} A, \] but this is nonsensical: we cannot take the
-coproduct of two elements of $\FinType$, as it is underspecified.  For
-implementations of $\StoreNP - -$ which make use of the equivalence to
-$\Fin n$ stored in $\FinType$ values (we give an example of one such
-implementation in \pref{sec:vecmap}), the extra equivalence given as
-an argument to \cons{cons} allows us to influence the particular way
-in which the list elements are stored in memory.  \todo{why is this
-  interesting? Give an example?} For lists, this is not very
-interesting, and we would typically use a variant $\cons{cons'} : A
-\to \LStr \List L A \to \LStr \List {\cons{inc}(L)} A$ making use of a
-canonical construction $\cons{inc}(-) : \FinType \to \FinType$ with
-$\Fin 1 + \under L \iso \under{\cons{inc}(L)}$.
-
-\todo{What else needs to be said about lists? e.g. converting to and
-  from Haskell lists?  generic eliminators?}
-
-\subsection{Composition}
-\label{sec:composition}
-
-We may also define the \term{composition} of two species.
-Intuitively, $(F \scomp G)$-shapes consist of a single top-level
-$F$-shape, which itself contains labelled $G$-shapes in place of the
-usual labels, as illustrated in~\pref{fig:composition}.
-Set-theoretically, we have \[ (F \scomp G)\ L = \sum_{\pi \in
-  \cons{Par}(L)} F\ \pi \times \prod_{L' \in \pi} G\ L', \] where
-$\cons{Par}(L)$ denotes the set of all partitions of $L$ into nonempty
-subsets.  Note how this uses the elements of the partition $\pi$
-itself as labels on the $F$-structure.  A more natural type-theoretic
-encoding is to use an arbitrary type of $F$-labels, and then store a
-mapping from these labels to the label types used for the $G$-shapes.
-Additionally, we store an equivalence witnessing the fact that the
-$G$-labels constitute a partition of the overall label type.
-Formally, \[ (F \scomp G)\ L = \sum{L_F : \Type} F\ L_F \times
-(Ls_G : \StoreNP {L_F} \Type) \times (L \iso \cons{sum}\ Ls_G) \times
-\cons{map}\ G\ Ls_G. \]  We assume a function $\cons{sum} : \Store J
-\Type \to \Type$ which computes the sum of all the types in the range
-of a mapping.
-
-\begin{figure}
-  \centering
-  \begin{diagram}[width=250]
-import SpeciesDiagrams
-
-theDia
-  = hcat' (with & sep .~ 1)
-    [ struct 6 "F∘G"
-    , text' 1 "="
-    , drawSpT
-      ( nd (text' 1 "F")
-        [ struct' 2 "G"
-        , struct' 3 "G"
-        , struct' 1 "G"
-        ]
-      ) # centerY
-    ]
-
-dia = theDia # centerXY # pad 1.1
-  \end{diagram}
-  \caption{Species composition}
-  \label{fig:composition}
-\end{figure}
-
-Composition ($\scomp$), unlike sum ($\ssum$) and product ($\sprod$),
-is not commutative\footnote{Interestingly, a relatively recent paper
-  of \citet{Maia2008arithmetic} introduces a new monoidal structure on
-  species, the \term{arithmetic product}, which according to one
-  intuition represents a sort of ``commutative composition''.
-  Incorporating this into our framework will, we conjecture, have
-  important applications to multidimensional arrays.}: an $F$-shape of
-$G$-shapes is quite different from a $G$-shape of $F$-shapes.  It is,
-however, still associative, and in fact $(\scomp, \X)$ forms a monoid.
-
-The space of introduction forms for composition structures is
-nontrivial.  We will not separately consider introduction forms for
-composition shapes, but study introduction forms for composition
-structures directly. At the simplest end of the spectrum, we can
-define an operator $\compP$ (``cross'') as a sort of cartesian product
-of structures, copying the provided $G$ structure into every location
-of the $F$ structure and pairing up both their labels and data
-(\pref{fig:compP}):
-\begin{equation*}
-  - \compP - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} A \to \LStr G {L_2} B \to \LStr {F
-  \scomp G} L {A \times B}
-\end{equation*}
-\begin{figure}
-  \centering
-  \begin{diagram}[width=250]
-import SpeciesDiagrams
-
-theDia
-  = hcat' (with & sep.~1)
-    [ vcat' (with & sep.~0.2)
-      [ nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
-        # drawSpT # centerX
-      , text' 1 "⊗"
-      , nd (text' 1 "G") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [3..4] ]
-        # drawSpT # centerX
-      ]
-      # centerY
-    , text' 1 "="
-    , nd (text' 1 "F")
-      [  nd' (sLabels !! f) (text' 1 "G") [ lf' (sLabels !! g) (Leaf (vcat' (with & sep .~ 0.1) <$> mapM (Just . leafData) [f,g])) || g <- [3,4]]
-      || f <- [0..2]
-      ]
-      # drawSpT
-    ]
-
-dia = theDia # centerXY # pad 1.1
-  \end{diagram}
-  %$
-  \caption{Constructing a composition with $\compP$}
-  \label{fig:compP}
-\end{figure}
-Of course, this is far from being a general introduction form for
-$\scomp$, since it only allows us to construct composition structures
-of a special form, but is convenient when it suffices.
-
-We also have $\compA$ (``ap''), defined by
-\begin{equation*}
-  - \compA - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
-    \scomp G} L B.
-\end{equation*}
-$\compA$ is equivalent in power to $\compP$: in particular, |x compP y =
-(map (,) x) compA y|, where $(,) : A \to B \to A \times B$ denotes the
-constructor for pair types, and |x compA y = map eval (x compP y)|,
-where $|eval| : (A \to B) \times A \to B$.
-
-% \todo{say something about
-%   parallel with Haskell's |Applicative| and monoidal functors; cite
-%   monoidal functors paper I forget}
-
-There is another introduction form for composition ($\compJ$,
-``join'') which is a generalization of the |join| ($\mu$) function of
-a monad:
-\begin{equation*}
-  - \compJ - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} {\LStr G {L_2} A} \to \LStr {F \scomp
-  G} L A
-\end{equation*}
-$\compJ$ takes a labelled $F$-structure filled with labelled
-$G$-structures, and turns it into a labelled $(F \scomp G)$-structure.
-
-$\compJ$, unlike $\compP$ and $\compA$, allows constructing an $(F
-\scomp G)$-structure where the $G$-shapes are not all the same.  Note,
-however, that all the $G$-structures are restricted to use the same
-label set, $L_1$, so they still must all be equal in size.
-
-Most generally, of course, it should be possible to compose
-$G$-structures of different shapes and sizes inside an $F$-structure,
-which is made possible by $\compB$ (``bind''), the last and most
-general introduction form for composition, which can be seen as a
-generalization of a monadic bind operation |(>>=)|.
-\begin{equation*}
-  - \compB - : \left(\sum_{l : \under{L_1}} \under{L_2\ l} \right) \iso \under
-    L \to \LStr F {L_1} A \to \left(\prod_{l : L_1} A \to \LStr G
-  {L_2\ l} B\right) \to \LStr {F \scomp G} L B
-\end{equation*}
-Here, $L_2$ is actually a \emph{family} of types, indexed over $L_1$,
-so each $G$ subshape can have a different type of labels, and hence a
-different size (\pref{fig:compB}).
-
-\begin{figure}
-  \centering
-  \begin{diagram}[width=250]
-import           Control.Arrow                  (first)
-import           Data.Tree
-import           Diagrams.Prelude hiding (arrow)
-import           SpeciesDiagrams
-
-theDia
-  = hcat' (with & sep .~ 1)
-    [ vcat' (with & sep .~ 0.5)
-      [ nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
-        # drawSpT # centerX
-      , bindOp # scale 0.2 # lw 0.03
-      , cat' unitY (with & sep .~ 0.3)
-        [ mkMapping l l (drawSpT g) || (l,g) <- zip [0..2] gs ]
-        # centerXY
-      ]
-      # centerY
-    , text' 1 "="
-    , nd (text' 1 "F") (zipWith labelSp [0..2] gs)
-      # drawSpT
-    ]
-  where
-    labelSp l (Node (_,n) ts) = Node (Just (sLabels !! l), n) ts
-
-bindOp :: Diagram B R2
-bindOp = circle 1 <> joiner # clipBy (circle 1)
-  where
-    joiner = fromOffsets [unitX, unitY]
-           # rotateBy (1/8)
-           # scaleY (1/2)
-           # sized (Width 2)
-           # centerXY
-
-gs :: [SpT]
-gs = map mkG [[0,1],[2],[3,4]]
-  where
-    mkG ls = nd (text' 1 "G") [ lf' (sLabels !! l) (Leaf (Just $ leafData (3+l))) || l <- ls ]
-
-mkMapping l a g =
-  hcat' (with & sep .~ 0.3)
-    [ (sLabels !! l) origin (0.5 ^& 0) |||||| leafData a
-    , arrow 0.5 mempty
-    , g
-    ]
-
-dia = theDia # centerXY # pad 1.1
-  \end{diagram}
-  %$
-  \caption{Constructing a composition with $\compB$}
-  \label{fig:compB}
-\end{figure}
-
-As an example using composition, we can directly encode the type of
-ordered, rooted $n$-ary trees, sometimes known as \term{rose trees},
-as $\R \iso \X \sprod (\List \scomp \R)$.  This corresponds to the
-Haskell type |Rose| defined as |data Rose a = Node a [Rose a]|, but
-the explicit use of composition allows \todo{what??}
-
-The most general type for the \cons{node} constructor is complex,
-since it must deal with a list of subtrees all having different label
-types.  As a compromise, we can make use of a variant type
-representing labelled structures with an existentially quantified
-label type:
-\[ \LStrE F A \defn \sum_{L : \FinType} \LStr F L A \]
-Using $\LStrE \R A$, we can write a constructor for $\R$ as follows:
-\[ \cons{nodeE} : A \to [\LStrE \R A] \to \LStrE \R A \]
-
-\todo{finish.  Make a picture?  Is the above even correct?  Is there
-  anything interesting to say about what we get from composition?}
-
-\subsection{Sets, bags, and maps}
-\label{sec:sets}
-
-The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L = \{L\}. \]
-That is, there is a single $\E$-shape for every label type (since, up
-to relabelling, all $L$s of the same size are equivalent).
-Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
-labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
-Note that this is how we actually implement $\E$: we insist that $L$ be
-enumerable (which is actually a weaker requirement than having a
-$\Finite$ proof), and the shape stores this enumeration as an
-\emph{abstract} set.
-
-Note that if $\E$-shapes are sets, then labelled
-$\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
-are \emph{bags}: any particular data element may occur multiple times
-(each time associated with a different, unique label).
-
-$\E$-shapes also have a trivial introduction form, $\cons{e} : \E\ L$,
-along with a corresponding introduction form for $\E$-structures which
-simply requires the mapping from labels to values:
-\begin{align*}
-\lab{\cons{e}} &: (L \to A) \to \LStr \E L A \\
-\lab{\cons{e}} &= |allocate| ...
-\end{align*}
-\todo{finish}
-
-\todo{eliminator.  Explain why it is problematic?}
-
-\subsection{Cartesian product}
-\label{sec:cartesian-product}
-
-As we saw earlier, the definition of the standard product operation on
-species partitioned the set of labels between the two subshapes.
-However, there is nothing to stop us from defining a different
-product-like operation, known as \term{Cartesian product}, which does
-not partition the labels:\[ (F \scprod G)\ L = F\ L \times G\ L \]
-This is the ``na\"ive'' version of product that one might expect from
-experience with generic programming.
-
-Cartesian product works very differently with labelled shapes,
-however.  It is important to remember that a mapping $\Store L A$
-still only assigns a single $A$ value to each label; but labels can
-occur twice (or more) in an $(F \times G)$-shape.  This lets us
-\emph{explicitly} model value-level sharing, that is, multiple parts
-of the same shape can all ``point to'' the same data.  In pure
-functional languages such as Haskell or Agda, sharing is a (mostly)
-unobservable operational detail; with a labelled structure we can
-directly model and observe it. \pref{fig:tree-list-cp} illustrates the
-Cartesian product of a binary tree and a list.
-\begin{figure}
-  \centering
-  \begin{diagram}[width=200]
-import           Data.List.Split
-import           Diagrams.TwoD.Layout.Tree
-import           Diagrams.TwoD.Path.Metafont
-
-import           SpeciesDiagrams
-
-leaf1 = circle 1 # fc white # named "l1"
-leaf2 = circle 1 # fc white # named "l2"
-
-tree = maybe mempty (renderTree (const leaf1) (~~))
-     . symmLayoutBin' with { slVSep = 4, slHSep = 6 }
-     $ (BNode () (BNode () (BNode () Empty (BNode () Empty Empty)) Empty) (BNode () (BNode () Empty Empty) (BNode () Empty Empty)))
-
-listL shp l = hcat . replicate 7 $ (shp # fc white # named l)
-
-connectAll l1 l2 perm =
-  withNameAll l1 $ \l1s ->
-  withNameAll l2 $ \l2s ->
-  applyAll (zipWith conn l1s (perm l2s))
-
-conn l1 l2 = beneath (lc grey . metafont $ location l1 .- leaving unit_Y <> arriving unit_Y -. endpt (location l2))
-
-dia = vcat' (with & sep .~ 5)
-  [ hcat' (with & sep .~ 5)
-    [ tree # centerY
-    , listL (circle 1) "l2" # centerY
-    ] # centerXY
-  , listL (square 2) "s" # centerXY
-  ]
-  # connectAll "l1" "s" id
-  # connectAll "l2" "s" (concat . map reverse . chunksOf 2)
-  # centerXY # pad 1.1
-  \end{diagram} %$
-  \caption{Superimposing a tree and a list on shared data}
-  \label{fig:tree-list-cp}
-\end{figure}
-
-To introduce a Cartesian product shape, one simply pairs two shapes on
-the same set of labels.  Introducing a Cartesian product structure is
-more interesting. One way to do it is to overlay an additional shape
-on top of an existing structure: \[ \cons{cprodL} : F\ L \to \LStr G L A
-\to \LStr {F \scprod G} L A. \] There is also a corresponding
-$\cons{cprodR}$ which combines an $F$-structure and a $G$-shape.
-
-$(\scprod, \E)$ forms a commutative monoid up to species isomorphism;
-superimposing an $\E$-shape has no effect, since the $\E$-shape
-imposes no additional structure.
-
-\todo{examples: partition, filter, etc.?}
-
-\subsection{Other operations}
-\label{sec:other-ops}
-
-\todo{Some introduction here}
-
-\paragraph{Cardinality restriction}
-
-Another important operation on species is \term{cardinality
-  restriction}, which simply restricts a given species to only have
-shapes of certain sizes.  For example, if $\L$ is the species of
-lists, $\L_3$ is the species of lists with length exactly three, and
-$\L_{\geq 1}$ is the species of non-empty lists.  We can formalize a
-simple version of this, for restricting only to particular sizes, as
-follows:
-\begin{align*}
-&\OfSize : \Species \to \N \to \Species \\
-&\OfSize\ F\ n\ L = (\Fin n \iso L) \times F\ L
-\end{align*}
-The introduction form for $\OfSize$ is simple enough, allowing one to
-observe that an existing label type has the size that it has:
-\[ \cons{sized} : \Finite L \to \LStr F L A \to \LStr {\OfSize\ F\
-  ||L||} L A. \]
-
-% We could also generalize to arbitrary predicates on natural numbers,
-% as in
-% \begin{align*}
-% &\OfSize' : \Species \to (\N \to \Type) \to \Species \\
-% &\OfSize'\ F\ P = \lam{L}{(m : \N) \times P\ m \times (\Fin m \iso L)
-%   \times F\ L}
-% \end{align*}
-% The original $\OfSize$ can be recovered by setting $P\ m \defn (m =
-% n)$.  However, $\OfSize'$ is difficult to compute with, since $P$ is
-% an opaque function.  In practice, $P\ m \defn (m \leq n)$ and $P\ m
-% \defn (m \geq n)$ (along with equality) cover the vast majority of
-% cases we care about, so as a practical tradeoff we can add explicit
-% combinators $\cons{OfSizeLTE}$ and $\cons{OfSizeGTE}$ representing these
-% predicates, with parallel introduction forms:
-% \begin{align*}
-%   \OfSizeLTE\ F\ n\ L &= (L \subseteq \Fin n) \times F\ L \\
-%   \OfSizeGTE\ F\ n\ L &= (L \supseteq \Fin n) \times F\ L
-% \end{align*}
-
-\paragraph{Derivative and pointing}
-
-The \term{derivative} is a well-known operation on shapes in the
-functional programming community~\citep{Huet_zipper,
-  mcbride:derivative, abbott_deriv, regular_tree_types,
-  mcbride_clowns_2008}, and it works in exactly the way one expects on
-species.  That is, $F'$-shapes consist of $F$-shapes with one
-distinguished location (a ``hole'') that contains no data
-(\pref{fig:derivative}).
-  \begin{figure}
-    \centering
-    \begin{diagram}[width=250]
-import SpeciesDiagrams
-
-theDia
-  = hcat' (with & sep .~ 1)
-    [ struct 5 "F'"
-    , text' 1 "="
-    , nd (text' 1 "F")
-      ( replicate 2 (lf $ Leaf Nothing)
-        ++
-        [ lf'
-            (\p q -> (p ~~ q) # holeStyle)
-            (Leaf (Just (circle (labR/2) # holeStyle # fc white # withEnvelope (mempty :: Envelope R2))))
-        ]
-        ++
-        replicate 3 (lf $ Leaf Nothing)
-      )
-      # drawSpT
-    ]
-
-holeStyle = dashing [0.05,0.05] 0
-
-dia = theDia # centerXY # pad 1.1
-    \end{diagram}
-    \caption{Species differentiation}
-    \label{fig:derivative}
-  \end{figure}
-Formally, we may define
-\[ F'\ L = (L' : \Type) \times (\under{L'} \iso \TyOne + \under{L}) \times F\ L' \]
-Note that a mapping $\Store L A$ associates data to every label
-in the underlying $F\ L'$ structure but one, since $\under{L'} \iso \TyOne +
-\under{L}$.
-
-To introduce a derivative structure, we require an input structure
-whose label type is already in the form $\TyOne + L$:
-\begin{align*}
-  \cons{d} &: (\under{L'} \iso \TyOne + \under{L}) \to F\ L' \to F'\ L \\
-  \lab{\cons{d}} &: (\under{L'} \iso \TyOne + \under{L}) \to \LStr F {L'} A \to A \times \LStr {F'} L A
-\end{align*}
-The idea behind $\lab{\cons{d}}$ is that we get back the $A$ that used
-to be labelled by $\TyOne$, paired with a derivative structure with
-that value missing.
-
-A related operation is that of \term{pointing}.  A pointed $F$-shape
-is an $F$-shape with a particular label distinguished.  Formally,
-\[ \pt{F}\ L = L \times F\ L. \]
-Introducing a pointed structure simply requires specifying which label
-should be pointed:
-\begin{align*}
-\cons{p} &: L \to F\ L \to \pt{F}\ L \\
-\cons{p} &: L \to \LStr F L A \to \LStr{\pt{F}} L A
-\end{align*}
-
-The relationship bewteen pointing and derivative is given by the
-equivalence \[ \pt F \iso \X \sprod F'. \] The right-to-left direction
-is straightforward to implement, requiring only some relabelling.  The
-left-to-right direction, on the other hand, requires modelling an
-analogue of ``subtraction'' on types: the given label type $L$ must be
-decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[ L \iso
-\left(\sum_{l':L} l' \neq l \right) + \left(\sum_{l':L} l' = l
-\right). \]
-
-\paragraph{Functor composition}
-
-It is worth mentioning the operation of \emph{functor composition},
-which set-theoretically is defined as the ``na\"ive'' composition
-
-\[ (F \fcomp G)\ L = F\ (G\ L). \]
-
-Just as with Cartesian product, functor composition allows encoding
-structures with sharing---for example, the species of simple,
-undirected graphs can be specified as \[ \mathcal{G} = (\E \sprod \E)
-\fcomp (\X^2 \sprod \E), \] describing a graph as a subset ($\E \sprod
-\E$) of all ($\fcomp$) ordered pairs chosen from the complete set of
-vertex labels ($\X^2 \sprod \E$).
-
-However, functor composition mixes up labels and shapes in the most
-peculiar way---and while this is perfectly workable in an untyped,
-set-theoretic setting, we do not yet know how to interpret it in a
-typed, constructive way.
 
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
