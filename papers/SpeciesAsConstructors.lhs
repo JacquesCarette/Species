@@ -1731,7 +1731,7 @@ Introducing a pointed structure simply requires specifying which label
 should be pointed:
 \begin{align*}
 \cons{p} &: L \to F\ L \to \pt{F}\ L \\
-\cons{p} &: L \to \LStr F L A \to \LStr{\pt{F}} L A
+\lab{\cons{p}} &: L \to \LStr F L A \to \LStr{\pt{F}} L A
 \end{align*}
 
 The relationship bewteen pointing and derivative is given by the
@@ -1768,29 +1768,31 @@ typed, constructive way.
 \section{Programming with Labelled Structures}
 \label{sec:programming}
 
-\paragraph{Functions over all structures}
-But quickly the question turns to: but what can we do with these?  And this is
-indeed where things do get interesting.  There are a number of functions
-that one is accustomed to see implemented for vectors, lists, sets and bags,
-finite maps, and like structures.  Interestingly, a lot of these can be
-generalized to all labelled structures.  Take for example \cons{partition}.
-By using partition $|Part|$ and sharing (via cartesian product), we can
-achieve this.
+\todo{bit more intro here?}
 
-First, we can use a predicate (on data) to divide the \emph{labels} into
-two disjoint sets (which is exactly the definition of a partition in
-mathematics):
-\begin{code}
-partition :: (S.Storage s, Set.Enumerable l, Eq l) =>
-          Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
-partition (Struct f stor) p = Struct (cprod_ f k) stor
-  where sel = S.smap p stor
-        k = part_ Set.enumS Set.enumS
-                  (iso (\l -> case l of {Left a -> a; Right a -> a})
-                       (\l -> if (S.index sel l) then Left l else Right l) )
-\end{code}
-The $|partition|$ function \emph{superimposes} a second structure on the old
-(without changing the data in any way).
+There are a number of standard functions on vectors, lists, sets and
+bags, finite maps, and similar structures, which we can generalize once
+and for all for all labelled structures.
+
+For example, we can implement a |partition| function using the species
+$\Part$ of partitions (\pref{sec:sets}) and Cartesian product
+(\pref{sec:cartesian-product}). The idea is to usea predicate on data
+to divide the labels into disjoint sets.  We then \emph{superimpose}
+(via Cartesian product) a second structure on the old, recording this
+new information about the labels, without changing the data in any way.
+\begin{align*}
+&|partition| : \LStr F L A \to (A \to 2) \to \LStr{F \scprod \Part} L
+A \\
+&|partition|\ (f, |elts|)\ p \defn ((f, |part|), |elts|)\\
+& \quad \mathbf{where} \\
+& \quad\quad |part| \defn \unit \sprod_e \unit \\
+& \quad\quad |e| : \left( \sum_{l : \under L} p\ (|elts ! l|) =
+  \cons{True} \right) + \left( \sum_{l : \under L} p\ (|elts ! l|) =
+  \cons{False}\right) \iso \under L
+\end{align*}
+In the end, the superimposed $\Part$ structure contains nothing but an
+equivalence showing how the original labels map into a disjoint union
+indicating the results of the predicate.
 
 Of course, if we want to actually take this information and ``extract'' the
 result (in the usual meaning of splitting the structure into two
