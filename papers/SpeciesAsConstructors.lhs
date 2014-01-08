@@ -2392,7 +2392,7 @@ We can also investigate other categories of labels:  for example,
 
 Another route of investigation are \emph{tensorial species}
 \citep[chap. 4]{Joyal86}, which are functors to $\cons{Vect}$ rather
-than \Set.  These seem to be directly related to our vector mappings
+than $\Set$.  These seem to be directly related to our vector mappings
 (section~\ref{sec:vecmap}).  
 
 Lastly, there are several powerful theorems (like the molecular
