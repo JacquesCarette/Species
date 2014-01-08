@@ -1695,6 +1695,35 @@ Using $\LStrE \R A$, we can write a constructor for $\R$ as follows:
 \todo{finish.  Make a picture?  Is the above even correct?  Is there
   anything interesting to say about what we get from composition?}
 
+\subsection{Sets, bags, and maps}
+\label{sec:sets}
+
+The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L = \{L\}. \]
+That is, there is a single $\E$-shape for every label type (since, up
+to relabelling, all $L$s of the same size are equivalent).
+Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
+labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
+Note that this is how we actually implement $\E$: we insist that $L$ be
+enumerable (which is actually a weaker requirement than having a
+$\Finite$ proof), and the shape stores this enumeration as an
+\emph{abstract} set.
+
+Note that if $\E$-shapes are sets, then labelled
+$\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
+are \emph{bags}: any particular data element may occur multiple times
+(each time associated with a different, unique label).
+
+$\E$-shapes also have a trivial introduction form, $\cons{e} : \E\ L$,
+along with a corresponding introduction form for $\E$-structures which
+simply requires the mapping from labels to values:
+\begin{align*}
+\lab{\cons{e}} &: (L \to A) \to \LStr \E L A \\
+\lab{\cons{e}} &= |allocate| ...
+\end{align*}
+\todo{finish}
+
+\todo{eliminator.  Explain why it is problematic?}
+
 \subsection{Cartesian product}
 \label{sec:cartesian-product}
 
@@ -1768,35 +1797,6 @@ superimposing an $\E$-shape has no effect, since the $\E$-shape
 imposes no additional structure.
 
 \todo{examples: partition, filter, etc.?}
-
-\subsection{Sets, bags, and maps}
-\label{sec:sets}
-
-The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L = \{L\}. \]
-That is, there is a single $\E$-shape for every label type (since, up
-to relabelling, all $L$s of the same size are equivalent).
-Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
-labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
-Note that this is how we actually implement $\E$: we insist that $L$ be
-enumerable (which is actually a weaker requirement than having a
-$\Finite$ proof), and the shape stores this enumeration as an
-\emph{abstract} set.
-
-Note that if $\E$-shapes are sets, then labelled
-$\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
-are \emph{bags}: any particular data element may occur multiple times
-(each time associated with a different, unique label).
-
-$\E$-shapes also have a trivial introduction form, $\cons{e} : \E\ L$,
-along with a corresponding introduction form for $\E$-structures which
-simply requires the mapping from labels to values:
-\begin{align*}
-\lab{\cons{e}} &: (L \to A) \to \LStr \E L A \\
-\lab{\cons{e}} &= |allocate| ...
-\end{align*}
-\todo{finish}
-
-\todo{eliminator.  Explain why it is problematic?}
 
 \subsection{Other operations}
 \label{sec:other-ops}
