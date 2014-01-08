@@ -186,6 +186,7 @@
 
 \newcommand{\List}{\mathsf{L}}
 \newcommand{\R}{\mathsf{R}}
+\newcommand{\Part}{\mathsf{Part}}
 
 \newcommand{\LUO}{$\Lambda$\kern -.1667em\lower .5ex\hbox{$\Upsilon$}\kern -.05em\raise .3ex\hbox{$\Omega$}}
 
@@ -1496,43 +1497,67 @@ Using $\LStrE \R A$, we can write a constructor for $\R$ as follows:
 \subsection{Sets, bags, and maps}
 \label{sec:sets}
 
-The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L \defn \{L\}. \]
-\jc{Is that really a type-theoretic definition?}
-That is, there is a single $\E$-shape for every label type (since, up
-to relabelling, all $L$s of the same size are equivalent).
+The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L \defn
+\TyOne. \] That is, there is a single $\E$-shape for every label type.
 Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
-labelled $\E$-shape can be thought of simply as a \emph{set} of labels.
-Note that this is how we actually implement $\E$: we insist that $L$ be
-enumerable (which is actually a weaker requirement than having a
-$\Finite$ proof), and the shape stores this enumeration as an
-\emph{abstract} set.
+labelled $\E$-shape can be thought of simply as a \emph{set} of
+labels.  This is the first example of a species with nontrivial
+\term{symmetry}, \ie which is invariant under some nontrivial
+permutations of the labels.  In fact, $\E$ is invariant under
+\emph{all} label permutations.  It is thus the ``quintessential''
+symmetric species.  Anecdotally, introducing $\E$ alone seems to go a
+very long way towards enabling the sorts of symmetric structures that
+actually arise in programming; we give some examples below. (Adding
+the species $\Cyc$ of \term{cycles} covers almost all the rest, but we
+do not consider cycles in this paper.)
 
-Note that if $\E$-shapes are sets, then labelled
-$\E$-\emph{structures} ($\E$-shapes plus mappings from labels to data)
-are \emph{bags}: any particular data element may occur multiple times
-(each time associated with a different, unique label).
+Note that if $\E$-shapes are sets, then labelled $\E$-structures
+($\E$-shapes plus mappings from labels to data) are \term{bags}, or
+\term{multisets}: any particular data element may occur multiple times
+(each time associated with a different, unique label), and the
+collection of data elements has no structure imposed on it.
 
-$\E$-shapes also have a trivial introduction form, $\cons{e} : \E\ L$,
+$\E$-shapes have a trivial introduction form, $\cons{e} : \E\ L$,
 along with a corresponding introduction form for $\E$-structures which
 simply requires the mapping from labels to values:
 \begin{align*}
-\lab{\cons{e}} &: (L \to A) \to \LStr \E L A \\
-\lab{\cons{e}} &= |allocate| ...
+&\lab{\cons{e}} : (\under L \to A) \to \LStr \E L A \\
+&\lab{\cons{e}} f = (\unit, |allocate|\ f)
 \end{align*}
-\todo{finish}
 
-\todo{eliminator.  Explain why it is problematic?}
+Eliminating $\E$-structures, on the other hand, is somewhat
+problematic.  At the end of the day, the data need to be stored in
+some particular order in memory, but we do not want to allow any such
+ordering to be observed.  We can require $\E$-structures to be
+eliminated using a commutative monoid, but if an eliminator has access
+to the finiteness proof for the label type, it can still observe a
+linear ordering on the labels and hence on the data elements as well.
+As a ``solution'', we could forbid eliminators from being able to
+observe labels, but this largely defeats the purpose of having
+explicitly labelled structures in the first place.  In the end, this
+is a problem needing more study, likely requiring a rethinking of the
+way we represent evidence of finiteness.
 
-\begin{itemize}
-\item \emph{Arbo}, i.e. rooted arbitrary arity trees where the sub-trees
-are \emph{unordered}.  Requires replacing L from Rose trees with an E.
-\item \emph{MultiSet} (\ie\ bag), \emph{HashMap} (qua finite map).  As far as
-labelled structures goes, these are the same ($|Sp E s l a|$)!  However,
-for MultiSet, the labels are \emph{implicit}, whereas they are \emph{explicit}
-for a finite map.
-\item \emph{Partition}.  While this is just $|E * E|$, this is at the root
+Leaving the problems with the mechanics of elimination aside for the
+moment, we highlight here a few particular examples of the use of
+$\E$:
+
+\paragraph{Rooted, unordered trees}
+If we replace the $\List$ in the definition of rose trees with $\E$,
+we obtain a species of rooted, arbitrary-arity trees where the
+children of each node are \emph{unordered}: $\T \iso \X \sprod (\E
+\scomp \T)$.
+
+\paragraph{Finite maps} Formally, there is no difference between bags
+(multisets) and finite maps: both may be represented by $\LStr \E L
+A$.  The difference is the role played by the labels.  With bags, the
+labels are implicit; indeed, we might wish to define $|Bag|\ A \defn
+\sum_{L : \FinType} \LStr \E L A$.  With finite maps, on the other
+hand, the labels play a more explicit role.
+
+\paragraph{Partition} We may define the species of \term{partitions},
+$\Par \defn \E \sprod \E$.  \todo{say more here}. this is at the root
 of many examples.
-\end{itemize}
 
 \subsection{Cartesian product}
 \label{sec:cartesian-product}
