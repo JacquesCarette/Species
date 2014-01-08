@@ -2367,25 +2367,74 @@ the study of attribute grammars~\citep{Mishna03b}.
 \section{Future work}
 \label{sec:future}
 
-It is worth noting that much of the power of the theory of
-species---at least in the context of combinatorics---can be traced to
-fruitful homomorphisms between algebraic descriptions of species and
-rings of formal power series. \todo{future work making connections to
-  computation?}
+We have only started our translation of the theory of species to
+constructive type theory.  But already many different threads of 
+work are clear to us.
 
-\todo{extend to $\cons{Countable}\ L = \Finite L + L \iso \N$?}
+\paragraph{Capture more of the extant theory.}  Several of the 
+species operations (such as pointing, functor composition and arithmetic
+product) seem quite powerful, but we have yet to leverage them properly.
+Similarly, we have made very little use of \term{symmetry} beyond the
+extreme cases (ADTs have none, and $\E$ has all symmetries).  For example,
+a \term{cycle} is like a list, except
+that it is invariant under cyclic rotation of its labels.  One area
+where cycles are especially useful is in computational geometry: we
+can represent an (oriented) polygon, for example, as a labelled cycle
+shape, with each label mapping to a point in space.
+%\todo{picture of a polygon represented with labelled cycle}
 
-% \item It opens the possibility of taking labels and relabellings from
-%   a category other than $\B$ (as is done, for example, with
-%   $\mathbb{L}$-species \citep{Joyal86}, \citep[chap. 5]{bll}).  We
-%   conjecture that this has also benefits in a computational setting,
-%   though exploring this idea in more detail is left to future work.
+We have also not yet pursued weighted species, multisorted species, nor
+virtual species, all of which look quite promising for applications.
+We can also investigate other categories of labels:  for example,
+  $\mathbb{L}$-species \citep{Joyal86}, \citep[chap. 5]{bll} use
+  linearly ordered labels; the link with Girard's normal functors
+  \citep{Girard1988} is also worth pursuing in more detail.
+  We firmly believe that alternate categories of labels will have
+  significant benefits in a computational setting.
 
-\todo{assumptions on categories needed for various operations.}
+Another route of investigation are \emph{tensorial species}
+\citep[chap. 4]{Joyal86}, which are functors to $\cons{Vect}$ rather
+than $\Set$.  These seem to be directly related to our vector mappings
+(section~\ref{sec:vecmap}).  
 
-\todo{functor composition}
+Lastly, there are several powerful theorems (like the molecular
+decomposition and the implicit species theorem) that we have yet to
+leverage.  In the case of (small) finitary species, the molecular 
+decomposition theorem could be used as a powerful means to specialize
+complex species code down to much simpler operations on a few well
+understood cases.
 
-\todo{Port to Agda, together with proofs of species properties?}
+\paragraph{Memory allocation}  One of the most intriguing aspects of
+this elaboration of labelled structures are the close links with
+memory allocation and layout.  This could lead to a uniform mechanism
+for \emph{unboxing} of algebraic data types, at least when their size
+is statically known (or even statically known to be bounded and small).
+We feel like we have just scratched the surface of this link.  Combined
+with an appropriate theory of structured labels (to handle 
+multi-dimensional arrays in a principled manner), we hope to be able
+to give a more uniform explanation for various memory layout strategies
+commonly used in high-performance linear algebra computations.
+
+Along with this, there is a particular labelled structure, \emph{subset},
+which is particularly interesting.  Combinatorially, it is equivalent to
+a partition, \ie\ $\E \sprod \E$.  However, semantically a subset 
+corresponds to only the \emph{left} component of that product, and the right 
+component should be ignored.  In other words, we can use subset to indicate
+that only a subset of labels need be stored.
+
+\paragraph{Categorical requirements}
+
+As is clear from the species literature, there are quite a number of 
+useful variations in the exact categories used for species.  We have 
+not been able to find a systematic treatment giving minimal assumptions
+required for the validity of the various constructions (sum, product, cartesian
+product, etc).  We plan to pursue this quite formally, by first porting
+our implementation to Agda, as a means to prove the various properties.
+
+In particular, outside of combinatorial uses, it is unclear exactly 
+where \emph{finiteness} is crucial.
+
+\paragraph{HoTT and reversible programming}
 
 \jc{Regarding labels on ADTs (like lists):
 this `late' collapse joins up nicely with HTT
@@ -2396,24 +2445,11 @@ isomorphisms [think identity types].  The `best' picture may then
 emerge much later from a \emph{composition} of isomorphisms, rather than
 directly from the first isomorphism encountered.}
 
-\paragraph{Symmetric shapes}
-
-We have not yet defined precisely what counts as a ``shape'', but one
-interesting possibility is the use of shapes with some sort of
-\term{symmetry}.  For example, a \term{cycle} is like a list, except
-that it is invariant under cyclic rotation of its labels.  One area
-where cycles are especially useful is in computational geometry: we
-can represent an (oriented) polygon, for example, as a labelled cycle
-shape, with each label mapping to a point in space.
-
-\todo{picture of a polygon represented with labelled cycle}
-
-\bay{should we include cycles at all?  Our system can't handle them
-  although they fit from a theoretical point of view\dots}
-
-An \emph{unordered pair} is another sort of shape with symmetry: it is
-like an ordered pair but invariant under swapping.  Unordered pairs
-can be used to represent undirected graph edges, \todo{other stuff?}
+It is worth noting that much of the power of the theory of
+species---at least in the context of combinatorics---can be traced to
+fruitful homomorphisms between algebraic descriptions of species and
+rings of formal power series. \todo{future work making connections to
+  computation?}
 
 \section{Conclusion}
 \label{sec:conclusion}
