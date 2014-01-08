@@ -1497,6 +1497,7 @@ Using $\LStrE \R A$, we can write a constructor for $\R$ as follows:
 \label{sec:sets}
 
 The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L \defn \{L\}. \]
+\jc{Is that really a type-theoretic definition?}
 That is, there is a single $\E$-shape for every label type (since, up
 to relabelling, all $L$s of the same size are equivalent).
 Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
@@ -1722,6 +1723,7 @@ decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[ L \iso
 
 \paragraph{Functor composition}
 
+\jc{Functor or Functorial?}
 It is worth mentioning the operation of \emph{functor composition},
 which set-theoretically is defined as the ``na\"ive'' composition
 
@@ -1955,9 +1957,11 @@ would be a much more (labelled-structure) idiomatic version of \cons{take}.
 \label{sec:vecmap}
 
 \todo{where should this go?  Right before some example that needs it?}
+\jc{I am thinking it might even become its own section.}
 
 A more interesting implementation uses finite vectors to store the $A$
-values.  This gives a very detailed view of the memory layout, allocation
+values.  We use this as a model for a consecutive block of memory.
+This gives a very detailed view of the memory layout, allocation
 and manipulation required for storing the data associated with labelled
 structures.  As we will see, for mappings based on (length-indexed)
 vectors, \emph{finiteness} is crucial, and the finiteness proofs are
@@ -2236,8 +2240,10 @@ also aims to find a more general theory of data structures which
 captures a large set of ``containers''.  The resulting theory is quite
 elegant.  It involves \emph{shapes} and a family of \emph{position}
 types indexed by shapes.  More formally, it is a dependent pair of
-type $A \vdash B$ \bay{What does this notation mean?  I have never
-  seen it before.}  (which they write $A\lhd B$) which yields a
+types $A \vdash B$ \bay{What does this notation mean?  I have never
+  seen it before.}  \jc{It is all over the containers papers.  But maybe
+best to rewrite is in more conventional notation indeed.} (which they 
+write $A\lhd B$) which yields a
 functor $T_{A\lhd B} X$ defined as $\Sigma a:A. X^{B\left(a\right)}$.
 Roughly, their positions correspond to our labels, their shapes
 correspond to our labelled shapes, and the associated functor maps
@@ -2250,17 +2256,20 @@ comparison of the approaches.  We can nevertheless make a few simple
 observations.  One significant difference is that in the containers
 work, each shape is associated with a fixed, inherent set of
 positions, whereas in our approach a shape can be used with any type
-of labels. \bay{I added the foregoing sentence, does it seem
-  accurate/appropriate to you?} As a result, with containers, it does
+of labels.  Furthermore, for them shape is an input, while for us it
+is part of what is generated.  As a result, with containers, it does
 not seem that the positions can easily be given extra structure (the
 work on quotient containers~\citep{abbott_quotient} is quite
 involved).  There are fewer combinators for containers than for
 labelled structures: for example, neither the cartesian product nor
 functorial composition seem to be present.  Thus there is as of yet no
-theory of sharing for containers.  Having said all of that, however,
-containers are not restricted to finite sets of labels, makes them
-more general than labelled structures: there are useful types (such as
-streams) which are containers but not labelled structures.
+theory of sharing for containers, nor is there a fine grained theory of
+storage.  Having said all of that, however, containers are not restricted to
+finite sets of labels, makes them more general than labelled structures: there
+are useful types (such as streams) which are containers but not labelled
+structures.  And therein seems to be the main difference: the extra
+generality allows containers to encapsulate fancier types, while our
+concreteness lets us uniformly and easily model low-level concerns.
 
 Shapely types \citep{jay-shapely} are closely related to containers---
 see~\citet[section 8]{abbott_categories_2003} for a careful
@@ -2272,7 +2281,10 @@ rise to a finite number of positions (\ie labels).  Shapely types do
 not explicitly make use of labels at all, but since they involve
 \emph{lists} of data values, one may say that they implicitly make
 use of labels from $\Fin n$.  There is thus a close relationship to
-our constructive finiteness proofs for label types.
+our constructive finiteness proofs for label types.  Furthermore,
+there are claims \citep{jay-shapely} that this also corresponds to
+information about memory allocation and layout, however this is not
+detailed anywhere in the literature.
 
 Another approach is that of \textit{Container Types Categorically}
 \citep{ContainerTypesCat}.  They define containers as monotone
@@ -2318,7 +2330,7 @@ relevance to programming.  We have also not yet really touched the
 \emph{calculus} aspects of the theory; while the derivative is by now
 well-known, integration~\citep{Rajan93} has not really been explored.
 There are also new variants on
-species~\citep{Schmitt93hopfalgebras,Menni2008,aguiar2010monoidal}
+species~\citep{Schmitt93hopfalgebras,Menni2008,Maia2008arithmetic,aguiar2010monoidal}
 with nontrivial applications to combinatorics, and possible
 applications to programming as well. Species have even been applied to
 the study of attribute grammars~\citep{Mishna03b}.
