@@ -1283,12 +1283,12 @@ encoding is to use an arbitrary type of $F$-labels, and then store a
 mapping from these labels to the label types used for the $G$-shapes.
 Additionally, we store an equivalence witnessing the fact that the
 $G$-labels constitute a partition of the overall label type.
-Formally, \[ (F \scomp G)\ L \defn \sum{L_F : \Type} F\ L_F \times
+Formally, \[ (F \scomp G)\ L \defn \sum_{L_F : \Type} F\ L_F \times
 (Ls_G : \StoreNP {L_F} \FinType) \times (\under L \iso |sum|\ (|map|\
-\under{-}\ Ls_G)) \times
-|map|\ G\ Ls_G. \]  We assume a function $|sum| : \Store J
-\Type \to \Type$ which computes the sum of all the types in the range
-of a mapping.
+\under{-}\ Ls_G)) \times |prod|\ (|map|\ G\ Ls_G). \] We assume
+functions $|sum|, |prod| : \Store J \Type \to \Type$ which compute the
+sum and product, respectively, of all the types in the range of a
+mapping.
 
 \begin{figure}
   \centering
