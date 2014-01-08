@@ -2382,7 +2382,21 @@ We can also investigate other categories of labels:  for example,
   We firmly believe that alternate categories of labels will have
   significant benefits in a computational setting.
 
-\paragraph{Memory allocation}
+Another route of investigation are \emph{tensorial species}
+\citep[chap. 4]{Joyal86}, which are functors to $\cons{Vect}$ rather
+than \Set.  These seem to be directly related to our vector mappings
+(section~\ref{sec:vecmap}).  
+
+\paragraph{Memory allocation}  One of the most intriguing aspects of
+this elaboration of labelled structures are the close links with
+memory allocation and layout.  This could lead to a uniform mechanism
+for \emph{unboxing} of algebraic data types, at least when their size
+is statically known (or even statically known to be bounded and small).
+We feel like we have just scratched the surface of this link.  Combined
+with an appropriate theory of structured labels (to handle 
+multi-dimensional arrays in a principled manner), we hope to be able
+to give a more uniform explanation for various memory layout strategies
+commonly used in high-performance linear algebra computations.
 
 \paragraph{Categorical requirements}
 
