@@ -1756,12 +1756,9 @@ imposes no additional structure.
 
 \todo{examples: partition, filter, etc.?}
 
-\subsection{Other operations}
-\label{sec:other-ops}
+\subsection{Sets, bags, and maps}
+\label{sec:sets}
 
-\todo{Some introduction here}
-
-\paragraph{Sets}
 The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L = \{L\}. \]
 That is, there is a single $\E$-shape for every label type (since, up
 to relabeling, all $L$s of the same size are equivalent).
@@ -1787,6 +1784,11 @@ simply requires the mapping from labels to values:
 \todo{finish}
 
 \todo{eliminator.  Explain why it is problematic?}
+
+\subsection{Other operations}
+\label{sec:other-ops}
+
+\todo{Some introduction here}
 
 \paragraph{Cardinality restriction}
 
