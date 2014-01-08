@@ -1441,7 +1441,6 @@ the coproduct of the two label types:
   \LStr {F \sprod G} L A
 \end{align*}
 The isomorphism arguments are written as subscripts to $\sprod$ and $\lab{\sprod}$.
-% \todo{show how to implement $\lab{\sprod}$}
 
 As an example, we may now encode the standard algebraic data type of
 lists, represented by the inductively-defined species satisfying
@@ -1466,9 +1465,9 @@ something like \[ \cons{cons} : A \to \LStr \List L A \to \LStr \List
 coproduct of two elements of $\FinType$, as it is underspecified.  For
 implementations of $\StoreNP - -$ which make use of the equivalence to
 $\Fin n$ stored in $\FinType$ values (we give an example of one such
-implementation in \todo{where?}), the extra equivalence given as an
-argument to \cons{cons} allows us to influence the particular way in
-which the list elements are stored in memory.  \todo{why is this
+implementation in \pref{sec:vecmap}), the extra equivalence given as
+an argument to \cons{cons} allows us to influence the particular way
+in which the list elements are stored in memory.  \todo{why is this
   interesting? Give an example?} For lists, this is not very
 interesting, and we would typically use a variant $\cons{cons'} : A
 \to \LStr \List L A \to \LStr \List {\cons{inc}(L)} A$ making use of a
