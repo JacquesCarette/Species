@@ -1209,7 +1209,9 @@ the coproduct of the two label types:
   - \lab{\sprod}_- - &: (\under{L_1} + \under{L_2} \iso \under{L}) \to \LStr F {L_1} A \to \LStr G {L_2} A \to
   \LStr {F \sprod G} L A
 \end{align*}
-The isomorphism arguments are written as subscripts to $\sprod$ and $\lab{\sprod}$.
+We use here (and for the rest of the paper) the notational convention that
+the isomorphism arguments are given first, but are written as subscripts
+in mathematical notation. 
 
 As an example, we may now encode the standard algebraic data type of
 lists, represented by the inductively-defined species satisfying
@@ -1354,20 +1356,6 @@ We also have $\compA$ (``ap''), with type
   - \compA_- - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} {A \to B} \to \LStr G {L_2} A \to \LStr {F
     \scomp G} L B.
 \end{equation*}
-\jc{You give ap 2 arguments, but it has 3, which is quite
-  confusing}\bay{It is a bit confusing.  ``Morally'', ap and friends
-  are ``binary'' operators, but they also require an extra
-  isomorphism.  I added a note after the definition of $\compP$ to the
-  effect that the isomorphism argument is notated as a subscript.
-  (Note that there is a similar note for $\sprod$.)  Do you think
-  that's sufficient?  Or do we need to come up with different notation?}
-\jc{sufficient, but now the order of arguments is
-  confusing...}\bay{Indeed. Do you have any ideas how to make it less
-  confusing?  We could switch the order of arguments to take the
-  equivalence in between the other two arguments, but that seems ugly
-  to me, and makes the type signature harder to read (which is why I
-  didn't do it that way in the first place).  The other alternative, I
-  suppose, is to pick a different notation.}
 $\compA$ is equivalent in power to $\compP$: in particular, |x compP y =
 (map (,) x) compA y|, where $(,) : A \to B \to A \times B$ denotes the
 constructor for pair types, and |x compA y = map eval (x compP y)|,
@@ -1397,7 +1385,6 @@ $G$-structures of different shapes and sizes inside an $F$-structure,
 which is made possible by $\compB$ (``bind''), the last and most
 general introduction form for composition, which can be seen as a
 generalization of a monadic bind operation |(>>=)|.
-\jc{same issues as with ap, still}
 \begin{equation*}
   - \compB_- - : \left(\sum_{l : \under{L_1}} \under{L_2\ l} \right) \iso \under
     L \to \LStr F {L_1} A \to \left(\prod_{l : L_1} A \to \LStr G
