@@ -187,6 +187,8 @@
 \newcommand{\List}{\mathsf{L}}
 \newcommand{\R}{\mathsf{R}}
 
+\newcommand{\LUO}{$\Lambda$\kern -.1667em\lower .5ex\hbox{$\Upsilon$}\kern -.05em\raise .3ex\hbox{$\Omega$}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
 
@@ -1015,7 +1017,7 @@ composition and recursion.  The use of composition is where things are
 most interesting, as this is more `direct' than in usual Haskell.
 \item \emph{Arbo}, i.e. rooted arbitrary arity trees where the sub-trees
 are \emph{unordered}.  Requires replacing L from Rose trees with an E.
-\item \emph{MultiSet} (\ie\ bag), \emph{HashMap} (qua finite map).  As far as 
+\item \emph{MultiSet} (\ie\ bag), \emph{HashMap} (qua finite map).  As far as
 labelled structures goes, these are the same ($|Sp E s l a|$)!  However,
 for MultiSet, the labels are \emph{implicit}, whereas they are \emph{explicit}
 for a finite map.
@@ -1029,43 +1031,43 @@ But quickly the question turns to: but what can we do with these?  And this is
 indeed where things do get interesting.  There are a number of functions
 that one is accustomed to see implemented for vectors, lists, sets and bags,
 finite maps, and like structures.  Interestingly, a lot of these can be
-generalized to all labelled structures.  Take for example \cons{partition}.  
-By using partition $|Part|$ and sharing (via cartesian product), we can 
+generalized to all labelled structures.  Take for example \cons{partition}.
+By using partition $|Part|$ and sharing (via cartesian product), we can
 achieve this.
 
 First, we can use a predicate (on data) to divide the \emph{labels} into
 two disjoint sets (which is exactly the definition of a partition in
 mathematics):
 \begin{code}
-partition :: (S.Storage s, Set.Enumerable l, Eq l) => 
+partition :: (S.Storage s, Set.Enumerable l, Eq l) =>
           Sp f s l a -> (a -> Bool) -> Sp (f # Part) s l a
 partition (Struct f stor) p = Struct (cprod_ f k) stor
   where sel = S.smap p stor
         k = part_ Set.enumS Set.enumS
-                  (iso (\l -> case l of {Left a -> a; Right a -> a}) 
+                  (iso (\l -> case l of {Left a -> a; Right a -> a})
                        (\l -> if (S.index sel l) then Left l else Right l) )
 \end{code}
 The $|partition|$ function \emph{superimposes} a second structure on the old
-(without changing the data in any way). 
+(without changing the data in any way).
 
 Of course, if we want to actually take this information and ``extract'' the
-result (in the usual meaning of splitting the structure into two 
+result (in the usual meaning of splitting the structure into two
 distinct pieces), we need to provide a means to do this.
 
-We can extract \emph{both} parts into lists, by pulling apart the 
+We can extract \emph{both} parts into lists, by pulling apart the
 Cartesian Product, then using a (generalized) eliminator over the $\List$
 structure (to get the ordering) but using the information from the
 ``partition'' to make our choices of where to put each element.  Note how the
 elements themselves take no part in this choice, but the isomorphism which
 is part of the product plays a key role.
 \begin{code}
-extractBoth :: (S.LabelledStorage s, Set.Enumerable l, Eq l) => 
+extractBoth :: (S.LabelledStorage s, Set.Enumerable l, Eq l) =>
     Sp (L.L # Part) s l a -> ([a], [a])
-extractBoth sp = 
+extractBoth sp =
   let (lsp, part) = decompL sp
   in gelim (L.gelimList ([],[])
-      (\(l,a) (ll,rl) -> 
-        case part of 
+      (\(l,a) (ll,rl) ->
+        case part of
           Prod _ _ eiso ->
             case view (from eiso) l of
               Left _  -> (a:ll,rl)
@@ -1088,17 +1090,17 @@ with length-indexed vectors), we reimplement the Prelude's $|partition|$:
 \begin{code}
 partition' :: (a -> Bool) -> [a] -> ([a],[a])
 partition' p lst = case Vec.fromList lst of
-  Vec.SomeVec v -> 
+  Vec.SomeVec v ->
       N.natty (Vec.size v) $ extractBothLFA $ partitionLFA (fromVec v) p
 \end{code}
 
-Using very similar techniques (\cons{partition} stays the same, only 
+Using very similar techniques (\cons{partition} stays the same, only
 \cons{extract} needs to change), we can easily implement \cons{filter},
 \cons{elem} and \cons{find}.  With a bit more work, \cons{findIndex} and
 \cons{elemIndex} as well\footnote{We use the names from \cons{Data.Vector}}.
 We can implement more complex routines too, such as \cons{findIndices}:
 \begin{code}
-findIndices :: (S.Storage s, Set.Enumerable l, Eq l) => 
+findIndices :: (S.Storage s, Set.Enumerable l, Eq l) =>
           Sp f s l a -> (a -> Bool) -> E l
 findIndices sp p = elim k (Struct gl es)
   where sp' = partition sp p
@@ -1128,7 +1130,7 @@ directly.
 
 The definition of the $|product|$ of two labelled structures may not make this
 entirely transparent, but it allows us to implement \emph{concatenation}.
-Just as \cons{partition} is the heart of many of the routines described 
+Just as \cons{partition} is the heart of many of the routines described
 above, \cons{product} corresponds to concatenation of lists, concatenation
 of vectors, union of finite maps, union of bags, and so on. \jc{code
 omitted, see \cons{lcat} in VecLike}.
@@ -1144,7 +1146,7 @@ instance F.Foldable (Sp' (f # L) s) where
 \end{code}
 \noindent This strongly indicates that \cons{Foldable} is really about
 \emph{order}: it does not matter what $f$-structure we have, as long as we
-have a superimposed linear order on the labels \emph{without the labels 
+have a superimposed linear order on the labels \emph{without the labels
 themselves being ordered}, we have enough information for ``folding''.
 
 Following this idea, we can use this to implement many useful functions
@@ -1164,13 +1166,13 @@ instance (Set.Enumerable l, Eq l, S.Storage s) => F.Foldable (Sp f s l) where
 \end{code}
 \noindent we are not.  It basically says that all labelled structures are
 \cons{Foldable}, which we do not want.  The error in the above is that
-\cons{MS.fold} \emph{says} that it works for an arbitrary order of the 
+\cons{MS.fold} \emph{says} that it works for an arbitrary order of the
 underlying elements, but this is not checked.  Worse, by using a
 non-associative function $|f|$, we can actually \emph{observe} the order that
-was used, something we should most definitely not be able to do.  To be 
-correct, the above should \emph{restrict} $|g|$ to be an 
+was used, something we should most definitely not be able to do.  To be
+correct, the above should \emph{restrict} $|g|$ to be an
 \emph{associative, commutative} function, but alas, this cannot be done
-in Haskell.  The ``fault'', such as it is, really lies in the 
+in Haskell.  The ``fault'', such as it is, really lies in the
 $|Data.MultiSet|$ package exposing a much too general notion of \cons{fold}.
 
 \paragraph{Lens}
@@ -1178,7 +1180,7 @@ The labels allow even more: we can create a \emph{lens} for any labelled
 structure which focuses on an arbitrary label:
 \begin{code}
 lensSp :: (S.Storage s, S.LabelConstraint s l) => l -> Lens' (Sp f s l a) a
-lensSp lbl = 
+lensSp lbl =
     lens (\(Struct _ e) -> S.index e lbl)
          (\(Struct sh e) a -> Struct sh (snd $ S.replace lbl a e))
 \end{code}
@@ -1193,8 +1195,8 @@ that as its focus, derive a lens for it.
 of labels such that they are canonically ordered, other functions can also
 be implemented generically, such as \cons{take}.
 \begin{code}
-take :: forall f a q n s. 
-  Sp f s (F.Fin q) a -> N.SNat q -> N.SNat n -> (n <= q) 
+take :: forall f a q n s.
+  Sp f s (F.Fin q) a -> N.SNat q -> N.SNat n -> (n <= q)
      -> Sp (f # Part) s (F.Fin q) a
 take (Struct f i) qq n pf =
   case minus qq n pf of
@@ -1246,7 +1248,7 @@ import SpeciesDiagrams
 dia = nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
     # drawSpT # centerXY # pad 1.1
   \end{diagram}
-  \caption{Schematic of a typical $(F\ L)$-structure} 
+  \caption{Schematic of a typical $(F\ L)$-structure}
   \label{fig:species-schematic}
 \end{figure}
 
@@ -2197,89 +2199,101 @@ that looks very much like generalized tries
 %   eliminating $F\ L$, which for some species $F$ may be nontrivial
 %   (\eg anything with symmetry).  Future work.}
 
-
-
 \section{Related work}
 \label{sec:related}
 
-The work on \emph{containers} 
-\citep{abbott_quotient,abbott_deriv,abbott_categories_2003,alti:cont-tcs,alti:lics09} also aims to find a more general theory of data-structures which captures
-a large set of ``containers''.  The resulting theory is quite elegant.
-It involves \emph{shapes} and a family of \emph{position} types indexed by
-shapes.  More formally, it is a dependent pair of type $A \vdash B$ (which
-they write $A\lhd B$)
-which yields a functor $T_{A\lhd B} X$ defined to be
-$\Sigma a:A. X^{B\left(a\right)}$.  Roughly, their positions correspond
-to our labels, their shapes correspond to our labelled structures, and
-the associated functor maps positions to data values, much as our mappings
-associate data values to labels.  They have developped the theory quite far
-but, as of yet, there is no implementation of ``containers'', nor is there
-a fully developped dictionary linking concrete structures to the 
-corresponding abstract container.  It is thus quite difficult to do a 
-deeper comparison of the approaches.  We can nevertheless make a few simple
-observations.  It does not seem like the positions have ``structure'', or can
-easily be structured (the work on quotient containers~\citep{abbott_quotient}
-is quite involved).  There are fewer combinators for containers than for
-labelled structures: neither the cartesian product nor functorial composition
-seem to be present.  Thus there is as of yet no theory of sharing for
-containers.  But, having said all of that, containers are not restricted
-to finite sets of labels, which confers them extra generality beyond
-labelled structures.  To be clear: there are useful types (such as streams)
-which are containers and are not labelled structures.
+The work on \emph{containers}
+\citep{abbott_quotient,abbott_deriv,abbott_categories_2003,alti:cont-tcs,alti:lics09}
+also aims to find a more general theory of data structures which
+captures a large set of ``containers''.  The resulting theory is quite
+elegant.  It involves \emph{shapes} and a family of \emph{position}
+types indexed by shapes.  More formally, it is a dependent pair of
+type $A \vdash B$ \bay{What does this notation mean?  I have never
+  seen it before.}  (which they write $A\lhd B$) which yields a
+functor $T_{A\lhd B} X$ defined as $\Sigma a:A. X^{B\left(a\right)}$.
+Roughly, their positions correspond to our labels, their shapes
+correspond to our labelled shapes, and the associated functor maps
+positions to data values, much as our mappings associate data values
+to labels.  They have developed the theory quite far; as of yet,
+however, there is no implementation of containers, nor is there a
+fully developed dictionary linking concrete structures to the
+corresponding abstract container.  It is thus difficult to do a deeper
+comparison of the approaches.  We can nevertheless make a few simple
+observations.  One significant difference is that in the containers
+work, each shape is associated with a fixed, inherent set of
+positions, whereas in our approach a shape can be used with any type
+of labels. \bay{I added the foregoing sentence, does it seem
+  accurate/appropriate to you?} As a result, with containers, it does
+not seem that the positions can easily be given extra structure (the
+work on quotient containers~\citep{abbott_quotient} is quite
+involved).  There are fewer combinators for containers than for
+labelled structures: for example, neither the cartesian product nor
+functorial composition seem to be present.  Thus there is as of yet no
+theory of sharing for containers.  Having said all of that, however,
+containers are not restricted to finite sets of labels, makes them
+more general than labelled structures: there are useful types (such as
+streams) which are containers but not labelled structures.
 
-Shapely types \citep{jay-shapely} are closely related to containers --
-see~\citep[section 8]{abbott_categories_2003} for a careful explanation
-of the details.  Their result show that shapely types are those containers
-which are closest to labelled structures as in many settings of importance,
-shapely types are \emph{discretely finite} containers, which basically 
-amounts to saying that all shapes give rise to a finite number of positions
-(aka labels).
+Shapely types \citep{jay-shapely} are closely related to containers---
+see~\citet[section 8]{abbott_categories_2003} for a careful
+explanation of the details.  Their results show that shapely types are
+those containers which are closest to labelled structures: in many
+settings of importance, shapely types are \emph{discretely finite}
+containers, which essentially amounts to saying that all shapes give
+rise to a finite number of positions (\ie labels).  Shapely types do
+not explicitly make use of labels at all, but since they involve
+\emph{lists} of data values, one may say that they implicitly make
+use of labels from $\Fin n$.  There is thus a close relationship to
+our constructive finiteness proofs for label types.
 
 Another approach is that of \textit{Container Types Categorically}
 \citep{ContainerTypesCat}.  They define containers as monotone
-endofunctors $F$ on \cons{Rel} (aka a \emph{relator}) which has a
+endofunctors $F$ on \cons{Rel} (\ie \emph{relators}) which have a
 \emph{membership relation}; this latter concept turns out to be a special
-kind of lax natural transformation from $F$ to the identity functor.  
+kind of lax natural transformation from $F$ to the identity functor.
 This approach is again rather difficult to adequately compare to ours.
 There is again overlap, but no inclusion in either direction.
 
 From the categorical perspective, \emph{stuff types}
-\citep{BaezDolan01,Morton2006}, brilliantly explained in
-Byrne's Master's Thesis \citep{Byrne2005}, are directly related to species.
-These are functors from some arbitrary groupoid $X$ to the groupoid of
-finite sets and bijections.  Faithful stuff types are equivalent to 
-species.  But these work much like containers: stuff types map a structure to 
-its underlying set (which can be though of as positions), instead of 
-mapping labels to structures.  In a different direction,
-\emph{polynomial functors} also generalize species~\citep{kock2012data},
-and seem a categorically very solid foundation for an even more general
-approach to data type constructors.  Unfortunately, no one has yet to 
-unravel these definitions into something suitable for implementation.
-Similarly, \emph{generalised species of structures}~\citep{Fiore08} may
-also be another interesting direction.  But in all these cases, there 
-remains much work to be done to bridge between theory and practice.
+\citep{BaezDolan01,Morton2006}, brilliantly explained in Byrne's
+master's thesis \citeyearpar{Byrne2005}, are directly related to
+species.  Stuff types are functors from some arbitrary groupoid $X$ to
+the groupoid of finite sets and bijections.  Faithful stuff types are
+equivalent to species.  But these work much like containers: stuff
+types map a structure to its underlying set (which can be thought of as
+positions), instead of mapping labels to structures.  In a different
+direction, \emph{polynomial functors} also generalize
+species~\citep{kock2012data}, and seem a categorically solid
+foundation for an even more general approach to data type
+constructors.  Unfortunately, no one has yet to unravel these
+definitions into something suitable for implementation.  Similarly,
+\emph{generalised species of structures}~\citep{Fiore08} may also be
+another interesting direction.  But in all these cases, there remains
+much work to be done to bridge theory and practice.
 
-Species have been the source of many implementations.  For enumerative
-combinatorics, Darwin~\citep{Berg85}, LUO~\citep{FlajoletSalvyZimmermann1989a},
-combstruct~\citep{FlSa95}, Aldor-Combinat~\citep{Aldor-Combinat} and
-MuPAD-Combinat~\citep{Mupad-Combinat} are the best known.  Most do not
-model the full spectrum of species combinators, but they make up for that
-by generally implementing very sophisticated algorithms for enumeration
-and generation, both exhaustive and random.  The Haskell species package
-\citep{species}, described in \citep{yorgey-2010-species}, is a fairly
-direct implementation of the theory of species of structures, without
-attempting to use this theory as a foundations for data-structures.
+Species have been the basis for many implementations in the area of
+enumerative combinatorics, such as Darwin~\citep{Berg85},
+\LUO~\citep{FlajoletSalvyZimmermann1989a}, combstruct~\citep{FlSa95},
+Aldor-Combinat~\citep{Aldor-Combinat} and
+MuPAD-Combinat~\citep{Mupad-Combinat}.  Most do not model the full
+spectrum of species combinators, but make up for it by implementing
+very sophisticated algorithms for enumeration and generation, both
+exhaustive and random.  The Haskell species package
+\citep{yorgey-2010-species, species} is a fairly direct implementation
+of the theory of species, without attempting to use this theory as a
+foundation for data structures.
 
-Lastly, we should not that we have used but a small fraction of the 
-theory of species.  The book~\citep{bll} alone still contains a vast
-trove of further examples (sometimes buried deep in the exercises!) of
-relevance to programming.  And we have not yet really touched the
-\emph{calculus} aspects; while the derivative is by now well-known,
-integration~\citep{Rajan93} as not really been explored.  Also, 
-further to the existing variants on species, new ones have since 
-appeared~\citep{Menni2008,aguiar2010monoidal,Schmitt93hopfalgebras} with
-nontrivial applications to combinatorics.  Species have even been applied
-to the study of attribute grammars~\citep{Mishna03b}.
+Lastly, we should note that we have used but a small fraction of the
+theory of species.  \citet{bll} alone still contains a vast trove of
+further examples (sometimes buried deep in the exercises!) of
+relevance to programming.  We have also not yet really touched the
+\emph{calculus} aspects of the theory; while the derivative is by now
+well-known, integration~\citep{Rajan93} has not really been explored.
+There are also new variants on
+species~\citep{Menni2008,aguiar2010monoidal,Schmitt93hopfalgebras}
+with nontrivial applications to combinatorics, and possible
+applications to programming as well. Species have even been applied to
+the study of attribute grammars~\citep{Mishna03b}.
 
 \section{Future work}
 \label{sec:future}
