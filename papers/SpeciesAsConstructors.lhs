@@ -169,6 +169,7 @@
 \newcommand{\fcomp}{\boxbox}
 
 \newcommand{\LStr}[3]{\langle #1 \rangle_{#2}(#3)}
+\newcommand{\LStrE}[2]{\LStr{#1}{\bullet}{#2}}
 
 \newcommand{\compP}{\lab{\otimes}}
 \newcommand{\compA}{\lab{\oast}}
@@ -183,7 +184,8 @@
 \newcommand{\StoreNP}[2]{\ensuremath{#1 \StoreSym #2}}
 \newcommand{\Store}[2]{(\StoreNP{#1}{#2})}
 
-\newcommand{\List}{\mathsf{List}}
+\newcommand{\List}{\mathsf{L}}
+\newcommand{\R}{\mathsf{R}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -1662,7 +1664,23 @@ dia = theDia # centerXY # pad 1.1
   \label{fig:compB}
 \end{figure}
 
-\todo{example: rose trees?}
+As an example using composition, we can directly encode the type of
+ordered, rooted $n$-ary trees, sometimes known as \term{rose trees},
+as $\R \iso \X \sprod (\List \scomp \R)$.  This corresponds to the
+Haskell type |Rose| defined as |data Rose a = Node a [Rose a]|, but
+the explicit use of composition allows \todo{what??}
+
+The most general type for the \cons{node} constructor is complex,
+since it must deal with a list of subtrees all having different label
+types.  As a compromise, we can make use of a variant type
+representing labelled structures with an existentially quantified
+label type:
+\[ \LStrE F A \defn \sum_{L : \FinType} \LStr F L A \]
+Using $\LStrE \R A$, we can write a constructor for $\R$ as follows:
+\[ \cons{nodeE} : A \to [\LStrE \R A] \to \LStrE \R A \]
+
+\todo{finish.  Make a picture?  Is the above even correct?  Is there
+  anything interesting to say about what we get from composition?}
 
 \subsection{Cartesian product}
 \label{sec:cartesian-product}
