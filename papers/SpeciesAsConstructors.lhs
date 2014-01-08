@@ -482,18 +482,11 @@ data structure, which differ only in the way they are labelled.
 
 Since the definition of a labelled structure already includes the
 notion of a mapping from labels to data, we may encode finite maps
-simply by using \emph{sets} of labels as shapes, \ie\ shapes with no
-structure other than containing some labels. If we ignore the labels,
-the same implementation gives us \emph{bags}, also known as multisets.
-\bay{This used to say something like ``if we say that all sets of
-  labels are equivalent, i.e. our structure is invariant under the
-  full symmetric group, then ... bags...'' but that doesn't make sense
-  to me: finite maps are \emph{also} invariant under the symmetric
-  group.  Whether we ``pay attention'' to the labels has nothing to do
-  with symmetry groups.}
-%Furthermore, we can
-%directly model multiple finite map implementations (\todo{see section
-%  ???}).
+simply by using \emph{sets} of labels as shapes (\pref{sec:sets}),
+\ie\ shapes with no structure other than containing some labels. If we
+ignore the labels, the same implementation gives us \emph{bags}, also
+known as multisets. Furthermore, we can directly model multiple finite
+map implementations.
 
 \paragraph{Vectors and arrays}
 
@@ -1534,8 +1527,10 @@ $\E$:
 \paragraph{Rooted, unordered trees}
 If we replace the $\List$ in the definition of rose trees with $\E$,
 we obtain a species of rooted, arbitrary-arity trees where the
-children of each node are \emph{unordered}: $\T \iso \X \sprod (\E
-\scomp \T)$.
+children of each node are \emph{unordered}: \[ \T \iso \X \sprod (\E
+\scomp \T). \]  Hierarchies without an ordering on sibling nodes arise
+quite often in practice: for example, filesystem directory hierarchies
+and typical company organizational charts are both of this type.
 
 \paragraph{Finite maps} Formally, there is no difference between bags
 (multisets) and finite maps: both may be represented by $\LStr \E L
@@ -1544,9 +1539,24 @@ labels are implicit; indeed, we might wish to define $|Bag|\ A \defn
 \sum_{L : \FinType} \LStr \E L A$.  With finite maps, on the other
 hand, the labels play a more explicit role.
 
-\paragraph{Partition} We may define the species of \term{partitions},
-$\Par \defn \E \sprod \E$.  \todo{say more here}. this is at the root
-of many examples.
+There are many possible implementations of finite maps, with attendant
+performance tradeoffs.  We can explicitly model different
+implementations with suitable implementations of $\StoreNP - -$.
+\pref{sec:vecmap} gives one implementation (and hints at another),
+corresponding to finite maps stored as arrays or tries.  Another
+common class of finite map implementations involve a balanced tree,
+making use of a required total ordering on the labels.  It should be
+easy to model such implementations as well, by extending the framework
+in this paper to allow arbitrary extra structure on label types.
+
+\paragraph{Partition} We may define the species $\Part$ of
+\term{partitions} by \[ \Part \defn \E \sprod \E. \] $(\Part\
+L)$-shapes consist of a (disjoint) pair of sets of labels.  Thus
+$(\Part\ L)$-shapes represent \emph{predicates} on labels, \ie they
+are isomorphic to $\under L \to 2$.  In conjunction with Cartesian
+product (\pref{sec:cartesian-product}), this allows us to generalize
+operations like |filter| and |partition| to arbitrary labelled
+structures, as described in \pref{sec:programming}.
 
 \subsection{Cartesian product}
 \label{sec:cartesian-product}
@@ -1617,8 +1627,6 @@ $\cons{cprodR}$ which combines an $F$-structure and a $G$-shape.
 $(\scprod, \E)$ forms a commutative monoid up to species isomorphism;
 superimposing an $\E$-shape has no effect, since the $\E$-shape
 imposes no additional structure.
-
-\todo{examples: partition, filter, etc.?}
 
 \subsection{Other operations}
 \label{sec:other-ops}
