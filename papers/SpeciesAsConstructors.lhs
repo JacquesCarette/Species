@@ -1894,8 +1894,6 @@ The idea behind $\lab{\cons{d}}$ is that we get back the $A$ that used
 to be labelled by $\TyOne$, paired with a derivative structure with
 that value missing.
 
-% \todo{talk about down operator, once we have figured out functor composition}
-
 A related operation is that of \term{pointing}.  A pointed $F$-shape
 is an $F$-shape with a particular label distinguished. \todo{picture}
 Formally,
