@@ -2390,6 +2390,12 @@ We can also investigate other categories of labels:  for example,
   We firmly believe that alternate categories of labels will have
   significant benefits in a computational setting.
 
+It is worth noting that much of the power of the theory of
+species---at least in the context of combinatorics---can be traced to
+fruitful homomorphisms between algebraic descriptions of species and
+rings of formal power series.  How much of this is constructive, and
+how much is computationally relevant?
+
 Another route of investigation are \emph{tensorial species}
 \citep[chap. 4]{Joyal86}, which are functors to $\cons{Vect}$ rather
 than $\Set$.  These seem to be directly related to our vector mappings
@@ -2434,20 +2440,20 @@ where \emph{finiteness} is crucial.
 
 \paragraph{HoTT and reversible programming}
 
-\jc{Regarding labels on ADTs (like lists):
-this `late' collapse joins up nicely with HTT
-and higher-categorical thinking.  In this style, rather than quotienting
-early (to find an efficient representation eagerly), it is thought best
-to wait and record the collapse through adjoining an groupoid of
-isomorphisms [think identity types].  The `best' picture may then
-emerge much later from a \emph{composition} of isomorphisms, rather than
-directly from the first isomorphism encountered.}
+The links with homotopy type theory run deeper than what we have used
+here, and deserved to be explored.  For example, lists as ADTs are 
+unique (for each size), whereas here there are many lists as labelled
+structures (for each size), although all of them are \emph{equivalent}.
+This joins up nicely with HoTT, which teaches us to use equivalences 
+rather than quotients.  The groupoid of equivalences of labels is 
+related to the identity type of the label set -- though details obviously
+need to be worked out.
 
-It is worth noting that much of the power of the theory of
-species---at least in the context of combinatorics---can be traced to
-fruitful homomorphisms between algebraic descriptions of species and
-rings of formal power series. \todo{future work making connections to
-  computation?}
+Another link is with reversible programming, and more particularly with
+the language $\Pi$ of \citep{InformationEffects}.  While we use
+arbitrary isomorphisms between finite sets, $\Pi$ is a convenient
+\emph{language} in which to write (and reason about) those isomorphisms.
+
 
 \section{Conclusion}
 \label{sec:conclusion}
