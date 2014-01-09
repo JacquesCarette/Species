@@ -1240,11 +1240,6 @@ not very interesting, and we would typically use a variant $\cons{cons'}
 canonical construction $\cons{inc}(-) : \FinType \to \FinType$ with
 $\Fin 1 + \under L \iso \under{\cons{inc}(L)}$.
 
-\todo{What else needs to be said about lists? e.g. converting to and
-  from Haskell lists?  generic eliminators?}
-\jc{Mentioning that we can go to-and-fro would be good.  But maybe
-punt on eliminators until the section where we talk about them?}
-
 \subsection{Composition}
 \label{sec:composition}
 
@@ -1448,24 +1443,26 @@ dia = theDia # centerXY # pad 1.1
 As an example using composition, we can directly encode the type of
 ordered, rooted $n$-ary trees, sometimes known as \term{rose trees},
 as $\R \iso \X \sprod (\List \scomp \R)$.  This corresponds to the
-Haskell type |Rose| defined as |data Rose a = Node a [Rose a]|.
-The explicit use of composition is useful when doing generation of such
-structures, as it allows switching of generation strategies at
-those points~\citep{UszkayThesis}.
+Haskell type |Rose| defined as |data Rose a = Node a [Rose a]|, but
+the composition is more explicit.  The explicit use of composition is
+useful when doing generation of such structures, as it allows
+switching of generation strategies at those
+points~\citep{UszkayThesis}.
 
 The most general type for the \cons{node} constructor is complex,
 since it must deal with a list of subtrees all having different label
 types.  As a compromise, we can make use of a variant type
 representing labelled structures with an existentially quantified
 label type:
-\[ \LStrE F A \defn \sum_{L : \FinType} \LStr F L A \]
-Using $\LStrE \R A$, we can write a constructor for $\R$ as follows:
-\[ \cons{nodeE} : A \to [\LStrE \R A] \to \LStrE \R A \]
-
-\todo{finish.  Make a picture?  Is the above even correct?  Is there
-  anything interesting to say about what we get from composition?}
-\jc{I don't think we need a picture.  It looks correct.  I added something
-about what we get from composition.}
+\[ \LStrE F A \defn \sum_{L : \FinType} \LStr F L A \] Using $\LStrE
+\R A$, we can write a constructor for $\R$ with the type
+\begin{align*}
+& |nodeE| : A \to [\LStrE \R A] \to \LStrE \R A
+\end{align*}
+which converts the list into a labelled $\List$-structure of
+$\R$-structures, uses the join operator $\compJ$ to collapse it into a
+single $(\List \scomp \R)$-structure, and finally prepends the $A$
+value.
 
 \subsection{Sets, bags, and maps}
 \label{sec:sets}
