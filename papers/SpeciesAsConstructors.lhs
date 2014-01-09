@@ -1813,54 +1813,30 @@ and built with combinators like
   &\elim{\sprod} : \left(\prod_{L_1, L_2 : \FinType} \under{L_1} +
     \under{L_2} \iso \under{L} \to \Elim F {L_1} A {(\Elim G
     {L_2} A R)} \right) \to \Elim {F \sprod G} L A R \\
-  &\elim{\E} : (\Lbag A \Rbag \to R) \to \Elim \E L A R
+  &\elim{\E} : (\Lbag A \Rbag \to R) \to \Elim \E L A R \\
+  &\elim{\List} : R \to (L \times A \to R \to R) \to \Elim \List L A R
 \end{align*}
 For $\elim{\E}$ we assume a type $\Lbag A \Rbag$ of bags with an
 appropriate elimination principle.  We omit the implementations of
 these combinators in the interest of space, and refer the interested
 reader to our Haskell implementation \todo{XXX link to repo}.
 
-Using this eliminator framework, \todo{working here}
-
-We can extract \emph{both} parts into lists, by pulling apart the
-Cartesian Product, then using a (generalized) eliminator over the $\List$
-structure (to get the ordering) but using the information from the
-``partition'' to make our choices of where to put each element.  Note how the
-elements themselves take no part in this choice, but the isomorphism which
-is part of the product plays a key role.
-\begin{code}
-extractBoth :: (S.LabelledStorage s, Set.Enumerable l, Eq l) =>
-    Sp (L.L # Part) s l a -> ([a], [a])
-extractBoth sp =
-  let (lsp, part) = decompL sp
-  in gelim (L.gelimList ([],[])
-      (\(l,a) (ll,rl) ->
-        case part of
-          Prod _ _ eiso ->
-            case view (from eiso) l of
-              Left _  -> (a:ll,rl)
-              Right _ -> (ll,a:rl))) lsp
-\end{code}
-
-To actually implement the Prelude partition, we have to specialize the
-above two functions to work over a $\List$, using a specific label set and
-mapping \footnote{LFA stands for 'list-fin-arrow'}.
-\begin{code}
-partitionLFA :: N.Natural n => Sp L.L (->) (F.Fin n) a -> (a -> Bool) -> Sp (L.L # Part) (->) (F.Fin n) a
-partitionLFA = partition
-
-extractBothLFA :: N.Natural n => Sp (L.L # Part) (->) (F.Fin n) a -> ([a],[a])
-extractBothLFA = extractBoth
-\end{code}
-
-Putting all these pieces together (along with some standard routines for dealing
-with length-indexed vectors), we reimplement the Prelude's $|partition|$:
-\begin{code}
-partition' :: (a -> Bool) -> [a] -> ([a],[a])
-partition' p lst = case Vec.fromList lst of
-  Vec.SomeVec v ->
-      N.natty (Vec.size v) $ extractBothLFA $ partitionLFA (fromVec v) p
-\end{code}
+Using this eliminator framework, we can now use the information added
+by |partition| to extract the data elements of a list into two
+sublists.  We use the $\List$ structure for its ordering, but use the
+information from the superimposed partition to make our choices of
+where to put each element.  Note how the elements themselves take no
+part in this choice, but the isomorphism which is stored in the
+partition plays a key role.
+\begin{align*}
+&|extractBoth| : \LStr {\List \scprod \Part} L A \to [A] \times [A] \\
+&|extractBoth| ((|lst|, \unit \sprod_{|e|} \unit), |elts|) = |runElim|\ (\elim{\List}\ |([],[])|\ |cons|)\ (|lst|, |elts|) \\
+& \quad \mathbf{where} \\
+& \quad\quad |cons|\ (l,a)\ (|ll|,|rl|) = \\
+& \quad\quad\quad \mathbf{case}\ e^{-1}\ l\ \mathbf{of} \\
+& \quad\quad\quad\quad \inl - \to (a :: ll, rl) \\
+& \quad\quad\quad\quad \inr - \to (ll, a :: rl)
+\end{align*}
 
 Using very similar techniques (\cons{partition} stays the same, only
 \cons{extract} needs to change), we can easily implement \cons{filter},
