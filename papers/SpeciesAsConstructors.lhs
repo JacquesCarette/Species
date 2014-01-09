@@ -413,7 +413,7 @@ species is as \emph{labelled shapes} which do not contain any data.
 To recover \emph{data} structures, one must add a notion of mapping
 from labels to data.  This leads to the familiar idea of decomposing
 data structures as shapes plus data \citep{banger1993foundation,
-  jay-shapely, ContainerTypesCat, abbott_categories_2003}, with the new 
+  jay-shapely, ContainerTypesCat, abbott_categories_2003}, with the new
 twist that arbitrary labels are used to mediate between the two.  Informally,
 this pairing of a labelled shape (corresponding to a species) and a
 mapping from labels to data values is what we call a \term{labelled
@@ -557,8 +557,8 @@ dia = vcat' (with & sep .~ 5)
 
 Though our work bears similarities to previous approaches that
 separate shapes and data \citep{banger1993foundation, jay-shapely,
-ContainerTypesCat, abbott_categories_2003}, there is a key difference, 
-directly inspired by the theory of species. Whereas previous approaches 
+ContainerTypesCat, abbott_categories_2003}, there is a key difference,
+directly inspired by the theory of species. Whereas previous approaches
 use a fixed, canonical set of labels (or left the labels entirely implicit),
 species naturally lead us to work directly with the labels, giving
 them a much more prominent role.  Bringing the mediating labels to the
@@ -593,9 +593,9 @@ In more detail, our contributions are as follows:
 \item We unify ``implicitly labelled'' structures (such as algebraic
   data types) and ``explicitly labelled'' structures (such as vectors
   and finite maps) under the same framework.
-\item We show how certain operations (for example, altering the keys 
-  of a finite map) can be more naturally described as \emph{operations 
-  on labels}, leading to benefits in reasoning---and, we conjecture, to 
+\item We show how certain operations (for example, altering the keys
+  of a finite map) can be more naturally described as \emph{operations
+  on labels}, leading to benefits in reasoning---and, we conjecture, to
   efficiency as well (\pref{sec:programming}).
 \item We model value-level \emph{sharing} via shared labels
   (\pref{sec:cartesian-product})---in contrast, this is not possible
@@ -1219,7 +1219,7 @@ the coproduct of the two label types:
 \end{align*}
 We use here (and for the rest of the paper) the notational convention that
 the isomorphism arguments are given first, but are written as subscripts
-in mathematical notation. 
+in mathematical notation.
 
 As an example, we may now encode the standard algebraic data type of
 lists, represented by the inductively-defined species satisfying
@@ -1246,8 +1246,8 @@ implementations of $\StoreNP - -$ which make use of the equivalence to
 $\Fin n$ stored in $\FinType$ values (we give an example of one such
 implementation in \pref{sec:vecmap}), the extra equivalence given as
 an argument to \cons{cons} allows us to influence the particular way
-in which the list elements are stored in memory.  For lists, this is 
-not very interesting, and we would typically use a variant $\cons{cons'} 
+in which the list elements are stored in memory.  For lists, this is
+not very interesting, and we would typically use a variant $\cons{cons'}
 : A \to \LStr \List L A \to \LStr \List {\cons{inc}(L)} A$ making use of a
 canonical construction $\cons{inc}(-) : \FinType \to \FinType$ with
 $\Fin 1 + \under L \iso \under{\cons{inc}(L)}$.
@@ -1979,17 +1979,17 @@ species, and corresponds to Haskell's |Foldable| type class.
 \section{Vector mappings}
 \label{sec:vecmap}
 
-Section~\ref{sec:mappings} introduced the requirements that a mapping 
+Section~\ref{sec:mappings} introduced the requirements that a mapping
 $\Store - -$ from labels to data must satisfy, and showed that functions
-can be used as mappings.  But such an implementation is somewhat 
+can be used as mappings.  But such an implementation is somewhat
 degenerate, in that it does not use the information that label sets
 are finite.  The isomorphisms given in |reindex|, |append| and
 |concat| are used, but in a fairly superficial manner.
 
 Our goal here is to show that we can model low-level concerns such
 as memory layout, allocation and manipulation, in a uniform manner for
-all labelled structures.  To model a consecutive block of memory, 
-we will implement a mapping using finite vectors to store the $A$ values. 
+all labelled structures.  To model a consecutive block of memory,
+we will implement a mapping using finite vectors to store the $A$ values.
 More precisely, we use length-indexed vectors; this gives a very detailed view
 of the memory layout, allocation and manipulation required for storing the data
 associated with labelled structures.  As we will see, for such mappings,
@@ -2249,10 +2249,10 @@ the study of attribute grammars~\citep{Mishna03b}.
 \label{sec:future}
 
 We have only started our translation of the theory of species to
-constructive type theory.  But already many different threads of 
+constructive type theory.  But already many different threads of
 work are clear to us.
 
-\paragraph{Capture more of the extant theory.}  Several of the 
+\paragraph{Capture more of the extant theory.}  Several of the
 species operations (such as pointing, functorial composition and arithmetic
 product) seem quite powerful, but we have yet to leverage them properly.
 Similarly, we have made very little use of \term{symmetry} beyond the
@@ -2282,11 +2282,11 @@ how much is computationally relevant?
 Another route of investigation are \emph{tensorial species}
 \citep[chap. 4]{Joyal86}, which are functors to $\cons{Vect}$ rather
 than $\Set$.  These seem to be directly related to our vector mappings
-(section~\ref{sec:vecmap}).  
+(section~\ref{sec:vecmap}).
 
 Lastly, there are several powerful theorems (like the molecular
 decomposition and the implicit species theorem) that we have yet to
-leverage.  In the case of (small) finitary species, the molecular 
+leverage.  In the case of (small) finitary species, the molecular
 decomposition theorem could be used as a powerful means to specialize
 complex species code down to much simpler operations on a few well
 understood cases.
@@ -2297,38 +2297,38 @@ memory allocation and layout.  This could lead to a uniform mechanism
 for \emph{unboxing} of algebraic data types, at least when their size
 is statically known (or even statically known to be bounded and small).
 We feel like we have just scratched the surface of this link.  Combined
-with an appropriate theory of structured labels (to handle 
+with an appropriate theory of structured labels (to handle
 multi-dimensional arrays in a principled manner), we hope to be able
 to give a more uniform explanation for various memory layout strategies
 commonly used in high-performance linear algebra computations.
 
 Along with this, there is a particular labelled structure, \emph{subset},
 which is particularly interesting.  Combinatorially, it is equivalent to
-a partition, \ie\ $\E \sprod \E$.  However, semantically a subset 
-corresponds to only the \emph{left} component of that product, and the right 
+a partition, \ie\ $\E \sprod \E$.  However, semantically a subset
+corresponds to only the \emph{left} component of that product, and the right
 component should be ignored.  In other words, we can use subset to indicate
 that only a subset of labels need be stored.
 
 \paragraph{Categorical requirements}
 
-As is clear from the species literature, there are quite a number of 
-useful variations in the exact categories used for species.  We have 
+As is clear from the species literature, there are quite a number of
+useful variations in the exact categories used for species.  We have
 not been able to find a systematic treatment giving minimal assumptions
 required for the validity of the various constructions (sum, product, cartesian
 product, etc).  We plan to pursue this quite formally, by first porting
 our implementation to Agda, as a means to prove the various properties.
 
-In particular, outside of combinatorial uses, it is unclear exactly 
+In particular, outside of combinatorial uses, it is unclear exactly
 where \emph{finiteness} is crucial.
 
 \paragraph{HoTT and reversible programming}
 
 The links with homotopy type theory run deeper than what we have used
-here, and deserved to be explored.  For example, lists as ADTs are 
+here, and deserved to be explored.  For example, lists as ADTs are
 unique (for each size), whereas here there are many lists as labelled
 structures (for each size), although all of them are \emph{equivalent}.
-This joins up nicely with HoTT, which teaches us to use equivalences 
-rather than quotients.  The groupoid of equivalences of labels is 
+This joins up nicely with HoTT, which teaches us to use equivalences
+rather than quotients.  The groupoid of equivalences of labels is
 related to the identity type of the label set -- though details obviously
 need to be worked out.
 
