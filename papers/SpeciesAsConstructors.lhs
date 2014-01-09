@@ -1776,9 +1776,9 @@ A \\
 &|partition|\ (f, |elts|)\ p \defn ((f, |part|), |elts|)\\
 & \quad \mathbf{where} \\
 & \quad\quad |part| \defn \unit \sprod_e \unit \\
-& \quad\quad |e| : \left( \sum_{l : \under L} p\ (|elts ! l|)
-  \right) + \left( \sum_{l : \under L} \neg p\ (|elts ! l|)
-  \right) \iso \under L
+& \quad\quad |e| : \left( \sum_{l : \under L} p\ (|elts ! l|) =
+  \cons{True} \right) + \left( \sum_{l : \under L} p\ (|elts ! l|) =
+  \cons{False}\right) \iso \under L
 \end{align*}
 In the end, the superimposed $\Part$ structure contains nothing but an
 equivalence showing how the original labels map into a disjoint union
