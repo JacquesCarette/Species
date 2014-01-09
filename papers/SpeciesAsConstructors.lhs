@@ -1921,23 +1921,6 @@ species with no symmetries, \eg\ $|traverse|_{\R} : \LStr \R L A \to
 us the ability to do ordered folds over the data stored using such
 species, and corresponds to Haskell's |Foldable| type class.
 
-While the above is perfectly correct, Haskell is also perfectly happy with
-\begin{code}
-instance (Set.Enumerable l, Eq l, S.Storage s) => F.Foldable (Sp f s l) where
-  foldr g b sp = elim k (forgetShape sp)
-    where k = elimE $ \s -> MS.fold g b $ Set.smap snd s
-\end{code}
-\noindent we are not.  It basically says that all labelled structures are
-\cons{Foldable}, which we do not want.  The error in the above is that
-\cons{MS.fold} \emph{says} that it works for an arbitrary order of the
-underlying elements, but this is not checked.  Worse, by using a
-non-associative function $|f|$, we can actually \emph{observe} the order that
-was used, something we should most definitely not be able to do.  To be
-correct, the above should \emph{restrict} $|g|$ to be an
-\emph{associative, commutative} function, but alas, this cannot be done
-in Haskell.  The ``fault'', such as it is, really lies in the
-$|Data.MultiSet|$ package exposing a much too general notion of \cons{fold}.
-
 \subsection{Lenses}
 \label{sec:lens}
 
