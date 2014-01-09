@@ -1619,7 +1619,9 @@ imposes no additional structure.
 \subsection{Other operations}
 \label{sec:other-ops}
 
-\todo{Some introduction here}
+There are many other operations on species.  We mention a few here
+which we have not yet explored in detail, but seem promising in a
+computational context.
 
 \paragraph{Cardinality restriction}
 
@@ -1632,11 +1634,11 @@ simple version of this, for restricting only to particular sizes, as
 follows:
 \begin{align*}
 &\OfSize : \Species \to \N \to \Species \\
-&\OfSize\ F\ n\ L \defn (\Fin n \iso L) \times F\ L
+&\OfSize\ F\ n\ L \defn (\size L = n) \times F\ L
 \end{align*}
 The introduction form for $\OfSize$ is simple enough, allowing one to
 observe that an existing label type has the size that it has:
-\[ \cons{sized} : \Finite L \to \LStr F L A \to \LStr {\OfSize\ F\
+\[ \cons{sized} : \LStr F L A \to \LStr {\OfSize\ F\
   ||L||} L A. \]
 
 % We could also generalize to arbitrary predicates on natural numbers,
@@ -2275,7 +2277,7 @@ the study of attribute grammars~\citep{Mishna03b}.
 \label{sec:future}
 
 We have only started our translation of the theory of species to
-constructive type theory.  But already many different threads of
+constructive type theory, but already many different threads of
 work are clear to us.
 
 \paragraph{Capture more of the extant theory.}  Several of the
@@ -2299,11 +2301,11 @@ We can also investigate other categories of labels:  for example,
   We firmly believe that alternate categories of labels will have
   significant benefits in a computational setting.
 
-It is worth noting that much of the power of the theory of
-species---at least in the context of combinatorics---can be traced to
-fruitful homomorphisms between algebraic descriptions of species and
-rings of formal power series.  How much of this is constructive, and
-how much is computationally relevant?
+  It is worth noting that much of the power of the theory of species
+  in the context of combinatorics can be traced to fruitful
+  homomorphisms between algebraic descriptions of species and rings of
+  formal power series. It is worth exploring the computational content
+  of these homomorphisms when ported to a constructive setting.
 
 Another route of investigation are \emph{tensorial species}
 \citep[chap. 4]{Joyal86}, which are functors to $\cons{Vect}$ rather
@@ -2364,8 +2366,8 @@ arbitrary isomorphisms between finite sets, $\Pi$ is a convenient
 \emph{language} in which to write (and reason about) those isomorphisms.
 
 
-\section{Conclusion}
-\label{sec:conclusion}
+% \section{Conclusion}
+% \label{sec:conclusion}
 
 \todo{write a conclusion?}
 
