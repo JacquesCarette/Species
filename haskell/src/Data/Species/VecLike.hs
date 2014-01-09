@@ -128,6 +128,28 @@ extractBoth sp =
               Left _  -> (a:ll,rl)
               Right _ -> (ll,a:rl))) lsp
 
+{- doesn't compile, it should, but the error messages are too cryptic
+   for me to decipher this late at night.
+extractBoth' :: (S.LabelledStorage s, Set.Enumerable l, Eq l) => 
+    Sp (L.L # Part) s l a -> ([a], [a])
+extractBoth' sp = accum ([],[]) id (view L.isoL fl)
+  where
+    (Struct fl stor, part) = decompL sp
+    -- accum :: ([a],[a]) -> (l -> (l,a)) -> ((One + (X * L.L)) l) -> ([a],[a])
+    accum (ll,lr) m (Inl (One iso)) = (ll,lr)
+    accum (ll,lr) m (Inr (Prod (X i) rest iso)) = 
+      accum newl (\l2 -> m (view iso (Right l2))) (view L.isoL rest)
+      where
+        l1 = view i F.FZ
+        l = m $ view iso $ Left l1
+        a = S.index stor l
+        newl = case part of 
+                 Prod _ _ j -> 
+                   case view (from j) l of
+                     Left _  -> (a:ll,   lr)
+                     Right _ -> (  ll, a:lr)
+-}
+
 extractBothLFA :: N.Natural n => Sp (L.L # Part) (->) (F.Fin n) a -> ([a],[a])
 extractBothLFA = extractBoth
 
