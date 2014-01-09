@@ -186,12 +186,12 @@ partition' p lst = case Vec.fromList lst of
 -- Partition.  Since that is not entirely obvious, here is the 
 -- complete implementation:
 findIndices :: (S.Storage s, Set.Enumerable l, Eq l) => 
-          Sp f s l a -> (a -> Bool) -> E l
+          Sp f s l a -> (a -> Bool) -> Set.Set l
 findIndices sp p = elim k (Struct gl es)
   where sp' = partition sp p
         Struct (CProd _ gl) es = sp'
         k = elimProd $ \pf -> elimE $ \s -> elimE $ const
-               (E $ Set.injectionMap (\(l,_) -> view pf (Left l)) s)
+               (Set.injectionMap (\(l,_) -> view pf (Left l)) s)
 
 ----------------------------------------------------------------
 -- Like vectors, we can append labelled structures: this is exactly 
