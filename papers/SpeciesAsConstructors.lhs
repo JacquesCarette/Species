@@ -384,9 +384,7 @@
 
 The theory of combinatorial species \citation{joyal,bll}, as it relates to the
 theory and practice of programming languages, has long seemed to the authors
-as ``an answer looking for a question'' \bay{I notice you added the
-  word ``as'' here, but that doesn't sound right to me.  Perhaps we should
-  rephrase this entirely.}: the theory is too beautiful, and too
+``an answer looking for a question'': the theory is too beautiful, and too
 ``obviously'' related to algebraic data types, to have no applications
 whatsoever.  Teasing out the precise relationship between species and
 data types, however, has proved challenging, for two reasons. First,
@@ -1959,20 +1957,24 @@ would be a much more (labelled-structure) idiomatic version of \cons{take}.
 \section{Vector mappings}
 \label{sec:vecmap}
 
-\todo{where should this go?  Right before some example that needs it?}
-\jc{I am thinking it might even become its own section.}\bay{OK, I
-  think you're probably right.  Maybe we just need to massage it to
-  introduce it/give it better context.}
+Section~\ref{sec:mappings} introduced the requirements that a mapping 
+$\Store - -$ from labels to data must satisfy, and showed that functions
+can be used as mappings.  But such an implementation is somewhat 
+degenerate, in that it does not use the information that label sets
+are finite.  The isomorphisms given in |reindex|, |append| and
+|concat| are used, but in a fairly superficial manner.
 
-A more interesting implementation uses finite vectors to store the $A$
-values.  We use this as a model for a consecutive block of memory.
-This gives a very detailed view of the memory layout, allocation
-and manipulation required for storing the data associated with labelled
-structures.  As we will see, for mappings based on (length-indexed)
-vectors, \emph{finiteness} is crucial, and the finiteness proofs are
+Our goal here is to show that we can model low-level concerns such
+as memory layout, allocation and manipulation, in a uniform manner for
+all labelled structures.  To model a consecutive block of memory, 
+we will implement a mapping using finite vectors to store the $A$ values. 
+More precisely, we use length-indexed vectors; this gives a very detailed view
+of the memory layout, allocation and manipulation required for storing the data
+associated with labelled structures.  As we will see, for such mappings,
+\emph{finiteness} is crucial, and the finiteness proofs are
 all computationally relevant.
 
-In particular, we assume a type $|Vec| : \N \to \Type \to
+Concretely, we assume a type $|Vec| : \N \to \Type \to
 \Type$ of length-indexed vectors, supporting operations
 \begin{align*}
   |allocateV| &: (n : \N) \to (\Fin n \to A) \to \Vect n A \\
