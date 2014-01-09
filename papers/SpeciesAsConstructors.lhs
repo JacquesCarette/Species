@@ -168,8 +168,10 @@
 
 \newcommand{\LStr}[3]{\langle #1 \rangle_{#2}(#3)}
 \newcommand{\LStrE}[2]{\LStr{#1}{\bullet}{#2}}
-%\newcommand{\Elim}[4]{\ensuremath{\cons{Elim}_{\LStr{#1}{#2}{#3}}\ #4}}
-\newcommand{\Elim}[4]{\ensuremath{\left(\LStr{#1}{#2}{#3} \rightsquigarrow {#4}\right)}}
+%\newcommand{\Elim}[4]{\ensuremath{\cons{Elim}_{\LStr{#1}{#2}{#3}}\
+%#4}}
+\newcommand{\ElimNP}[4]{\ensuremath{\LStr{#1}{#2}{#3} \rightsquigarrow {#4}}}
+\newcommand{\Elim}[4]{\ensuremath{\left(\ElimNP{#1}{#2}{#3}{#4}\right)}}
 \newcommand{\elim}[1]{\ensuremath{|elim|_{#1}}}
 
 \newcommand{\compP}{\lab{\otimes}}
@@ -1866,25 +1868,31 @@ in low-level languages.
 \subsection{Traversing and folding}
 \label{sec:traverse-fold}
 
-Other functions which traditionally rely on $|Traversable|$ can be
-implemented straightforwardly.  We give $|all|$ as an example:
-\begin{code}
-all :: (S.Storage s, Set.Enumerable l, Eq l) => Sp f s l a -> (a -> Bool) -> Bool
-all sp p = elim k (Struct gl es)
-  where sp' = partition sp p
-        Struct (CProd _ gl) es = sp'
-        k = elimProd (const $ elimE (const $ elimE Set.isEmpty))
-\end{code}
-The above relies on the property that $|all|$ is equivalent to having
-the $|snd|$ set of a partition be empty -- something that can be coded up
-directly.
+We can also implement more general functions which work over all
+labelled structures.  For example, any functions which traditionally
+rely on Haskell's $|Traversable|$ type class can be implemented
+straightforwardly.  We give $|all|$ as an example, which computes
+whether all the data in a structure satisfies a predicate, assuming a
+suitable function $\Lbag\Rbag\text{-}|isEmpty| : \Lbag A \Rbag \to 2$:
+\begin{align*}
+& |all| : \LStr F L A \to (A \to 2) \to 2 \\
+& |all|\ s\ p = |runElim|\ |el|\ (|part|, |elts|) \\
+& \quad \mathbf{where} \\
+& \quad\quad ((-, |part|), |elts|) = |partition|\ s\ p \\
+& \quad\quad |el| : \ElimNP{\Part} L A 2 \\
+& \quad\quad |el| = \elim{\sprod}\ (\lambda \_. \elim \E\ (\lambda
+\_. \elim \E\ \Lbag\Rbag\text{-}|isEmpty|))
+\end{align*}
+This relies on the fact that $|all|$ is equivalent to having
+the second set of a partition be empty.
 
-The definition of the $|product|$ of two labelled structures may not make this
-entirely transparent, but it allows us to implement \emph{concatenation}.
-Just as \cons{partition} is the heart of many of the routines described
-above, \cons{product} corresponds to concatenation of lists, concatenation
-of vectors, union of finite maps, union of bags, and so on. \jc{code
-omitted, see \cons{lcat} in VecLike}.
+The definition of the $|product|$ of two labelled structures may not
+make this entirely transparent, but it allows us to implement
+\emph{concatenation}.  Just as \cons{partition} is the heart of many
+of the routines described above, \cons{product} corresponds to
+concatenation of lists, concatenation of vectors, union of finite
+maps, union of bags, and so on. \jc{code omitted, see \cons{lcat} in
+  VecLike}.
 
 Since we can extract a list from
 an arbitrary \cons{Foldable} functor, we can just as easily get an
