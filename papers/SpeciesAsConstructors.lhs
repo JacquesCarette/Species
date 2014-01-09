@@ -382,6 +382,8 @@
 \section{Introduction}
 \label{sec:intro}
 
+\todo{mention implementation in the introduction}
+
 The theory of combinatorial species \citation{joyal,bll}, as it relates to the
 theory and practice of programming languages, has long seemed to the authors
 ``an answer looking for a question'': the theory is too beautiful, and too
