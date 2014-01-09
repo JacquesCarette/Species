@@ -311,11 +311,10 @@
   This idea of decomposing container structures into shapes and data
   is an old one; our novel contribution is to explicitly mediate the
   decomposition with arbitrary labels. We demonstrate the benefits of
-  this approach in \todo{finish} \bay{What actual benefits do we
-    demonstrate now?  I think this original list is now out of date:
-    ``implementing and reasoning about operations naturally expressed
-    as operations on labels, explicitly modelling value-level sharing,
-    and reasoning about memory allocation and layout.''}
+  this approach, showing how it can be used, for example, to
+  explicitly model composition of container shapes, to model
+  value-level sharing via superimposing multiple structures on the
+  same data, and to model issues of memory allocation and layout.
 
   The theory of labelled structures is built directly on the
   foundation of \emph{combinatorial species}, which serve to describe
@@ -388,7 +387,7 @@
 \section{Introduction}
 \label{sec:intro}
 
-The theory of combinatorial species \citation{joyal,bll}, as it relates to the
+The theory of combinatorial species \citep{joyal,bll}, as it relates to the
 theory and practice of programming languages, has long seemed to the authors
 ``an answer looking for a question'': the theory is too beautiful, and too
 ``obviously'' related to algebraic data types, to have no applications
@@ -476,6 +475,12 @@ there are many labelled tree structures that will ``collapse'' to the
 same algebraic data structure, which differ only in the way they are
 labelled.
 
+\paragraph{Composition}
+
+The indirection afforded by labels makes it easy to explicitly model
+and reason about the \emph{composition} of container shapes,\eg lists of
+trees (\pref{sec:composition}).
+
 \paragraph{Finite maps and bags}
 
 Since the definition of a labelled structure already includes the
@@ -486,25 +491,14 @@ ignore the labels, the same implementation gives us \emph{bags}, also
 known as multisets. Furthermore, we can directly model multiple finite
 map implementations.
 
-\paragraph{Vectors and arrays}
-
-\todo{fix this paragraph}
-Vectors, and multi-dimensional arrays more generally, can be modeled
-as finite maps with nontrivial structure on their labels---for
-example, 2D arrays have labels from a product type.  Real-world
-programs that deal with arrays often care about the precise way in
-which the arrays are allocated and laid out in memory. It is possible
-to model this as well, but we largely leave that to future work.  In
-the present paper, we concentrate on labelled structures with
-``trivial'' structure on the labels.
-
 \paragraph{Value-level sharing}
 
 Structures with shared labels can be used to model (value-level)
 \emph{sharing} (\pref{sec:cartesian-product}).  For example, we can
 superimpose both a binary tree and a list structure on some data, as
-shown in \pref{fig:tree-list-share}.
-
+shown in \pref{fig:tree-list-share}. This leads to modular and generic
+implementations of familiar classes of operations such as filtering
+and folding (\pref{sec:programming}).
 \begin{figure}
   \centering
   \begin{diagram}[width=200]
@@ -545,6 +539,13 @@ dia = vcat' (with & sep .~ 5)
   \label{fig:tree-list-share}
 \end{figure}
 
+\paragraph{Memory allocation and layout}
+
+Labels function as pointers, allowing us to model issues of memory
+allocation and layout (\pref{sec:vecmap}). Moreover, we can easily
+``swap out'' one model for another, allowing us to model the
+particular features we care about.
+
 \subsection{Contributions}
 \label{sec:contributions}
 
@@ -556,7 +557,7 @@ use a fixed, canonical set of labels (or left the labels entirely implicit),
 species naturally lead us to work directly with the labels, giving
 them a much more prominent role.  Bringing the mediating labels to the
 fore in this way is, to our knowledge, novel, and leads to some
-interesting benefits, outlined below.
+interesting benefits.
 
 Furthermore, species are defined over \emph{finite} sets of labels.
 In a classical setting, while finiteness is a crucial part of the
@@ -576,24 +577,27 @@ In more detail, our contributions are as follows:
 
 \begin{itemize}
 \item We describe a ``port'' of combinatorial species from set theory
-  to constructive type theory (\pref{sec:constructive-species}) making
+  to constructive type theory (\pref{sec:constructive-species}), making
   the theory more directly applicable in a programming context, more
   accessible to functional programmers, and incidentally illuminating
   some new features of the theory.
 \item We define a generic framework for \term{labelled types} on top
   of this basis (\pref{sec:mappings}).
-\item We unify ``implicitly labelled'' structures (such as algebraic
+\item We show how to unify ``implicitly labelled'' structures (such as algebraic
   data types) and ``explicitly labelled'' structures (such as vectors
   and finite maps) under the same framework.
+\item We show how to explicitly model and program with compositions of
+  container shapes.
 \item We model value-level \emph{sharing} via shared labels
   (\pref{sec:cartesian-product})---in contrast, this is not possible
   if every structure has a fixed set of canonical labels.
-\item In fact, labels share some of the properties of memory
+\item We give examples of programming with labelled types, focusing
+  particularly on the ways that explicit sharing enables more modular,
+  generic implementations.
+\item Labels share some of the properties of memory
    addresses, \ie\ pointers, and taking this analogy seriously lets us
    reason about memory allocation and layout for stored data
    structures (\pref{sec:vecmap}).
-\item We give extended examples showing the utility of labelled types,
-  including \todo{?} \todo{reference implementation here}
 \end{itemize}
 
 It is worth mentioning that in previous work \citep{carette_species,
@@ -749,7 +753,7 @@ Our theory of labelled structures is inspired by, and directly based
 upon, the theory of \term{combinatorial species} \citep{joyal}.  We
 give a brief introduction to it here; the reader interested in a
 fuller treatment should consult \citet{bll}.  Functional programmers
-may wish to start with~\cite{yorgey-2010-species}.
+may wish to start with~\citet{yorgey-2010-species}.
 
 \subsection{Species, set-theoretically}
 \label{sec:set-species}
@@ -828,7 +832,7 @@ In particular, we have \[ \relabel : (F : \Species) \to (L_1 = L_2)
 \to (F\ L_1 \to F\ L_2) \] via transport, where $\relabel$
 automatically respects identity and composition. This is one of the
 great strengths of type theory as a foundation for mathematics:
-everything is functorial, natural, continuous, \dots, and we do not
+everything is functorial, natural, continuous, \emph{etc.}, and we do not
 have to waste time ruling out bizarre constructions which violate
 these obvious and desirable properties, or proving that our
 constructions do satisfy them.
@@ -1261,7 +1265,8 @@ Formally, \[ (F \scomp G)\ L \defn \sum_{L_F : \Type} F\ L_F \times
 \under{-}\ Ls_G)) \times |prod|\ (|map|\ G\ Ls_G). \] We assume
 functions $|sum|, |prod| : \Store J \Type \to \Type$ which compute the
 sum and product, respectively, of all the types in the range of a
-mapping.
+mapping.  Note how the presence of explicit labels and mappings work
+together to make this possible.
 
 \begin{figure}
   \centering
@@ -2159,18 +2164,21 @@ that looks very much like generalized tries
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
 
-\todo{
-  Interesting points of our implementation in Haskell.
-  \begin{itemize}
-  \item Link to (public) git repo
-  \item Heavy use of DataKinds etc. to simulate dep types (cite Hasochism)
-  \item Needs to use existentially quantified labels in place of
-    dependency, e.g. for $\compB$.  And for products.
-  \item Uses the lens lib for isos and subset.
-  \item A lot of overhead; actually compiling such things to efficient
-    runtime code is future work.
-  \end{itemize}
-}
+An implementation of the ideas in this paper is available at
+\todo{where?}.  Although a language like Agda might have been more
+appropriate in some ways, we used Haskell because of its greater
+emphasis on computation, and the possibility of demonstrating our
+framework with ``real-world'' examples.  Another definite benefit of
+the choice of Haskell is the availability of the \emph{lens}
+library~\citep{lens}, which we use extensively to model equivalences.
+
+On the other hand, doing dependently typed programming in Haskell
+certainly has its quirks~\citep{Lindley2013hasochism}.  We make heavy
+use of GHC's |DataKinds| extension~\citep{yorgey2012promotion} and
+existential wrappers in order to simulate dependent types.  Often, we
+are forced to use approximations to the types we really want, which
+occasionally gets us into trouble!  Porting our code to Agda would
+likely be enlightening.
 
 \section{Related work}
 \label{sec:related}
@@ -2280,7 +2288,7 @@ We have only started our translation of the theory of species to
 constructive type theory, but already many different threads of
 work are clear to us.
 
-\paragraph{Capture more of the extant theory.}  Several of the
+\paragraph{Capture more extant theory.}  Several of the
 species operations (such as pointing, functorial composition and arithmetic
 product) seem quite powerful, but we have yet to leverage them properly.
 Similarly, we have made very little use of \term{symmetry} beyond the
@@ -2369,7 +2377,7 @@ arbitrary isomorphisms between finite sets, $\Pi$ is a convenient
 % \section{Conclusion}
 % \label{sec:conclusion}
 
-\todo{write a conclusion?}
+% \todo{write a conclusion?}
 
 \bibliographystyle{plainnat}
 \bibliography{SpeciesAsConstructors}
