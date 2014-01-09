@@ -187,7 +187,7 @@
 \newcommand{\StoreNP}[2]{\ensuremath{#1 \StoreSym #2}}
 \newcommand{\Store}[2]{(\StoreNP{#1}{#2})}
 
-\newcommand{\List}{\mathsf{L}}
+\newcommand{\List}{\mathsf{List}}
 \newcommand{\R}{\mathsf{R}}
 \newcommand{\Part}{\mathsf{Part}}
 
@@ -1819,7 +1819,7 @@ and built with combinators like
     \under{L_2} \iso \under{L} \to \Elim F {L_1} A {(\Elim G
     {L_2} A R)} \right) \to \Elim {F \sprod G} L A R \\
   &\elim{\E} : (\bag{L \times A} \to R) \to \Elim \E L A R \\
-  &\elim{\List} : R \to (L \times A \to R \to R) \to \Elim \List L A R
+  &\elim{\List} : (L \times A \to R \to R) \to R \to \Elim \List L A R
 \end{align*}
 For $\elim{\E}$ we assume a type $\bag{-} : \Type \to \Type$ of bags with an
 appropriate elimination principle.  We omit the implementations of
@@ -1835,7 +1835,8 @@ part in this choice, but the isomorphism which is stored in the
 partition plays a key role.
 \begin{align*}
 &|splitPartition| : \LStr {\List \scprod \Part} L A \to [A] \times [A] \\
-&|splitPartition| ((|lst|, \unit \sprod_{|e|} \unit), |elts|) = |runElim|\ (\elim{\List}\ |([],[])|\ |cons|)\ (|lst|, |elts|) \\
+&|splitPartition| ((|lst|, \unit \sprod_{|e|} \unit), |elts|) =
+|runElim|\ (\elim{\List}\ |cons|\ |([],[])|)\ (|lst|, |elts|) \\
 & \quad \mathbf{where} \\
 & \quad\quad |cons|\ (l,a)\ (|ll|,|rl|) = \\
 & \quad\quad\quad \mathbf{case}\ e^{-1}\ l\ \mathbf{of} \\
@@ -1903,28 +1904,22 @@ an $\E$-shape.  Since $\N$ forms a commutative monoid under
 multiplication we are allowed to eliminate a bag of natural numbers in
 this way.
 
-Since we can extract a list from
-an arbitrary \cons{Foldable} functor, we can just as easily get an
-(implicitly) labelled $L$-structure from \cons{Foldable}.  In the opposite
-direction, we can also get \cons{Foldable} from the presence of an
-$L$-structure; more explicitly:
-\begin{code}
-instance F.Foldable (Sp' (f # L) s) where
-  foldr f b (SpEx (Struct (CProd _ f2) elts)) = elim (elimList b f) (Struct f2 elts)
-\end{code}
-\noindent This strongly indicates that \cons{Foldable} is really about
-\emph{order}: it does not matter what $f$-structure we have, as long as we
-have a superimposed linear order on the labels \emph{without the labels
-themselves being ordered}, we have enough information for ``folding''.
-
-Following this idea, we can use this to implement many useful functions
-such as \cons{sum}, \cons{product}, \cons{and}, \cons{or} over arbitrary
-labelled structures.
-\begin{code}
-product :: (S.Storage s, Set.Enumerable l, Eq l) => Sp f s l Int -> Int
-product sp = elim k (forgetShape sp)
-  where k = elimE $ \s -> Data.MultiSet.fold (*) 0 $ Set.smap snd s
-\end{code}
+We cannot use the same technique to implement more general folds,
+where we do want to observe some order, because we are not allowed to
+observe any order on the elements of a bag.  However, it suffices to
+have a superimposed $\List$-shape; we just forget the other shape and
+eliminate the list:
+\begin{align*}
+& |foldr| : (L \times A \to A \to R) \to R \to \LStr {F \scprod \List}
+L A \to R \\
+& |foldr|\ f\ z\ ((-, |lst|), |elts|) = |runElim|\ (\elim \List\ f\
+z)\ (|lst|, |elts|)
+\end{align*}
+Furthermore, we can always canonically superimpose a $\List$-shape on
+species with no symmetries, \eg\ $|traverse|_{\R} : \LStr \R L A \to
+\LStr{\R \scprod \List} L A$. In combination with |foldr|, this gives
+us the ability to do ordered folds over the data stored using such
+species, and corresponds to Haskell's |Foldable| type class.
 
 While the above is perfectly correct, Haskell is also perfectly happy with
 \begin{code}
