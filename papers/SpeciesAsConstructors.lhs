@@ -1921,24 +1921,25 @@ species with no symmetries, \eg\ $|traverse|_{\R} : \LStr \R L A \to
 us the ability to do ordered folds over the data stored using such
 species, and corresponds to Haskell's |Foldable| type class.
 
-\subsection{Lenses}
-\label{sec:lens}
+% \subsection{Lenses}
+% \label{sec:lens}
 
-The labels allow even more: we can create a \emph{lens} for any labelled
-structure which focuses on an arbitrary label:
-\begin{code}
-lensSp :: (S.Storage s, S.LabelConstraint s l) => l -> Lens' (Sp f s l a) a
-lensSp lbl =
-    lens (\(Struct _ e) -> S.index e lbl)
-         (\(Struct sh e) a -> Struct sh (snd $ S.replace lbl a e))
-\end{code}
-%$
-\noindent The vast majority of the instances of \cons{Lens} are simply
-specializations of the code above for specific structures.
+% For mappings that support a |replace| operation, we can create
+% \emph{lenses} for any labelled structure which focus on a given
+% label, allowing  We assume there is a type |Lens : \Type \to \Type \to \Type|
+% \begin{code}
+% lensSp :: (S.Storage s, S.LabelConstraint s l) => l -> Lens' (Sp f s l a) a
+% lensSp lbl =
+%     lens (\(Struct _ e) -> S.index e lbl)
+%          (\(Struct sh e) a -> Struct sh (snd $ S.replace lbl a e))
+% \end{code}
+% %$
+% \noindent The vast majority of the instances of \cons{Lens} are simply
+% specializations of the code above for specific structures.
 
-It should be pointed out that an even more idiomatic implementation of
-\cons{lensSp} would first \emph{point} the $f$-structure, and then using
-that as its focus, derive a lens for it.
+% It should be pointed out that an even more idiomatic implementation of
+% \cons{lensSp} would first \emph{point} the $f$-structure, and then using
+% that as its focus, derive a lens for it.
 
 % \subsection{Take}
 % \label{sec:take}
