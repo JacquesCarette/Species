@@ -1008,7 +1008,7 @@ data associated with those labels.  The root of the tree shows the
 species shape applied to the labels (in this case, $F$).
 \begin{figure}
   \centering
-  \begin{diagram}[width=100]
+  \begin{diagram}[width=75]
 import SpeciesDiagrams
 
 dia = nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [0..2] ]
