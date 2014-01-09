@@ -158,8 +158,6 @@
 \DeclareMathOperator{\map}{map}
 \DeclareMathOperator{\sumTys}{sumTys}
 
-\DeclareMathOperator{\Elim}{Elim}
-\DeclareMathOperator{\elim}{elim}
 \DeclareMathOperator{\DecEq}{DecEq}
 
 \newcommand{\ssum}{\boxplus}
@@ -170,6 +168,9 @@
 
 \newcommand{\LStr}[3]{\langle #1 \rangle_{#2}(#3)}
 \newcommand{\LStrE}[2]{\LStr{#1}{\bullet}{#2}}
+%\newcommand{\Elim}[4]{\ensuremath{\cons{Elim}_{\LStr{#1}{#2}{#3}}\ #4}}
+\newcommand{\Elim}[4]{\ensuremath{\left(\LStr{#1}{#2}{#3} \rightsquigarrow {#4}\right)}}
+\newcommand{\elim}[1]{\ensuremath{|elim|_{#1}}}
 
 \newcommand{\compP}{\lab{\otimes}}
 \newcommand{\compA}{\lab{\oast}}
@@ -1762,19 +1763,21 @@ typed, constructive way.
 \section{Programming with Labelled Structures}
 \label{sec:programming}
 
-There are a number of standard functions on vectors, lists, sets and
-bags, finite maps, and similar structures, which we can generalize once
-and for all for all labelled structures.
-\todo{bit more intro here?}
+This section gives some examples of programming with labelled
+structures.  In particular, there are a number of standard functions
+on vectors, lists, sets and bags, finite maps, and similar structures,
+which we can generalize to work over all labelled structures.
 
 \subsection{Partition}
 
-For example, we can implement a |partition| function using the species
+We begin with a |partition| function, implemented using the species
 $\Part$ of partitions (\pref{sec:sets}) and Cartesian product
-(\pref{sec:cartesian-product}). The idea is to use a predicate on data
-to divide the labels into two disjoint sets.  We then \emph{superimpose}
-(via Cartesian product) a second structure on the old, recording this
-new information about the labels, without changing the data in any way.
+(\pref{sec:cartesian-product}). This turns out to be a key component
+of some of the later examples as well.  The idea is to use a predicate
+on data to divide the labels into two disjoint sets, and to then
+\emph{superimpose} (via Cartesian product) a second structure on the
+old, recording this new information about the labels.  The original
+structure is not modified in any way.
 \begin{align*}
 &|partition| : \LStr F L A \to (A \to 2) \to \LStr{F \scprod \Part} L
 A \\
@@ -1791,12 +1794,33 @@ interesting about it.  The new superimposed $\Part$ structure
 contains nothing but this equivalence |e| (the two $\E$-shapes are
 just $\unit$).
 
-Of course, if we want to actually take this information and ``extract'' the
-result (in the usual meaning of splitting the structure into two
-distinct pieces), we need to provide a means to do this.
+At this point, we might want to actually take this information and
+``extract'' the result (in the usual meaning of splitting the
+structure into two distinct pieces).  To do that we will first have to
+explore the idea of eliminators for labelled structures.
 
 \subsection{Eliminators}
 \label{sec:elim}
+
+We use a framework of eliminators of type $\Elim F L A R$, which can
+be ``run'' with \[ |runElim| : \Elim F L A R \to \LStr F L A \to R, \]
+and built with combinators like
+\begin{align*}
+  &\elim{\One} : R \to \Elim \One L A R \\
+  &\elim{\X} : (A \to R) \to \Elim \X L A R \\
+  &\elim{\ssum} : \Elim F L A R \to \Elim G L A R \to \Elim {F \ssum G} L
+  A R \\
+  &\elim{\sprod} : \left(\prod_{L_1, L_2 : \FinType} \under{L_1} +
+    \under{L_2} \iso \under{L} \to \Elim F {L_1} A {(\Elim G
+    {L_2} A R)} \right) \to \Elim {F \sprod G} L A R \\
+  &\elim{\E} : (\Lbag A \Rbag \to R) \to \Elim \E L A R
+\end{align*}
+For $\elim{\E}$ we assume a type $\Lbag A \Rbag$ of bags with an
+appropriate elimination principle.  We omit the implementations of
+these combinators in the interest of space, and refer the interested
+reader to our Haskell implementation \todo{XXX link to repo}.
+
+Using this eliminator framework, \todo{working here}
 
 We can extract \emph{both} parts into lists, by pulling apart the
 Cartesian Product, then using a (generalized) eliminator over the $\List$
