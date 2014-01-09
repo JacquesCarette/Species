@@ -129,8 +129,8 @@ extractBoth sp =
               Right _ -> (ll,a:rl))) lsp
 
 {- doesn't compile, it should, but the error messages are too cryptic
-   for me to decipher this late at night.
-extractBoth' :: (S.LabelledStorage s, Set.Enumerable l, Eq l) => 
+   for me to decipher this morning either
+extractBoth' :: forall s l a. (S.LabelledStorage s, Set.Enumerable l, Eq l) => 
     Sp (L.L # Part) s l a -> ([a], [a])
 extractBoth' sp = accum ([],[]) id (view L.isoL fl)
   where
@@ -138,10 +138,13 @@ extractBoth' sp = accum ([],[]) id (view L.isoL fl)
     -- accum :: ([a],[a]) -> (l -> (l,a)) -> ((One + (X * L.L)) l) -> ([a],[a])
     accum (ll,lr) m (Inl (One iso)) = (ll,lr)
     accum (ll,lr) m (Inr (Prod (X i) rest iso)) = 
-      accum newl (\l2 -> m (view iso (Right l2))) (view L.isoL rest)
+      accum newl mR (view L.isoL rest)
       where
+        mEither :: Either l1 l2 -> l
+        mEither = m . view iso
+        (mL, mR) = (mEither . Left, mEither . Right)
         l1 = view i F.FZ
-        l = m $ view iso $ Left l1
+        l = mL l1
         a = S.index stor l
         newl = case part of 
                  Prod _ _ j -> 
