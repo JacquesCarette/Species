@@ -1762,35 +1762,41 @@ typed, constructive way.
 \section{Programming with Labelled Structures}
 \label{sec:programming}
 
-\todo{bit more intro here?}
-
 There are a number of standard functions on vectors, lists, sets and
 bags, finite maps, and similar structures, which we can generalize once
 and for all for all labelled structures.
+\todo{bit more intro here?}
+
+\subsection{Partition}
 
 For example, we can implement a |partition| function using the species
 $\Part$ of partitions (\pref{sec:sets}) and Cartesian product
-(\pref{sec:cartesian-product}). The idea is to usea predicate on data
-to divide the labels into disjoint sets.  We then \emph{superimpose}
+(\pref{sec:cartesian-product}). The idea is to use a predicate on data
+to divide the labels into two disjoint sets.  We then \emph{superimpose}
 (via Cartesian product) a second structure on the old, recording this
 new information about the labels, without changing the data in any way.
 \begin{align*}
 &|partition| : \LStr F L A \to (A \to 2) \to \LStr{F \scprod \Part} L
 A \\
-&|partition|\ (f, |elts|)\ p \defn ((f, |part|), |elts|)\\
+&|partition|\ (f, |elts|)\ p \defn ((f,\unit \sprod_e \unit), |elts|)\\
 & \quad \mathbf{where} \\
-& \quad\quad |part| \defn \unit \sprod_e \unit \\
 & \quad\quad |e| : \left( \sum_{l : \under L} p\ (|elts ! l|) =
   \cons{True} \right) + \left( \sum_{l : \under L} p\ (|elts ! l|) =
-  \cons{False}\right) \iso \under L
+  \cons{False}\right) \iso \under L \\
+& \quad\quad |e| = ...
 \end{align*}
-In the end, the superimposed $\Part$ structure contains nothing but an
-equivalence showing how the original labels map into a disjoint union
-indicating the results of the predicate.
+We omit the implementation of the equivalence |e| in the interest of
+clarity; the details are fiddly but there is nothing particularly
+interesting about it.  The new superimposed $\Part$ structure
+contains nothing but this equivalence |e| (the two $\E$-shapes are
+just $\unit$).
 
 Of course, if we want to actually take this information and ``extract'' the
 result (in the usual meaning of splitting the structure into two
 distinct pieces), we need to provide a means to do this.
+
+\subsection{Eliminators}
+\label{sec:elim}
 
 We can extract \emph{both} parts into lists, by pulling apart the
 Cartesian Product, then using a (generalized) eliminator over the $\List$
@@ -1853,6 +1859,9 @@ be used to retrieve them at a later point.  In other words, our
 \emph{abstract labels} play the role traditionally taken by \emph{pointers}
 in low-level languages.
 
+\subsection{Traversing and folding}
+\label{sec:traverse-fold}
+
 Other functions which traditionally rely on $|Traversable|$ can be
 implemented straightforwardly.  We give $|all|$ as an example:
 \begin{code}
@@ -1873,7 +1882,7 @@ above, \cons{product} corresponds to concatenation of lists, concatenation
 of vectors, union of finite maps, union of bags, and so on. \jc{code
 omitted, see \cons{lcat} in VecLike}.
 
-\paragraph{Foldable}  Since we can extract a list from
+Since we can extract a list from
 an arbitrary \cons{Foldable} functor, we can just as easily get an
 (implicitly) labelled $L$-structure from \cons{Foldable}.  In the opposite
 direction, we can also get \cons{Foldable} from the presence of an
@@ -1913,7 +1922,9 @@ correct, the above should \emph{restrict} $|g|$ to be an
 in Haskell.  The ``fault'', such as it is, really lies in the
 $|Data.MultiSet|$ package exposing a much too general notion of \cons{fold}.
 
-\paragraph{Lens}
+\subsection{Lenses}
+\label{sec:lens}
+
 The labels allow even more: we can create a \emph{lens} for any labelled
 structure which focuses on an arbitrary label:
 \begin{code}
@@ -1922,6 +1933,7 @@ lensSp lbl =
     lens (\(Struct _ e) -> S.index e lbl)
          (\(Struct sh e) a -> Struct sh (snd $ S.replace lbl a e))
 \end{code}
+%$
 \noindent The vast majority of the instances of \cons{Lens} are simply
 specializations of the code above for specific structures.
 
@@ -1929,7 +1941,10 @@ It should be pointed out that an even more idiomatic implementation of
 \cons{lensSp} would first \emph{point} the $f$-structure, and then using
 that as its focus, derive a lens for it.
 
-\paragraph{take} \jc{Not sure about this one.}  If we also fix the type
+\subsection{Take}
+\label{sec:take}
+
+\jc{Not sure about this one.}  If we also fix the type
 of labels such that they are canonically ordered, other functions can also
 be implemented generically, such as \cons{take}.
 \begin{code}
@@ -2454,6 +2469,8 @@ arbitrary isomorphisms between finite sets, $\Pi$ is a convenient
 
 \section{Conclusion}
 \label{sec:conclusion}
+
+\todo{write a conclusion?}
 
 \bibliographystyle{plainnat}
 \bibliography{SpeciesAsConstructors}
