@@ -1766,7 +1766,7 @@ on vectors, lists, sets and bags, finite maps, and similar structures,
 which we can generalize to work over all labelled structures. We
 present a small sampling here, using type-theoretic notation;
 these and additional examples, concretely implemented in Haskell, are
-available \todo{XXX where?}
+available from \url{http://github.com/byorgey/labelled-structures}.
 
 \subsection{Partition}
 
@@ -1816,10 +1816,11 @@ and built with combinators like
   &\elim{\E} : (\bag{L \times A} \to R) \to \Elim \E L A R \\
   &\elim{\List} : (L \times A \to R \to R) \to R \to \Elim \List L A R
 \end{align*}
-For $\elim{\E}$ we assume a type $\bag{-} : \Type \to \Type$ of bags with an
-appropriate elimination principle.  We omit the implementations of
-these combinators in the interest of space, and refer the interested
-reader to our Haskell implementation \todo{XXX link to repo}.
+For $\elim{\E}$ we assume a type $\bag{-} : \Type \to \Type$ of bags
+with an appropriate elimination principle.  We omit the
+implementations of these combinators in the interest of space, and
+refer the interested reader to our Haskell implementation, available
+at \url{http://github.com/byorgey/labelled-structures}.
 
 Using this eliminator framework, we can now use the information added
 by |partition| to split the data elements of a list into two
@@ -2164,13 +2165,14 @@ that looks very much like generalized tries
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
 
-An implementation of the ideas in this paper is available at
-\todo{where?}.  Although a language like Agda might have been more
-appropriate in some ways, we used Haskell because of its greater
-emphasis on computation, and the possibility of demonstrating our
-framework with ``real-world'' examples.  Another definite benefit of
-the choice of Haskell is the availability of the \emph{lens}
-library~\citep{lens}, which we use extensively to model equivalences.
+An implementation of the ideas in this paper is available from
+\url{http://github.com/byorgey/labelled-structures}.  Although a
+language like Agda might have been more appropriate in some ways, we
+used Haskell because of its greater emphasis on computation, and the
+possibility of demonstrating our framework with ``real-world''
+examples.  Another definite benefit of the choice of Haskell is the
+availability of the \emph{lens} library~\citep{lens}, which we use
+extensively to model equivalences.
 
 On the other hand, doing dependently typed programming in Haskell
 certainly has its quirks~\citep{Lindley2013hasochism}.  We make heavy
