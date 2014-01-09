@@ -600,6 +600,9 @@ In more detail, our contributions are as follows:
    structures (\pref{sec:vecmap}).
 \end{itemize}
 
+We have an implementation of these ideas in Haskell, available at
+\url{http://github.com/byorgey/labelled-structures}.
+
 It is worth mentioning that in previous work \citep{carette_species,
   yorgey-2010-species} we conjectured that the benefits of the theory
 of species would lie primarily in its ability to describe data types
@@ -2165,11 +2168,9 @@ that looks very much like generalized tries
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
 
-An implementation of the ideas in this paper is available from
-\url{http://github.com/byorgey/labelled-structures}.  Although a
-language like Agda might have been more appropriate in some ways, we
-used Haskell because of its greater emphasis on computation, and the
-possibility of demonstrating our framework with ``real-world''
+Although a language like Agda might have been more appropriate in some
+ways, we used Haskell because of its greater emphasis on computation,
+and the possibility of demonstrating our framework with ``real-world''
 examples.  Another definite benefit of the choice of Haskell is the
 availability of the \emph{lens} library~\citep{lens}, which we use
 extensively to model equivalences.
