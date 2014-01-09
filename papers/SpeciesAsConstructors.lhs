@@ -405,9 +405,6 @@ practice rooted in set theory, species are usually described in ways
 that are \emph{untyped} and \emph{nonconstructive}, both of which
 hinder adoption and understanding in a computational context.
 
-\todo{sprinkle some forward references to the rest of the paper
-  through the following}
-
 From a computational point of view, the right way to think about
 species is as \emph{labelled shapes} which do not contain any data.
 To recover \emph{data} structures, one must add a notion of mapping
@@ -469,16 +466,17 @@ this framework.
 
 All the usual algebraic data types have corresponding families of
 labelled structures, where values of the algebraic data type are used
-as labelled shapes.  Given such a labelled structure we can
-``collapse'' it back to an algebraic data structure by substituting
-data for labels.  For example, the labelled tree structure in
-\pref{fig:labelled-structure-example} represents the tree containing
-\texttt{A} at its root, \texttt{N} as the left child, and so on.  Note
-that the family of labelled tree structures is quite a bit larger than
-the usual type of trees: every possible labelling of a given tree shape
-results in a different labelled structure, whereas there are many
-labelled tree structures that will ``collapse'' to the same algebraic
-data structure, which differ only in the way they are labelled.
+as labelled shapes (\pref{sec:ADTs}).  Given such a labelled
+structure we can ``collapse'' it back to an algebraic data structure
+by substituting data for labels.  For example, the labelled tree
+structure in \pref{fig:labelled-structure-example} represents the tree
+containing \texttt{A} at its root, \texttt{N} as the left child, and
+so on.  Note that the family of labelled tree structures is quite a
+bit larger than the usual type of trees: every possible labelling of a
+given tree shape results in a different labelled structure, whereas
+there are many labelled tree structures that will ``collapse'' to the
+same algebraic data structure, which differ only in the way they are
+labelled.
 
 \paragraph{Finite maps and bags}
 
@@ -492,6 +490,7 @@ map implementations.
 
 \paragraph{Vectors and arrays}
 
+\todo{fix this paragraph}
 Vectors, and multi-dimensional arrays more generally, can be modeled
 as finite maps with nontrivial structure on their labels---for
 example, 2D arrays have labels from a product type.  Real-world
@@ -504,9 +503,9 @@ the present paper, we concentrate on labelled structures with
 \paragraph{Value-level sharing}
 
 Structures with shared labels can be used to model (value-level)
-\emph{sharing}.  For example, we can superimpose both a binary tree
-and a list structure on some data, as shown in
-\pref{fig:tree-list-share}.
+\emph{sharing} (\pref{sec:cartesian-product}).  For example, we can
+superimpose both a binary tree and a list structure on some data, as
+shown in \pref{fig:tree-list-share}.
 
 \begin{figure}
   \centering
@@ -579,20 +578,15 @@ In more detail, our contributions are as follows:
 
 \begin{itemize}
 \item We describe a ``port'' of combinatorial species from set theory
-  to constructive type theory, making the theory more directly
-  applicable in a programming context, more accessible to functional
-  programmers, and incidentally illuminating some new features of the
-  theory.
+  to constructive type theory (\pref{sec:constructive-species}) making
+  the theory more directly applicable in a programming context, more
+  accessible to functional programmers, and incidentally illuminating
+  some new features of the theory.
 \item We define a generic framework for \term{labelled types} on top
-  of this basis, showing how to include them in practical
-  programming languages.
+  of this basis (\pref{sec:mappings}).
 \item We unify ``implicitly labelled'' structures (such as algebraic
   data types) and ``explicitly labelled'' structures (such as vectors
   and finite maps) under the same framework.
-\item We show how certain operations (for example, altering the keys
-  of a finite map) can be more naturally described as \emph{operations
-  on labels}, leading to benefits in reasoning---and, we conjecture, to
-  efficiency as well (\pref{sec:programming}).
 \item We model value-level \emph{sharing} via shared labels
   (\pref{sec:cartesian-product})---in contrast, this is not possible
   if every structure has a fixed set of canonical labels.
@@ -1005,7 +999,7 @@ it to a constructive setting, and the introduction and elimination
 forms for labelled structures built on top of these species.
 
 \subsection{Algebraic data types}
-\label{sec:primitive}
+\label{sec:ADTs}
 
 We begin by exhibiting species, \ie labelled shapes, which
 correspond to familiar algebraic data types. As a visual aid,
