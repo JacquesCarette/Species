@@ -1530,7 +1530,7 @@ hand, the labels play a more explicit role.
 There are many possible implementations of finite maps, with attendant
 performance tradeoffs.  We can explicitly model different
 implementations with suitable implementations of $\StoreNP - -$.
-\pref{sec:vecmap} gives one implementation (and hints at another),
+\pref{sec:vecmap} gives one implementation, and hints at another,
 corresponding to finite maps stored as arrays or tries.  Another
 common class of finite map implementations involve a balanced tree,
 making use of a required total ordering on the labels.  It should be
