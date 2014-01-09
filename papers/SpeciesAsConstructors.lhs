@@ -311,11 +311,11 @@
   This idea of decomposing container structures into shapes and data
   is an old one; our novel contribution is to explicitly mediate the
   decomposition with arbitrary labels. We demonstrate the benefits of
-  this approach in \bay{What actual benefits do we demonstrate now?  I
-    think this original list is now out of date: ``implementing and
-    reasoning about operations naturally expressed as operations on
-    labels, explicitly modelling value-level sharing, and reasoning
-    about memory allocation and layout.''}
+  this approach in \todo{finish} \bay{What actual benefits do we
+    demonstrate now?  I think this original list is now out of date:
+    ``implementing and reasoning about operations naturally expressed
+    as operations on labels, explicitly modelling value-level sharing,
+    and reasoning about memory allocation and layout.''}
 
   The theory of labelled structures is built directly on the
   foundation of \emph{combinatorial species}, which serve to describe
@@ -387,8 +387,6 @@
 
 \section{Introduction}
 \label{sec:intro}
-
-\todo{mention implementation in the introduction}
 
 The theory of combinatorial species \citation{joyal,bll}, as it relates to the
 theory and practice of programming languages, has long seemed to the authors
@@ -595,7 +593,7 @@ In more detail, our contributions are as follows:
    reason about memory allocation and layout for stored data
    structures (\pref{sec:vecmap}).
 \item We give extended examples showing the utility of labelled types,
-  including \todo{?}
+  including \todo{?} \todo{reference implementation here}
 \end{itemize}
 
 It is worth mentioning that in previous work \citep{carette_species,
