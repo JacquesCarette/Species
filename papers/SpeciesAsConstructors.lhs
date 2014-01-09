@@ -2112,22 +2112,44 @@ We can then implement the required operations as follows:
   is no longer needed.
 
 \item |append| is straightforward to implement via |appendV|:
-  \begin{spec}
-    append e (n1, i1, v1) (n2, i2, v2) = (n1+n2, e . (i1 + i2) . f, v)
-      where (v,f) = appendV v1 v2
-  \end{spec}
+  \begin{align*}
+  & |append| : (\under{L_1} + \under{L_2} \iso \under{L}) \to \Store {L_1} A \to \Store {L_2} A \to \Store L A \\
+  & |append|\ e\ (n_1, i_1, v_1)\ (n_2, i_2, v_2) = (n_1+n_2, e^{-1} \comp
+  (i_1 + i_2) \comp f, v) \\
+  & \quad \mathbf{where}\ (v,f) = |appendV|\ v_1\ v_2
+  \end{align*}
   Note that we construct the required label equivalence as the
-  composite \[ \under L \stackrel{e}{\iso} \under{L_1} + \under{L_2}
+  composite \[ \under L \stackrel{e^{-1}}{\iso} \under{L_1} + \under{L_2}
   \stackrel{i_1 + i_2}{\iso} \Fin{n_1} + \Fin{n_2} \stackrel{f}{\iso}
   \Fin{(n_1 + n_2)}, \] using the provided equivalence |e| and the
   index equivalence |f| returned by |appendV|.
 
 \item |concat| is implemented similarly to |append|: we multiply the
-  sizes, use |concatV| on the input vector-of-vectors, and compute the
-  right equivalence by \todo{urgh, actually we have to sum over them,
-    not just take a product, because there may be \emph{many}
-    equivalences $L_2 \iso \Fin{n_2}$, one for each inner vector.}
-
+  sizes and use |concatV| on the input vector-of-vectors.
+  \begin{align*}
+    & |concat| : (\under{L_1} \times \under{L_2} \iso \under{L}) \to
+    \Store {L_1} {\Store {L_2} A} \to \Store L A \\
+    & |concat|\ e\ (n_1, i_1, v_1) = (n_1 \cdot n_2, |eqv|, v')
+    \\
+    & \quad \mathbf{where} \\
+    & \quad\quad n_2 = \size{L_2} \\
+    & \quad\quad (v', f) = |concatV|\ (|mapV|\ (\lambda
+    (-,-,v_2). v_2)\ v) \\
+    & \quad\quad |is|_2 : \Vect {n_1} {(\under{L_2} \iso \Fin{n_2})}
+    \\
+    & \quad\quad |is|_2 = |mapV|\ (\lambda(-,i_2,-). i_2)\ v
+  \end{align*}
+  We construct the required index equivalence |eqv| as \[ \under L
+  \stackrel{e^{-1}}{\iso} \under{L_1} \times \under{L_2} \stackrel{i_1
+    \times \cons{id}}{\iso} \Fin {n_1} \times \under{L_2}
+  \stackrel{\sum |is|_2}{\iso} \Fin {n_1} \times \Fin {n_2}
+  \stackrel{f}{\iso} \Fin (n_1 \cdot n_2), \] with the only nontrivial
+  part indicated by the notation $\sum |is|_2$: each inner $\Store
+  {L_2} A$ might contain a \emph{different} equivalence $\under{L_2}
+  \iso \Fin{n_2}$.  Given a vector of $n_1$-many such equivalences, we
+  ``sum'' them to produce an equivalence $\Fin{n_1} \times \under{L_2}
+  \iso \Fin{n_1} \times \Fin{n_2}$ which uses the $\Fin{n_1}$ value as
+  an index into the vector.
 \end{itemize}
 
 In this instance, the labels are acting like (generalized)
