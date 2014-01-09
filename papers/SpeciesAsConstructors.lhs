@@ -193,6 +193,9 @@
 
 \newcommand{\LUO}{$\Lambda$\kern -.1667em\lower .5ex\hbox{$\Upsilon$}\kern -.05em\raise .3ex\hbox{$\Omega$}}
 
+\newcommand{\bag}[1]{\ensuremath{\Lbag #1 \Rbag}}
+\newcommand{\bagop}[1]{\ensuremath{\bag{}\text{-}\Varid{#1}}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
 
@@ -1815,10 +1818,10 @@ and built with combinators like
   &\elim{\sprod} : \left(\prod_{L_1, L_2 : \FinType} \under{L_1} +
     \under{L_2} \iso \under{L} \to \Elim F {L_1} A {(\Elim G
     {L_2} A R)} \right) \to \Elim {F \sprod G} L A R \\
-  &\elim{\E} : (\Lbag A \Rbag \to R) \to \Elim \E L A R \\
+  &\elim{\E} : (\bag{L \times A} \to R) \to \Elim \E L A R \\
   &\elim{\List} : R \to (L \times A \to R \to R) \to \Elim \List L A R
 \end{align*}
-For $\elim{\E}$ we assume a type $\Lbag A \Rbag$ of bags with an
+For $\elim{\E}$ we assume a type $\bag{-} : \Type \to \Type$ of bags with an
 appropriate elimination principle.  We omit the implementations of
 these combinators in the interest of space, and refer the interested
 reader to our Haskell implementation \todo{XXX link to repo}.
@@ -1843,27 +1846,27 @@ partition plays a key role.
 Using similar techniques we can easily implement other standard list
 functions like |filter|, membership testing, and linear search.
 
-We
-can also implement more general routines, such as \cons{findIndices}:
-\bay{|findIndices| is cheating!  The returned |E l|-structure does not
-  contain all the labels of type |l| but only a subset of them.  Of
-  course, that's the point; but the type is wrong.  The right type is
-  a complicated dependent type. Not sure what to do with this.}
-\begin{code}
-findIndices :: (S.Storage s, Set.Enumerable l, Eq l) =>
-          Sp f s l a -> (a -> Bool) -> E l
-findIndices sp p = elim k (Struct gl es)
-  where sp' = partition sp p
-        Struct (CProd _ gl) es = sp'
-        k = elimProd $ \pf -> elimE $ \s -> elimE $ const
-               (E $ Set.injectionMap (\(l,_) -> view pf (Left l)) s)
-\end{code}
-Again, $|partition|$ is important, but the labels are key.  It is important
-to remember that all algebraic data types are labelled structures: when
-we add labels, we add ``addresses'' to each datum in a structure, which can
-be used to retrieve them at a later point.  In other words, our
-\emph{abstract labels} play the role traditionally taken by \emph{pointers}
-in low-level languages.
+% We
+% can also implement more general routines, such as \cons{findIndices}:
+% \bay{|findIndices| is cheating!  The returned |E l|-structure does not
+%   contain all the labels of type |l| but only a subset of them.  Of
+%   course, that's the point; but the type is wrong.  The right type is
+%   a complicated dependent type. Not sure what to do with this.}
+% \begin{code}
+% findIndices :: (S.Storage s, Set.Enumerable l, Eq l) =>
+%           Sp f s l a -> (a -> Bool) -> E l
+% findIndices sp p = elim k (Struct gl es)
+%   where sp' = partition sp p
+%         Struct (CProd _ gl) es = sp'
+%         k = elimProd $ \pf -> elimE $ \s -> elimE $ const
+%                (E $ Set.injectionMap (\(l,_) -> view pf (Left l)) s)
+% \end{code}
+% Again, $|partition|$ is important, but the labels are key.  It is important
+% to remember that all algebraic data types are labelled structures: when
+% we add labels, we add ``addresses'' to each datum in a structure, which can
+% be used to retrieve them at a later point.  In other words, our
+% \emph{abstract labels} play the role traditionally taken by \emph{pointers}
+% in low-level languages.
 
 \subsection{Traversing and folding}
 \label{sec:traverse-fold}
@@ -1873,7 +1876,7 @@ labelled structures.  For example, any functions which traditionally
 rely on Haskell's $|Traversable|$ type class can be implemented
 straightforwardly.  We give $|all|$ as an example, which computes
 whether all the data in a structure satisfies a predicate, assuming a
-suitable function $\Lbag\Rbag\text{-}|isEmpty| : \Lbag A \Rbag \to 2$:
+suitable function $\bagop{isEmpty} : \bag A \to 2$:
 \begin{align*}
 & |all| : \LStr F L A \to (A \to 2) \to 2 \\
 & |all|\ s\ p = |runElim|\ |el|\ (|part|, |elts|) \\
@@ -1881,18 +1884,24 @@ suitable function $\Lbag\Rbag\text{-}|isEmpty| : \Lbag A \Rbag \to 2$:
 & \quad\quad ((-, |part|), |elts|) = |partition|\ s\ p \\
 & \quad\quad |el| : \ElimNP{\Part} L A 2 \\
 & \quad\quad |el| = \elim{\sprod}\ (\lambda \_. \elim \E\ (\lambda
-\_. \elim \E\ \Lbag\Rbag\text{-}|isEmpty|))
+\_. \elim \E\ \bagop{isEmpty}))
 \end{align*}
 This relies on the fact that $|all|$ is equivalent to having
 the second set of a partition be empty.
 
-% The definition of the $|product|$ of two labelled structures may not
-% make this entirely transparent, but it allows us to implement
-% \emph{concatenation}.  Just as \cons{partition} is the heart of many
-% of the routines described above, \cons{product} corresponds to
-% concatenation of lists, concatenation of vectors, union of finite
-% maps, union of bags, and so on. \jc{code omitted, see \cons{lcat} in
-%   VecLike}.
+We can also implement |product|, which finds the product of all the
+numbers contained in a labelled structure:
+\begin{align*}
+& |product| : \LStr F L \N \to \N \\
+& |product|\ (-, |elts|) = |runElim|\ k\ (\unit, |elts|) \\
+& \quad \mathbf{where} \\
+& \quad\quad k : \ElimNP \E L \N \N \\
+& \quad\quad k = \elim \E\ (\bagop{fold}\ |(*)|\ 0 \comp \bagop{map}\ \outr)
+\end{align*}
+The idea is that we simply ``forget'' the $F$-shape, replacing it by
+an $\E$-shape.  Since $\N$ forms a commutative monoid under
+multiplication we are allowed to eliminate a bag of natural numbers in
+this way.
 
 Since we can extract a list from
 an arbitrary \cons{Foldable} functor, we can just as easily get an
