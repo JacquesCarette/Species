@@ -924,7 +924,7 @@ following operations:
   |allocate| &: (\under L \to A) \to \Store L A \\
   |index|  &: \Store L A \to \under L \to A \\
   |map| &: (A \to B) \to \Store L A \to \Store L B \\
-  |reindex| &: (L' \iso L) \to \Store L A \to \Store {L'} A \\
+  |reindex| &: (L' = L) \to \Store L A \to \Store {L'} A \\
   |zipWith| &: (A \to B \to C) \to \Store L A \to \Store L B \to \Store L C \\
   |append| &: (\under{L_1} + \under{L_2} \iso \under{L}) \to \Store {L_1} A \to \Store {L_2} A \to \Store L A \\
   |concat| &: (\under{L_1} \times \under{L_2} \iso \under{L}) \to \Store {L_1} {\Store {L_2} A} \to \Store L A
@@ -949,7 +949,7 @@ content ourselves with some informal descriptions of the semantics.
   knowing the size of $L$.
 \item |index| allows looking up data by label.
 \item |map| ensures that $\Store L -$ is functorial.
-\item $|reindex| : (L' \iso L) \to \Store L A \to \Store {L'} A$
+\item $|reindex| : (L' = L) \to \Store L A \to \Store {L'} A$
   expresses the functoriality of $\Store - A$: we can change from one
   type of labels to another by specifying an equivalence between
   them. |map| and |reindex| together thus give $\Store - -$ the
@@ -1980,16 +1980,16 @@ species, and corresponds to Haskell's |Foldable| type class.
 \label{sec:vecmap}
 
 Section~\ref{sec:mappings} introduced the requirements that a mapping
-$\Store - -$ from labels to data must satisfy, and showed that functions
-can be used as mappings.  But such an implementation is somewhat
-degenerate, in that it does not use the information that label sets
-are finite.  The isomorphisms given in |reindex|, |append| and
-|concat| are used, but in a fairly superficial manner.
+$\StoreNP - -$ from labels to data must satisfy, and showed that
+functions can be used as mappings.  Such an implementation is somewhat
+degenerate, however, in that it does not make use of the evidence that
+label sets are finite.  The isomorphisms provided to |reindex|, |append|
+and |concat| are used, but only in a superficial manner.
 
 Our goal here is to show that we can model low-level concerns such
 as memory layout, allocation and manipulation, in a uniform manner for
 all labelled structures.  To model a consecutive block of memory,
-we will implement a mapping using finite vectors to store the $A$ values.
+we will implement a mapping using finite vectors to store $A$ values.
 More precisely, we use length-indexed vectors; this gives a very detailed view
 of the memory layout, allocation and manipulation required for storing the data
 associated with labelled structures.  As we will see, for such mappings,
@@ -2045,23 +2045,42 @@ example, if |appendV v1 v2 = (v,e)|, then it must be the case that |v1
 % \end{equation*}
 % with |sumN = foldV 0 (+)| and |sumTy = foldV undefined (+)|.
 
-Given such a type $\cons{Vec}$, we may define \[ \Store L A \defn \sum_{n :
-  \N} (\under L \iso \Fin n) \times \Vect n A, \] and implement the required
-operations as follows:
+Given such a type $\cons{Vec}$, we may define \[ \Store L A \defn
+\sum_{n : \N} (\under L \iso \Fin n) \times \Vect n A. \] The idea is
+that we store not only a vector of the appropriate length, but also an
+equivalence recording how the labels correspond to vector indices.
+We can then implement the required operations as follows:
 
 \begin{itemize}
 \item The implementation of |allocate| uses the (implicitly provided)
   proof $(n, iso) : \Finite {\under L}$ to determine the size of the
   vector to be allocated, as well as the initial layout of the values.
-  \begin{spec}
-    allocate {n,iso} f = (n, inv(iso), allocateV n (f . iso))
-  \end{spec}
+  \begin{align*}
+    & |allocate| : (\under L \to A) \to \Store L A \\
+    & |allocate|\ \{n,|iso|\}\ f = (n, |iso|^{-1}, |allocateV|\ n\ (f \comp |iso|))
+  \end{align*}
 
 \item To reindex, there is no need to allocate a new vector; |reindex|
-  simply composes the given equivalence with the stored one.
+  simply composes the given equality with the stored equivalence (we
+  elide a technically necessary application of univalence):
   \begin{spec}
     reindex i' (n, i, v) = (n, i . i', v)
   \end{spec}
+  This illustrates why we did not simply define $\Store L A \defn
+  \Vect {\size L} A$, using $L$'s associated finiteness proof for the
+  indexing. Decoupling the finiteness evidence of the labels from the
+  indexing scheme for the vector in this way allows us to reindex
+  without any shuffling of data values.  \bay{It occurs to me that we
+    might actually be able to get away with just defining $\Store L A
+    \defn \Vect {\size L} A$, and using the equivalence associated to
+    L for the indexing.  The point is that the restrictions on
+    equivalences between finite types mean that we can still do
+    reindexing without copying any data.  It would also means that
+    |zipWith| really is just |zipWithV|, since requiring the label
+    types to be the same is now rather strong (it means the layout of
+    the indices is the same as well).  But maybe this is too strong,
+    I'm not sure.  It's certainly worth thinking about at some point
+    in the future.}
 
 \item |index| is implemented in terms of |(!)|, using the stored
   equivalence to convert an external label $L$ into an internal index
@@ -2069,15 +2088,15 @@ operations as follows:
 
 \item |map| is implemented straightforwardly in terms of |mapV|; since
   the type $L$ and the length of the underlying vector are not
-  affected, the proof $(L \iso \Fin n)$ can be carried through
+  affected, the proof $(\under L \iso \Fin n)$ can be carried through
   unchanged.
 
 \item At first blush it may seem that |zipWith| would be equally
   straightforward to implement in terms of a function $|zipWithV| : (A
   \to B \to C) \to \Vect n A \to \Vect n B \to \Vect n C$ (if we had
-  such a function).  The problem, however, is that the $(L \iso \Fin
-  n)$ proofs have real computational content: zipping on labels may
-  not coincide with zipping on indices. Since we want to zip on
+  such a function).  The problem, however, is that the $(\under L \iso
+  \Fin n)$ proofs have real computational content: zipping on labels
+  may not coincide with zipping on indices. Since we want to zip on
   indices, |zipWith| must compose the given equivalences to obtain the
   correspondence between the label mappings used by the two input
   vectors:
@@ -2126,7 +2145,7 @@ embedding out of the vector operations, turning |appendV| and
 |concatV| (and possibly |allocateV| and |mapV| as well) into
 \emph{constructors} in a new data type.  This results in something
 that looks very much like generalized tries
-\cite{Hinze-generalized-tries}.
+\citep{Hinze-generalized-tries}.
 
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
