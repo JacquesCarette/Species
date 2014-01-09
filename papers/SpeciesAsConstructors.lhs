@@ -457,12 +457,8 @@ x ==== y = x === strutY 0.5 === y
 
 Note that the mapping from labels to data values need not be
 injective, so the same value of type $A$ may be associated to multiple
-labels, as illustrated in \pref{fig:labelled-structure-example}.
-However, the mapping must of course be functional, that is, each label
-is assigned to exactly one value. \jc{To me, this is not entirely clear
-in the picture.  Wouldn't it be best to separate the boxes for each letter
-and have the solid circle and the horizontal rectangle each have arrows
-to the S box?}
+labels.  However, the mapping must of course be functional, that is,
+each label is assigned to exactly one value.
 
 For now, we leave the notion of ``labelled shape'' abstract; we will
 return to define it more precisely in \pref{sec:species}.  Instead, we
