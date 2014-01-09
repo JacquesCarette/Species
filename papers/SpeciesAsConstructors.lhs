@@ -1030,7 +1030,7 @@ unique species with no shapes whatsoever, defined by
 The \emph{one} or \emph{unit} species, denoted $\One$, is the species
 with a single shape of size $0$ (that is, containing no labels),
 defined by
-\[ \One\ L \defn (\TyZero = L). \] That is, a $\One$-shape with labels
+\[ \One\ L \defn (\TyZero \iso \under L). \] That is, a $\One$-shape with labels
 drawn from $L$ consists solely of a proof that $L$ is
 empty.\footnote{\citet{yeh-k-species} mentions something equivalent,
   namely, that the unit species can be defined as the hom-functor
@@ -1060,11 +1060,11 @@ $\One$-structures, \[ \lab{\One} : \LStr \One {\lift{\Fin 0}} A. \]
 
 \paragraph{Singleton}
   The \emph{singleton} species, denoted $\X$, is defined by
-  \[ \X\ L \defn (\TyOne = L), \] that is, an $\X$-shape is just a proof
-  that $L$ has size $1$.  Again, there is at most one such proof.
-  Unlike $\One$, we may also think of an $\X$-shape as ``containing''
-  a single label of type $L$, which we may recover by applying the
-  equivalence to $\unit$.
+  \[ \X\ L \defn (\TyOne \iso \under L), \] that is, an $\X$-shape is
+  just a proof that $L$ has size $1$.  Again, there is at most one
+  such proof.  Unlike $\One$, we may also think of an $\X$-shape as
+  ``containing'' a single label of type $L$, which we may recover by
+  applying the equivalence to $\unit$.
 
   $\X$-shapes, as with $\One$, have a trivial introduction form,
   \[ \cons{x} : \X\ \lift{\Fin\ 1}. \] To introduce an $\X$-structure, one
