@@ -1886,13 +1886,13 @@ suitable function $\Lbag\Rbag\text{-}|isEmpty| : \Lbag A \Rbag \to 2$:
 This relies on the fact that $|all|$ is equivalent to having
 the second set of a partition be empty.
 
-The definition of the $|product|$ of two labelled structures may not
-make this entirely transparent, but it allows us to implement
-\emph{concatenation}.  Just as \cons{partition} is the heart of many
-of the routines described above, \cons{product} corresponds to
-concatenation of lists, concatenation of vectors, union of finite
-maps, union of bags, and so on. \jc{code omitted, see \cons{lcat} in
-  VecLike}.
+% The definition of the $|product|$ of two labelled structures may not
+% make this entirely transparent, but it allows us to implement
+% \emph{concatenation}.  Just as \cons{partition} is the heart of many
+% of the routines described above, \cons{product} corresponds to
+% concatenation of lists, concatenation of vectors, union of finite
+% maps, union of bags, and so on. \jc{code omitted, see \cons{lcat} in
+%   VecLike}.
 
 Since we can extract a list from
 an arbitrary \cons{Foldable} functor, we can just as easily get an
