@@ -231,7 +231,7 @@
 
 % quick (inline) comments
 
-\newif\ifcomments\commentstrue
+\newif\ifcomments\commentsfalse
 
 \ifcomments
 \newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
