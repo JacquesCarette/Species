@@ -608,10 +608,10 @@ of species would lie primarily in its ability to describe data types
 with \term{symmetry} (\ie\ quotient types \citep{hofmann1995quotient,
   abbott_quotient}).  That promise has not gone away; but we now
 believe that a solid understanding of labelled structures is a
-prerequisite for tackling symmetry.  In a sense, this is unsurprising,
-since introducing species as explicitly labelled objects was one of
-Joyal's great insights, allowing the encoding of symmetric and
-unlabelled structures via equivalence classes of labelled ones.
+prerequisite for tackling symmetry.  In retrospect, this is
+unsurprising, since introducing species as explicitly labelled objects
+was one of Joyal's great insights, allowing the encoding of symmetric
+and unlabelled structures via equivalence classes of labelled ones.
 
 \section{Theoretical setting}
 \label{sec:prelim}
@@ -642,9 +642,11 @@ constructors $\inl$ and $\inr$), dependent pairs (with projections
 $\outl$ and $\outr$), dependent functions, a hierarchy of type
 universes $\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the
 subscripts), and a notion of propositional equality.  The theory also
-allows inductive definitions.  In particular, we use $\N : \Type_0$ to
-denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
-usual indexed type of canonical finite sets.
+allows inductive definitions.  We use $\N : \Type_0$ to denote the
+type of natural numbers, $\Fin : \N \to \Type_0$ the usual indexed
+type of canonical finite sets, and $[-] : \Type \to \Type$ the
+inductive type of polymorphic lists, with constructors $|[]| :
+\prod_{A:\Type} [A]$ and $- :: - : \prod_{A:\Type} A \to [A] \to [A]$.
 
 Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
 dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
@@ -674,7 +676,7 @@ A few remarks about propositional equality are also in order. First,
 the structure of the type theory guarantees that functions are always
 functorial with respect to equality, that is, if $e : x = y$ and $f$
 is a function of an appropriate type, then $f(x) = f(y)$.  Given $e$
-we also have $P(x) \to P(b)$ for any type family $P$, called the
+we also have $P(x) \to P(y)$ for any type family $P$, called the
 \term{transport} of $P(x)$ along $e$.  Finally, a consequence of the
 \emph{univalence axiom} is that an equivalence $A \iso B$ can be
 converted to the propositional equality $A = B$ (and vice versa).  The
