@@ -12,7 +12,7 @@
 module Data.Species.VecLike where
 
 import           Prelude hiding (filter)
-import           Control.Lens (iso,view,from)
+import           Control.Lens (iso,view,from,(^.))
 import           Data.Type.Equality
 import qualified Data.MultiSet            as MS
 
@@ -128,29 +128,44 @@ extractBoth sp =
               Left _  -> (a:ll,rl)
               Right _ -> (ll,a:rl))) lsp
 
-{- doesn't compile, it should, but the error messages are too cryptic
-   for me to decipher this morning either
+{-
+-- doesn't compile, it should, but the error messages are too cryptic
+--   for me to decipher this morning either
 extractBoth' :: forall s l a. (S.LabelledStorage s, Set.Enumerable l, Eq l) => 
     Sp (L.L # Part) s l a -> ([a], [a])
-extractBoth' sp = accum ([],[]) id (view L.isoL fl)
+extractBoth' (Struct (CProd fl (Prod _ _ j)) stor) = accum ([],[]) id (view L.isoL fl)
   where
-    (Struct fl stor, part) = decompL sp
-    -- accum :: ([a],[a]) -> (l -> (l,a)) -> ((One + (X * L.L)) l) -> ([a],[a])
+    accum :: ([a],[a]) -> (l -> l) -> ((One + (X * L.L)) l) -> ([a],[a])
     accum (ll,lr) m (Inl (One iso)) = (ll,lr)
     accum (ll,lr) m (Inr (Prod (X i) rest iso)) = 
       accum newl mR (view L.isoL rest)
       where
-        mEither :: Either l1 l2 -> l
+--        mEither :: Either l1 l2 -> l
         mEither = m . view iso
         (mL, mR) = (mEither . Left, mEither . Right)
         l1 = view i F.FZ
         l = mL l1
         a = S.index stor l
-        newl = case part of 
-                 Prod _ _ j -> 
-                   case view (from j) l of
-                     Left _  -> (a:ll,   lr)
-                     Right _ -> (  ll, a:lr)
+        newl = case view (from j) l of
+                 Left _  -> (a:ll,   lr)
+                 Right _ -> (  ll, a:lr)
+-}
+
+{-
+-- Tried a more direct approach; I don't think it will work (I now see
+-- why the second argument to accum is necessary --- need to keep track
+-- of the accumulated isos)
+
+extractBoth'' :: forall s l a. (S.LabelledStorage s, Set.Enumerable l, Eq l) =>
+    Sp (L.L # Part) s l a -> ([a], [a])
+extractBoth'' (Struct (CProd (fl :: L.L l) ((Prod _ _ (j :: Either pl1 pl2 <-> l)) :: Part l)) (stor :: s l a))
+  = case fl ^. L.isoL :: (One + X * L.L) l of
+      (Inl (One _)) -> ([], [])
+      (Inr (Prod (X (i :: F.Fin (N.S N.Z) <-> l1)) (rest :: L.L l2) (iso :: Either l1 l2 <-> l)))
+        -> let l1 = view i F.FZ
+               a  = S.index stor l1
+           in  case view (from j) l1 of
+                 Left 
 -}
 
 extractBothLFA :: N.Natural n => Sp (L.L # Part) (->) (F.Fin n) a -> ([a],[a])
