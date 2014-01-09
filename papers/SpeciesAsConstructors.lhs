@@ -1771,7 +1771,10 @@ typed, constructive way.
 This section gives some examples of programming with labelled
 structures.  In particular, there are a number of standard functions
 on vectors, lists, sets and bags, finite maps, and similar structures,
-which we can generalize to work over all labelled structures.
+which we can generalize to work over all labelled structures. We
+present a small sampling here, using type-theoretic notation;
+these and additional examples, concretely implemented in Haskell, are
+available \todo{XXX where?}
 
 \subsection{Partition}
 
