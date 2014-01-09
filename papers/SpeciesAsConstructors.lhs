@@ -1822,15 +1822,15 @@ these combinators in the interest of space, and refer the interested
 reader to our Haskell implementation \todo{XXX link to repo}.
 
 Using this eliminator framework, we can now use the information added
-by |partition| to extract the data elements of a list into two
+by |partition| to split the data elements of a list into two
 sublists.  We use the $\List$ structure for its ordering, but use the
 information from the superimposed partition to make our choices of
 where to put each element.  Note how the elements themselves take no
 part in this choice, but the isomorphism which is stored in the
 partition plays a key role.
 \begin{align*}
-&|extractBoth| : \LStr {\List \scprod \Part} L A \to [A] \times [A] \\
-&|extractBoth| ((|lst|, \unit \sprod_{|e|} \unit), |elts|) = |runElim|\ (\elim{\List}\ |([],[])|\ |cons|)\ (|lst|, |elts|) \\
+&|splitPartition| : \LStr {\List \scprod \Part} L A \to [A] \times [A] \\
+&|splitPartition| ((|lst|, \unit \sprod_{|e|} \unit), |elts|) = |runElim|\ (\elim{\List}\ |([],[])|\ |cons|)\ (|lst|, |elts|) \\
 & \quad \mathbf{where} \\
 & \quad\quad |cons|\ (l,a)\ (|ll|,|rl|) = \\
 & \quad\quad\quad \mathbf{case}\ e^{-1}\ l\ \mathbf{of} \\
@@ -1839,8 +1839,14 @@ partition plays a key role.
 \end{align*}
 
 Using similar techniques we can easily implement other standard list
-functions like |filter|, membership testing, and linear search.  We
-can implement more complex routines too, such as \cons{findIndices}:
+functions like |filter|, membership testing, and linear search.
+
+We
+can also implement more general routines, such as \cons{findIndices}:
+\bay{|findIndices| is cheating!  The returned |E l|-structure does not
+  contain all the labels of type |l| but only a subset of them.  Of
+  course, that's the point; but the type is wrong.  The right type is
+  a complicated dependent type. Not sure what to do with this.}
 \begin{code}
 findIndices :: (S.Storage s, Set.Enumerable l, Eq l) =>
           Sp f s l a -> (a -> Bool) -> E l
