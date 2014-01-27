@@ -1,3 +1,313 @@
+%% -*- mode: LaTeX; compile-command: "mk" -*-
+
+\documentclass[adraft,copyright,creativecommons]{eptcs}
+\providecommand{\event}{MSFP 2014}
+\usepackage{breakurl}
+\usepackage{natbib}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% lhs2TeX
+
+%include polycode.fmt
+
+% Use 'arrayhs' mode, so code blocks will not be split across page breaks.
+\arrayhs
+
+\renewcommand{\Conid}[1]{\mathsf{#1}}
+
+%format <->    = "\iso"
+%format compP  = "\compP"
+%format compA  = "\compA"
+%format <*>    = "<\!\!*\!\!>"
+
+%format le_intro = "\lab{\cons{e}}"
+
+%format LStr (f) (l) (a) = "\LStr{" f "}{" l "}{" a "}"
+
+%format pi = "\pi"
+%format pi1
+%format pi2
+%format n1
+%format n2
+%format sub1
+%format sub2
+%format v1
+%format v2
+%format i1
+%format i2
+%format s1
+%format s2
+
+%format inr = "\inr"
+%format inl = "\inl"
+%format outr = "\outr"
+%format outl = "\outl"
+
+%format inv(a) = a "^{-1}"
+
+%format sumN = sum "_\N"
+%format sumTy = sum "_\Type"
+
+%format allocateV = allocate "_V"
+%format mapV = map "_V"
+%format foldV = fold "_V"
+%format appendV = append "_V"
+%format concatV = concat "_V"
+%format sumV = sum "_V"
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Package imports
+
+\usepackage{../species}
+
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+% \usepackage{proof}
+% \usepackage{comment}
+\usepackage{url}
+\usepackage{xspace}
+\usepackage{xcolor}
+\usepackage[all]{xy}
+
+% \usepackage{mathpazo}  % Looks nicer but doesn't conform to EPTCS style
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Page size
+
+\pdfpagewidth=8.5in
+\pdfpageheight=11in
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Theorems etc.
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Diagrams
+
+\usepackage{graphicx}
+\usepackage[outputdir=diagrams,backend=ps,extension=eps]{diagrams-latex}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Math typesetting
+
+% Use sans-serif for math operators
+\DeclareSymbolFont{sfoperators}{OT1}{cmss}{m}{n}
+\DeclareSymbolFontAlphabet{\mathsf}{sfoperators}
+
+\makeatletter
+\def\operator@@font{\mathgroup\symsfoperators}
+\makeatother
+
+\newcommand{\lam}[2]{\lambda #1 . #2}
+
+\newcommand{\iso}{\simeq}
+\newcommand{\mkIso}{\rightleftharpoons}
+
+% \newcommand{\impl}[1]{\ensuremath{\{#1\}}} % implicit arguments
+\newcommand{\impl}[1]{\ensuremath{(#1)}}   % not notating implicit
+                                           % arguments at the moment
+\newcommand{\defn}{\vcentcolon\equiv}
+
+\newcommand{\TyZero}{\ensuremath{\bot}}
+\newcommand{\TyOne}{\ensuremath{\top}}
+\newcommand{\unit}{\ensuremath{\star}}
+
+\newcommand{\cons}[1]{\ensuremath{\mathsf{#1}}}
+
+\newcommand{\inl}{\cons{inl}}
+\newcommand{\inr}{\cons{inr}}
+\newcommand{\outl}{\cons{outl}}
+\newcommand{\outr}{\cons{outr}}
+
+\newcommand{\Type}{\ensuremath{\mathcal{U}}}
+\newcommand{\FinType}{\ensuremath{\Type_{\text{Fin}}}}
+\newcommand{\size}[1]{\ensuremath{||#1||}}
+\newcommand{\under}[1]{\ensuremath{\left\lfloor #1 \right\rfloor}}
+\newcommand{\lift}[1]{\ensuremath{\left\lceil #1 \right\rceil}}
+
+\newcommand{\lab}[1]{\ensuremath{\left\langle #1 \right\rangle}}
+
+\DeclareMathOperator{\Species}{Species}
+\DeclareMathOperator{\RegSpecies}{RegSpecies}
+\DeclareMathOperator{\Regular}{Regular}
+\DeclareMathOperator{\Fin}{Fin}
+\DeclareMathOperator{\Finite}{Finite}
+\DeclareMathOperator{\NatZ}{O}
+\DeclareMathOperator{\NatS}{S}
+\DeclareMathOperator{\FinZ}{fO}
+\DeclareMathOperator{\FinS}{fS}
+\DeclareMathOperator{\VectOp}{Vec}
+\DeclareMathOperator{\id}{id}
+\DeclareMathOperator{\shapes}{shapes}
+\DeclareMathOperator{\relabel}{relabel}
+\DeclareMathOperator{\Natural}{Natural}
+\DeclareMathOperator{\OfSize}{OfSize}
+\DeclareMathOperator{\OfSizeLTE}{OfSizeLTE}
+\DeclareMathOperator{\OfSizeGTE}{OfSizeGTE}
+
+\DeclareMathOperator{\map}{map}
+\DeclareMathOperator{\sumTys}{sumTys}
+
+\DeclareMathOperator{\DecEq}{DecEq}
+
+\newcommand{\ssum}{\boxplus}
+\newcommand{\sprod}{\boxdot}
+\newcommand{\scomp}{\boxcircle}
+\newcommand{\scprod}{\boxtimes}
+\newcommand{\fcomp}{\boxbox}
+
+\newcommand{\LStr}[3]{\langle #1 \rangle_{#2}(#3)}
+\newcommand{\LStrE}[2]{\LStr{#1}{\bullet}{#2}}
+%\newcommand{\Elim}[4]{\ensuremath{\cons{Elim}_{\LStr{#1}{#2}{#3}}\
+%#4}}
+\newcommand{\ElimNP}[4]{\ensuremath{\LStr{#1}{#2}{#3} \rightsquigarrow {#4}}}
+\newcommand{\Elim}[4]{\ensuremath{\left(\ElimNP{#1}{#2}{#3}{#4}\right)}}
+\newcommand{\elim}[1]{\ensuremath{|elim|_{#1}}}
+
+\newcommand{\compP}{\lab{\otimes}}
+\newcommand{\compA}{\lab{\oast}}
+\newcommand{\compJ}{\lab{\varovee}}
+\newcommand{\compB}{\lab{\varogreaterthan}}
+
+\newcommand{\Vect}[2]{\VectOp\ #1\ #2}
+
+\newcommand{\Path}{\lightning}
+
+\newcommand{\StoreSym}{\Mapsto}
+\newcommand{\StoreNP}[2]{\ensuremath{#1 \StoreSym #2}}
+\newcommand{\Store}[2]{(\StoreNP{#1}{#2})}
+
+\newcommand{\List}{\mathsf{List}}
+\newcommand{\R}{\mathsf{R}}
+\newcommand{\Part}{\mathsf{Part}}
+
+\newcommand{\LUO}{$\Lambda$\kern -.1667em\lower .5ex\hbox{$\Upsilon$}\kern -.05em\raise .3ex\hbox{$\Omega$}}
+
+\newcommand{\bag}[1]{\ensuremath{\Lbag #1 \Rbag}}
+\newcommand{\bagop}[1]{\ensuremath{\bag{}\text{-}\Varid{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Prettyref
+
+\usepackage{prettyref}
+
+\newrefformat{fig}{Figure~\ref{#1}}
+\newrefformat{sec}{\sect\ref{#1}}
+\newrefformat{eq}{equation~\eqref{#1}}
+\newrefformat{prob}{Problem~\ref{#1}}
+\newrefformat{tab}{Table~\ref{#1}}
+\newrefformat{thm}{Theorem~\ref{#1}}
+\newrefformat{lem}{Lemma~\ref{#1}}
+\newrefformat{prop}{Proposition~\ref{#1}}
+\newrefformat{defn}{Definition~\ref{#1}}
+\newrefformat{cor}{Corollary~\ref{#1}}
+\newcommand{\pref}[1]{\prettyref{#1}}
+
+% \Pref is just like \pref but it uppercases the first letter; for use
+% at the beginning of a sentence.
+\newcommand{\Pref}[1]{%
+  \expandafter\ifx\csname r@@#1\endcsname\relax {\scriptsize[ref]}
+    \else
+    \edef\reftext{\prettyref{#1}}\expandafter\MakeUppercase\reftext
+    \fi
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Comments
+
+% big, top-level (verbatim) comments
+
+% \specialcomment{todoP}{\begingroup\color{red}TODO: }{\endgroup}
+
+% quick (inline) comments
+
+\newif\ifcomments\commentsfalse
+
+\ifcomments
+\newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\else
+\newcommand{\authornote}[3]{}
+\newcommand{\todo}[1]{}
+\fi
+
+\newcommand{\bay}[1]{\authornote{blue}{BAY}{#1}}
+\newcommand{\jc}[1]{\authornote{purple}{JC}{#1}}
+\newcommand{\scw}[1]{\authornote{magenta}{SCW}{#1}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Semantic markup
+
+\newcommand{\eg}{\emph{e.g.}\xspace}
+\newcommand{\ie}{\emph{i.e.}\xspace}
+\newcommand{\etal}{\emph{et al.}\xspace}
+
+\newcommand{\term}[1]{\emph{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\def\titlerunning{Arrays as labelled structures}
+
+\title{\titlerunning}
+
+%% SIGPLAN
+% \authorinfo{Brent A. Yorgey \\ Stephanie Weirich}
+% {Dept. of Computer and Information Science\\ The University of Pennsylvania\\
+% Philadelphia, Pennsylvania, USA}
+% {\{byorgey,sweirich\}@@cis.upenn.edu}
+
+% \authorinfo{Jacques Carette}
+% {Dept. of Computing and Software\\ McMaster University\\
+% Hamilton, Ontario, Canada}
+% {carette@@mcmaster.ca}
+
+%% LNCS
+% \author{Brent A. Yorgey\inst{1} \and Jacques Carette\inst{2} \and Stephanie Weirich\inst{1}}
+% \institute{Dept. of Computer and Information Science\\
+% The University of Pennsylvania\\
+% Philadelphia, Pennsylvania, USA
+% \and
+% Dept. of Computing and Software\\ McMaster University\\
+% Hamilton, Ontario, Canada}
+
+%% EPTCS
+\author{
+  Brent A. Yorgey
+  \institute{
+    Dept. of Computer and Information Science\\
+    The University of Pennsylvania\\
+    Philadelphia, Pennsylvania, USA
+  }
+  \and
+  Jacques Carette
+  \institute{
+    Dept. of Computing and Software\\ McMaster University\\
+    Hamilton, Ontario, Canada
+  }
+}
+
+\def\authorrunning{B. Yorgey, J. Carette}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+
+\todo{Abstract goes here.}
+
+\end{abstract}
+
 \subsection{Partial equivalences}
 \label{sec:subsets}
 
@@ -457,3 +767,11 @@ shapes would be much more difficult to work with).
 % then perform all the above operations, resulting in something of type
 
 %   (E^(j+k-2)) (dims1,dims2) a .
+
+
+\bibliographystyle{plainnat}
+\bibliography{SpeciesAsConstructors}
+
+\end{document}
+
+
