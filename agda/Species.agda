@@ -33,9 +33,11 @@ IsFinite A = Σ ℕ (λ n → Fin n ≃ A)
 FinSet : Set₁
 FinSet = Σ Set IsFinite
 
+-- Agda: \clL , \clR
 ⌊_⌋ : FinSet → Set
 ⌊ A , _ ⌋ = A
 
+-- Agda: \[[ , \]]
 ⟦_⟧ : ℕ → FinSet
 ⟦ n ⟧ = Fin n , (n , ide (Fin n))
 
@@ -74,6 +76,7 @@ x = ⊤≃Fin1
 
 _⊎_ : {i j : ULevel} → Set i → Set j → Set (lmax j i)
 _⊎_ = Coprod
+-- \u+
 
 ⊎-assocL : ∀ {A B C : Set} → (A ⊎ (B ⊎ C)) → ((A ⊎ B) ⊎ C)
 ⊎-assocL (inl x) = inl (inl x)
@@ -98,8 +101,29 @@ _⊎_ = Coprod
     ⊎-LR (inl (inr x)) = idp
     ⊎-LR (inr x) = idp
 
+⊎-0L : ∀ {A : Set} → (⊥ ⊎ A) ≃ A
+⊎-0L = equiv ⊎-projR inr (λ _ → idp) ⊎-inrProjR
+  where
+    ⊎-projR : ∀ {A : Set} → (⊥ ⊎ A) → A
+    ⊎-projR (inl ())
+    ⊎-projR (inr a) = a
+    ⊎-inrProjR : ∀ {A : Set} → (a : ⊥ ⊎ A) → inr (⊎-projR a) == a
+    ⊎-inrProjR (inl ())
+    ⊎-inrProjR (inr x) = idp
+
+⊎-0R : ∀ {A : Set} → (A ⊎ ⊥) ≃ A
+⊎-0R = equiv ⊎-projL inl (λ _ → idp) ⊎-inlProjL
+  where
+    ⊎-projL : ∀ {A : Set} → (A ⊎ ⊥) → A
+    ⊎-projL (inl a) = a
+    ⊎-projL (inr ())
+    ⊎-inlProjL : ∀ {A : Set} → (a : A ⊎ ⊥) → inl (⊎-projL a) == a
+    ⊎-inlProjL (inl x) = idp
+    ⊎-inlProjL (inr ())
+
 _⊞_ : Species → Species → Species
 (F ⊞ G) L = F L ⊎ G L
+-- \b+
 
 ⊞inl : ∀ {F G : Species} {L : FinSet} → F L → (F ⊞ G) L
 ⊞inl = inl
@@ -109,3 +133,24 @@ _⊞_ : Species → Species → Species
 
 ⊞-assoc : ∀ {F G H : Species} → ((F ⊞ G) ⊞ H) == (F ⊞ (G ⊞ H))
 ⊞-assoc = λ= (λ _ → ua ⊎-assoc)
+
+⊞-0L : ∀ {F : Species} → (Zero ⊞ F) == F
+⊞-0L = λ= (λ _ → ua ⊎-0L)
+
+⊞-0R : ∀ {F : Species} → (F ⊞ Zero) == F
+⊞-0R = λ= (λ _ → ua ⊎-0R)
+
+-- Product -----------------------------
+
+-- \b.
+_⊡_ : Species → Species → Species
+(F ⊡ G) L = Σ FinSet (λ L₁ → Σ FinSet (λ L₂ →
+              ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋) × (F L₁ × G L₂)
+            ))
+
+-- The above doesn't type check: it complains about universe levels,
+-- and rightly so.  The problem is that this definition is
+-- impredicative: the label sets could themselves be species
+-- structures.  (Of course, that is exactly how functor composition is
+-- implemented!)  But turning on --type-in-type makes Agda
+-- inconsistent.
