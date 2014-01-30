@@ -144,9 +144,12 @@ _⊞_ : Species → Species → Species
 
 -- \b.
 _⊡_ : Species → Species → Species
+
+{-
 (F ⊡ G) L = Σ FinSet (λ L₁ → Σ FinSet (λ L₂ →
               ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋) × (F L₁ × G L₂)
             ))
+-}
 
 -- The above doesn't type check: it complains about universe levels,
 -- and rightly so.  The problem is that this definition is
@@ -156,3 +159,11 @@ _⊡_ : Species → Species → Species
 -- inconsistent.  But even aside from consistency, turning on
 -- --type-in-type makes the applications of ua fail to type check for
 -- reasons I don't understand.
+
+(F ⊡ G) L = Σ ℕ (λ n₁ → Σ ℕ (λ n₂ →
+              ((Fin n₁ ⊎ Fin n₂) ≃ ⌊ L ⌋) × (F ⟦ n₁ ⟧ × G ⟦ n₂ ⟧)
+            ))
+
+-- The above type checks and is in some sense "equivalent" but it's
+-- very unsatisfactory.  We're constraining things too soon by forcing
+-- a canonical form on the partitions.
