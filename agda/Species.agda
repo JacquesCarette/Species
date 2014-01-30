@@ -33,11 +33,15 @@ IsFinite A = Σ ℕ (λ n → Fin n ≃ A)
 FinSet : Set₁
 FinSet = Σ Set IsFinite
 
--- Agda: \clL , \clR
+-- \|
+∣_∣ : FinSet → ℕ
+∣ _ , (n , _) ∣ = n
+
+-- \clL , \clR
 ⌊_⌋ : FinSet → Set
 ⌊ A , _ ⌋ = A
 
--- Agda: \[[ , \]]
+-- \[[ , \]]
 ⟦_⟧ : ℕ → FinSet
 ⟦ n ⟧ = Fin n , (n , ide (Fin n))
 
@@ -167,3 +171,8 @@ _⊡_ : Species → Species → Species
 -- The above type checks and is in some sense "equivalent" but it's
 -- very unsatisfactory.  We're constraining things too soon by forcing
 -- a canonical form on the partitions.
+
+⊡pair : ∀ {F G : Species} {L₁ L₂ L : FinSet}
+       → ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋)
+       → F L₁ → G L₂ → (F ⊡ G) L
+⊡pair {F} {G} {L₁} {L₂} {L} e f g = ∣ L₁ ∣ , (∣ L₂ ∣ , (equiv {!!} {!!} {!!} {!!} , ({!!} , {!!})))
