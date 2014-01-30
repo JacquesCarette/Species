@@ -153,4 +153,6 @@ _⊡_ : Species → Species → Species
 -- impredicative: the label sets could themselves be species
 -- structures.  (Of course, that is exactly how functor composition is
 -- implemented!)  But turning on --type-in-type makes Agda
--- inconsistent.
+-- inconsistent.  But even aside from consistency, turning on
+-- --type-in-type makes the applications of ua fail to type check for
+-- reasons I don't understand.
