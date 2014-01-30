@@ -1118,17 +1118,16 @@ dia = theDia # centerXY # pad 1.1
 
 As the reader is invited to check, $(\ssum,\Zero)$ forms a commutative
 monoid structure on species, up to species isomorphism.  That is, one
-can define equivalences
+can define equalities
 \begin{align*}
   \cons{plusAssoc} &: (F \ssum G) \ssum H
-  \iso F \ssum (G \ssum H) \\
-  \cons{zeroPlusL} &: \Zero \ssum F \iso F \\
-  \cons{plusComm} &: F \ssum G \iso G \ssum F
+  = F \ssum (G \ssum H) \\
+  \cons{zeroPlusL} &: \Zero \ssum F = F \\
+  \cons{plusComm} &: F \ssum G = G \ssum F
 \end{align*}
-We remark that unfolding definitions, an equivalence $F \iso G$
-between two $\Species$ is seen to be a natural isomorphism between $F$
-and $G$ as functors; this is precisely the usual definition of
-isomorphism between species.
+We remark that a path $F = G$ between two $\Species$ is precisely a
+natural isomorphism between $F$ and $G$ as functors, which is the
+usual definition of isomorphism between species.
 
 As expected, there are two introduction forms for $(F \ssum G)$-shapes
 and \mbox{-structures}:
