@@ -675,19 +675,20 @@ A \iso B$; the proof that $f$ and $g$ are inverse is left implicit.
 
 A few remarks about propositional equality are also in order. First,
 the structure of the type theory guarantees that functions are always
-functorial with respect to equality, that is, if $e : x = y$ and $f$
-is a function of an appropriate type, then $f(x) = f(y)$.  Given $e$
-we also have $P(x) \to P(y)$ for any type family $P$, called the
-\term{transport} of $P(x)$ along $e$.  Finally, a consequence of the
-\emph{univalence axiom} is that an equivalence $A \iso B$ can be
-converted to the propositional equality $A = B$ (and vice versa).  The
-intuitive idea is to formally encode the common mathematical practice
-of treating isomorphic things as identical.  It is important to keep
-in mind that an equality $e : A = B$ can thus have nontrivial
-computational content.  In other words, $A = B$ means not that $A$ and
-$B$ are identical, but merely that they can be used
-interchangeably---and moreover, interchanging them may require some
-work, computationally speaking.
+functorial with respect to equality. That is, if $e : x = y$ is a
+witness of equality between $x$ and $y$ (informally, a ``path''
+between $x$ and $y$), and $f$ is a function of an appropriate type,
+then $f(x) = f(y)$.  Given $e$ we also have $P(x) \to P(y)$ for any
+type family $P$, called the \term{transport} of $P(x)$ along $e$.
+Finally, a consequence of the \emph{univalence axiom} is that an
+equivalence $A \iso B$ can be converted to the propositional equality
+$A = B$ (and vice versa).  The intuitive idea is to formally encode
+the common mathematical practice of treating isomorphic things as
+identical.  It is important to keep in mind that an equality $e : A =
+B$ can thus have nontrivial computational content.  In other words, $A
+= B$ means not that $A$ and $B$ are identical, but merely that they
+can be used interchangeably---and moreover, interchanging them may
+require some work, computationally speaking.
 
 \subsection{Finiteness}
 \label{sec:finiteness}
