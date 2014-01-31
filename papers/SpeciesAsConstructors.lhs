@@ -1729,7 +1729,7 @@ should be pointed:
 \lab{\cons{p}} &: L \to \LStr F L A \to \LStr{\pt{F}} L A
 \end{align*}
 
-The relationship bewteen pointing and derivative is given by the
+The relationship between pointing and derivative is given by the
 equivalence \[ \pt F \iso \X \sprod F'. \] The right-to-left direction
 is straightforward to implement, requiring only some relabelling.  The
 left-to-right direction, on the other hand, requires modelling an
@@ -2007,7 +2007,7 @@ Concretely, we assume a type $|Vec| : \N \to \Type \to
 \end{align*}
 Note that in addition to computing new vectors, |appendV| and
 |concatV| also yield equivalences which encode the precise
-relationship bewteen the indices of the input and output vectors.  For
+relationship between the indices of the input and output vectors.  For
 example, if |appendV v1 v2 = (v,e)|, then it must be the case that |v1
 ! m = v !  (e (inl m))|.  Similarly, |v ! m ! n = v' ! (e (m,n))| when
 |concatV v = (v',e)|.
