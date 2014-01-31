@@ -478,7 +478,7 @@ labelled.
 \paragraph{Composition}
 
 The indirection afforded by labels makes it easy to explicitly model
-and reason about the \emph{composition} of container shapes,\eg lists of
+and reason about the \emph{composition} of container shapes, \eg lists of
 trees (\pref{sec:composition}).
 
 \paragraph{Finite maps and bags}
