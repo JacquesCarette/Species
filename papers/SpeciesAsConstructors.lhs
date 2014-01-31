@@ -478,7 +478,7 @@ labelled.
 \paragraph{Composition}
 
 The indirection afforded by labels makes it easy to explicitly model
-and reason about the \emph{composition} of container shapes,\eg lists of
+and reason about the \emph{composition} of container shapes, \eg lists of
 trees (\pref{sec:composition}).
 
 \paragraph{Finite maps and bags}
@@ -1454,7 +1454,7 @@ useful when doing generation of such structures, as it allows
 switching of generation strategies at those
 points~\citep{UszkayThesis}.
 
-The most general type for the \cons{node} constructor is complex,
+The most general type for the \cons{Node} constructor is complex,
 since it must deal with a list of subtrees all having different label
 types.  As a compromise, we can make use of a variant type
 representing labelled structures with an existentially quantified
