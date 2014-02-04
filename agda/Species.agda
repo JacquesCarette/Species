@@ -78,7 +78,7 @@ x = ⊤≃Fin1
 
 -- Sum ---------------------------------
 
-_⊎_ : {i j : ULevel} → Set i → Set j → Set (lmax j i)
+_⊎_ : {i j : Level} → Set i → Set j → Set (j ⊔ i)
 _⊎_ = Coprod
 -- \u+
 
