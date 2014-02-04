@@ -73,11 +73,23 @@ CodeOf ( C , _ ) = C
 ⌊_⌋ : FinSet → Set
 ⌊ A , _ ⌋ = ⟦ A ⟧
 
--- This is actually false: finite proofs may not match
--- lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
+FinPf : (L : FinSet) → (Fin ∣ L ∣ ≃ ⌊ L ⌋)
+FinPf ( _ , (_ , p)) = p
 
 ⌈_⌉ : ℕ → FinSet
 ⌈ n ⌉ = CFin n , (n , ide (Fin n))
+
+-- This is actually false: finite proofs may not match
+-- lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
+
+FinSet-equiv→ : (L₁ L₂ : FinSet) → (L₁ == L₂) →
+  Σ (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) (λ p →
+  Σ (∣ L₁ ∣ == ∣ L₂ ∣)  (λ q →
+    (transport (λ S₁ → Fin ∣ L₂ ∣ ≃ S₁) (ua p)
+       (transport (λ sz → Fin sz ≃ ⌊ L₁ ⌋) q (FinPf L₁)) == FinPf L₂)
+  ))
+FinSet-equiv→ (C₁ , (n₁ , f₁)) (C₂ , (n₂ , f₂)) L₁==L₂ = (coe-equiv (ap ⟦_⟧ (fst= L₁==L₂))) , ({!!} , {!!})
+
 
 -- Species -------------------------------------------------
 
@@ -242,5 +254,7 @@ ua :: ∀ L : FinSet . ( Σ (L₁ L₂ : FinSet). ((⌊ L₁ ⌋ ⊎ ⌊ L₂ �
       ⌊ L ⌋ ≃ ⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋ ≃ ⊥ ⊎ ⌊ L₂ ⌋ ≃ ⌊ L₂ ⌋
 
       How to apply ⌊ L ⌋ ≃ ⌊ L₂ ⌋  to  F L₂  to get  F L ?
+
+      Something is wrong here.
 
 -}
