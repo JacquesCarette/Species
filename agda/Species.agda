@@ -1,6 +1,7 @@
 {-# OPTIONS --without-K #-}
 
 open import HoTT
+open import GCBP
 
 module Species where
 
@@ -50,6 +51,9 @@ IsFinite A = Σ ℕ (λ n → Fin n ≃ ⟦ A ⟧)
 
 FinSet : Set
 FinSet = Σ Code IsFinite
+
+CodeOf : FinSet → Code
+CodeOf ( C , _ ) = C
 
 -- \|
 ∣_∣ : FinSet → ℕ
@@ -168,3 +172,33 @@ _⊡_ : Species → Species → Species
 (F ⊡ G) L = Σ FinSet (λ L₁ → Σ FinSet (λ L₂ →
               ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋) × (F L₁ × G L₂)
             ))
+
+lem-FinS≃ : (m : ℕ) → Fin (S m) ≃ (Fin m ⊎ ⊤)
+lem-FinS≃ m = equiv f g fg gf
+  where
+    f : ∀ {m : ℕ} → Fin (S m) → (Fin m ⊎ ⊤)
+    f fO     = inr unit
+    f (fS x) = inl x
+    g : ∀ {m : ℕ} → (Fin m ⊎ ⊤) → Fin (S m)
+    g (inr _) = fO
+    g (inl x) = fS x
+    fg : ∀ {m : ℕ} → (b : Fin m ⊎ ⊤) → (f (g b) == b)
+    fg (inr unit) = idp
+    fg (inl x) = idp
+    gf : ∀ {m : ℕ} → (b : Fin (S m)) → (g (f b) == b)
+    gf fO = idp
+    gf (fS x) = idp
+
+lem-Fin≃ : (m n : ℕ) → (Fin m ≃ Fin n) → (m == n)
+lem-Fin≃ O O e = idp
+lem-Fin≃ O (S n) e = fO-elim (<– e fO)
+lem-Fin≃ (S m) O e = fO-elim (–> e fO)
+lem-Fin≃ (S m) (S n) e = ap S (lem-Fin≃ m n (gcbp (lem-FinS≃ n ∘e e ∘e lem-FinS≃ m ⁻¹) (ide ⊤)))
+
+lem-sum-size : ∀ {L₁ L₂ L : FinSet} → ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋) → (∣ L₁ ∣ + ∣ L₂ ∣ == ∣ L ∣)
+lem-sum-size {L₁C , (L₁n , L₁F)} {L₂C , (L₂n , L₂F)} {LC , (LN , LF)} = {!!}
+
+⊡pair : ∀ {F G : Species} {L₁ L₂ L : FinSet}
+       → ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋)
+       → F L₁ → G L₂ → (F ⊡ G) L
+⊡pair {F} {G} {L₁} {L₂} iso f g = ((CSum (CodeOf L₁) (CodeOf L₂)) , ((∣ L₁ ∣ + ∣ L₂ ∣) , (equiv {!!} {!!} {!!} {!!}))) , {!!}
