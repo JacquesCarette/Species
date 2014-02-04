@@ -23,15 +23,33 @@ Fin1=fO (fS ())
 ⊤≃Fin1 : ⊤ ≃ Fin 1
 ⊤≃Fin1 = equiv (cst fO) (cst unit) Fin1=fO (λ {unit → idp})
 
+-- Codes for labels ----------------------------------------
+
+-- We use a set of codes for "allowed" label types, to get around
+-- problems with impredicativity.  The specific codes used are not
+-- important; in principle we can add codes for as many things as we
+-- like.  The important point is that we cannot use a set of species
+-- structures as labels.
+
+data Code : Set where
+  CFin  : ℕ → Code
+  CSum  : Code → Code → Code
+  CProd : Code → Code → Code
+
+⟦_⟧ : Code → Set
+⟦ CFin n ⟧ = Fin n
+⟦ CSum  c₁ c₂ ⟧ = Coprod ⟦ c₁ ⟧ ⟦ c₂ ⟧
+⟦ CProd c₁ c₂ ⟧ = ⟦ c₁ ⟧ × ⟦ c₂ ⟧
+
 -- FinSet --------------------------------------------------
 
 -- syntax Σ A (λ a → B) = Σ[ a ∈ A ] B
 
-IsFinite : Set → Set
-IsFinite A = Σ ℕ (λ n → Fin n ≃ A)
+IsFinite : Code → Set
+IsFinite A = Σ ℕ (λ n → Fin n ≃ ⟦ A ⟧)
 
-FinSet : Set₁
-FinSet = Σ Set IsFinite
+FinSet : Set
+FinSet = Σ Code IsFinite
 
 -- \|
 ∣_∣ : FinSet → ℕ
@@ -39,11 +57,10 @@ FinSet = Σ Set IsFinite
 
 -- \clL , \clR
 ⌊_⌋ : FinSet → Set
-⌊ A , _ ⌋ = A
+⌊ A , _ ⌋ = ⟦ A ⟧
 
--- \[[ , \]]
-⟦_⟧ : ℕ → FinSet
-⟦ n ⟧ = Fin n , (n , ide (Fin n))
+⌈_⌉ : ℕ → FinSet
+⌈ n ⌉ = CFin n , (n , ide (Fin n))
 
 -- Species -------------------------------------------------
 
@@ -65,7 +82,7 @@ Zero _ = ⊥
 One : Species
 One L = ⊥ ≃ ⌊ L ⌋
 
-one : One ⟦ 0 ⟧
+one : One ⌈ 0 ⌉
 one = ⊥≃Fin0
 
 -- X -----------------------------------
@@ -73,7 +90,7 @@ one = ⊥≃Fin0
 X : Species
 X L = ⊤ ≃ ⌊ L ⌋
 
-x : X ⟦ 1 ⟧
+x : X ⌈ 1 ⌉
 x = ⊤≃Fin1
 
 -- Sum ---------------------------------
@@ -148,31 +165,6 @@ _⊞_ : Species → Species → Species
 
 -- \b.
 _⊡_ : Species → Species → Species
-
-{-
 (F ⊡ G) L = Σ FinSet (λ L₁ → Σ FinSet (λ L₂ →
               ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋) × (F L₁ × G L₂)
             ))
--}
-
--- The above doesn't type check: it complains about universe levels,
--- and rightly so.  The problem is that this definition is
--- impredicative: the label sets could themselves be species
--- structures.  (Of course, that is exactly how functor composition is
--- implemented!)  But turning on --type-in-type makes Agda
--- inconsistent.  But even aside from consistency, turning on
--- --type-in-type makes the applications of ua fail to type check for
--- reasons I don't understand.
-
-(F ⊡ G) L = Σ ℕ (λ n₁ → Σ ℕ (λ n₂ →
-              ((Fin n₁ ⊎ Fin n₂) ≃ ⌊ L ⌋) × (F ⟦ n₁ ⟧ × G ⟦ n₂ ⟧)
-            ))
-
--- The above type checks and is in some sense "equivalent" but it's
--- very unsatisfactory.  We're constraining things too soon by forcing
--- a canonical form on the partitions.
-
-⊡pair : ∀ {F G : Species} {L₁ L₂ L : FinSet}
-       → ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋)
-       → F L₁ → G L₂ → (F ⊡ G) L
-⊡pair {F} {G} {L₁} {L₂} {L} e f g = ∣ L₁ ∣ , (∣ L₂ ∣ , (equiv {!!} {!!} {!!} {!!} , ({!!} , {!!})))
