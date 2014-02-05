@@ -1,6 +1,7 @@
 {-# OPTIONS --without-K #-}
 
 open import HoTT
+open import GCBP
 
 module Species where
 
@@ -41,6 +42,16 @@ data Code : Set where
 ⟦ CSum  c₁ c₂ ⟧ = Coprod ⟦ c₁ ⟧ ⟦ c₂ ⟧
 ⟦ CProd c₁ c₂ ⟧ = ⟦ c₁ ⟧ × ⟦ c₂ ⟧
 
+-- We require the property that two distinct codes never map to the
+-- same interpretation.  This would be straightforward but tedious to
+-- prove by induction on codes; for now we simply postulate it as an
+-- axiom.
+
+-- postulate Codes-unique : (c₁ c₂ : Code) → (⟦ c₁ ⟧ == ⟦ c₂ ⟧) → (c₁ == c₂)
+
+-- Actually, I thought I needed it but don't use it now.  Leaving it
+-- here but commented out.
+
 -- FinSet --------------------------------------------------
 
 -- syntax Σ A (λ a → B) = Σ[ a ∈ A ] B
@@ -51,6 +62,9 @@ IsFinite A = Σ ℕ (λ n → Fin n ≃ ⟦ A ⟧)
 FinSet : Set
 FinSet = Σ Code IsFinite
 
+CodeOf : FinSet → Code
+CodeOf ( C , _ ) = C
+
 -- \|
 ∣_∣ : FinSet → ℕ
 ∣ _ , (n , _) ∣ = n
@@ -59,8 +73,23 @@ FinSet = Σ Code IsFinite
 ⌊_⌋ : FinSet → Set
 ⌊ A , _ ⌋ = ⟦ A ⟧
 
+FinPf : (L : FinSet) → (Fin ∣ L ∣ ≃ ⌊ L ⌋)
+FinPf ( _ , (_ , p)) = p
+
 ⌈_⌉ : ℕ → FinSet
 ⌈ n ⌉ = CFin n , (n , ide (Fin n))
+
+-- This is actually false: finite proofs may not match
+-- lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
+
+FinSet-equiv→ : (L₁ L₂ : FinSet) → (L₁ == L₂) →
+  Σ (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) (λ p →
+  Σ (∣ L₁ ∣ == ∣ L₂ ∣)  (λ q →
+    (transport (λ S₁ → Fin ∣ L₂ ∣ ≃ S₁) (ua p)
+       (transport (λ sz → Fin sz ≃ ⌊ L₁ ⌋) q (FinPf L₁)) == FinPf L₂)
+  ))
+FinSet-equiv→ (C₁ , (n₁ , f₁)) (C₂ , (n₂ , f₂)) L₁==L₂ = (coe-equiv (ap ⟦_⟧ (fst= L₁==L₂))) , ({!!} , {!!})
+
 
 -- Species -------------------------------------------------
 
@@ -122,8 +151,8 @@ _⊎_ = Coprod
     ⊎-LR (inl (inr x)) = idp
     ⊎-LR (inr x) = idp
 
-⊎-0L : ∀ {A : Set} → (⊥ ⊎ A) ≃ A
-⊎-0L = equiv ⊎-projR inr (λ _ → idp) ⊎-inrProjR
+⊎-idL : ∀ {A : Set} → (⊥ ⊎ A) ≃ A
+⊎-idL = equiv ⊎-projR inr (λ _ → idp) ⊎-inrProjR
   where
     ⊎-projR : ∀ {A : Set} → (⊥ ⊎ A) → A
     ⊎-projR (inl ())
@@ -132,8 +161,8 @@ _⊎_ = Coprod
     ⊎-inrProjR (inl ())
     ⊎-inrProjR (inr x) = idp
 
-⊎-0R : ∀ {A : Set} → (A ⊎ ⊥) ≃ A
-⊎-0R = equiv ⊎-projL inl (λ _ → idp) ⊎-inlProjL
+⊎-idR : ∀ {A : Set} → (A ⊎ ⊥) ≃ A
+⊎-idR = equiv ⊎-projL inl (λ _ → idp) ⊎-inlProjL
   where
     ⊎-projL : ∀ {A : Set} → (A ⊎ ⊥) → A
     ⊎-projL (inl a) = a
@@ -155,11 +184,11 @@ _⊞_ : Species → Species → Species
 ⊞-assoc : ∀ {F G H : Species} → ((F ⊞ G) ⊞ H) == (F ⊞ (G ⊞ H))
 ⊞-assoc = λ= (λ _ → ua ⊎-assoc)
 
-⊞-0L : ∀ {F : Species} → (Zero ⊞ F) == F
-⊞-0L = λ= (λ _ → ua ⊎-0L)
+⊞-idL : ∀ {F : Species} → (Zero ⊞ F) == F
+⊞-idL = λ= (λ _ → ua ⊎-idL)
 
-⊞-0R : ∀ {F : Species} → (F ⊞ Zero) == F
-⊞-0R = λ= (λ _ → ua ⊎-0R)
+⊞-idR : ∀ {F : Species} → (F ⊞ Zero) == F
+⊞-idR = λ= (λ _ → ua ⊎-idR)
 
 -- Product -----------------------------
 
@@ -168,3 +197,64 @@ _⊡_ : Species → Species → Species
 (F ⊡ G) L = Σ FinSet (λ L₁ → Σ FinSet (λ L₂ →
               ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋) × (F L₁ × G L₂)
             ))
+
+lem-FinS≃ : (m : ℕ) → Fin (S m) ≃ (Fin m ⊎ ⊤)
+lem-FinS≃ m = equiv f g fg gf
+  where
+    f : ∀ {m : ℕ} → Fin (S m) → (Fin m ⊎ ⊤)
+    f fO     = inr unit
+    f (fS x) = inl x
+    g : ∀ {m : ℕ} → (Fin m ⊎ ⊤) → Fin (S m)
+    g (inr _) = fO
+    g (inl x) = fS x
+    fg : ∀ {m : ℕ} → (b : Fin m ⊎ ⊤) → (f (g b) == b)
+    fg (inr unit) = idp
+    fg (inl x) = idp
+    gf : ∀ {m : ℕ} → (b : Fin (S m)) → (g (f b) == b)
+    gf fO = idp
+    gf (fS x) = idp
+
+lem-Fin≃ : (m n : ℕ) → (Fin m ≃ Fin n) → (m == n)
+lem-Fin≃ O O e = idp
+lem-Fin≃ O (S n) e = fO-elim (<– e fO)
+lem-Fin≃ (S m) O e = fO-elim (–> e fO)
+lem-Fin≃ (S m) (S n) e = ap S (lem-Fin≃ m n (gcbp (lem-FinS≃ n ∘e e ∘e lem-FinS≃ m ⁻¹) (ide ⊤)))
+
+⊡pair : ∀ {F G : Species} {L₁ L₂ L : FinSet}
+       → ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋)
+       → F L₁ → G L₂ → (F ⊡ G) L
+⊡pair {_} {_} {L₁} {L₂} iso f g
+  = L₁ , (L₂ , (iso , (f , g)))
+
+⊡-idL : ∀ {F : Species} → (One ⊡ F) == F
+⊡-idL {F} = λ= (λ L → ua
+  (equiv
+    (f F L)
+    (g F L)
+    (fg F L)
+    (gf F L)
+  ))
+  where
+    f : (F : Species) → (L : FinSet) → (One ⊡ F) L → F L
+    f _ _ (L₁ , (L₂ , (iso , (⊥≃L₁ , FL₂)))) = {!!}
+    g : (F : Species) → (L : FinSet) → F L → (One ⊡ F) L
+    g = {!!}
+    fg : (F : Species) → (L : FinSet) → (x : F L) → (f F L (g F L x) == x)
+    fg = {!!}
+    gf : (F : Species) → (L : FinSet) → (x : (One ⊡ F) L) → (g F L (f F L x) == x)
+    gf = {!!}
+
+{-
+      (One ⊡ F) == F
+λ= :: ∀ L : FinSet . (One ⊡ F) L == F L
+ua :: ∀ L : FinSet . (One ⊡ F) L ≃  F L
+ua :: ∀ L : FinSet . ( Σ (L₁ L₂ : FinSet). ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋) × (One L₁ × F L₂) ) ≃ F L
+   :: ∀ L : FinSet . ( Σ (L₁ L₂ : FinSet). ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋) × (⊥ ≃ ⌊ L₁ ⌋ × F L₂) ) ≃ F L
+
+      ⌊ L ⌋ ≃ ⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋ ≃ ⊥ ⊎ ⌊ L₂ ⌋ ≃ ⌊ L₂ ⌋
+
+      How to apply ⌊ L ⌋ ≃ ⌊ L₂ ⌋  to  F L₂  to get  F L ?
+
+      Something is wrong here.
+
+-}
