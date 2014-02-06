@@ -79,17 +79,50 @@ FinPf ( _ , (_ , p)) = p
 ⌈_⌉ : ℕ → FinSet
 ⌈ n ⌉ = CFin n , (n , ide (Fin n))
 
--- This is actually false: finite proofs may not match
+--------------------------------------------------
+-- Lemmas about univalence
+
+-- The univalence axiom applied to the identity equivalence is reflexivity.
+ua-id : {A : Set} → ua (ide A) == idp
+ua-id = ua-η idp
+
+-- Don't actually need this one, but it's the way the book presents
+-- the beta-rule for univalence, so it's nice to see we can derive it
+-- from the way the Agda library encodes things
+transport-ua : ∀ {A B : Set} (e : A ≃ B) (x : A) → transport (λ X → X) (ua e) x == –> e x
+transport-ua e x
+  = equiv-induction
+      (λ e₁ → transport (λ X → X) (ua e₁) == –> e₁)
+      (λ _ → ua-id |in-ctx (coe ∘ ap (λ X → X)))
+      e
+    |in-ctx (λ f → f x)
+
+--------------------------------------------------
+-- Characterizing equalities between FinSets
+
+FinSet-eq-type : FinSet → FinSet → Set
+FinSet-eq-type L₁ L₂
+  = Σ (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) (λ p →
+      Σ (∣ L₁ ∣ == ∣ L₂ ∣)  (λ q →
+        (transport (λ S₁ → Fin ∣ L₂ ∣ ≃ S₁) (ua p)
+          (transport (λ sz → Fin sz ≃ ⌊ L₁ ⌋) q (FinPf L₁)) == FinPf L₂)
+      )
+    )
+
+FinSet-equiv→ : (L₁ L₂ : FinSet) → (L₁ == L₂) → FinSet-eq-type L₁ L₂
+FinSet-equiv→ L₁ L₂ L₁==L₂ = J (λ L₁' _ → FinSet-eq-type L₁ L₁') (ide ⌊ L₁ ⌋ , (idp , f)) L₁==L₂
+  where
+    f : coe
+      (ap (λ S₁ → (Fin ∣ L₁ ∣ ≃ S₁))
+       (ua
+        (ide _)))
+      (snd (snd L₁))
+      == snd (snd L₁)
+    f with L₁
+    ... | (L₁C , (L₁n , L₁F)) = ua-id |in-ctx (λ a → coe (ap (λ S₁ → (Fin L₁n ≃ S₁)) a) L₁F)
+
+-- This, on the other hand, is false: the finite proofs may not match.
 -- lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
-
-FinSet-equiv→ : (L₁ L₂ : FinSet) → (L₁ == L₂) →
-  Σ (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) (λ p →
-  Σ (∣ L₁ ∣ == ∣ L₂ ∣)  (λ q →
-    (transport (λ S₁ → Fin ∣ L₂ ∣ ≃ S₁) (ua p)
-       (transport (λ sz → Fin sz ≃ ⌊ L₁ ⌋) q (FinPf L₁)) == FinPf L₂)
-  ))
-FinSet-equiv→ (C₁ , (n₁ , f₁)) (C₂ , (n₂ , f₂)) L₁==L₂ = (coe-equiv (ap ⟦_⟧ (fst= L₁==L₂))) , ({!!} , {!!})
-
 
 -- Species -------------------------------------------------
 
