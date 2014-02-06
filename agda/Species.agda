@@ -46,11 +46,7 @@ data Code : Set where
 -- same interpretation.  This would be straightforward but tedious to
 -- prove by induction on codes; for now we simply postulate it as an
 -- axiom.
-
--- postulate Codes-unique : (c₁ c₂ : Code) → (⟦ c₁ ⟧ == ⟦ c₂ ⟧) → (c₁ == c₂)
-
--- Actually, I thought I needed it but don't use it now.  Leaving it
--- here but commented out.
+postulate Codes-unique : (c₁ c₂ : Code) → (⟦ c₁ ⟧ == ⟦ c₂ ⟧) → (c₁ == c₂)
 
 -- FinSet --------------------------------------------------
 
@@ -121,6 +117,13 @@ FinSet-equiv→ L₁ L₂ L₁==L₂ = J (λ L₁' _ → FinSet-eq-type L₁ L�
         FinPf L₁
     f with L₁
     ... | (L₁C , (L₁n , L₁F)) = ua-id |in-ctx (λ a → coe (ap (λ S₁ → (Fin L₁n ≃ S₁)) a) L₁F)
+
+FinSet-equiv← : (L₁ L₂ : FinSet) → FinSet-eq-type L₁ L₂ → (L₁ == L₂)
+FinSet-equiv← (L₁C , (L₁n , L₁F)) (L₂C , (L₂n , L₂F)) (L₁C≃L₂C , (L₁n=L₂n , L₁F=L₂F))
+  = pair= (Codes-unique L₁C L₂C (ua L₁C≃L₂C)) {!!}
+
+FinSet-equiv : (L₁ L₂ : FinSet) → (L₁ == L₂) ≃ FinSet-eq-type L₁ L₂
+FinSet-equiv L₁ L₂ = equiv (FinSet-equiv→ L₁ L₂) (FinSet-equiv← L₁ L₂) {!!} {!!}
 
 -- This, on the other hand, is false: the finite proofs may not match.
 -- lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
