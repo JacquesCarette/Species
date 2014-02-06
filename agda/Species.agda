@@ -113,11 +113,12 @@ FinSet-equiv→ : (L₁ L₂ : FinSet) → (L₁ == L₂) → FinSet-eq-type L�
 FinSet-equiv→ L₁ L₂ L₁==L₂ = J (λ L₁' _ → FinSet-eq-type L₁ L₁') (ide ⌊ L₁ ⌋ , (idp , f)) L₁==L₂
   where
     f : coe
-      (ap (λ S₁ → (Fin ∣ L₁ ∣ ≃ S₁))
-       (ua
-        (ide _)))
-      (snd (snd L₁))
-      == snd (snd L₁)
+          (ap (λ S₁ → (Fin ∣ L₁ ∣ ≃ S₁))
+            (ua (ide _))
+          )
+        (FinPf L₁)
+        ==
+        FinPf L₁
     f with L₁
     ... | (L₁C , (L₁n , L₁F)) = ua-id |in-ctx (λ a → coe (ap (λ S₁ → (Fin L₁n ≃ S₁)) a) L₁F)
 
