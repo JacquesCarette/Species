@@ -2251,7 +2251,7 @@ the groupoid of finite sets and bijections.  Faithful stuff types are
 equivalent to species.  But these work much like containers: stuff
 types map a structure to its underlying set (which can be thought of as
 positions), instead of mapping labels to structures.  In a different
-direction, \emph{polynomial functors} also generalize
+direction, \emph{polynomial functors over groupoids} also generalize
 species~\citep{kock2012data}, and seem a categorically solid
 foundation for an even more general approach to data type
 constructors.  Unfortunately, no one has yet to unravel these
