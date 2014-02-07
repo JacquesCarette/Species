@@ -835,11 +835,11 @@ definition comes ``for free'' from the structure of our type theory!
 In particular, we have \[ \relabel : (F : \Species) \to (L_1 = L_2)
 \to (F\ L_1 \to F\ L_2) \] via transport, where $\relabel$
 automatically respects identity and composition. This is one of the
-great strengths of type theory as a foundation for mathematics:
-everything is functorial, continuous, \emph{etc.}, and we do not
-have to waste time ruling out bizarre constructions which violate
-these obvious and desirable properties, or proving that our
-constructions do satisfy them.
+great strengths of homotopy type theory (and similar type theories) as
+a foundation for mathematics: everything is functorial, continuous,
+\emph{etc.}, and we do not have to waste time ruling out bizarre
+constructions which violate these obvious and desirable properties, or
+proving that our constructions do satisfy them.
 
 It is important to note that an equality $L_1 = L_2$ between
 constructively finite types $L_1,L_2 : \FinType$, as required by
