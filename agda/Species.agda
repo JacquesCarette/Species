@@ -5,6 +5,24 @@ open import GCBP
 
 module Species where
 
+--------------------------------------------------
+-- Lemmas about univalence
+
+-- The univalence axiom applied to the identity equivalence is reflexivity.
+ua-id : {A : Set} → ua (ide A) == idp
+ua-id = ua-η idp
+
+-- Don't actually need this one, but it's the way the book presents
+-- the beta-rule for univalence, so it's nice to see we can derive it
+-- from the way the Agda library encodes things
+transport-ua : ∀ {A B : Set} (e : A ≃ B) (x : A) → transport (λ X → X) (ua e) x == –> e x
+transport-ua e x
+  = equiv-induction
+      (λ e₁ → transport (λ X → X) (ua e₁) == –> e₁)
+      (λ _ → ua-id |in-ctx (coe ∘ ap (λ X → X)))
+      e
+    |in-ctx (λ f → f x)
+
 -- Fin -----------------------------------------------------
 
 data Fin : ℕ → Set where
@@ -46,87 +64,113 @@ data Code : Set where
 -- same interpretation.  This would be straightforward but tedious to
 -- prove by induction on codes; for now we simply postulate it as an
 -- axiom.
-postulate Codes-unique : (c₁ c₂ : Code) → (⟦ c₁ ⟧ == ⟦ c₂ ⟧) → (c₁ == c₂)
+postulate Codes-unique : {c₁ c₂ : Code} → (⟦ c₁ ⟧ == ⟦ c₂ ⟧) → (c₁ == c₂)
 
 -- FinSet --------------------------------------------------
 
 -- syntax Σ A (λ a → B) = Σ[ a ∈ A ] B
 
-IsFinite : Code → Set
-IsFinite A = Σ ℕ (λ n → Fin n ≃ ⟦ A ⟧)
+module FinSet₁ where
 
-FinSet : Set
-FinSet = Σ Code IsFinite
+  IsFinite : Code → Set
+  IsFinite A = Σ ℕ (λ n → Fin n ≃ ⟦ A ⟧)
 
-CodeOf : FinSet → Code
-CodeOf ( C , _ ) = C
+  FinSet : Set
+  FinSet = Σ Code IsFinite
 
--- \|
-∣_∣ : FinSet → ℕ
-∣ _ , (n , _) ∣ = n
+  CodeOf : FinSet → Code
+  CodeOf ( C , _ ) = C
 
--- \clL , \clR
-⌊_⌋ : FinSet → Set
-⌊ A , _ ⌋ = ⟦ A ⟧
+  -- \|
+  ∣_∣ : FinSet → ℕ
+  ∣ _ , (n , _) ∣ = n
 
-FinPf : (L : FinSet) → (Fin ∣ L ∣ ≃ ⌊ L ⌋)
-FinPf ( _ , (_ , p)) = p
+  -- \clL , \clR
+  ⌊_⌋ : FinSet → Set
+  ⌊ A , _ ⌋ = ⟦ A ⟧
 
-⌈_⌉ : ℕ → FinSet
-⌈ n ⌉ = CFin n , (n , ide (Fin n))
+  FinPf : (L : FinSet) → (Fin ∣ L ∣ ≃ ⌊ L ⌋)
+  FinPf ( _ , (_ , p)) = p
 
---------------------------------------------------
--- Lemmas about univalence
-
--- The univalence axiom applied to the identity equivalence is reflexivity.
-ua-id : {A : Set} → ua (ide A) == idp
-ua-id = ua-η idp
-
--- Don't actually need this one, but it's the way the book presents
--- the beta-rule for univalence, so it's nice to see we can derive it
--- from the way the Agda library encodes things
-transport-ua : ∀ {A B : Set} (e : A ≃ B) (x : A) → transport (λ X → X) (ua e) x == –> e x
-transport-ua e x
-  = equiv-induction
-      (λ e₁ → transport (λ X → X) (ua e₁) == –> e₁)
-      (λ _ → ua-id |in-ctx (coe ∘ ap (λ X → X)))
-      e
-    |in-ctx (λ f → f x)
+  ⌈_⌉ : ℕ → FinSet
+  ⌈ n ⌉ = CFin n , (n , ide (Fin n))
 
 --------------------------------------------------
 -- Characterizing equalities between FinSets
 
-FinSet-eq-type : FinSet → FinSet → Set
-FinSet-eq-type L₁ L₂
-  = Σ (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) (λ p →
-      Σ (∣ L₁ ∣ == ∣ L₂ ∣)  (λ q →
-        (transport (λ S₁ → Fin ∣ L₂ ∣ ≃ S₁) (ua p)
-          (transport (λ sz → Fin sz ≃ ⌊ L₁ ⌋) q (FinPf L₁)) == FinPf L₂)
+  FinSet-eq-type : FinSet → FinSet → Set
+  FinSet-eq-type L₁ L₂
+    = Σ (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) (λ p →
+        Σ (∣ L₁ ∣ == ∣ L₂ ∣)  (λ q →
+          (transport (λ S₁ → Fin ∣ L₂ ∣ ≃ S₁) (ua p)
+            (transport (λ sz → Fin sz ≃ ⌊ L₁ ⌋) q (FinPf L₁)) == FinPf L₂)
+        )
       )
-    )
 
-FinSet-equiv→ : (L₁ L₂ : FinSet) → (L₁ == L₂) → FinSet-eq-type L₁ L₂
-FinSet-equiv→ L₁ L₂ L₁==L₂ = J (λ L₁' _ → FinSet-eq-type L₁ L₁') (ide ⌊ L₁ ⌋ , (idp , f)) L₁==L₂
-  where
-    f : coe
-          (ap (λ S₁ → (Fin ∣ L₁ ∣ ≃ S₁))
-            (ua (ide _))
-          )
-        (FinPf L₁)
-        ==
-        FinPf L₁
-    f with L₁
-    ... | (L₁C , (L₁n , L₁F)) = ua-id |in-ctx (λ a → coe (ap (λ S₁ → (Fin L₁n ≃ S₁)) a) L₁F)
+  FinSet-equiv→ : (L₁ L₂ : FinSet) → (L₁ == L₂) → FinSet-eq-type L₁ L₂
+  FinSet-equiv→ L₁ L₂ L₁==L₂ = J (λ L₁' _ → FinSet-eq-type L₁ L₁') (ide ⌊ L₁ ⌋ , (idp , f)) L₁==L₂
+    where
+      f : coe
+            (ap (λ S₁ → (Fin ∣ L₁ ∣ ≃ S₁))
+              (ua (ide _))
+            )
+          (FinPf L₁)
+          ==
+          FinPf L₁
+      f with L₁
+      ... | (L₁C , (L₁n , L₁F)) = ua-id |in-ctx (λ a → coe (ap (λ S₁ → (Fin L₁n ≃ S₁)) a) L₁F)
 
-FinSet-equiv← : (L₁ L₂ : FinSet) → FinSet-eq-type L₁ L₂ → (L₁ == L₂)
-FinSet-equiv← (L₁C , (L₁n , L₁F)) (L₂C , (L₂n , L₂F)) (L₁C≃L₂C , (L₁n=L₂n , L₁F=L₂F))
-  = pair= (Codes-unique L₁C L₂C (ua L₁C≃L₂C)) {!!}
+  FinSet-equiv← : (L₁ L₂ : FinSet) → FinSet-eq-type L₁ L₂ → (L₁ == L₂)
+  FinSet-equiv← (L₁C , (L₁n , L₁F)) (L₂C , (L₂n , L₂F)) (L₁C≃L₂C , (L₁n=L₂n , L₁F=L₂F))
+    = pair= (Codes-unique (ua L₁C≃L₂C)) {!!}
 
-FinSet-equiv : (L₁ L₂ : FinSet) → (L₁ == L₂) ≃ FinSet-eq-type L₁ L₂
-FinSet-equiv L₁ L₂ = equiv (FinSet-equiv→ L₁ L₂) (FinSet-equiv← L₁ L₂) {!!} {!!}
+  FinSet-equiv : (L₁ L₂ : FinSet) → (L₁ == L₂) ≃ FinSet-eq-type L₁ L₂
+  FinSet-equiv L₁ L₂ = equiv (FinSet-equiv→ L₁ L₂) (FinSet-equiv← L₁ L₂) f {!!}
+    where
+      f : _
+      f with L₁ | L₂
+      ... | (L₁C , (L₁n , L₁F)) | (L₂C , (L₂n , L₂F)) = {!!}
 
--- This, on the other hand, is false: the finite proofs may not match.
--- lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
+  -- This, on the other hand, is false: the finite proofs may not match.
+  -- lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
+
+  -- There are no nontrivial automorphisms on FinSets!
+  FinSet-no-auto : (L : FinSet) → (p : L == L) → (fst= p == idp)
+  FinSet-no-auto L p with FinSet-equiv→ L L p
+  FinSet-no-auto (fst , (fst₁ , L)) p | fst₂ , (fst₃ , snd) = {!!}
+
+-- FinSets: another try ------------------------------------
+
+module FinSet₂ where
+
+  IsFinite : Code → Set
+  IsFinite A = Σ ℕ (λ n → Trunc ⟨0⟩ (Fin n ≃ ⟦ A ⟧))
+
+  FinSet : Set
+  FinSet = Σ Code IsFinite
+
+  CodeOf : FinSet → Code
+  CodeOf ( C , _ ) = C
+
+  -- \|
+  ∣_∣ : FinSet → ℕ
+  ∣ _ , (n , _) ∣ = n
+
+  -- \clL , \clR
+  ⌊_⌋ : FinSet → Set
+  ⌊ A , _ ⌋ = ⟦ A ⟧
+
+  FinPf : (L : FinSet) → Trunc ⟨0⟩ (Fin ∣ L ∣ ≃ ⌊ L ⌋)
+  FinPf ( _ , (_ , p)) = p
+
+  ⌈_⌉ : ℕ → FinSet
+  ⌈ n ⌉ = CFin n , (n , [ ide (Fin n) ])
+
+  -- Now that we are using propositional truncation, this is actually true
+  lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
+  lift-⌊⌋-equiv {L₁} {L₂} iso = pair= (Codes-unique (ua iso)) {!!}
+
+open FinSet₂
 
 -- Species -------------------------------------------------
 
