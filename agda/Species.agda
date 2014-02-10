@@ -26,8 +26,39 @@ transport-ua e x
 lem-transport-path-hom : ∀ {A B : Set} (e : A == B) {X : Set} (f : X == A) → transport (_==_ X) e f == f ∙ e
 lem-transport-path-hom idp idp = idp
 
-lem-transport-equiv-hom : ∀ {A B : Set} (e : A ≃ B) {X : Set} (f : X ≃ A) → transport (λ Z → X ≃ Z) (ua e) f == e ∘e f
-lem-transport-equiv-hom e f = {!lem-transport-path-hom (ua e) (ua f)!}
+ideL : ∀ {A B : Set} (e : A ≃ B) → ide B ∘e e == e
+ideL = equiv-induction (λ {A} {B} e₁ → ide B ∘e e₁ == e₁) (λ A → idp)
+
+ideR : ∀ {A B : Set} (e : A ≃ B) → e ∘e ide A == e
+ideR = equiv-induction (λ {A} e → e ∘e ide A == e) (λ _ → idp)
+
+equiv-cancelR : ∀ {A B : Set} (f : A ≃ B) (e : B ≃ B) → (e ∘e f == f) → (e == (ide B))
+equiv-cancelR =
+  equiv-induction
+    (λ {A} {B} f → (e : B ≃ B) → (e ∘e f == f) → (e == (ide B)))
+    (λ B e x →
+      e
+          =⟨ ! (ideR e) ⟩
+      e ∘e ide B
+          =⟨ x ⟩
+      ide B
+          ∎
+    )
+
+transport-by-ua-is-comp : ∀ {A B : Set} (e : A ≃ B) {X : Set} (f : X ≃ A) → transport (λ Z → X ≃ Z) (ua e) f == e ∘e f
+transport-by-ua-is-comp e = equiv-induction
+                              (λ {A} {B} e₁ →
+                                 {X : Set} (f : X ≃ A) →
+                                 transport (λ Z → X ≃ Z) (ua e₁) f == e₁ ∘e f)
+                              (λ A {X} f →
+                                 transport (_≃_ X) (ua (ide A)) f
+                                     =⟨ ap (λ p → transport (_≃_ X) p f) ua-id ⟩
+                                 f
+                                     =⟨ ! (ideL f) ⟩
+                                 ide _ ∘e f
+                                     ∎
+                              )
+                              e
 
 -- Fin -----------------------------------------------------
 
@@ -144,12 +175,27 @@ module FinSet₁ where
   UIP-ℕ n p = fst $ ℕ-is-set n n p idp
 
   -- There are no nontrivial automorphisms on FinSets!
-  FinSet-no-auto : (L : FinSet) → (p : L == L) → (fst= p == idp)
+  FinSet-no-auto : (L : FinSet) → (p : L == L) → (p == idp)
   FinSet-no-auto L p with FinSet-equiv→ L L p
-  FinSet-no-auto (C , (n , F)) p | C≃C , (n=n , F=F) = {!! (lem-transport-equiv-hom C≃C F)!}
+  FinSet-no-auto (C , (n , F)) p | C≃C , (n=n , F=F) = {!!}
+    where
 
-  -- transport (λ p → coe (ap (λ B → Fin n ≃ B) (ua C≃C)) (coe (ap (λ sz → Fin sz ≃ ⟦ C ⟧) p) F) == F) (UIP-ℕ n n=n) F=F
-  --   : coe (ap (λ B → Σ (Fin n → B) is-equiv) (ua C≃C)) F == F
+      -- most of the interesting work is done now, just needs to be
+      -- put back together to conclude p == idp
+      compPf : C≃C ∘e F == F
+      compPf =
+        C≃C ∘e F
+            =⟨ ! (transport-by-ua-is-comp C≃C F) ⟩
+        transport (_≃_ (Fin n)) (ua C≃C) F
+            =⟨ transport
+                 (λ p₁ → transport (_≃_ (Fin n)) (ua C≃C) (transport (λ sz → Fin sz ≃ ⟦ C ⟧) p₁ F) == F)
+                 (UIP-ℕ n n=n)
+                 F=F
+             ⟩
+        F ∎
+
+      C≃C-is-id : C≃C == ide ⟦ C ⟧
+      C≃C-is-id = equiv-cancelR F C≃C compPf
 
 -- FinSets: another try ------------------------------------
 
@@ -180,7 +226,8 @@ module FinSet₂ where
 
   -- Now that we are using propositional truncation, this should actually be true
   lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
-  lift-⌊⌋-equiv {L₁} {L₂} iso = pair= (Codes-unique (ua iso)) {!!}
+  lift-⌊⌋-equiv {L₁} {L₂} iso = {!equiv-induction (λ {L₁} {L₂}!}
+    -- pair= (Codes-unique (ua iso)) {!!}
 
 open FinSet₂
 
