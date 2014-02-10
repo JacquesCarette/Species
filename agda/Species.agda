@@ -23,6 +23,12 @@ transport-ua e x
       e
     |in-ctx (λ f → f x)
 
+lem-transport-path-hom : ∀ {A B : Set} (e : A == B) {X : Set} (f : X == A) → transport (_==_ X) e f == f ∙ e
+lem-transport-path-hom idp idp = idp
+
+lem-transport-equiv-hom : ∀ {A B : Set} (e : A ≃ B) {X : Set} (f : X ≃ A) → transport (λ Z → X ≃ Z) (ua e) f == e ∘e f
+lem-transport-equiv-hom e f = {!lem-transport-path-hom (ua e) (ua f)!}
+
 -- Fin -----------------------------------------------------
 
 data Fin : ℕ → Set where
@@ -134,10 +140,16 @@ module FinSet₁ where
   -- This, on the other hand, is false: the finite proofs may not match.
   -- lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
 
+  UIP-ℕ : (n : ℕ) → (p : n == n) → (p == idp)
+  UIP-ℕ n p = fst $ ℕ-is-set n n p idp
+
   -- There are no nontrivial automorphisms on FinSets!
   FinSet-no-auto : (L : FinSet) → (p : L == L) → (fst= p == idp)
   FinSet-no-auto L p with FinSet-equiv→ L L p
-  FinSet-no-auto (fst , (fst₁ , L)) p | fst₂ , (fst₃ , snd) = {!!}
+  FinSet-no-auto (C , (n , F)) p | C≃C , (n=n , F=F) = {!! (lem-transport-equiv-hom C≃C F)!}
+
+  -- transport (λ p → coe (ap (λ B → Fin n ≃ B) (ua C≃C)) (coe (ap (λ sz → Fin sz ≃ ⟦ C ⟧) p) F) == F) (UIP-ℕ n n=n) F=F
+  --   : coe (ap (λ B → Σ (Fin n → B) is-equiv) (ua C≃C)) F == F
 
 -- FinSets: another try ------------------------------------
 
@@ -166,7 +178,7 @@ module FinSet₂ where
   ⌈_⌉ : ℕ → FinSet
   ⌈ n ⌉ = CFin n , (n , [ ide (Fin n) ])
 
-  -- Now that we are using propositional truncation, this is actually true
+  -- Now that we are using propositional truncation, this should actually be true
   lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
   lift-⌊⌋-equiv {L₁} {L₂} iso = pair= (Codes-unique (ua iso)) {!!}
 
