@@ -5,6 +5,61 @@ open import GCBP
 
 module Species where
 
+--------------------------------------------------
+-- Lemmas about univalence
+
+-- The univalence axiom applied to the identity equivalence is reflexivity.
+ua-id : {A : Set} → ua (ide A) == idp
+ua-id = ua-η idp
+
+-- Don't actually need this one, but it's the way the book presents
+-- the beta-rule for univalence, so it's nice to see we can derive it
+-- from the way the Agda library encodes things
+transport-ua : ∀ {A B : Set} (e : A ≃ B) (x : A) → transport (λ X → X) (ua e) x == –> e x
+transport-ua e x
+  = equiv-induction
+      (λ e₁ → transport (λ X → X) (ua e₁) == –> e₁)
+      (λ _ → ua-id |in-ctx (coe ∘ ap (λ X → X)))
+      e
+    |in-ctx (λ f → f x)
+
+lem-transport-path-hom : ∀ {A B : Set} (e : A == B) {X : Set} (f : X == A) → transport (_==_ X) e f == f ∙ e
+lem-transport-path-hom idp idp = idp
+
+ideL : ∀ {A B : Set} (e : A ≃ B) → ide B ∘e e == e
+ideL = equiv-induction (λ {A} {B} e₁ → ide B ∘e e₁ == e₁) (λ A → idp)
+
+ideR : ∀ {A B : Set} (e : A ≃ B) → e ∘e ide A == e
+ideR = equiv-induction (λ {A} e → e ∘e ide A == e) (λ _ → idp)
+
+equiv-cancelR : ∀ {A B : Set} (f : A ≃ B) (e : B ≃ B) → (e ∘e f == f) → (e == (ide B))
+equiv-cancelR =
+  equiv-induction
+    (λ {A} {B} f → (e : B ≃ B) → (e ∘e f == f) → (e == (ide B)))
+    (λ B e x →
+      e
+          =⟨ ! (ideR e) ⟩
+      e ∘e ide B
+          =⟨ x ⟩
+      ide B
+          ∎
+    )
+
+transport-by-ua-is-comp : ∀ {A B : Set} (e : A ≃ B) {X : Set} (f : X ≃ A) → transport (λ Z → X ≃ Z) (ua e) f == e ∘e f
+transport-by-ua-is-comp e = equiv-induction
+                              (λ {A} {B} e₁ →
+                                 {X : Set} (f : X ≃ A) →
+                                 transport (λ Z → X ≃ Z) (ua e₁) f == e₁ ∘e f)
+                              (λ A {X} f →
+                                 transport (_≃_ X) (ua (ide A)) f
+                                     =⟨ ap (λ p → transport (_≃_ X) p f) ua-id ⟩
+                                 f
+                                     =⟨ ! (ideL f) ⟩
+                                 ide _ ∘e f
+                                     ∎
+                              )
+                              e
+
 -- Fin -----------------------------------------------------
 
 data Fin : ℕ → Set where
@@ -23,6 +78,28 @@ Fin1=fO (fS ())
 
 ⊤≃Fin1 : ⊤ ≃ Fin 1
 ⊤≃Fin1 = equiv (cst fO) (cst unit) Fin1=fO (λ {unit → idp})
+
+FinSm≃Finm+⊤ : (m : ℕ) → Fin (S m) ≃ (Coprod (Fin m) ⊤)
+FinSm≃Finm+⊤ m = equiv f g fg gf
+  where
+    f : ∀ {m : ℕ} → Fin (S m) → (Coprod (Fin m) ⊤)
+    f fO     = inr unit
+    f (fS x) = inl x
+    g : ∀ {m : ℕ} → (Coprod (Fin m) ⊤) → Fin (S m)
+    g (inr _) = fO
+    g (inl x) = fS x
+    fg : ∀ {m : ℕ} → (b : Coprod (Fin m) ⊤) → (f (g b) == b)
+    fg (inr unit) = idp
+    fg (inl x) = idp
+    gf : ∀ {m : ℕ} → (b : Fin (S m)) → (g (f b) == b)
+    gf fO = idp
+    gf (fS x) = idp
+
+Fin≃-= : (m n : ℕ) → (Fin m ≃ Fin n) → (m == n)
+Fin≃-= O O e = idp
+Fin≃-= O (S n) e = fO-elim (<– e fO)
+Fin≃-= (S m) O e = fO-elim (–> e fO)
+Fin≃-= (S m) (S n) e = ap S (Fin≃-= m n (gcbp (FinSm≃Finm+⊤ n ∘e e ∘e FinSm≃Finm+⊤ m ⁻¹) (ide ⊤)))
 
 -- Codes for labels ----------------------------------------
 
@@ -46,50 +123,159 @@ data Code : Set where
 -- same interpretation.  This would be straightforward but tedious to
 -- prove by induction on codes; for now we simply postulate it as an
 -- axiom.
-
--- postulate Codes-unique : (c₁ c₂ : Code) → (⟦ c₁ ⟧ == ⟦ c₂ ⟧) → (c₁ == c₂)
-
--- Actually, I thought I needed it but don't use it now.  Leaving it
--- here but commented out.
+postulate Codes-unique : {c₁ c₂ : Code} → (⟦ c₁ ⟧ == ⟦ c₂ ⟧) → (c₁ == c₂)
 
 -- FinSet --------------------------------------------------
 
 -- syntax Σ A (λ a → B) = Σ[ a ∈ A ] B
 
-IsFinite : Code → Set
-IsFinite A = Σ ℕ (λ n → Fin n ≃ ⟦ A ⟧)
+module FinSet₁ where
 
-FinSet : Set
-FinSet = Σ Code IsFinite
+  IsFinite : Code → Set
+  IsFinite A = Σ ℕ (λ n → Fin n ≃ ⟦ A ⟧)
 
-CodeOf : FinSet → Code
-CodeOf ( C , _ ) = C
+  FinSet : Set
+  FinSet = Σ Code IsFinite
 
--- \|
-∣_∣ : FinSet → ℕ
-∣ _ , (n , _) ∣ = n
+  CodeOf : FinSet → Code
+  CodeOf ( C , _ ) = C
 
--- \clL , \clR
-⌊_⌋ : FinSet → Set
-⌊ A , _ ⌋ = ⟦ A ⟧
+  -- \|
+  ∣_∣ : FinSet → ℕ
+  ∣ _ , (n , _) ∣ = n
 
-FinPf : (L : FinSet) → (Fin ∣ L ∣ ≃ ⌊ L ⌋)
-FinPf ( _ , (_ , p)) = p
+  -- \clL , \clR
+  ⌊_⌋ : FinSet → Set
+  ⌊ A , _ ⌋ = ⟦ A ⟧
 
-⌈_⌉ : ℕ → FinSet
-⌈ n ⌉ = CFin n , (n , ide (Fin n))
+  FinPf : (L : FinSet) → (Fin ∣ L ∣ ≃ ⌊ L ⌋)
+  FinPf ( _ , (_ , p)) = p
 
--- This is actually false: finite proofs may not match
--- lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
+  ⌈_⌉ : ℕ → FinSet
+  ⌈ n ⌉ = CFin n , (n , ide (Fin n))
 
-FinSet-equiv→ : (L₁ L₂ : FinSet) → (L₁ == L₂) →
-  Σ (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) (λ p →
-  Σ (∣ L₁ ∣ == ∣ L₂ ∣)  (λ q →
-    (transport (λ S₁ → Fin ∣ L₂ ∣ ≃ S₁) (ua p)
-       (transport (λ sz → Fin sz ≃ ⌊ L₁ ⌋) q (FinPf L₁)) == FinPf L₂)
-  ))
-FinSet-equiv→ (C₁ , (n₁ , f₁)) (C₂ , (n₂ , f₂)) L₁==L₂ = (coe-equiv (ap ⟦_⟧ (fst= L₁==L₂))) , ({!!} , {!!})
+--------------------------------------------------
+-- Characterizing equalities between FinSets
 
+  FinSet-eq-type : FinSet → FinSet → Set
+  FinSet-eq-type L₁ L₂
+    = Σ (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) (λ p →
+        Σ (∣ L₁ ∣ == ∣ L₂ ∣)  (λ q →
+          (transport (λ S₁ → Fin ∣ L₂ ∣ ≃ S₁) (ua p)
+            (transport (λ sz → Fin sz ≃ ⌊ L₁ ⌋) q (FinPf L₁)) == FinPf L₂)
+        )
+      )
+
+  FinSet-equiv→ : (L₁ L₂ : FinSet) → (L₁ == L₂) → FinSet-eq-type L₁ L₂
+  FinSet-equiv→ L₁ L₂ L₁==L₂ = J (λ L₁' _ → FinSet-eq-type L₁ L₁') (ide ⌊ L₁ ⌋ , (idp , f)) L₁==L₂
+    where
+      f : coe
+            (ap (λ S₁ → (Fin ∣ L₁ ∣ ≃ S₁))
+              (ua (ide _))
+            )
+          (FinPf L₁)
+          ==
+          FinPf L₁
+      f with L₁
+      ... | (L₁C , (L₁n , L₁F)) = ua-id |in-ctx (λ a → coe (ap (λ S₁ → (Fin L₁n ≃ S₁)) a) L₁F)
+
+  FinSet-equiv← : (L₁ L₂ : FinSet) → FinSet-eq-type L₁ L₂ → (L₁ == L₂)
+  FinSet-equiv← (L₁C , (L₁n , L₁F)) (L₂C , (L₂n , L₂F)) (L₁C≃L₂C , (L₁n=L₂n , L₁F=L₂F))
+    = pair= (Codes-unique (ua L₁C≃L₂C)) {!!}
+
+  FinSet-equiv : (L₁ L₂ : FinSet) → (L₁ == L₂) ≃ FinSet-eq-type L₁ L₂
+  FinSet-equiv L₁ L₂ = equiv (FinSet-equiv→ L₁ L₂) (FinSet-equiv← L₁ L₂) f {!!}
+    where
+      f : _
+      f with L₁ | L₂
+      ... | (L₁C , (L₁n , L₁F)) | (L₂C , (L₂n , L₂F)) = {!!}
+
+  -- This, on the other hand, is false: the finite proofs may not match.
+  -- lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
+
+  UIP-ℕ : (n : ℕ) → (p : n == n) → (p == idp)
+  UIP-ℕ n p = fst $ ℕ-is-set n n p idp
+
+  -- There are no nontrivial automorphisms on FinSets!
+  FinSet-no-auto : (L : FinSet) → (p : L == L) → (p == idp)
+  FinSet-no-auto L p with FinSet-equiv→ L L p
+  FinSet-no-auto (C , (n , F)) p | C≃C , (n=n , F=F) = {!!}
+    where
+
+      -- most of the interesting work is done now, just needs to be
+      -- put back together to conclude p == idp
+      compPf : C≃C ∘e F == F
+      compPf =
+        C≃C ∘e F
+            =⟨ ! (transport-by-ua-is-comp C≃C F) ⟩
+        transport (_≃_ (Fin n)) (ua C≃C) F
+            =⟨ transport
+                 (λ p₁ → transport (_≃_ (Fin n)) (ua C≃C) (transport (λ sz → Fin sz ≃ ⟦ C ⟧) p₁ F) == F)
+                 (UIP-ℕ n n=n)
+                 F=F
+             ⟩
+        F ∎
+
+      C≃C-is-id : C≃C == ide ⟦ C ⟧
+      C≃C-is-id = equiv-cancelR F C≃C compPf
+
+-- FinSets: another try ------------------------------------
+
+module FinSet₂ where
+
+  IsFinite : Code → Set
+  IsFinite A = Σ ℕ (λ n → Trunc ⟨-1⟩ (Fin n ≃ ⟦ A ⟧))
+
+  FinSet : Set
+  FinSet = Σ Code IsFinite
+
+  CodeOf : FinSet → Code
+  CodeOf ( C , _ ) = C
+
+  -- \|
+  ∣_∣ : FinSet → ℕ
+  ∣ _ , (n , _) ∣ = n
+
+  -- \clL , \clR
+  ⌊_⌋ : FinSet → Set
+  ⌊ A , _ ⌋ = ⟦ A ⟧
+
+  FinPf : (L : FinSet) → Trunc ⟨-1⟩ (Fin ∣ L ∣ ≃ ⌊ L ⌋)
+  FinPf ( _ , (_ , p)) = p
+
+  ⌈_⌉ : ℕ → FinSet
+  ⌈ n ⌉ = CFin n , (n , [ ide (Fin n) ])
+
+  lift-⌊⌋-equiv' : (⟦L₁C⟧ ⟦L₂C⟧ : Set) (e : ⟦L₁C⟧ ≃ ⟦L₂C⟧) (L₁n L₂n : ℕ)
+                   (L₁F : Trunc ⟨-1⟩ (Fin L₁n ≃ ⟦L₁C⟧))
+                   (L₂F : Trunc ⟨-1⟩ (Fin L₂n ≃ ⟦L₂C⟧))
+                 → (Σ (L₁n == L₂n)
+                      (λ p → transport (λ n → Trunc ⟨-1⟩ (Fin n ≃ ⟦L₂C⟧)) p (transport (λ c → Trunc ⟨-1⟩ (Fin L₁n ≃ c)) (ua e) L₁F) == L₂F)
+                   )
+  lift-⌊⌋-equiv' ⟦L₁C⟧ ⟦L₂C⟧ = equiv-induction
+                                 (λ {A} {B} e →
+                                    (L₁n L₂n : ℕ) (L₁F : Trunc ⟨-1⟩ (Fin L₁n ≃ A))
+                                    (L₂F : Trunc ⟨-1⟩ (Fin L₂n ≃ B)) →
+                                    Σ (L₁n == L₂n)
+                                    (λ p →
+                                       transport (λ n → Trunc ⟨-1⟩ (Fin n ≃ B)) p
+                                       (transport (λ c → Trunc ⟨-1⟩ (Fin L₁n ≃ c)) (ua e) L₁F)
+                                       == L₂F))
+                                 (λ S L₁n L₂n L₁F L₂F →
+                                    (Trunc-elim (λ _ → ℕ-is-set L₁n L₂n) (λ eqv₁ →
+                                    (Trunc-elim (λ _ → ℕ-is-set L₁n L₂n) (λ eqv₂ →
+                                       Fin≃-= L₁n L₂n (eqv₂ ⁻¹ ∘e eqv₁))
+                                    L₂F)) L₁F)
+                                 , fst (Trunc-level {n = ⟨-1⟩} {A = Fin L₂n ≃ S} _ _)
+                                 )
+
+  -- Now that we are using propositional truncation, this should actually be true
+  lift-⌊⌋-equiv : (L₁ L₂ : FinSet) → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
+  lift-⌊⌋-equiv (L₁C , (L₁n , L₁F)) (L₂C , (L₂n , L₂F)) iso
+    with lift-⌊⌋-equiv' ⟦ L₁C ⟧ ⟦ L₂C ⟧ iso L₁n L₂n L₁F L₂F
+  ... | (eqn , eqF) = pair= (Codes-unique (ua iso)) {!!}
+
+open FinSet₂
 
 -- Species -------------------------------------------------
 
@@ -171,6 +357,12 @@ _⊎_ = Coprod
     ⊎-inlProjL (inl x) = idp
     ⊎-inlProjL (inr ())
 
+⊎-≃ : ∀ {A₁ B₁ A₂ B₂ : Set} → (A₁ ≃ B₁) → (A₂ ≃ B₂) → ((A₁ ⊎ A₂) ≃ (B₁ ⊎ B₂))
+⊎-≃ e₁ e₂ = equiv (λ { (inl a₁) → inl (–> e₁ a₁) ; (inr a₂) → inr (–> e₂ a₂) })
+                  (λ {(inl b₁) → inl (<– e₁ b₁); (inr b₂) → inr (<– e₂ b₂)})
+                  (λ {(inl b₁) → {!!}; (inr b₂) → {!!}})
+                  {!!}
+
 _⊞_ : Species → Species → Species
 (F ⊞ G) L = F L ⊎ G L
 -- \b+
@@ -198,28 +390,6 @@ _⊡_ : Species → Species → Species
               ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋) × (F L₁ × G L₂)
             ))
 
-lem-FinS≃ : (m : ℕ) → Fin (S m) ≃ (Fin m ⊎ ⊤)
-lem-FinS≃ m = equiv f g fg gf
-  where
-    f : ∀ {m : ℕ} → Fin (S m) → (Fin m ⊎ ⊤)
-    f fO     = inr unit
-    f (fS x) = inl x
-    g : ∀ {m : ℕ} → (Fin m ⊎ ⊤) → Fin (S m)
-    g (inr _) = fO
-    g (inl x) = fS x
-    fg : ∀ {m : ℕ} → (b : Fin m ⊎ ⊤) → (f (g b) == b)
-    fg (inr unit) = idp
-    fg (inl x) = idp
-    gf : ∀ {m : ℕ} → (b : Fin (S m)) → (g (f b) == b)
-    gf fO = idp
-    gf (fS x) = idp
-
-lem-Fin≃ : (m n : ℕ) → (Fin m ≃ Fin n) → (m == n)
-lem-Fin≃ O O e = idp
-lem-Fin≃ O (S n) e = fO-elim (<– e fO)
-lem-Fin≃ (S m) O e = fO-elim (–> e fO)
-lem-Fin≃ (S m) (S n) e = ap S (lem-Fin≃ m n (gcbp (lem-FinS≃ n ∘e e ∘e lem-FinS≃ m ⁻¹) (ide ⊤)))
-
 ⊡pair : ∀ {F G : Species} {L₁ L₂ L : FinSet}
        → ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋)
        → F L₁ → G L₂ → (F ⊡ G) L
@@ -236,7 +406,7 @@ lem-Fin≃ (S m) (S n) e = ap S (lem-Fin≃ m n (gcbp (lem-FinS≃ n ∘e e ∘e
   ))
   where
     f : (F : Species) → (L : FinSet) → (One ⊡ F) L → F L
-    f _ _ (L₁ , (L₂ , (iso , (⊥≃L₁ , FL₂)))) = {!!}
+    f _ L (L₁ , (L₂ , (iso , (⊥≃L₁ , FL₂)))) = relabel (lift-⌊⌋-equiv L₂ L (⌊ L₂ ⌋ ≃⟨ ⊎-idL ⁻¹ ⟩ ⊥ ⊎ ⌊ L₂ ⌋ ≃⟨ ⊎-≃ ⊥≃L₁ (ide _) ⟩ ⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋ ≃⟨ iso ⟩ ⌊ L ⌋ ≃∎)) FL₂
     g : (F : Species) → (L : FinSet) → F L → (One ⊡ F) L
     g = {!!}
     fg : (F : Species) → (L : FinSet) → (x : F L) → (f F L (g F L x) == x)
@@ -253,8 +423,6 @@ ua :: ∀ L : FinSet . ( Σ (L₁ L₂ : FinSet). ((⌊ L₁ ⌋ ⊎ ⌊ L₂ �
 
       ⌊ L ⌋ ≃ ⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋ ≃ ⊥ ⊎ ⌊ L₂ ⌋ ≃ ⌊ L₂ ⌋
 
-      How to apply ⌊ L ⌋ ≃ ⌊ L₂ ⌋  to  F L₂  to get  F L ?
-
-      Something is wrong here.
+      We can conclude from ⌊ L ⌋ ≃ ⌊ L₂ ⌋ that L == L₂; then relabel.
 
 -}
