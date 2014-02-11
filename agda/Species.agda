@@ -224,10 +224,17 @@ module FinSet₂ where
   ⌈_⌉ : ℕ → FinSet
   ⌈ n ⌉ = CFin n , (n , [ ide (Fin n) ])
 
+  lift-⌊⌋-equiv' : (⟦L₁C⟧ ⟦L₂C⟧ : Set) (e : ⟦L₁C⟧ ≃ ⟦L₂C⟧) (L₁n L₂n : ℕ)
+                   (L₁F : Trunc ⟨-1⟩ (Fin L₁n ≃ ⟦L₁C⟧))
+                   (L₂F : Trunc ⟨-1⟩ (Fin L₂n ≃ ⟦L₂C⟧))
+                 → (Σ (L₁n == L₂n)
+                      (λ p → transport (λ n → Trunc ⟨-1⟩ (Fin n ≃ ⟦L₂C⟧)) p (transport (λ c → Trunc ⟨-1⟩ (Fin L₁n ≃ c)) (ua e) L₁F) == L₂F))
+  lift-⌊⌋-equiv' ⟦L₁C⟧ ⟦L₂C⟧ = {!!}
+
   -- Now that we are using propositional truncation, this should actually be true
-  lift-⌊⌋-equiv : ∀ {L₁ L₂ : FinSet} → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
-  lift-⌊⌋-equiv {L₁} {L₂} iso = {!equiv-induction (λ {L₁} {L₂}!}
-    -- pair= (Codes-unique (ua iso)) {!!}
+  lift-⌊⌋-equiv : (L₁ L₂ : FinSet) → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
+  lift-⌊⌋-equiv (L₁C , (L₁n , L₁F)) (L₂C , (L₂n , L₂F)) iso = pair= (Codes-unique (ua iso)) {!!}
+
 
 open FinSet₂
 
