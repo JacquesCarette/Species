@@ -357,6 +357,12 @@ _⊎_ = Coprod
     ⊎-inlProjL (inl x) = idp
     ⊎-inlProjL (inr ())
 
+⊎-≃ : ∀ {A₁ B₁ A₂ B₂ : Set} → (A₁ ≃ B₁) → (A₂ ≃ B₂) → ((A₁ ⊎ A₂) ≃ (B₁ ⊎ B₂))
+⊎-≃ e₁ e₂ = equiv (λ { (inl a₁) → inl (–> e₁ a₁) ; (inr a₂) → inr (–> e₂ a₂) })
+                  (λ {(inl b₁) → inl (<– e₁ b₁); (inr b₂) → inr (<– e₂ b₂)})
+                  (λ {(inl b₁) → {!!}; (inr b₂) → {!!}})
+                  {!!}
+
 _⊞_ : Species → Species → Species
 (F ⊞ G) L = F L ⊎ G L
 -- \b+
@@ -400,7 +406,7 @@ _⊡_ : Species → Species → Species
   ))
   where
     f : (F : Species) → (L : FinSet) → (One ⊡ F) L → F L
-    f _ _ (L₁ , (L₂ , (iso , (⊥≃L₁ , FL₂)))) = {!!}
+    f _ L (L₁ , (L₂ , (iso , (⊥≃L₁ , FL₂)))) = relabel (lift-⌊⌋-equiv L₂ L (⌊ L₂ ⌋ ≃⟨ ⊎-idL ⁻¹ ⟩ ⊥ ⊎ ⌊ L₂ ⌋ ≃⟨ ⊎-≃ ⊥≃L₁ (ide _) ⟩ ⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋ ≃⟨ iso ⟩ ⌊ L ⌋ ≃∎)) FL₂
     g : (F : Species) → (L : FinSet) → F L → (One ⊡ F) L
     g = {!!}
     fg : (F : Species) → (L : FinSet) → (x : F L) → (f F L (g F L x) == x)
@@ -417,8 +423,6 @@ ua :: ∀ L : FinSet . ( Σ (L₁ L₂ : FinSet). ((⌊ L₁ ⌋ ⊎ ⌊ L₂ �
 
       ⌊ L ⌋ ≃ ⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋ ≃ ⊥ ⊎ ⌊ L₂ ⌋ ≃ ⌊ L₂ ⌋
 
-      How to apply ⌊ L ⌋ ≃ ⌊ L₂ ⌋  to  F L₂  to get  F L ?
-
-      Something is wrong here.
+      We can conclude from ⌊ L ⌋ ≃ ⌊ L₂ ⌋ that L == L₂; then relabel.
 
 -}
