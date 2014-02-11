@@ -202,7 +202,7 @@ module FinSet₁ where
 module FinSet₂ where
 
   IsFinite : Code → Set
-  IsFinite A = Σ ℕ (λ n → Trunc ⟨0⟩ (Fin n ≃ ⟦ A ⟧))
+  IsFinite A = Σ ℕ (λ n → Trunc ⟨-1⟩ (Fin n ≃ ⟦ A ⟧))
 
   FinSet : Set
   FinSet = Σ Code IsFinite
@@ -218,7 +218,7 @@ module FinSet₂ where
   ⌊_⌋ : FinSet → Set
   ⌊ A , _ ⌋ = ⟦ A ⟧
 
-  FinPf : (L : FinSet) → Trunc ⟨0⟩ (Fin ∣ L ∣ ≃ ⌊ L ⌋)
+  FinPf : (L : FinSet) → Trunc ⟨-1⟩ (Fin ∣ L ∣ ≃ ⌊ L ⌋)
   FinPf ( _ , (_ , p)) = p
 
   ⌈_⌉ : ℕ → FinSet
