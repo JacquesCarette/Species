@@ -79,6 +79,28 @@ Fin1=fO (fS ())
 ⊤≃Fin1 : ⊤ ≃ Fin 1
 ⊤≃Fin1 = equiv (cst fO) (cst unit) Fin1=fO (λ {unit → idp})
 
+FinSm≃Finm+⊤ : (m : ℕ) → Fin (S m) ≃ (Coprod (Fin m) ⊤)
+FinSm≃Finm+⊤ m = equiv f g fg gf
+  where
+    f : ∀ {m : ℕ} → Fin (S m) → (Coprod (Fin m) ⊤)
+    f fO     = inr unit
+    f (fS x) = inl x
+    g : ∀ {m : ℕ} → (Coprod (Fin m) ⊤) → Fin (S m)
+    g (inr _) = fO
+    g (inl x) = fS x
+    fg : ∀ {m : ℕ} → (b : Coprod (Fin m) ⊤) → (f (g b) == b)
+    fg (inr unit) = idp
+    fg (inl x) = idp
+    gf : ∀ {m : ℕ} → (b : Fin (S m)) → (g (f b) == b)
+    gf fO = idp
+    gf (fS x) = idp
+
+Fin≃-= : (m n : ℕ) → (Fin m ≃ Fin n) → (m == n)
+Fin≃-= O O e = idp
+Fin≃-= O (S n) e = fO-elim (<– e fO)
+Fin≃-= (S m) O e = fO-elim (–> e fO)
+Fin≃-= (S m) (S n) e = ap S (Fin≃-= m n (gcbp (FinSm≃Finm+⊤ n ∘e e ∘e FinSm≃Finm+⊤ m ⁻¹) (ide ⊤)))
+
 -- Codes for labels ----------------------------------------
 
 -- We use a set of codes for "allowed" label types, to get around
@@ -228,13 +250,30 @@ module FinSet₂ where
                    (L₁F : Trunc ⟨-1⟩ (Fin L₁n ≃ ⟦L₁C⟧))
                    (L₂F : Trunc ⟨-1⟩ (Fin L₂n ≃ ⟦L₂C⟧))
                  → (Σ (L₁n == L₂n)
-                      (λ p → transport (λ n → Trunc ⟨-1⟩ (Fin n ≃ ⟦L₂C⟧)) p (transport (λ c → Trunc ⟨-1⟩ (Fin L₁n ≃ c)) (ua e) L₁F) == L₂F))
-  lift-⌊⌋-equiv' ⟦L₁C⟧ ⟦L₂C⟧ = {!!}
+                      (λ p → transport (λ n → Trunc ⟨-1⟩ (Fin n ≃ ⟦L₂C⟧)) p (transport (λ c → Trunc ⟨-1⟩ (Fin L₁n ≃ c)) (ua e) L₁F) == L₂F)
+                   )
+  lift-⌊⌋-equiv' ⟦L₁C⟧ ⟦L₂C⟧ = equiv-induction
+                                 (λ {A} {B} e →
+                                    (L₁n L₂n : ℕ) (L₁F : Trunc ⟨-1⟩ (Fin L₁n ≃ A))
+                                    (L₂F : Trunc ⟨-1⟩ (Fin L₂n ≃ B)) →
+                                    Σ (L₁n == L₂n)
+                                    (λ p →
+                                       transport (λ n → Trunc ⟨-1⟩ (Fin n ≃ B)) p
+                                       (transport (λ c → Trunc ⟨-1⟩ (Fin L₁n ≃ c)) (ua e) L₁F)
+                                       == L₂F))
+                                 (λ S L₁n L₂n L₁F L₂F →
+                                    (Trunc-elim (λ _ → ℕ-is-set L₁n L₂n) (λ eqv₁ →
+                                    (Trunc-elim (λ _ → ℕ-is-set L₁n L₂n) (λ eqv₂ →
+                                       Fin≃-= L₁n L₂n (eqv₂ ⁻¹ ∘e eqv₁))
+                                    L₂F)) L₁F)
+                                 , fst (Trunc-level {n = ⟨-1⟩} {A = Fin L₂n ≃ S} _ _)
+                                 )
 
   -- Now that we are using propositional truncation, this should actually be true
   lift-⌊⌋-equiv : (L₁ L₂ : FinSet) → (⌊ L₁ ⌋ ≃ ⌊ L₂ ⌋) → (L₁ == L₂)
-  lift-⌊⌋-equiv (L₁C , (L₁n , L₁F)) (L₂C , (L₂n , L₂F)) iso = pair= (Codes-unique (ua iso)) {!!}
-
+  lift-⌊⌋-equiv (L₁C , (L₁n , L₁F)) (L₂C , (L₂n , L₂F)) iso
+    with lift-⌊⌋-equiv' ⟦ L₁C ⟧ ⟦ L₂C ⟧ iso L₁n L₂n L₁F L₂F
+  ... | (eqn , eqF) = pair= (Codes-unique (ua iso)) {!!}
 
 open FinSet₂
 
@@ -344,28 +383,6 @@ _⊡_ : Species → Species → Species
 (F ⊡ G) L = Σ FinSet (λ L₁ → Σ FinSet (λ L₂ →
               ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋) × (F L₁ × G L₂)
             ))
-
-lem-FinS≃ : (m : ℕ) → Fin (S m) ≃ (Fin m ⊎ ⊤)
-lem-FinS≃ m = equiv f g fg gf
-  where
-    f : ∀ {m : ℕ} → Fin (S m) → (Fin m ⊎ ⊤)
-    f fO     = inr unit
-    f (fS x) = inl x
-    g : ∀ {m : ℕ} → (Fin m ⊎ ⊤) → Fin (S m)
-    g (inr _) = fO
-    g (inl x) = fS x
-    fg : ∀ {m : ℕ} → (b : Fin m ⊎ ⊤) → (f (g b) == b)
-    fg (inr unit) = idp
-    fg (inl x) = idp
-    gf : ∀ {m : ℕ} → (b : Fin (S m)) → (g (f b) == b)
-    gf fO = idp
-    gf (fS x) = idp
-
-lem-Fin≃ : (m n : ℕ) → (Fin m ≃ Fin n) → (m == n)
-lem-Fin≃ O O e = idp
-lem-Fin≃ O (S n) e = fO-elim (<– e fO)
-lem-Fin≃ (S m) O e = fO-elim (–> e fO)
-lem-Fin≃ (S m) (S n) e = ap S (lem-Fin≃ m n (gcbp (lem-FinS≃ n ∘e e ∘e lem-FinS≃ m ⁻¹) (ide ⊤)))
 
 ⊡pair : ∀ {F G : Species} {L₁ L₂ L : FinSet}
        → ((⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋) ≃ ⌊ L ⌋)
