@@ -423,6 +423,7 @@ _⊡_ : Species → Species → Species
                          , (⊥≃Fin0 , FL)))
     fg : (F : Species) → (L : FinSet) → (x : F L) → (f F L (g F L x) == x)
     fg _ L FL = {!!}
+      -- I waited 10 minutes for the type of the above hole to normalize before giving up =(
     gf : (F : Species) → (L : FinSet) → (x : (One ⊡ F) L) → (g F L (f F L x) == x)
     gf = {!!}
 
