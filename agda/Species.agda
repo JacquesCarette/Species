@@ -275,6 +275,12 @@ module FinSet₂ where
     with lift-⌊⌋-equiv' ⟦ L₁C ⟧ ⟦ L₂C ⟧ iso L₁n L₂n L₁F L₂F
   ... | (eqn , eqF) = pair= (Codes-unique (ua iso)) {!!}
 
+  ⊥F : FinSet
+  ⊥F = (CFin 0) , (0 , [ ide _ ])
+
+  ⊤F : FinSet
+  ⊤F = (CFin 1) , (1 , [ ide _ ])
+
 open FinSet₂
 
 -- Species -------------------------------------------------
@@ -360,8 +366,8 @@ _⊎_ = Coprod
 ⊎-≃ : ∀ {A₁ B₁ A₂ B₂ : Set} → (A₁ ≃ B₁) → (A₂ ≃ B₂) → ((A₁ ⊎ A₂) ≃ (B₁ ⊎ B₂))
 ⊎-≃ e₁ e₂ = equiv (λ { (inl a₁) → inl (–> e₁ a₁) ; (inr a₂) → inr (–> e₂ a₂) })
                   (λ {(inl b₁) → inl (<– e₁ b₁); (inr b₂) → inr (<– e₂ b₂)})
-                  (λ {(inl b₁) → {!!}; (inr b₂) → {!!}})
-                  {!!}
+                  (λ {(inl b₁) → ap inl (<–-inv-r e₁ b₁); (inr b₂) → ap inr (<–-inv-r e₂ b₂)})
+                  (λ {(inl a₁) → ap inl (<–-inv-l e₁ a₁); (inr a₂) → ap inr (<–-inv-l e₂ a₂)})
 
 _⊞_ : Species → Species → Species
 (F ⊞ G) L = F L ⊎ G L
@@ -396,21 +402,28 @@ _⊡_ : Species → Species → Species
 ⊡pair {_} {_} {L₁} {L₂} iso f g
   = L₁ , (L₂ , (iso , (f , g)))
 
-⊡-idL : ∀ {F : Species} → (One ⊡ F) == F
-⊡-idL {F} = λ= (λ L → ua
+⊡-idL : ∀ {F : Species} {L : FinSet} → (One ⊡ F) L ≃ F L
+⊡-idL {F} {L} =
   (equiv
     (f F L)
     (g F L)
     (fg F L)
     (gf F L)
-  ))
+  )
   where
     f : (F : Species) → (L : FinSet) → (One ⊡ F) L → F L
     f _ L (L₁ , (L₂ , (iso , (⊥≃L₁ , FL₂)))) = relabel (lift-⌊⌋-equiv L₂ L (⌊ L₂ ⌋ ≃⟨ ⊎-idL ⁻¹ ⟩ ⊥ ⊎ ⌊ L₂ ⌋ ≃⟨ ⊎-≃ ⊥≃L₁ (ide _) ⟩ ⌊ L₁ ⌋ ⊎ ⌊ L₂ ⌋ ≃⟨ iso ⟩ ⌊ L ⌋ ≃∎)) FL₂
     g : (F : Species) → (L : FinSet) → F L → (One ⊡ F) L
-    g = {!!}
+    g _ L FL = ⊥F , (L , ( Fin 0 ⊎ ⌊ L ⌋
+                               ≃⟨ ⊎-≃ (⊥≃Fin0 ⁻¹) (ide _) ⟩
+                           ⊥ ⊎ ⌊ L ⌋
+                               ≃⟨ ⊎-idL ⟩
+                           ⌊ L ⌋
+                               ≃∎
+                         , (⊥≃Fin0 , FL)))
     fg : (F : Species) → (L : FinSet) → (x : F L) → (f F L (g F L x) == x)
-    fg = {!!}
+    fg _ L FL = {!!}
+      -- I waited 10 minutes for the type of the above hole to normalize before giving up =(
     gf : (F : Species) → (L : FinSet) → (x : (One ⊡ F) L) → (g F L (f F L x) == x)
     gf = {!!}
 
