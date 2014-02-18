@@ -1083,7 +1083,7 @@ $\One$-structures, \[ \lab{\One} : \LStr \One {\lift{\Fin 0}} A. \]
   Combinatorialists often regard the species $\X$ as a ``variable''.
   Roughly speaking, this can be justified by thinking of the inhabitant
   of $L$ as the actual variable, and the species $\X$ then
-  \emph{represents} the action of subtituting an arbitrary value for
+  \emph{represents} the action of substituting an arbitrary value for
   that label in the structure.  In that sense $\X$ does act operationally
   as a variable.  However, $\X$ does \emph{not} act like a binder.
 
@@ -1250,19 +1250,19 @@ $\Fin 1 + \under L \iso \under{\cons{inc}(L)}$.
 \subsection{Composition}
 \label{sec:composition}
 
-We may also define the \term{composition} of two species.
-Intuitively, $(F \scomp G)$-shapes consist of a single top-level
-$F$-shape, which itself contains labelled $G$-shapes in place of the
-usual labels, as illustrated in~\pref{fig:composition}.
-Set-theoretically, we have \[ (F \scomp G)\ L = \sum_{\pi \in
-  \cons{Par}(L)} F\ \pi \times \prod_{L' \in \pi} G\ L', \] where
-$\cons{Par}(L)$ denotes the set of all partitions of $L$ into nonempty
-subsets.  Note how this uses the elements of the partition $\pi$
-itself as labels on the $F$-structure.  A more natural type-theoretic
-encoding is to use an arbitrary type of $F$-labels, and then store a
-mapping from these labels to the label types used for the $G$-shapes.
-Additionally, we store an equivalence witnessing the fact that the
-$G$-labels constitute a partition of the overall label type.
+We may also define the \term{composition} $F \comp G$ of two species,
+as long as $G_0 = 0$.  Intuitively, $(F \scomp G)$-shapes consist of a
+single top-level $F$-shape, which itself contains labelled $G$-shapes
+in place of the usual labels, as illustrated
+in~\pref{fig:composition}.  Set-theoretically, we have \[ (F \scomp
+G)\ L = \sum_{\pi \in \cons{Par}(L)} F\ \pi \times \prod_{L' \in \pi}
+G\ L', \] where $\cons{Par}(L)$ denotes the set of all partitions of
+$L$ into nonempty subsets.  Note how this uses the elements of the
+partition $\pi$ itself as labels on the $F$-structure.  A more natural
+type-theoretic encoding is to use an arbitrary type of $F$-labels, and
+then store a mapping from these labels to the label types used for the
+$G$-shapes.  Additionally, we store an equivalence witnessing the fact
+that the $G$-labels constitute a partition of the overall label type.
 Formally, \[ (F \scomp G)\ L \defn \sum_{L_F : \Type} F\ L_F \times
 (Ls_G : \StoreNP {L_F} \FinType) \times (\under L \iso |sum|\ (|map|\
 \under{-}\ Ls_G)) \times |prod|\ (|map|\ G\ Ls_G). \] We assume
@@ -1366,7 +1366,7 @@ where $|eval| : (A \to B) \times A \to B$.
 %   monoidal functors paper I forget}
 
 There is another introduction form for composition ($\compJ$,
-``join'') which is a generalization of the |join| ($\mu$) function of
+``join'') which is reminiscent of the |join| ($\mu$) function of
 a monad:
 \begin{equation*}
   - \compJ - : (\under{L_1} \times \under{L_2} \iso \under L) \to \LStr F {L_1} {\LStr G {L_2} A} \to \LStr {F \scomp
@@ -1378,13 +1378,13 @@ $G$-structures, and turns it into a labelled $(F \scomp G)$-structure.
 $\compJ$, unlike $\compP$ and $\compA$, allows constructing an $(F
 \scomp G)$-structure where the $G$-shapes are not all the same.  Note,
 however, that all the $G$-structures are restricted to use the same
-label set, $L_1$, so they still must all be equal in size.
+label set, $L_2$, so they still must all be equal in size.
 
 Most generally, of course, it should be possible to compose
 $G$-structures of different shapes and sizes inside an $F$-structure,
 which is made possible by $\compB$ (``bind''), the last and most
-general introduction form for composition, which can be seen as a
-generalization of a monadic bind operation |(>>=)|.
+general introduction form for composition, which is reminiscent of a
+monadic bind operation |(>>=)|.
 \begin{equation*}
   - \compB_- - : \left(\sum_{l : \under{L_1}} \under{L_2\ l} \right) \iso \under
     L \to \LStr F {L_1} A \to \left(\prod_{l : L_1} A \to \LStr G
