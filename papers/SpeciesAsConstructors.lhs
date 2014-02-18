@@ -909,7 +909,7 @@ To recover a notion of \emph{data structure}, we must pair species,
 \ie labelled shapes, with mappings from labels to data.
 Formally, we define families of labelled structures by
 \begin{align*}
-   &\LStr - - - : \Species \to \Type \to \Type \to \Type \\
+   &\LStr - - - : \Species \to \FinType \to \Type \to \Type \\
    &\LStr F L A = F\ L \times \Store L A
 \end{align*}
 where $\StoreNP - - : \FinType \to \Type \to \Type$ constructs the type
@@ -925,6 +925,7 @@ following operations:
   |append| &: (\under{L_1} + \under{L_2} \iso \under{L}) \to \Store {L_1} A \to \Store {L_2} A \to \Store L A \\
   |concat| &: (\under{L_1} \times \under{L_2} \iso \under{L}) \to \Store {L_1} {\Store {L_2} A} \to \Store L A
 \end{align*}
+\todo{Explain why we choose these operations.}
 One could also imagine requiring other operations like $|replace| : L
 \to A \to \Store L A \to A \times \Store L A$, but these are the
 operations we need in the context of this paper. The semantics of
@@ -978,7 +979,7 @@ content ourselves with some informal descriptions of the semantics.
 
 We can give a particularly simple implementation with $\Store L A
 \defn \under L \to A$, presented here using Haskell-like notation:
-
+\todo{Why do we use Haskell-like notation here?}
 \begin{spec}
   allocate         = id
   index            = id
@@ -1045,6 +1046,8 @@ empty.\footnote{\citet{yeh-k-species} mentions something equivalent,
   $\B(\varnothing, -)$, though he certainly does not have constructive
   type theory in mind.}  (Note that there is at most one such proof.)
 
+\todo{Use different notation for species and their introduction forms}
+\todo{Explain that introduction forms are defined, not axioms.}
 There is a trivial introduction form for $\One$, also denoted $\One$,
 which creates a $\One$-shape using the canonical label set
 $\lift{\Fin\ 0} : \FinType$, that is, \[ \One : \One\ \lift{\Fin\
@@ -1449,12 +1452,12 @@ dia = theDia # centerXY # pad 1.1
 \end{figure}
 
 As an example using composition, we can directly encode the type of
-ordered, rooted $n$-ary trees, sometimes known as \term{rose trees},
-as $\R \iso \X \sprod (\List \scomp \R)$.  This corresponds to the
-Haskell type |Rose| defined as |data Rose a = Node a [Rose a]|, but
-the composition is more explicit.  The explicit use of composition is
-useful when doing generation of such structures, as it allows
-switching of generation strategies at those
+ordered, rooted, finitely branching trees, sometimes known as
+\term{rose trees}, as $\R \iso \X \sprod (\List \scomp \R)$.  This
+corresponds to the Haskell type |Rose| defined as |data Rose a = Node
+a [Rose a]|, but the composition is more explicit.  The explicit use
+of composition is useful when doing generation of such structures, as
+it allows switching of generation strategies at those
 points~\citep{UszkayThesis}.
 
 The most general type for the \cons{Node} constructor is complex,
