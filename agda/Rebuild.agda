@@ -107,6 +107,8 @@ zero = record
 _⊎P_ : Pride → Pride → Pride
 p₁ ⊎P p₂ = record { Carrier = Carrier p₁ ⊎ Carrier p₂ }
 
+-- here, things start to fall apart completely: we have massive level problems.
+-- Intuitively, the problem is that Set is (way) too big for Prides.
 _×_ : Espece → Espece → Espece
 e₁ × e₂ = record 
   { shape = λ x → {!!} 
