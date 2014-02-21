@@ -12,12 +12,19 @@ module Rebuild2 where
 import Level
 open import Relation.Binary.PropositionalEquality as P hiding ( [_] )
 open import Function using (flip)
+open import Data.Product using ( _,_ )
 
 open import Categories.Category
 -- open import Categories.Groupoid
-open import Categories.Functor
+open import Categories.Functor renaming (_∘_ to _∘F_ ; Functor to _⟶_)
+open import Categories.Bifunctor
 open import Categories.Object.BinaryCoproducts
 open import Categories.Object.Initial
+open import Categories.Object.BinaryProducts
+open import Categories.Object.Terminal
+open import Categories.Monoidal
+open import Categories.Coend
+open import Categories.Product using (Product ; πʳ)
 
 -- Convenient abbreviations
 lzero : Level.Level
@@ -46,6 +53,33 @@ Cat = Category lzero lzero lzero
    the second route.  
 -}
 
+-- This is apparently (MacLane p. 224) equivalent to T being cocomplete.
+record HasCoends {o ℓ e} (T : Category o ℓ e) : Set₁ where
+  field
+    coend : {C : Cat} → (F : Bifunctor (Category.op C) C T) → Coend {C = C} F
+
+module _ where
+  open import Categories.Agda  
+  open import Categories.Functor
+  open import Data.Product
+  open import Data.Empty
+
+  setHasCoends : HasCoends (Sets lzero)
+  setHasCoends = record 
+    { coend = λ {C} F → record
+      { Data = record 
+        { E = ⊤ -- Σ (Category.Obj C) (λ c → Functor.F₀ F (c , c))
+        ; π = record 
+          { α = {!!}
+          ; commute = {!!}
+          }
+        }
+      ; universal = {!!}
+      ; π[c]∘universal≡δ[c] = {!!}
+      ; universal-unique = {!!} 
+      } 
+    }
+
 ----------------------------------------------------------------------------------
 
 -- Second attempt, using an ambient Groupoid
@@ -55,17 +89,26 @@ record AmbientGroupoid : Set₁ where
   field
     C : Cat
     -- G : Groupoid C
+    additive : Monoidal C  -- needed for 1 and *
 
-record TargetCategory : Set₁ where
+record TargetCategory (Amb : AmbientGroupoid) : Set₁ where
   field
     T : Cat
     coprod : BinaryCoproducts T  -- needed for _+_
     initial : Initial T                         -- needed for zero
+    prod : BinaryProducts T         -- needed for _×_ , _∙_
+    terminal : Terminal T               -- needed for e
     -- the objects of this (ShapeFamilies) need to "have elements"
     -- may need to be a Functor into Set-as-Cat
-    elemsT : Category.Obj T → Set₀
+    hasCoends : HasCoends T    -- needed for _∙_
 
-module Dummy (g : AmbientGroupoid)(c : TargetCategory) where
+  private C = AmbientGroupoid.C Amb
+
+  field
+    elemsT : Category.Obj T → Set₀
+    embedHom :  Category.Obj C → (C ⟶ T)
+ 
+module Dummy (g : AmbientGroupoid)(c : TargetCategory g) where
     -- useful synonyms
     private
       Pride = Category.Obj (AmbientGroupoid.C g)
@@ -82,7 +125,7 @@ module Dummy (g : AmbientGroupoid)(c : TargetCategory) where
     open AmbientGroupoid g
 
     Espece : Set _
-    Espece = Functor (AmbientGroupoid.C g) (TargetCategory.T c)
+    Espece = AmbientGroupoid.C g ⟶ TargetCategory.T c
 
     shape : Espece → Pride  → ShapeFamily
     shape = F₀
@@ -91,6 +134,9 @@ module Dummy (g : AmbientGroupoid)(c : TargetCategory) where
     relabel = F₁ 
 
     -- This will require T to have co-products
+    -- _+_ and zero below ought to give a monoidal structure on Espece
+    -- if we added a homomorphism to generating functions, we could justify
+    -- this name.
     _+_ : Espece → Espece → Espece
     e₁ + e₂ = record 
         { F₀ = λ x → (shape e₁ x) ∐ (shape e₂ x) 
@@ -140,7 +186,16 @@ module Dummy (g : AmbientGroupoid)(c : TargetCategory) where
       where
         open Initial T initial
 
-{-
+    e : Espece
+    e = record 
+      { F₀ = λ _ → ⊤ 
+      ;  F₁ = λ _ → !
+      ;  identity = !-unique Trg.id
+      ;  homomorphism = !-unique (T [ ! ∘ ! ])
+      ;  F-resp-≡ = λ _ → !-unique !
+      }
+      where open Terminal T terminal
+
     -- Partitional product needs a lot of structure!
     --   * Coproducts in the source category
     --   * Ability to encode source morphisms as objects in the target category.
@@ -148,17 +203,26 @@ module Dummy (g : AmbientGroupoid)(c : TargetCategory) where
     --   * Coends in the target category?
     -- See "Day convolution".
     _∙_  : Espece → Espece → Espece
-    e₁ ∙ e₂  = record 
-      { F₀ = λ P → {!!}
-      ;  F₁ = {!!}
-      ;  identity = {!!}
-      ;  homomorphism = {!!}
-      ;  F-resp-≡ = {!!}
-      }
-
-    one : Espece
-    one = record 
-      { F₀ = {!!}
+    e₁ ∙ e₂  = coendF (record { F₀ = S }) 
+                                (λ p → coend (S p))
+      where
+        open BinaryProducts T prod
+        open Monoidal additive
+        open HasCoends hasCoends
+        C×C = Product C C
+        G : Obj C → (C×C ⟶ T)
+        G p = record 
+          { F₀ = λ { (c , d) → (F₀ e₁ c × F₀ e₂ d) × F₀ (embedHom p) (F₀ ⊗ (c , d)) }
+          ;  F₁ = λ {(f , g) → (F₁ e₁ f ⁂ F₁ e₂ g) ⁂ F₁ (embedHom p) (F₁ ⊗ (f , g))}
+          ;  identity = {!!}
+          ;  homomorphism = {!!}
+          ;  F-resp-≡ = {!!}
+          }
+        S : Obj C → (Product (Category.op C×C) C×C) ⟶ T
+        S p = G p ∘F πʳ
+{-
+record 
+      { F₀ = coendF ?
       ;  F₁ = {!!}
       ;  identity = {!!}
       ;  homomorphism = {!!}
@@ -166,13 +230,23 @@ module Dummy (g : AmbientGroupoid)(c : TargetCategory) where
       }
 -}
 
+    one : Espece
+    one = record 
+      { F₀ = F₀ zero⇒
+      ;  F₁ = F₁ zero⇒
+      ;  identity = identity zero⇒
+      ;  homomorphism = homomorphism zero⇒
+      ;  F-resp-≡ = F-resp-≡ zero⇒
+      }
+      where zero⇒ = embedHom (Monoidal.id additive)
+
     record Storage : Set₁ where
       field
         ⌊_⌋ : Pride → Cat
         _↦_ : Pride → Cat → Set₀
         -- index is jumping ahead, as a Stack does not have it...
         -- somehow, this is not well motivated...
-        index : {P : Pride} {Dat : Category _ _ _} → P ↦ Dat → Functor ⌊ P ⌋ Dat  
+        index : {P : Pride} {Dat : Category _ _ _} → P ↦ Dat → (⌊ P ⌋ ⟶ Dat)
 
     record LabelledStructure (p : Pride) (s : Espece) (stor : Storage) (trg : Cat) : Set₁ where
       open Storage stor
