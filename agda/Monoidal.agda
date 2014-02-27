@@ -8,7 +8,7 @@ open import Data.Fin
 
 open import Categories.Bifunctor using (Bifunctor)
 open import Categories.Category
-open import Categories.Monoidal using (Monoidal)
+open import Categories.Monoidal using (Monoidal ; module Monoidal)
 open import Categories.Product using (Product)
 open import Categories.Object.BinaryProducts
 open import Categories.Object.Terminal
@@ -495,15 +495,186 @@ triangle : p1 = p2 ∘ a
     ; pentagon = prod-pentagon
     }
 
--- lift-monoid : ∀ {o ℓ e} → (C : Category o ℓ e) → (D : Category o ℓ e) → Monoidal D → Monoidal (Functors C D)
--- lift-monoid C D M = record
---   { ⊗ = record
---     { F₀ = λ { (F , G) → {!!} }
---     }
---   ; id = {!!}
---   ; identityˡ = {!!}
---   ; identityʳ = {!!}
---   ; assoc = {!!}
---   ; triangle = {!!}
---   ; pentagon = {!!}
---   }
+module LiftMonoid {o ℓ e} (C : Category o ℓ e) (D : Category o ℓ e) (m : Monoidal D) where
+
+  open import Categories.NaturalTransformation
+  open import Categories.FunctorCategory
+  open import Categories.Functor renaming (Functor to _⟶_)
+  open import Categories.Functor.Constant
+
+  open NaturalIsomorphism
+  open NaturalTransformation
+  open Category
+  open Functor
+
+  private module C = Category C
+  private module D = Category D
+
+  open Data.Product using ( _×_ )
+
+  open Monoidal m
+
+  [C,D] : Category _ _ _
+  [C,D] = Functors C D
+
+  ⊗′₀ : (C ⟶ D) × (C ⟶ D) → (C ⟶ D)
+  ⊗′₀ (F , G) = record
+    { F₀ = λ c → F₀ ⊗ (F₀ F c , F₀ G c)
+    ; F₁ = λ A⇒B → F₁ ⊗ (F₁ F A⇒B , F₁ G A⇒B)
+    ; identity = trans (F-resp-≡ ⊗ (identity F , identity G)) (identity ⊗)
+    ; homomorphism = trans (F-resp-≡ ⊗ (homomorphism F , homomorphism G)) (homomorphism ⊗)
+    ; F-resp-≡ = λ H≡J → F-resp-≡ ⊗ (F-resp-≡ F H≡J , F-resp-≡ G H≡J)
+    }
+    where open D.Equiv
+
+  ⊗′₁ : {G H : Obj (Product [C,D] [C,D])}
+     → Product [C,D] [C,D] [ G , H ]
+     → [C,D] [ ⊗′₀ G , ⊗′₀ H ]
+  ⊗′₁ {G₁ , G₂} {H₁ , H₂} (G₁⇒H₁ , G₂⇒H₂) = record
+    { η = λ X → F₁ ⊗ (η G₁⇒H₁ X , η G₂⇒H₂ X)
+    ; commute = λ f → trans (sym (homomorphism ⊗))
+                     (trans (F-resp-≡ ⊗ (commute G₁⇒H₁ f , commute G₂⇒H₂ f))
+                            (homomorphism ⊗))
+    }
+    where open D.Equiv
+
+  .⊗′-resp-≡ :
+      {G H : Obj (Product [C,D] [C,D])}
+      {α β : Product [C,D] [C,D] [ G , H ]}
+    → Product [C,D] [C,D] [ α ≡ β ]
+    → [C,D] [ ⊗′₁ α ≡ ⊗′₁ β ]
+  ⊗′-resp-≡ (α₁≡α₂ , β₁≡β₂) = F-resp-≡ ⊗ (α₁≡α₂ , β₁≡β₂)
+
+  ⊗′ : Bifunctor [C,D] [C,D] [C,D]
+  ⊗′ = record
+    { F₀ = ⊗′₀
+    ; F₁ = ⊗′₁
+    ; identity = identity ⊗
+    ; homomorphism = homomorphism ⊗
+    ; F-resp-≡ = λ {G} {H} {α} {β} → ⊗′-resp-≡ {G} {H} {α} {β}
+    }
+
+  open import Categories.Monoidal.Helpers
+  open MonoidalHelperFunctors
+
+  -- XXX todo: abstract some of this to cut down on repetition
+
+  id⊗x⇒x : NaturalTransformation
+    (id⊗x (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+    (x    (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+  id⊗x⇒x = record
+    { η = λ C⟶D → record
+      { η       = λ c →   η       (F⇒G (Monoidal.identityˡ m)) (λ _ → F₀ (C⟶D zero) c)
+      ; commute = λ f →   commute (F⇒G (Monoidal.identityˡ m)) (λ _ → F₁ (C⟶D zero) f)
+      }
+    ; commute = λ f {c} → commute (F⇒G (Monoidal.identityˡ m)) (λ _ → η (f zero) c)
+    }
+
+  id⊗x⇐x : NaturalTransformation
+    (x    (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+    (id⊗x (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+  id⊗x⇐x = record
+    { η = λ C⟶D → record
+      { η       = λ c →   η       (F⇐G (Monoidal.identityˡ m)) (λ _ → F₀ (C⟶D zero) c)
+      ; commute = λ f →   commute (F⇐G (Monoidal.identityˡ m)) (λ _ → F₁ (C⟶D zero) f)
+      }
+    ; commute = λ f {c} → commute (F⇐G (Monoidal.identityˡ m)) (λ _ → η (f zero) c)
+    }
+
+  id⊗x≅x : NaturalIsomorphism
+    (id⊗x (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+    (x    (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+  id⊗x≅x = record
+    { F⇒G = id⊗x⇒x
+    ; F⇐G = id⊗x⇐x
+    ; iso = λ C⟶D → record
+      { isoˡ = λ {c} → Iso.isoˡ (iso (Monoidal.identityˡ m) (λ _ → F₀ (C⟶D zero) c))
+      ; isoʳ = λ {c} → Iso.isoʳ (iso (Monoidal.identityˡ m) (λ _ → F₀ (C⟶D zero) c))
+      }
+    }
+    where
+      open import Categories.Morphisms D
+
+  x⊗id⇒x : NaturalTransformation
+    (x⊗id (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+    (x    (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+  x⊗id⇒x = record
+    { η = λ C⟶D → record
+      { η       = λ c →   η       (F⇒G (Monoidal.identityʳ m)) (λ _ → F₀ (C⟶D zero) c)
+      ; commute = λ f →   commute (F⇒G (Monoidal.identityʳ m)) (λ _ → F₁ (C⟶D zero) f)
+      }
+    ; commute = λ f {c} → commute (F⇒G (Monoidal.identityʳ m)) (λ _ → η (f zero) c)
+    }
+
+  x⊗id⇐x : NaturalTransformation
+    (x    (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+    (x⊗id (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+  x⊗id⇐x = record
+    { η = λ C⟶D → record
+      { η       = λ c →   η       (F⇐G (Monoidal.identityʳ m)) (λ _ → F₀ (C⟶D zero) c)
+      ; commute = λ f →   commute (F⇐G (Monoidal.identityʳ m)) (λ _ → F₁ (C⟶D zero) f)
+      }
+    ; commute = λ f {c} → commute (F⇐G (Monoidal.identityʳ m)) (λ _ → η (f zero) c)
+    }
+
+  x⊗id≅x : NaturalIsomorphism
+    (x⊗id (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+    (x    (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+  x⊗id≅x = record
+    { F⇒G = x⊗id⇒x
+    ; F⇐G = x⊗id⇐x
+    ; iso = λ C⟶D → record
+      { isoˡ = λ {c} → Iso.isoˡ (iso (Monoidal.identityʳ m) (λ _ → F₀ (C⟶D zero) c))
+      ; isoʳ = λ {c} → Iso.isoʳ (iso (Monoidal.identityʳ m) (λ _ → F₀ (C⟶D zero) c))
+      }
+    }
+    where
+      open import Categories.Morphisms D
+
+  [x⊗y]⊗z⇒x⊗[y⊗z] : NaturalTransformation
+    ([x⊗y]⊗z (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+    (x⊗[y⊗z] (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+  [x⊗y]⊗z⇒x⊗[y⊗z] = record
+    { η = λ C⟶₃D → record
+      { η = λ c → η (F⇒G (Monoidal.assoc m)) (λ i → F₀ (C⟶₃D i) c)
+      ; commute = λ f → commute (F⇒G (Monoidal.assoc m)) (λ i → F₁ (C⟶₃D i) f)
+      }
+    ; commute = λ f {c} → commute (F⇒G (Monoidal.assoc m)) (λ i → η (f i) c)
+    }
+
+  [x⊗y]⊗z⇐x⊗[y⊗z] : NaturalTransformation
+    (x⊗[y⊗z] (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+    ([x⊗y]⊗z (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+  [x⊗y]⊗z⇐x⊗[y⊗z] = record
+    { η = λ C⟶₃D → record
+      { η = λ c → η (F⇐G (Monoidal.assoc m)) (λ i → F₀ (C⟶₃D i) c)
+      ; commute = λ f → commute (F⇐G (Monoidal.assoc m)) (λ i → F₁ (C⟶₃D i) f)
+      }
+    ; commute = λ f {c} → commute (F⇐G (Monoidal.assoc m)) (λ i → η (f i) c)
+    }
+
+  [x⊗y]⊗z≅x⊗[y⊗z] : NaturalIsomorphism
+    ([x⊗y]⊗z (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+    (x⊗[y⊗z] (Functors C D) ⊗′ (Constant (Monoidal.id m)))
+  [x⊗y]⊗z≅x⊗[y⊗z] = record
+    { F⇒G = [x⊗y]⊗z⇒x⊗[y⊗z]
+    ; F⇐G = [x⊗y]⊗z⇐x⊗[y⊗z]
+    ; iso = λ C⟶₃D → record
+      { isoˡ = λ {c} → Iso.isoˡ (iso (Monoidal.assoc m) (λ i → F₀ (C⟶₃D i) c))
+      ; isoʳ = λ {c} → Iso.isoʳ (iso (Monoidal.assoc m) (λ i → F₀ (C⟶₃D i) c))
+      }
+    }
+    where
+      open import Categories.Morphisms D
+
+  lifted-monoid : Monoidal (Functors C D)
+  lifted-monoid = {!!}
+    -- record
+    -- { ⊗ = ⊗′
+    -- ; id = Constant (Monoidal.id m)
+    -- ; identityˡ = id⊗x≅x
+    -- ; identityʳ = x⊗id≅x
+    -- ; assoc = [x⊗y]⊗z≅x⊗[y⊗z]
+    -- ; triangle = {!!}
+    -- ; pentagon = {!!}
+    -- }
