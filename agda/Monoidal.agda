@@ -668,13 +668,11 @@ module LiftMonoid {o ℓ e} (C : Category o ℓ e) (D : Category o ℓ e) (m : M
       open import Categories.Morphisms D
 
   lifted-monoid : Monoidal (Functors C D)
-  lifted-monoid = {!!}
-    -- record
-    -- { ⊗ = ⊗′
-    -- ; id = Constant (Monoidal.id m)
-    -- ; identityˡ = id⊗x≅x
-    -- ; identityʳ = x⊗id≅x
-    -- ; assoc = [x⊗y]⊗z≅x⊗[y⊗z]
-    -- ; triangle = {!!}
-    -- ; pentagon = {!!}
-    -- }
+  lifted-monoid = record {
+                    ⊗ = ⊗′;
+                    id = Constant (Monoidal.id m);
+                    identityˡ = id⊗x≅x;
+                    identityʳ = x⊗id≅x;
+                    assoc = [x⊗y]⊗z≅x⊗[y⊗z];
+                    triangle = Monoidal.triangle m;
+                    pentagon = Monoidal.pentagon m }
