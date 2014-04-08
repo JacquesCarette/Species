@@ -333,19 +333,18 @@ The theory of combinatorial species is was first set forth by
 Joyal~\cite{joyal} as framework for understanding and unifying much of
 \emph{enumerative combinatorics}, the branch of mathematics concerned with
 counting abstract \emph{structures}. This theory provides a unified view of
-such structures, presenting them in a general, compositional framework.
+such structures, presenting them in a general, compositional
+framework.\scw{foreshadow various species operations here?}
 
-or as a progammer might say, \emph{containers}. By a
-structure we mean some sort of ``shape'' containing \emph{labelled positions}
-or \emph{locations}, and a mapping from those labels to data. \scw{Say more
-  about what the theory is and why it is interesting....}
+From a computational point of view, there is a connection between the abstract
+structures of combinatorial species and the data structures and containers
+that programmers use. We can think of these structures as some sort of
+``shape'' containing \emph{labelled positions} or \emph{locations}, and a
+mapping from those labels to data. Indeed species ``obviously'' generalize
+algebraic datatypes, and this beautiful theory promises to enrich and expand
+our understanding of data.
 
-The theory of combinatorial species \cite{joyal,bll}, as it relates to the
-theory and practice of programming languages, has long seemed to the authors
-``an answer looking for a question'': the theory is too beautiful, and too
-``obviously'' related to algebraic data types, to have no applications
-whatsoever.
-Teasing out the precise relationship between species and data types, however,
+However, teasing out the precise relationship between species and data types
 has proved challenging, for two reasons. First, combinatorialists are mainly
 concerned with enumerating and generating abstract structures, not with
 storing and computing with data.  Thus, in order to apply this theory in a
@@ -355,17 +354,20 @@ traditional mathematical practice rooted in set theory, species are usually
 described in ways that are \emph{untyped} and \emph{nonconstructive}, both of
 which hinder adoption and understanding in a computational context.
 
-Our contributions are as follows:
+In this paper, we create a bridge between the theory of species and the theory
+and practices of programming. In particular, we ``port'' the definitions of
+combinatorial species from set theory to constructive type theory, making the
+theory more directly applicable in a programming context and more accessible
+to functional programmers.
 
 \begin{itemize}
-\item We describe a ``port'' of combinatorial species from set theory to
-  constructive type theory (\pref{sec:constructive-species}), making the
-  theory more directly applicable in a programming context and more accessible
-  to functional programmers.
-\item As part of this port, we generalize the most common operations on
-  species, including \scw{...}, carefully analyzing their requirements so that
-  we can be sure that they are consistent with our new interpretation in Type
-  Theory.
+\item We define for the concept of \emph{species} in 
+  constructive type theory (\pref{sec:constructive-species}), characterizing
+  them as functors from a finite collection of labels to structures.
+\item As part of our port to type theory, we generalize the most common
+  operations on species, including \scw{...}, carefully analyzing their
+  requirements so that we can be sure that they are consistent with our new
+  interpretation in Type Theory.
 \item This generalization leads to new insights. In particular, we observe
   that arithmetic product arises from Day convolution (\pref{sec:day}), and give
   a novel categorical presentation of weighted species
