@@ -591,8 +591,8 @@ concise definition of species:
   \pref{def:species-set}?}
 \end{rem}
 
-\section{Species from scratch}
-\label{sec:species-scratch}
+%\subsection{Species from scratch}
+%\label{sec:species-scratch}
 
 There are several reasons to generalize the definition of species
 given above.  First, $\B$ and \Set enjoy many special
@@ -600,47 +600,40 @@ properties as categories (for example, \Set is cartesian closed, has
 all limits and colimits, and so on).  It is enlightening to see
 precisely which properties are required in which situations, and we
 miss this entirely if we start with the kitchen sink.
-
-More subtly, we wish to work in a constructive, computational setting,
-and the specific categories $\B$ and \Set are inappropriate, as seen
-\todo{reference stuff from finiteness section previously}.  We wish to
-work with more computationally concrete categories based in type
-theory, such as $\BT$, but in order to do so we need to show that they
-have the right properties.
-
 The idea is to start ``from scratch'' and build up a generic notion of
 species which support the operations we want.  Along the way, we will
 also get a much clearer picture of where the operations ``come from''.
-Much of the material in this chapter has been inspired by
+\footnote{Much of the material in this chapter has been inspired by
 Kelly \cite{Kelly-operads} \todo{``Operads of J.P. May''},
 \todo{``Cartesian Closed Bicategory of Generalised Species of
   Structure''}, and \todo{``Monoidal Functors, Species, and Hopf
-  Algebras''}, though the aim is for the current chapter to be at the
-same time more elementary and (in some ways) more general.
+  Algebras''}.}
 
-Given two categories $\Lab$ and $\Str$, what can we say about functors
-$\Lab \to \Str$, and more generally about the functor category $[\Lab,
-\Str]$?  Of course, there is no point in calling functors $\Lab \to
-\Str$ ``species'' for just any old categories $\Lab$ and $\Str$.  But
-what properties must $\Lab$ and $\Str$ possess to make this
-interesting and worthwhile?  In particular, what properties must
-$\Lab$ and $\Str$ possess to enable the sorts of operations we
-typically want to do on species?  In each of the following sections,
-we will discuss some specific constructions on species (considered as
-functors $\B \to \Set$), and then generalize to arbitrary functor
-categories to see what properties are needed in order to define
-them---\ie\ where the constructions ``come from''---and give some
-specific examples.  One particular example that will be considered
-throughout is $[\BT, \Type]$, which, as we will see, makes a good case
-for a ``constructive counterpart'' to $[\B, \Set]$.
+Given two arbitrary categories $\Lab$ and $\Str$, what can we say about
+functors $\Lab \to \Str$, and more generally about the functor category
+$[\Lab, \Str]$?  Of course, there is no point in calling functors $\Lab \to
+\Str$ ``species'' for just any old categories $\Lab$ and $\Str$.  But what
+properties must $\Lab$ and $\Str$ possess to make this interesting and
+worthwhile?  In particular, what properties must $\Lab$ and $\Str$ possess to
+enable the sorts of operations we typically want to do on species?  \footnote{
+  Note that the objects of $\Lab$ might not correspond to ``sets'' at all. So
+  though our definitions are guided by the the intuition of ``sets of
+  labels'', in the most general setting we must only think of shapes as
+  indexed by objects of $\Lab$, rather than shapes as ``containing labels
+  drawn from some set''.  }
+In the following, we discuss some specific constructions on species (when
+considered as functors $\B \to \Set$), and then generalize these constructions
+to arbitrary functor categories to see what properties are needed in order to
+define them---\ie\ where the constructions ``come from''.
 
-\begin{rem}
-  It will often be convenient to have recourse to the intuition of
-  ``sets of labels''; but in more general settings the objects of
-  $\Lab$ might not correspond to ``sets'' at all. More generally, we
-  can just think of shapes indexed by objects of $\Lab$, rather
-  than shapes ``containing labels''.
-\end{rem}
+However, there is a second more important reason to generalize the
+definitions. We we wish to translate the theory of species to a constructive,
+computational setting, and the specific categories $\B$ and \Set are
+inappropriate, for reasons that we discuss below.\scw{put those reasons here?}
+Instead, in \pref{sec:finiteness} we define $[\BT, \Type]$, which, as we will
+see, is a ``constructive counterpart'' to $[\B, \Set]$. As long as we can show
+that these type-theory based categories have the right properties, we will be
+able to use them with our generalized definitions.
 
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
@@ -726,6 +719,7 @@ introduces no computational problems as long as applications of $\ua$
 are only ultimately used via $\mathsf{transport}$.
 
 \subsection{Finiteness}
+\label{sec:finiteness}
 
 Recall, from the definition of species, that $\B$ denotes the groupoid
 whose objects are finite sets and whose morphisms are bijections.
