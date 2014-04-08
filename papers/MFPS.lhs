@@ -329,11 +329,16 @@ Combinatorial Species, Homotopy Type Theory
 \section{Introduction}
 \label{sec:intro}
 
-The theory of combinatorial species is a unified theory of \emph{structures},
-or as a progammer might say, \emph{containers}. By a structure we mean some
-sort of ``shape'' containing \emph{labelled positions} or \emph{locations},
-and a mapping from those labels to data. \scw{Say more about what the theory
-  is and why it is interesting....}
+The theory of combinatorial species is was first set forth by
+Joyal~\cite{joyal} as framework for understanding and unifying much of
+\emph{enumerative combinatorics}, the branch of mathematics concerned with
+counting abstract \emph{structures}. This theory provides a unified view of
+such structures, presenting them in a general, compositional framework.
+
+or as a progammer might say, \emph{containers}. By a
+structure we mean some sort of ``shape'' containing \emph{labelled positions}
+or \emph{locations}, and a mapping from those labels to data. \scw{Say more
+  about what the theory is and why it is interesting....}
 
 The theory of combinatorial species \cite{joyal,bll}, as it relates to the
 theory and practice of programming languages, has long seemed to the authors
@@ -350,21 +355,21 @@ traditional mathematical practice rooted in set theory, species are usually
 described in ways that are \emph{untyped} and \emph{nonconstructive}, both of
 which hinder adoption and understanding in a computational context.
 
-In more detail, our contributions are as follows:
+Our contributions are as follows:
 
 \begin{itemize}
 \item We describe a ``port'' of combinatorial species from set theory to
   constructive type theory (\pref{sec:constructive-species}), making the
-  theory more directly applicable in a programming context, more accessible to
-  functional programmers, and incidentally illuminating some new features of
-  the theory.
-\item As part of this ``port'', we generalize the most common operations on
-  Species, including \scw{...}, carefully analyzing their requirements so that
+  theory more directly applicable in a programming context and more accessible
+  to functional programmers.
+\item As part of this port, we generalize the most common operations on
+  species, including \scw{...}, carefully analyzing their requirements so that
   we can be sure that they are consistent with our new interpretation in Type
   Theory.
 \item This generalization leads to new insights. In particular, we observe
-  that arithmetic product arises from Day convolution, and give a novel
-  categorical presentation of weighted species.
+  that arithmetic product arises from Day convolution (\pref{sec:day}), and give
+  a novel categorical presentation of weighted species
+  (\pref{sec:weighted-species}).
 \end{itemize}
 
 The constructive type theory that we work in is \emph{Homotopy Type Theory}
@@ -380,6 +385,10 @@ computationally relevant \emph{equivalences} on labels.  Working up to
 equivalence in this way confers additional expressive power, allowing us to
 model efficient label operations (\eg partition) without copying.
 
+In the next section we define the fragment of Homotopy Type Theory that we
+require and then present the definition of species within this fragment. Once
+we have done that, we step back and generalize various species operations so
+that they are applicable to this fragment.
 
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
@@ -953,6 +962,7 @@ will be explored in the next section.
   monoids always preserve distributivity? Answers: yes, and yes.}
 
 \section{Day Convolution}
+\label{sec:day}
 
 There is another notion of product for species, the \term{partitional}
 or \term{Cauchy} product, which is more generally useful than
@@ -1283,6 +1293,7 @@ the notion of multisort species defined in Bergeron \etal \cite{bll}.
   where does that come from?}
 
 \section{Weighted Species}
+\label{sec:weighted-species}
 
 \todo{General explanation and intuition for weighted species, and usual definition.}
 
