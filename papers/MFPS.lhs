@@ -5,8 +5,6 @@
 \usepackage{prentcsmacro}
 
 \providecommand{\event}{MSFP 2014}
-\usepackage{breakurl}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% lhs2TeX
@@ -18,50 +16,8 @@
 
 \renewcommand{\Conid}[1]{\mathsf{#1}}
 
-%format <->    = "\iso"
-%format compP  = "\compP"
-%format compA  = "\compA"
-%format <*>    = "<\!\!*\!\!>"
-
-%format le_intro = "\lab{\cons{e}}"
-
-%format LStr (f) (l) (a) = "\LStr{" f "}{" l "}{" a "}"
-
-%format pi = "\pi"
-%format pi1
-%format pi2
-%format n1
-%format n2
-%format sub1
-%format sub2
-%format v1
-%format v2
-%format i1
-%format i2
-%format s1
-%format s2
-
-%format inr = "\inr"
-%format inl = "\inl"
-%format outr = "\outr"
-%format outl = "\outl"
-
-%format inv(a) = a "^{-1}"
-
-%format sumN = sum "_\N"
-%format sumTy = sum "_\Type"
-
-%format allocateV = allocate "_V"
-%format mapV = map "_V"
-%format foldV = fold "_V"
-%format appendV = append "_V"
-%format concatV = concat "_V"
-%format sumV = sum "_V"
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
-
-\usepackage{../species}
 
 %\usepackage{amsthm} %% conflicts with entcsmacro
 \usepackage{amsmath}
@@ -69,135 +25,17 @@
 \usepackage{latexsym}
 \usepackage{amssymb}
 \usepackage{stmaryrd}
-% \usepackage{proof}
-% \usepackage{comment}
 \usepackage{url}
 \usepackage{xspace}
 \usepackage{xcolor}
 \usepackage[all]{xy}
-
-% \usepackage{mathpazo}  % Looks nicer but doesn't conform to EPTCS style
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Page size
-
-% \pdfpagewidth=8.5in
-% \pdfpageheight=11in
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Theorems etc.
-
-% \newtheorem{theorem}{Theorem}
-% \newtheorem{proposition}[theorem]{Proposition}
-% \newtheorem{lemma}[theorem]{Lemma}
-
-% \theoremstyle{definition}
-% \newtheorem{definition}[theorem]{Definition}
+\usepackage{breakurl}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Diagrams
 
 \usepackage{graphicx}
-\usepackage[outputdir=diagrams,backend=ps,extension=eps]{diagrams-latex}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Math typesetting
-
-% Use sans-serif for math operators
-\DeclareSymbolFont{sfoperators}{OT1}{cmss}{m}{n}
-\DeclareSymbolFontAlphabet{\mathsf}{sfoperators}
-
-\makeatletter
-\def\operator@@font{\mathgroup\symsfoperators}
-\makeatother
-
-\newcommand{\lam}[2]{\lambda #1 . #2}
-
-\newcommand{\iso}{\simeq}
-\newcommand{\mkIso}{\rightleftharpoons}
-
-% \newcommand{\impl}[1]{\ensuremath{\{#1\}}} % implicit arguments
-\newcommand{\impl}[1]{\ensuremath{(#1)}}   % not notating implicit
-                                           % arguments at the moment
-\newcommand{\isdefn}{\vcentcolon\equiv}
-
-\newcommand{\TyZero}{\ensuremath{\bot}}
-\newcommand{\TyOne}{\ensuremath{\top}}
-\newcommand{\unit}{\ensuremath{\star}}
-
-\newcommand{\cons}[1]{\ensuremath{\mathsf{#1}}}
-
-\newcommand{\inl}{\cons{inl}}
-\newcommand{\inr}{\cons{inr}}
-\newcommand{\outl}{\cons{outl}}
-\newcommand{\outr}{\cons{outr}}
-
-\newcommand{\Type}{\ensuremath{\mathcal{U}}}
-\newcommand{\FinType}{\ensuremath{\Type_{\text{Fin}}}}
-\newcommand{\size}[1]{\ensuremath{||#1||}}
-\newcommand{\under}[1]{\ensuremath{\left\lfloor #1 \right\rfloor}}
-\newcommand{\lift}[1]{\ensuremath{\left\lceil #1 \right\rceil}}
-
-\newcommand{\lab}[1]{\ensuremath{\left\langle #1 \right\rangle}}
-
-\DeclareMathOperator{\Species}{Species}
-\DeclareMathOperator{\RegSpecies}{RegSpecies}
-\DeclareMathOperator{\Regular}{Regular}
-\DeclareMathOperator{\Fin}{Fin}
-\DeclareMathOperator{\Finite}{Finite}
-\DeclareMathOperator{\NatZ}{O}
-\DeclareMathOperator{\NatS}{S}
-\DeclareMathOperator{\FinZ}{fO}
-\DeclareMathOperator{\FinS}{fS}
-\DeclareMathOperator{\VectOp}{Vec}
-\DeclareMathOperator{\id}{id}
-\DeclareMathOperator{\shapes}{shapes}
-\DeclareMathOperator{\relabel}{relabel}
-\DeclareMathOperator{\Natural}{Natural}
-\DeclareMathOperator{\OfSize}{OfSize}
-\DeclareMathOperator{\OfSizeLTE}{OfSizeLTE}
-\DeclareMathOperator{\OfSizeGTE}{OfSizeGTE}
-
-\DeclareMathOperator{\map}{map}
-\DeclareMathOperator{\sumTys}{sumTys}
-
-\DeclareMathOperator{\DecEq}{DecEq}
-
-\newcommand{\ssum}{\boxplus}
-\newcommand{\sprod}{\boxdot}
-\newcommand{\scomp}{\boxcircle}
-\newcommand{\scprod}{\boxtimes}
-\newcommand{\fcomp}{\boxbox}
-
-\newcommand{\LStr}[3]{\langle #1 \rangle_{#2}(#3)}
-\newcommand{\LStrE}[2]{\LStr{#1}{\bullet}{#2}}
-%\newcommand{\Elim}[4]{\ensuremath{\cons{Elim}_{\LStr{#1}{#2}{#3}}\
-%#4}}
-\newcommand{\ElimNP}[4]{\ensuremath{\LStr{#1}{#2}{#3} \rightsquigarrow {#4}}}
-\newcommand{\Elim}[4]{\ensuremath{\left(\ElimNP{#1}{#2}{#3}{#4}\right)}}
-\newcommand{\elim}[1]{\ensuremath{|elim|_{#1}}}
-
-\newcommand{\compP}{\lab{\otimes}}
-\newcommand{\compA}{\lab{\oast}}
-\newcommand{\compJ}{\lab{\varovee}}
-\newcommand{\compB}{\lab{\varogreaterthan}}
-
-\newcommand{\Vect}[2]{\VectOp\ #1\ #2}
-
-\newcommand{\Path}{\lightning}
-
-\newcommand{\StoreSym}{\Mapsto}
-\newcommand{\StoreNP}[2]{\ensuremath{#1 \StoreSym #2}}
-\newcommand{\Store}[2]{(\StoreNP{#1}{#2})}
-
-\newcommand{\List}{\mathsf{List}}
-\newcommand{\R}{\mathsf{R}}
-\newcommand{\Part}{\mathsf{Part}}
-
-\newcommand{\LUO}{$\Lambda$\kern -.1667em\lower .5ex\hbox{$\Upsilon$}\kern -.05em\raise .3ex\hbox{$\Omega$}}
-
-\newcommand{\bag}[1]{\ensuremath{\Lbag #1 \Rbag}}
-\newcommand{\bagop}[1]{\ensuremath{\bag{}\text{-}\Varid{#1}}}
+\usepackage[outputdir=diagrams,backend=cairo,extension=pdf]{diagrams-latex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Prettyref
@@ -205,7 +43,7 @@
 \usepackage{prettyref}
 
 \newrefformat{fig}{Figure~\ref{#1}}
-\newrefformat{sec}{\sect\ref{#1}}
+\newrefformat{sec}{\S\ref{#1}}
 \newrefformat{eq}{equation~\eqref{#1}}
 \newrefformat{prob}{Problem~\ref{#1}}
 \newrefformat{tab}{Table~\ref{#1}}
@@ -250,11 +88,162 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Semantic markup
 
-\newcommand{\eg}{\emph{e.g.}\xspace}
-\newcommand{\ie}{\emph{i.e.}\xspace}
-\newcommand{\etal}{\emph{et al.}\xspace}
+\newcommand{\eg}{\latin{e.g.}\xspace}
+\newcommand{\ie}{\latin{i.e.}\xspace}
+\newcommand{\etal}{\latin{et al.}\xspace}
+\newcommand{\etc}{\latin{etc.}\xspace}
 
 \newcommand{\term}[1]{\emph{#1}}
+\newcommand{\latin}[1]{\textit{#1}}
+\newcommand{\foreign}[1]{\emph{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Misc
+
+\newcommand{\LUO}{$\Lambda$\kern -.1667em\lower .5ex\hbox{$\Upsilon$}\kern -.05em\raise .3ex\hbox{$\Omega$}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Math typesetting
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% General math
+
+\newcommand{\bbb}[1]{\ensuremath{\mathbb{#1}}}
+\providecommand{\N}{\bbb{N}}
+\providecommand{\Z}{\bbb{Z}}
+\providecommand{\Q}{\bbb{Q}}
+\providecommand{\R}{\bbb{R}}
+\providecommand{\C}{\bbb{C}}
+
+\newcommand{\mcal}[1]{\ensuremath{\mathcal{#1}}}
+\let\Sect\S
+\renewcommand{\S}{\mcal S}
+\renewcommand{\H}{\mcal H}
+\newcommand{\I}{\mcal I}
+\newcommand{\Sym}{\mcal S}
+
+\newcommand{\msf}[1]{\ensuremath{\mathsf{#1}}\xspace}
+
+\newcommand{\param}{\mathord{-}}
+
+\newcommand{\comp}{\mathbin{\circ}}
+\newcommand{\union}{\cup}
+\newcommand{\Union}{\bigcup}
+\newcommand{\intersect}{\cap}
+\newcommand{\Intersect}{\bigcap}
+
+\newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+
+\newcommand{\bij}{\stackrel{\sim}{\longrightarrow}}
+\newcommand{\iso}{\simeq}
+\newcommand{\mkIso}{\rightleftharpoons}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Type theory
+
+\newcommand{\universe}{\mcal{U}}
+\newcommand{\defeq}{\mathrel{\vcentcolon\equiv}}
+\newcommand{\dep}[1]{\prod_{#1}}
+\newcommand{\fun}[1]{\lambda #1.\ }
+
+\newcommand{\TyZero}{\ensuremath{\bot}}
+\newcommand{\TyOne}{\ensuremath{\top}}
+\newcommand{\unit}{\ensuremath{\star}}
+
+\newcommand{\cons}[1]{\ensuremath{\mathsf{#1}}}
+
+\renewcommand{\False}{\cons{F}}
+\renewcommand{\True}{\cons{T}}
+
+\newcommand{\inl}{\cons{inl}}
+\newcommand{\inr}{\cons{inr}}
+\newcommand{\outl}{\cons{outl}}
+\newcommand{\outr}{\cons{outr}}
+
+\newcommand{\Type}{\ensuremath{\mathcal{U}}}
+\newcommand{\FinType}{\ensuremath{\Type_{\text{Fin}}}}
+\newcommand{\FinTypeT}{\ensuremath{\Type_{\||\text{Fin}\||}}}
+\newcommand{\size}[1]{\ensuremath{\##1}}
+
+\newcommand{\Fin}[1]{\ensuremath{\cons{Fin}\ #1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HoTT
+
+\newcommand{\ptrunc}[1]{\ensuremath{\||#1\||}}
+\newcommand{\id}{\cons{id}}
+
+\newcommand{\tygrpd}[1]{\ensuremath{\mathbf{G}(#1)}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Category theory
+
+% typesetting for category names
+\newcommand{\cat}[1]{\ensuremath{\mathbf{#1}}\xspace}
+
+% discrete category
+\newcommand{\disc}[1]{\ensuremath{\left||#1\right||}}
+
+% morphisms
+\newcommand{\mor}[2]{\ensuremath{#1 \longrightarrow #2}}
+\newcommand{\nat}[2]{\ensuremath{#1 \stackrel{\bullet}{\longrightarrow} #2}}
+
+% flipped composition
+\newcommand{\then}{\mathbin{;}}
+
+% some standard categories
+\newcommand{\Set}{\cat{Set}}
+
+\providecommand{\B}{\bbb{B}}
+\renewcommand{\P}{\bbb{P}}
+\providecommand{\FinSet}{\bbb{E}}
+
+\newcommand{\BT}{\mcal{B}}
+\newcommand{\PT}{\mcal{P}}
+
+\newcommand{\fin}[1]{\ensuremath{[#1]}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Species
+
+\renewcommand{\Sp}{\msf}
+\newcommand{\X}{\Sp{X}}
+\newcommand{\Y}{\Sp{Y}}
+\newcommand{\E}{\Sp{E}}
+\newcommand{\F}{\Sp{F}}
+\newcommand{\G}{\Sp{G}}
+\renewcommand{\L}{\Sp{L}}
+\newcommand{\T}{\Sp{T}}
+\newcommand{\Par}{\Sp{Par}}
+\newcommand{\Bag}{\Sp{E}}
+\newcommand{\Cyc}{\Sp{C}}
+
+\newcommand{\Zero}{\msf{0}}
+\newcommand{\One}{\msf{1}}
+
+\newcommand{\sprod}{\cdot}
+\newcommand{\fcomp}{\mathbin{\square}}
+
+\providecommand{\comp}{\circ}
+
+\newcommand{\usum}{\boxplus}
+\newcommand{\uprod}{\boxtimes}
+\newcommand{\ucomp}{\boxcircle}
+
+\newcommand{\unl}[1]{\widetilde{#1}}
+
+\newcommand{\Lab}{\bbb{L}}
+\newcommand{\Str}{\bbb{S}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Haskell
+
+%format `mappend` = "\mappend"
+%format mempty = "\mempty"
+
+\newcommand{\mappend}{\diamond}
+\newcommand{\mempty}{\varepsilon}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -819,14 +808,14 @@ Since $(+,\varnothing)$ is a coproduct structure on $\Set$, it follows
 that $(+, \Zero)$ is in fact a coproduct structure on the category of
 species.
 
-\begin{ex}
+\begin{example}
   Take $\Lab = \cat{1}$ (the trivial category with one object and one
   morphism). In this case, functors in $[\cat{1}, \Str]$ are just
   objects of $\Str$, and a lifted monoidal operation is identical
   to the unlifted one.
-\end{ex}
+\end{example}
 
-\begin{ex}
+\begin{example}
   Take $\Lab = \disc{\cat{2}}$, the discrete category with two
   objects.  Then a functor $F : \disc{\cat{2}} \to \Str$ is just a
   pair of objects in $\Str$.  For example, if $\Str = \Set$, a functor
@@ -840,9 +829,9 @@ species.
   view, a lifted sum can be thought of as a tag-preserving disjoint union.
 
   \todo{picture?}
-\end{ex}
+\end{example}
 
-\begin{ex}
+\begin{example}
   As an example in a similar vein, consider $\Lab = \disc{\N}$, the
   discrete category with natural numbers as objects.  Functors
   $\disc{\N} \to \Str$ are countably infinite sequences of objects
@@ -867,17 +856,17 @@ species.
   lifting $\oplus$ combines entire size-indexed collections in a
   size-preserving way.
   \todo{picture}
-\end{ex}
+\end{example}
 
-\begin{ex}
+\begin{example}
   Up until now we have mostly considered examples with $\Str = \Set$,
   but any monoidal category will do.  $\Type$ works similarly to
   $\Set$, for example, with disjoint union of sets replaced by
   coproduct of types.  \todo{Give an example with some non-set-like
     monoidal category.}
-\end{ex}
+\end{example}
 
-\begin{ex}
+\begin{example}
   All the previous examples have used a discrete category in place of
   $\Lab$; it is instructive to see an example with nontrivial
   morphisms involved. As the simplest nontrivial example, consider
@@ -894,7 +883,7 @@ species.
   required to be a bifunctor.
 
   \todo{Explain how the above plays out in the case of species.}
-\end{ex}
+\end{example}
 
 \subsection{Cartesian/Hadamard product}
 \label{sec:cartesian}
@@ -1080,7 +1069,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   the above definition, which simplifies the definition of the coend.
 \end{rem}
 
-\begin{ex}
+\begin{example}
   Let's begin by looking at the traditional setting of $\Lab = \B$ and
   $\Str = \Set$.  Though $\B$ does not have coproducts, it does have a
   monoidal structure given by disjoint union.  $\B$ is indeed enriched
@@ -1112,9 +1101,9 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   the empty set.  Clearly there is exactly one such bijection when $L
   = \varnothing$, and none otherwise: as expected, this is the species
   $\One$ defined in the previous section.
-\end{ex}
+\end{example}
 
-\begin{ex}
+\begin{example}
   $\B$ and $\P$ are equivalent, of course, but it is still instructive
   to work out the general definition in the case of $\P$.  In this
   case, we have a monoidal structure on $\P$ given by addition, with
@@ -1130,9 +1119,9 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   in fact) of this size-indexing scheme, where we replace natural
   numbers with finite types, addition with coproduct, and
   multiplication with product.
-\end{ex}
+\end{example}
 
-\begin{ex}
+\begin{example}
   We should verify that $\BT$ and $\Type$ have the right properties.
   \begin{itemize}
   \item \todo{Monoidal coproduct structure on $\BT$}
@@ -1154,7 +1143,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   \end{align*}
   \todo{the above needs to be a \emph{weak} Sigma-type.  Need some
     different notation.  Is there already standard notation?}
-\end{ex}
+\end{example}
 
 \todo{Show that $\BT/\PT$ along with \Type\ have the right properties,
 instantiate framework to show how it comes out.}
@@ -1169,7 +1158,7 @@ monoidal structure instead of the coproduct-like structure used to
 define partitional product---but keep everything else the same, in
 particular continuing to use products on $\Set$---we obtain an
 operation known as \term{arithmetic product}
-\citep{arithmetic-product}.
+\cite{arithmetic-product}.
 
 Let's examine this in detail in the case of $[\P,\Set]$.  The monoidal
 structure on $\P$ is defined on objects as $m \otimes n = mn$.  On
@@ -1281,7 +1270,7 @@ $G$-shape on the ``columns''.
 Given a functor category of generalized species $[\Lab, \Str]$, we may
 now form the category $[\lcat{\Lab}, \Str]$ of generalized multisort
 species.  In particular, $[\lcat{\B}, \Set]$ corresponds exactly to
-the notion of multisort species defined in \citet{bll}.
+the notion of multisort species defined in Bergeron \etal \cite{bll}.
 
 \todo{Note conditions under which this preserves the structure we care
   about.  Need $\lcat{\Lab}$ to still be enriched over $\Str$.  We
@@ -1446,7 +1435,9 @@ the study of attribute grammars~\cite{Mishna03b}.
 \section{Conclusion}
 \label{sec:conclusion}
 
-\section{Acknowledgements}
+\begin{ack}
+Ackowledgements
+\end{ack}
 
 \bibliographystyle{entcs}
 \bibliography{MFPS}
