@@ -378,7 +378,7 @@ The contributions of this paper are:
 \item Novel categorical presentation of weighted species.
 \end{itemize}
 
-\section{Groupoids and Finiteness in HoTT}
+\section{Homotopy type theory and finiteness}
 \label{sec:prelim}
 
 We have found it convenient to work within \emph{homotopy type theory}
