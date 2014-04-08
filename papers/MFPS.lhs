@@ -234,7 +234,7 @@
 
 % quick (inline) comments
 
-\newif\ifcomments\commentsfalse
+\newif\ifcomments\commentstrue
 
 \ifcomments
 \newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
@@ -332,7 +332,7 @@
 \end{abstract}
 
 \begin{keyword} 
-Combinatorial Species
+Combinatorial Species, Homotopy Type Theory
 \end{keyword}
 
 \end{frontmatter}
@@ -340,54 +340,57 @@ Combinatorial Species
 \section{Introduction}
 \label{sec:intro}
 
+The theory of combinatorial species is a unified theory of \emph{structures},
+or as a progammer might say, \emph{containers}. By a structure we mean some
+sort of ``shape'' containing \emph{labelled positions} or \emph{locations},
+and a mapping from those labels to data. \scw{Say more about what the theory
+  is and why it is interesting....}
+
 The theory of combinatorial species \cite{joyal,bll}, as it relates to the
 theory and practice of programming languages, has long seemed to the authors
 ``an answer looking for a question'': the theory is too beautiful, and too
 ``obviously'' related to algebraic data types, to have no applications
 whatsoever.
-
 Teasing out the precise relationship between species and data types, however,
 has proved challenging, for two reasons. First, combinatorialists are mainly
 concerned with enumerating and generating abstract structures, not with
-storing and computing with data.  Thus, in order to apply species in a
+storing and computing with data.  Thus, in order to apply this theory in a
 computational setting, there are many hidden assumptions and glossed
 distinctions that must first be made explicit.  Second, being situated in
 traditional mathematical practice rooted in set theory, species are usually
 described in ways that are \emph{untyped} and \emph{nonconstructive}, both of
 which hinder adoption and understanding in a computational context.
 
-
-\subsection{Contributions}
-\label{sec:contributions}
-
-Species are defined over \emph{finite} sets of labels.  In a classical
-setting, while finiteness is a crucial part of the definition, it is an
-otherwise fairly implicit feature of the actual theory.  Combinatorialists do
-not need to remind themselves of this finiteness condition, as it is a
-pervasive axiom that you can only ``count'' finite collections of objects.
-When ported to a constructive setting, however, the notion of finiteness takes
-on nontrivial computational content and significance.  In particular, we are
-naturally led to work up to computationally relevant \emph{equivalences} on
-labels.  Working up to equivalence in this way confers additional expressive
-power, allowing us to model efficient label operations (\eg partition) without
-copying.  This is also one of the key ingredients in modeling memory layout
-and allocation (\pref{sec:vecmap}).
-
 In more detail, our contributions are as follows:
 
-
-The contributions of this paper are:
 \begin{itemize}
-\item We describe a ``port'' of combinatorial species from set theory
-  to constructive type theory (\pref{sec:constructive-species}), making
-  the theory more directly applicable in a programming context, more
-  accessible to functional programmers, and incidentally illuminating
-  some new features of the theory.
-\item We generalize the definitions of Species that includes interpretations
-  in Set and in Type Theory.
-\item Novel observation: that arithmetic product arises from Day convolution
-\item Novel categorical presentation of weighted species.
+\item We describe a ``port'' of combinatorial species from set theory to
+  constructive type theory (\pref{sec:constructive-species}), making the
+  theory more directly applicable in a programming context, more accessible to
+  functional programmers, and incidentally illuminating some new features of
+  the theory.
+\item As part of this ``port'', we generalize the most common operations on
+  Species, including \scw{...}, carefully analyzing their requirements so that
+  we can be sure that they are consistent with our new interpretation in Type
+  Theory.
+\item This generalization leads to new insights. In particular, we observe
+  that arithmetic product arises from Day convolution, and give a novel
+  categorical presentation of weighted species.
 \end{itemize}
+
+The constructive type theory that we work in is \emph{Homotopy Type Theory}
+(HoTT) \cite{hotbook}.  Species are defined over \emph{finite} sets of labels.
+In a classical setting, while finiteness is a crucial part of the definition,
+it is an otherwise fairly implicit feature of the actual theory.
+Combinatorialists do not need to remind themselves of this finiteness
+condition, as it is a pervasive axiom that you can only ``count'' finite
+collections of objects.  When ported to a constructive setting, however, the
+notion of finiteness takes on nontrivial computational content and
+significance.  In particular, we are naturally led to work up to
+computationally relevant \emph{equivalences} on labels.  Working up to
+equivalence in this way confers additional expressive power, allowing us to
+model efficient label operations (\eg partition) without copying.
+
 
 \section{Groupoids and Finiteness in HoTT}
 \label{sec:prelim}
