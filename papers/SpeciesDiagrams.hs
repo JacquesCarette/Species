@@ -7,15 +7,19 @@
 
 module SpeciesDiagrams where
 
-import           Data.List                           (intersperse)
+import           Control.Arrow                  (first, second)
+import           Data.List                      (intersperse)
+import           Data.List.Split
+import qualified Data.Map                       as M
+import           Data.Maybe                     (fromMaybe)
 import           Data.Tree
-import           Diagrams.Backend.Postscript.CmdLine
+import           Diagrams.Backend.Cairo.CmdLine
 import           Diagrams.Core.Points
-import           Diagrams.Prelude                    hiding (arrow)
+import           Diagrams.Prelude
 import           Diagrams.TwoD.Layout.Tree
 import           Graphics.SVGFonts.ReadFont
 
-import           Control.Lens                        (_head, _last)
+import           Control.Lens                   (_head, _last)
 
 colors :: [Colour Double]
 colors = [red, orange, green, blue, purple, brown, grey, black]
@@ -97,8 +101,9 @@ cyc' labs r
                )
                # lw (labR / 10)
              )
-  startAngle = Rad $ (labR + arrowGap)/r
-  endAngle   = Rad (tau/(fromIntegral n)) - startAngle
+  startAngle = (labR + arrowGap)/r @@ rad
+  endAngle   = (tau/fromIntegral n @@ rad) ^-^ startAngle
+
 
 newtype Cyc a = Cyc {getCyc :: [a]}
   deriving Functor
@@ -116,7 +121,7 @@ instance Drawable a => Drawable (Cyc a) where
 
 instance Drawable a => Drawable [a] where
   draw ls = centerX . hcat' (with & sep .~ 0.1)
-          $ intersperse (arrow 0.5 mempty) (map draw ls)
+          $ intersperse (mkArrow 0.5 mempty) (map draw ls)
 
 instance Drawable a => Drawable (Pointed a) where
   draw (Plain a) = draw a
@@ -137,24 +142,19 @@ elimArrow :: Diagram B R2
 elimArrow = (hrule 2 # lw 0.03)
         ||| eqTriangle 0.2 # rotateBy (-1/4) # fc black
 
-arrow :: Double -> Diagram B R2 -> Diagram B R2
-arrow len l =
+mkArrow :: Double -> Diagram B R2 -> Diagram B R2
+mkArrow len l =
   ( l
     ===
-    hrule len # lw 0.03
+    arrow len # lw 0.03
   )
   # alignB
-  |||
-  eqTriangle 0.2 # rotateBy (-1/4) # fc black
-
-(|-|) :: Diagram B R2 -> Diagram B R2 -> Diagram B R2
-x |-| y = x ||| strutX 1 ||| y
 
 data SpN = Lab (Either Int String)
          | Leaf (Maybe (Diagram B R2))
          | Hole
          | Point
-         | Sp (Diagram B R2) CircleFrac
+         | Sp (Diagram B R2) Angle
          | Bag
 
 type SpT = Tree (Maybe EdgeLabel, SpN)
@@ -166,13 +166,13 @@ drawSpT' tr slopts
   . symmLayout' slopts
 
 drawSpT :: SpT -> Diagram B R2
-drawSpT = drawSpT' (rotation (1/4 :: CircleFrac))
-                   (with { slHSep = 0.5, slVSep = 2, slWidth = slw })
+drawSpT = drawSpT' (rotation (1/4 @@ turn))
+                   (with & slHSep .~ 0.5 & slVSep .~ 2 & slWidth .~ slw)
   where
     slw (_, Leaf (Just d)) = (-width d/2, width d/2)
-    slw (_, sp@(Sp _ _)) = let w = width (drawSpN' (rotation (1/4 :: CircleFrac)) sp)
+    slw (_, sp@(Sp _ _)) = let w = width (drawSpN' (rotation (1/4 @@ turn)) sp)
                            in  (-w/2, w/2)
-    slw _ = 0
+    slw _ = (0,0)
 
 drawSpN' :: Transformation R2 -> SpN -> Diagram B R2
 drawSpN' _  (Lab (Left n))    = lab n # scale 0.5
@@ -181,7 +181,7 @@ drawSpN' _  (Leaf Nothing)  = circle (labR/2) # fc black
 drawSpN' _  (Leaf (Just d)) = d
 drawSpN' _  Hole              = circle (labR/2) # lw (labR / 10) # fc white
 drawSpN' tr Point             = drawSpN' tr (Leaf Nothing) <> drawSpN' tr Hole # scale 1.7
-drawSpN' tr (Sp s f) = ( arc (3/4 - f/2) (3/4 + f/2) # scale 0.3
+drawSpN' tr (Sp s f) = ( arc ((3/4 @@ turn) ^-^ f^/2) ((3/4 @@ turn) ^+^ f^/2) # scale 0.3
                        |||
                        strutX 0.1
                        |||
@@ -202,10 +202,10 @@ drawSpE (_,p) ((Just f,_), q) = f p q
 drawSpE (_,p) (_,q) = p ~~ q
 
 nd :: Diagram B R2 -> Forest (Maybe EdgeLabel, SpN) -> SpT
-nd x = Node (Nothing, Sp x (1/3))
+nd x = Node (Nothing, Sp x (1/3 @@ turn))
 
 nd' :: EdgeLabel -> Diagram B R2 -> Forest (Maybe EdgeLabel, SpN) -> SpT
-nd' l x = Node (Just l, Sp x (1/3))
+nd' l x = Node (Just l, Sp x (1/3 @@ turn))
 
 lf :: a -> Tree (Maybe EdgeLabel, a)
 lf x = Node (Nothing, x) []
@@ -245,3 +245,82 @@ unord ds = elts # centerXY
 enRect :: (Semigroup a, TrailLike a, Alignable a, Enveloped a, HasOrigin a, V a ~ R2) => a -> a
 enRect d = roundedRect (w+0.5) (h+0.5) 0.5 <> d # centerXY
   where (w,h) = size2D d
+
+txt x = text x <> square 1 # lw 0
+
+------------------------------------------------------------
+-- Some specific constructions
+
+mlocColor = blend 0.5 white lightblue
+eltColor = blend 0.5 white lightgreen
+
+mloc m = text (show m) <> circle 0.8 # fc mlocColor
+elt x = text (show x) <> square 1.6 # fc eltColor
+
+arm m n r = ( mloc m # rotateBy (-r)
+          ||| hrule 1.5
+          ||| mloc n # rotateBy (-r)
+            )
+            # translateX 3
+            # rotateBy r
+
+arms elts = zipWith (\[e1,e2] r -> arm e1 e2 r) (chunksOf 2 elts) [1/8 + 0.001, 1/8+0.001 +1/4 .. 1]
+
+octo elts = (mconcat (arms elts) <> circle 3) # lw 0.03
+
+
+t = Node 3 [Node 4 (map lf [2,1,6]), Node 5 [], Node 0 [lf 7]]
+  where
+    lf x = Node x []
+
+tree :: Diagram B R2
+tree = renderTree
+         mloc
+         (~~)
+         (symmLayout' (with & slHSep .~ 4 & slVSep .~ 4) t)
+       # lw 0.03
+
+drawBinTree :: SymmLayoutOpts (Maybe (Diagram B R2))
+            -> BTree (Diagram B R2) -> Diagram B R2
+drawBinTree slOpts = drawRTree . symmLayout' slOpts . b2r
+
+b2r Empty                 = Node Nothing []
+b2r (BNode a Empty Empty) = Node (Just a) []
+b2r (BNode a l r)         = Node (Just a) (map b2r [l,r])
+drawRTree = renderTree' drawNode drawEdge
+drawNode Nothing  = mempty
+drawNode (Just d) = d
+drawEdge _ (Nothing,_)   = mempty
+drawEdge (_,pt1) (_,pt2) = pt1 ~~ pt2
+
+select :: [a] -> [(a,[a])]
+select [] = []
+select (a:as) = (a,as) : (map . second) (a:) (select as)
+
+subsets :: [a] -> [([a],[a])]
+subsets [] = [([],[])]
+subsets (a:as) = (map . first) (a:) s ++ (map . second) (a:) s
+  where s = subsets as
+
+type Edge = (Int,Int)
+type Graph = (M.Map Int P2, [Edge])
+
+drawGraph drawLoc (locs, edges) = drawLocs <> drawEdges
+  where
+    drawLocs  = mconcat . map (\(n,p) -> drawLoc n # moveTo p) . M.assocs $ locs
+    drawEdges = mconcat . map drawEdge $ edges
+    drawEdge (i1,i2) = lkup i1 ~~ lkup i2
+    lkup i = fromMaybe origin $ M.lookup i locs
+
+gr :: Diagram B R2
+gr  = drawGraph mloc
+         ( M.fromList
+           [ (0, 3 ^& (-1))
+           , (1, 8 ^& 0)
+           , (2, origin)
+           , (3, 8 ^& 2)
+           , (4, 4 ^& 2)
+           , (5, 3 ^& (-3))
+           ] # scale 1.5
+         , [(2,0), (2,4), (0,4), (4,3), (3,1), (0,1), (0,5)]
+         )
