@@ -176,6 +176,10 @@
 
 \newcommand{\tygrpd}[1]{\ensuremath{\mathbf{G}(#1)}}
 
+\newcommand{\transport}[2]{\ensuremath{\mathsf{transport}^{#1}(#2)}}
+
+\newcommand{\ua}{\ensuremath{\mathsf{ua}}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Category theory
 
@@ -641,22 +645,20 @@ for a ``constructive counterpart'' to $[\B, \Set]$.
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
 
-We have found it convenient to work within \emph{homotopy type theory}
-(HoTT).  However, we do not need much complex machinery from the
-theory, and simply summarize the most important ideas and notation
-here; interested readers should consult the HoTT book~\cite{hottbook}
-for more details.  Everything in this paper could be formalized in
-most any standard constructive type theory; we choose to work in HoTT
-because of its emphasis on equality and isomorphism, which meshes well
-with the theory of species.  In fact, it seems likely that there are
-deeper connections between the two theories, but exploring these
-connections is left to future work.
+We have chosen to work within \term{homotopy type theory} (HoTT).  The
+choice was initially a pragmatic one, but seems increasingly like a
+canonical choice for encoding species in type theory: both have
+groupoids at their heart.
+
+We summarize the most important ideas and notation here; interested
+readers should consult the HoTT book~\cite{hottbook} for more details.
 
 The concept of \term{finiteness} plays a central (but implicit) role
 in the theory of combinatorial species, primarily through the
-pervasive use of generating functions.  As it remains important in our
-setting, we give the precise definition we use, seeing as there are
-multiple constructive interpretations of finiteness.
+pervasive use of generating functions.  \todo{Why bother encoding
+  finiteness in type theory?} % As it remains important in our
+% setting, we give the precise definition we use, seeing as there are
+% multiple constructive interpretations of finiteness.
 
 \subsection{A fragment of homotopy type theory}
 \label{sec:HoTT}
@@ -703,7 +705,10 @@ functorial with respect to equality. That is, if $e : x = y$ is a
 witness of equality between $x$ and $y$ (informally, a ``path''
 between $x$ and $y$), and $f$ is a function of an appropriate type,
 then $f(x) = f(y)$.  Given $e$ we also have $P(x) \to P(y)$ for any
-type family $P$, called the \term{transport} of $P(x)$ along $e$.
+type family $P$, called the \term{transport} of $P(x)$ along $e$ and
+notated $\transport{P}{e}$, or simply $e_*$ when $P$ is clear from
+context.
+
 Finally, a consequence of the \emph{univalence axiom} is that an
 equivalence $A \iso B$ can be converted to the propositional equality
 $A = B$ (and vice versa).  The intuitive idea is to formally encode
@@ -712,9 +717,18 @@ identical.  It is important to keep in mind that an equality $e : A =
 B$ can thus have nontrivial computational content.  In other words, $A
 = B$ means not that $A$ and $B$ are identical, but merely that they
 can be used interchangeably---and moreover, interchanging them may
-require some work, computationally speaking.
+require some work, computationally speaking.  As of yet, univalence
+has no direct computational interpretation, so making use of it in a
+computational setting may seem suspect. Note, however, that
+$\transport{X \mapsto X}{\ua(f)} = f$, where $\ua : (A \iso B) \to (A
+= B)$ denotes (one direction of) the univalence axiom. So univalence
+introduces no computational problems as long as applications of $\ua$
+are only ultimately used via $\mathsf{transport}$.
 
 \subsection{Finiteness}
+
+Recall, from the definition of species, that $\B$ denotes the groupoid
+whose objects are finite sets and whose morphisms are bijections.
 
 Let $\fin n \defeq \{0, \dots, n-1\}$ be the set of the first $n$ natural
 numbers.  Denote by $\P$ the category whose objects are natural
