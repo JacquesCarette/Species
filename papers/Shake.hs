@@ -7,7 +7,7 @@ bibtex   = "bibtex"
 
 main :: IO ()
 main = shake shakeOptions $ do
-  want ["LabelledArrays.pdf"]
+  want ["MFPS.pdf"]
 
   "*.tex" *> \output -> do
       let input = output -<.> "lhs"

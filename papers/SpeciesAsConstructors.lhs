@@ -2,7 +2,7 @@
 
 \documentclass{entcs}
 
-\usepackage{entcsmacro}
+\usepackage{prentcsmacro}
 
 \providecommand{\event}{MSFP 2014}
 \usepackage{breakurl}
