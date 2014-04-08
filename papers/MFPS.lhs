@@ -435,6 +435,108 @@ require some work, computationally speaking.
 \section{Weighted Species}
 
 \section{Related Work}
+\label{sec:related}
+
+The work on \emph{containers}
+\cite{abbott_categories_2003,abbott_deriv,abbott_quotient,alti:cont-tcs,alti:lics09}
+also aims to find a more general theory of data structures which
+captures a large set of ``containers''.  The resulting theory is quite
+elegant.  It involves \emph{shapes} and a family of \emph{position}
+types indexed by shapes.  More formally, it is a dependent pair of
+types $A : \Type$ and $B : A \to \Type$ (which they write $A\lhd B$) which
+yields a functor $T_{A\lhd B} X$ defined as $\Sigma a:A. X^{B\left(a\right)}$.
+Roughly, their positions correspond to our labels, their shapes
+correspond to our labelled shapes, and the associated functor maps
+positions to data values, much as our mappings associate data values
+to labels.  They have developed the theory quite far; as of yet,
+however, there is no implementation of containers, nor is there a
+fully developed dictionary linking concrete structures to the
+corresponding abstract container.  It is thus difficult to do a deeper
+comparison of the approaches.  We can nevertheless make a few simple
+observations.  One significant difference is that in the containers
+work, each shape is associated with a fixed, inherent set of
+positions, whereas in our approach a shape can be used with any type
+of labels.  Furthermore, for them shape is an input, while for us it
+is part of what is generated.  As a result, with containers, it does
+not seem that the positions can easily be given extra structure (the
+work on quotient containers~\cite{abbott_quotient} is quite
+involved).  There are fewer combinators for containers than for
+labelled structures: for example, neither the Cartesian product nor
+functorial composition seem to be present.  Thus there is as of yet no
+theory of sharing for containers, nor is there a fine grained theory of
+storage.  Having said all of that, however, containers are not restricted to
+finite sets of labels, which makes them more general than labelled structures: there
+are useful types (such as streams) which are containers but not labelled
+structures.  And therein seems to be the main difference: the extra
+generality allows containers to encapsulate fancier types, while our
+concreteness lets us uniformly and easily model low-level concerns.
+
+Shapely types \cite{jay-shapely} are closely related to containers---
+see~\cite[section 8]{abbott_categories_2003} for a careful
+explanation of the details.  Their results show that shapely types are
+those containers which are closest to labelled structures: in many
+settings of importance, shapely types are \emph{discretely finite}
+containers, which essentially amounts to saying that all shapes give
+rise to a finite number of positions (\ie labels).  Shapely types do
+not explicitly make use of labels at all, but since they involve
+\emph{lists} of data values, one may say that they implicitly make
+use of labels from $\Fin n$.  There is thus a close relationship to
+our constructive finiteness proofs for label types.  Furthermore,
+there are claims \cite{jay-shapely} that this also corresponds to
+information about memory allocation and layout, however this is not
+detailed anywhere in the literature.
+
+Another approach is that of \textit{Container Types Categorically}
+\cite{ContainerTypesCat}.  They define containers as monotone
+endofunctors $F$ on \cons{Rel} (\ie \emph{relators}) which have a
+\emph{membership relation}; this latter concept turns out to be a special
+kind of lax natural transformation from $F$ to the identity functor.
+This approach is again rather difficult to adequately compare to ours.
+There is again overlap, but no inclusion in either direction.
+
+From the categorical perspective, \emph{stuff types}
+\cite{BaezDolan01,Morton2006}, brilliantly explained in Byrne's
+master's thesis \cite{Byrne2005}, are directly related to
+species.  Stuff types are functors from some arbitrary groupoid $X$ to
+the groupoid of finite sets and bijections.  Faithful stuff types are
+equivalent to species.  But these work much like containers: stuff
+types map a structure to its underlying set (which can be thought of as
+positions), instead of mapping labels to structures.  In a different
+direction, \emph{polynomial functors over groupoids} also generalize
+species~\cite{kock2012data}, and seem a categorically solid
+foundation for an even more general approach to data type
+constructors.  Unfortunately, no one has yet to unravel these
+definitions into something suitable for implementation.  Similarly,
+\emph{generalised species of structures}~\cite{Fiore08} may also be
+another interesting direction.  But in all these cases, there remains
+much work to be done to bridge theory and practice.
+
+Species have been the basis for many implementations in the area of
+enumerative combinatorics, such as Darwin~\cite{Berg85},
+\LUO~\cite{FlajoletSalvyZimmermann1989a}, combstruct~\cite{FlSa95},
+Aldor-Combinat~\cite{Aldor-Combinat} and
+MuPAD-Combinat~\cite{Mupad-Combinat}.  Most do not model the full
+spectrum of species combinators, but make up for it by implementing
+very sophisticated algorithms for enumeration and generation, both
+exhaustive and random.  The Haskell species package
+\cite{yorgey-2010-species,species} is a fairly direct implementation
+of the theory of species, without attempting to use this theory as a
+foundation for data structures.
+
+Lastly, we should note that we have used but a small fraction of the
+theory of species.  \cite{bll} alone still contains a vast trove of
+further examples (sometimes buried deep in the exercises!) of
+relevance to programming.  We have also not yet really touched the
+\emph{calculus} aspects of the theory; while the derivative is by now
+well-known, integration~\cite{Rajan93} has not really been explored.
+There are also new variants on
+species~\cite{Schmitt93hopfalgebras,Menni2008,Maia2008arithmetic,aguiar2010monoidal}
+with nontrivial applications to combinatorics, and possible
+applications to programming as well. Species have even been applied to
+the study of attribute grammars~\cite{Mishna03b}.
+
+\section{Future work}
+\label{sec:future}
 
 \section{Conclusion}
 \label{sec:conclusion}
