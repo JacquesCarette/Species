@@ -728,6 +728,9 @@ are only ultimately used via $\mathsf{transport}$.
 
 \subsection{Finiteness}
 
+Recall, from the definition of species, that $\B$ denotes the groupoid
+whose objects are finite sets and whose morphisms are bijections.
+
 Let $\fin n \defeq \{0, \dots, n-1\}$ be the set of the first $n$ natural
 numbers.  Denote by $\P$ the category whose objects are natural
 numbers and whose morphisms $\mor m n$ are bijections $\fin m \bij \fin
