@@ -669,12 +669,13 @@ unit type \TyOne (with inhabitant $\unit$), coproducts (with
 constructors $\inl$ and $\inr$), dependent pairs (with projections
 $\outl$ and $\outr$), dependent functions, a hierarchy of type
 universes $\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the
-subscripts), and a notion of propositional equality.  The theory also
-allows inductive definitions.  We use $\N : \Type_0$ to denote the
-type of natural numbers, $\Fin : \N \to \Type_0$ the usual indexed
-type of canonical finite sets, and $[-] : \Type \to \Type$ the
-inductive type of polymorphic lists, with constructors $|[]| :
-\prod_{A:\Type} [A]$ and $- :: - : \prod_{A:\Type} A \to [A] \to [A]$.
+subscript from $\Type_0$), and a notion of propositional equality.
+The theory also allows inductive definitions.  We use $\N : \Type_0$
+to denote the type of natural numbers, $\Fin : \N \to \Type_0$ the
+usual indexed type of canonical finite sets, and $[-] : \Type \to
+\Type$ the inductive type of polymorphic lists, with constructors
+$|[]| : \prod_{A:\Type} [A]$ and $- :: - : \prod_{A:\Type} A \to [A]
+\to [A]$.
 
 Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
 dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
@@ -745,14 +746,15 @@ equivalent requires the axiom of choice.  In more detail, it is easy
 to define a functor $\fin - : \P \to \B$ which sends $n$ to $\fin n$
 and preserves morphisms.  Defining an inverse functor $\B \to \P$ is
 more problematic. Clearly we must send each set $S$ to its size $\size
-S$. However, a morphism $S \bij T$ must be sent to some bijection
-$\fin{\size S} \bij \fin{\size T}$, and intuitively we have no way to
-pick one: we would need to decide on a way to match up the elements of
-each set $S$ with the set of natural numbers $\fin{\size S}$.  In a
-sense it ``does not matter'' what choice we make, since the results
-will be isomorphic in any case, and this is precisely where the axiom
-of choice comes in. \todo{Need to think through this a bit more
-  carefully.}
+S$ (though even this is a bit suspect: where exactly does this size
+come from?). However, a morphism $S \bij T$ must be sent to some
+bijection $\fin{\size S} \bij \fin{\size T}$, and intuitively we have
+no way to pick one: we would need to decide on a way to match up the
+elements of each set $S$ with the set of natural numbers $\fin{\size
+  S}$.  In a sense it ``does not matter'' what choice we make, since
+the results will be isomorphic in any case, and this is precisely
+where the axiom of choice comes in. \todo{Need to think through this a
+  bit more carefully.}
 
 \todo{Note that HoTT can express several variants on AC.  Some are
   inherently non-constructive so we do not want to assert them.  There
@@ -761,9 +763,9 @@ of choice comes in. \todo{Need to think through this a bit more
   finite sets and canonical finite sets of the same size.}
 
 This leads us to the need for \emph{computational evidence of
-  finiteness}.  (Even the phrase ``send each set $S$ to its size
-$\size S$'' should have been suspect before.  Where does this size
-actually come from?)
+  finiteness}.
+
+\todo{$\infty$-groupoids?}
 
 First, we define a counterpart to $\P$ in type theory:
 \begin{defn}
@@ -775,6 +777,8 @@ First, we define a counterpart to $\P$ in type theory:
     \Fin n$.
   \end{itemize}
 \end{defn}
+
+\todo{Define $\tygrpd{-}$.}
 
 As a first try at defining a constructive counterpart to $\B$, we
 consider $\tygrpd{\FinType}$, where
@@ -915,6 +919,32 @@ pair of inverse equivalences in each of the following two diagrams:
 \subsection{Species in Constructive Type Theory}
 \label{sec:constructive-species}
 
+Our goal is to port the theory of species from set theory into
+constructive type theory.
+
+\begin{defn}
+  Recall that $\Type = \Type_0$ denotes the universe of types.  We
+  overload the notation $\Type$ to also denote the category whose
+  \begin{itemize}
+  \item objects are types classified by $\Type_0$, and
+  \item morphisms $A \to B$ are functions with the given type.
+  \end{itemize}
+\end{defn}
+
+We claim that an appropriate encoding of species within homotopy type
+theory is given by $[\BT, \Type]$, the category of functors from $\BT$
+to $\Type$.
+
+We cannot directly justify this, say, by showing that $[\B,\Set]$ and
+$[\BT,\Type]$ are equivalent as categories.  Indeed, they are
+certainly \emph{not} equivalent. The problem is that $\Set$ (and
+similarly $\B$) are ``too big'': there are many sets which do not
+correspond to any type definable in type theory.
+
+However, most working mathematicians do not actually make use of such
+``exotic'' sets.  The constructions that mathematicians care about
+\todo{finish}
+
 \section{Lifted monoids: sum and Cartesian product}
 
 One of the simplest operations on species is the \emph{sum} of two
@@ -1002,7 +1032,7 @@ instance Monoid a => Monoid (e -> a) where
   mempty         = \ _ -> mempty
   f `mappend` g  = \a -> f a `mappend` g a
 \end{spec}
-but quite a bit more general.  This construction will be entirely
+but quite a bit more general.  The construction will be entirely
 unsurprising to a category theorist, but is included here for
 completeness.
 \begin{defn}
