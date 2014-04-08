@@ -378,6 +378,255 @@ The contributions of this paper are:
 \item Novel categorical presentation of weighted species.
 \end{itemize}
 
+\section{Species}
+\label{sec:species}
+
+\todo{Explain this. More discussion/justification.}
+We want to think of each labeled structure as \emph{indexed by} its
+set of labels (or, more generally, by the \emph{size} of the set of
+labels).  We can accomplish this by a mapping from label sets to all
+the shapes built from them, with some extra properties to
+guarantee that we really do get the same family of shapes no
+matter what set of labels we happen to choose.
+
+\begin{defn}
+A \term{species} $F$ is a pair of mappings which
+\begin{itemize}
+\item sends any finite set $U$ (of \term{labels}) to a set $F[U]$ (of
+  \term{shapes}), and
+\item sends any bijection on finite sets $\sigma : U \bij V$ (a
+  \term{relabeling}) to a function $F[\sigma] : F[U] \to F[V]$
+  (illustrated in \pref{fig:relabeling}),
+\end{itemize}
+satisfying the following functoriality conditions:
+\begin{itemize}
+\item $F[id_U] = id_{F[U]}$, and
+\item $F[\sigma \circ \tau] = F[\sigma] \circ F[\tau]$.
+\end{itemize}
+
+This definition is due to Joyal \cite{joyal}, as described in Bergeron
+\etal \cite{bll}.
+\end{defn}
+
+\begin{figure}
+  \centering
+  \begin{diagram}[width=200]
+import           Data.Maybe                     (fromMaybe)
+import           Diagrams.TwoD.Layout.Tree
+
+t :: BTree Int
+t = BNode 2 (leaf 1) (BNode 3 (leaf 4) (leaf 5))
+
+sig :: Int -> Char
+sig = ("acebd"!!) . pred
+
+mkNamedNode :: IsName a => (a -> String) -> a -> Diagram B R2
+mkNamedNode sh a = (text (sh a) # scale 0.3 <> circle 0.2 # fc white) # named a
+
+mkNamedTree :: IsName a => (a -> String) -> BTree a -> BTree (Diagram B R2)
+mkNamedTree = fmap . mkNamedNode
+
+drawDiaBT :: BTree (Diagram B R2) -> Diagram B R2
+drawDiaBT
+  = maybe mempty (renderTree id (~~))
+  . symmLayoutBin
+
+t1 = drawDiaBT . mkNamedTree show $ t
+t2 = drawDiaBT . mkNamedTree (:[]) $ fmap sig t
+
+linkedTrees = hcat' (with & sep .~ 1) [t1, t2]
+  # applyAll (map conn [1..5 :: Int])
+  where
+    conn i = connectOutside'
+      (with & arrowShaft .~ selectShaft i
+            & shaftStyle %~ dashing [0.05,0.05] 0
+            & arrowHead .~ noHead
+      )
+      i (sig i)
+    selectShaft i || i `elem` [1,4] = theArc # reverseTrail
+                  || i `elem` [3,5] = theArc
+    selectShaft _ = hrule 1
+    theArc = arc (0 @@@@ deg) (75 @@@@ deg)
+
+dia = linkedTrees # centerXY # frame 1
+  \end{diagram}
+  \caption{Relabeling} \label{fig:relabeling}
+\end{figure}
+
+We call $F[U]$ the set of ``$F$-shapes with labels drawn from $U$'',
+or simply ``$F$-shapes on $U$'', or even (when $U$ is clear from
+context) just ``$F$-shapes''.\footnote{Margaret Readdy's translation
+  of Bergeron \etal \cite{bll} uses the word ``structure'' instead of
+  ``shape'', but that word is likely to remind computer scientists of
+  ``data structures'', which is the wrong association: data structures
+  contain \emph{data}, whereas species shapes do not.  We choose the
+  word shape to emphasize the fact that they are ``form without
+  content''.}  $F[\sigma]$ is called the ``transport of $\sigma$ along
+$F$'', or sometimes the ``relabeling of $F$-shapes by $\sigma$''.
+
+The functoriality of relabeling means that the actual labels used
+don't matter; we get ``the same shapes'', up to relabeling, for
+any label sets of the same size.  We might say that species are
+\term{parametric} in the label sets of a given size. In particular,
+$F$'s action on all label sets of size $n$ is determined by its action
+on any particular such set: if $||U_1|| = ||U_2||$ and we know
+$F[U_1]$, we can determine $F[U_2]$ by lifting an arbitrary
+bijection between $U_1$ and $U_2$.  So we often take the finite set of
+natural numbers $[n] = \{0, \dots, n-1\}$ as \emph{the}
+canonical label set of size $n$, and write $F[n]$ (instead of
+$F[[n]]$) for the set of $F$-shapes built from this set.
+
+To make this more concrete, consider a few examples:
+\begin{itemize}
+\item The species $\L$ of \emph{lists} (or \emph{linear orderings})
+  sends every set of labels (of size $n$) to the set of all sequences
+  (of size $n!$) containing each label exactly once
+  (\pref{fig:lists}).
+
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=400]
+import SpeciesDiagrams
+import Data.List
+import Data.List.Split
+
+dia =
+  hcat' (with & sep .~ 0.5)
+  [ unord (map labT [0..2])
+  , mkArrow 2 (txt "L")
+  , enRect listStructures
+  ]
+  # centerXY
+  # pad 1.1
+
+drawList = hcat . intersperse (mkArrow 0.4 mempty) . map labT
+
+listStructures =
+    hcat' (with & sep .~ 0.7)
+  . map (vcat' (with & sep .~ 0.5))
+  . chunksOf 2
+  . map drawList
+  . permutations
+  $ [0..2]
+    \end{diagram}
+    \caption{The species $\L$ of lists}
+    \label{fig:lists}
+    %$
+  \end{figure}
+
+\item The species of \emph{(rooted, ordered) binary trees} sends every
+  set of labels to the set of all binary trees built over those labels
+  (\pref{fig:binary-trees}).
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=400]
+import SpeciesDiagrams
+import Data.Tree
+import Diagrams.TwoD.Layout.Tree
+import Control.Arrow (first, second)
+
+dia =
+  hcat' (with & sep .~ 0.5)
+  [ unord (map labT [0..2])
+  , mkArrow 2 (txt "T")
+  , enRect treeStructures
+  ]
+  # centerXY
+  # pad 1.1
+
+drawTreeStruct = renderTree id (~~) . symmLayout . fmap labT
+
+trees []   = []
+trees [x]  = [ Node x [] ]
+trees xxs  = [ Node x [l,r]
+             || (x,xs) <- select xxs
+             , (ys, zs) <- subsets xs
+             , l <- trees ys
+             , r <- trees zs
+             ]
+
+treeStructures =
+    hcat' (with & sep .~ 0.5)
+  . map drawTreeStruct
+  . trees
+  $ [0..2]
+    \end{diagram}
+    \caption{The species $\T$ of binary trees}
+    \label{fig:binary-trees}
+    %$
+  \end{figure}
+
+\item \todo{More examples.  Cycles, bags.  Permutations.  Examples of
+    algebra: describe lists and trees algebraically, etc.}
+
+\end{itemize}
+
+Using the language of category theory, we can give an equivalent, more
+concise definition of species:
+\begin{defn}
+  A \term{species} is a functor $F : \B \to \Set$, where $\B$ is the
+  groupoid of finite sets whose morphisms are bijections, and
+  $\Set$ is the category of sets and (total) functions.
+\end{defn}
+
+\begin{rem}
+  Although the definition only says that a species $F$ sends a
+  bijection $\sigma : U \bij V$ to a \emph{function} $F[\sigma] : F[U]
+  \to F[V]$, functors preserve isomorphisms, so in fact every such
+  function must be a bijection.
+\end{rem}
+
+\subsection{Species from scratch}
+\label{sec:species-scratch}
+
+There are several reasons to generalize the definition of species
+given in the previous section.  First, $\B$ and \Set enjoy many special
+properties as categories (for example, \Set is cartesian closed, has
+all limits and colimits, and so on).  It is enlightening to see
+precisely which properties are required in which situations, and we
+miss this entirely if we start with the kitchen sink.
+
+More subtly, we wish to work in a constructive, computational setting,
+and the specific categories $\B$ and \Set are inappropriate, as seen
+\todo{reference stuff from finiteness section previously}.  We wish to
+work with more computationally concrete categories based in type
+theory, such as $\BT$, but in order to do so we need to show that they
+have the right properties.
+
+The idea is to start ``from scratch'' and build up a generic notion of
+species which support the operations we want.  Along the way, we will
+also get a much clearer picture of where the operations ``come from''.
+Much of the material in this chapter has been inspired by
+Kelly \cite{Kelly-operads} \todo{``Operads of J.P. May''},
+\todo{``Cartesian Closed Bicategory of Generalised Species of
+  Structure''}, and \todo{``Monoidal Functors, Species, and Hopf
+  Algebras''}, though the aim is for the current chapter to be at the
+same time more elementary and (in some ways) more general.
+
+Given two categories $\Lab$ and $\Str$, what can we say about functors
+$\Lab \to \Str$, and more generally about the functor category $[\Lab,
+\Str]$?  Of course, there is no point in calling functors $\Lab \to
+\Str$ ``species'' for just any old categories $\Lab$ and $\Str$.  But
+what properties must $\Lab$ and $\Str$ possess to make this
+interesting and worthwhile?  In particular, what properties must
+$\Lab$ and $\Str$ possess to enable the sorts of operations we
+typically want to do on species?  In each of the following sections,
+we will discuss some specific constructions on species (considered as
+functors $\B \to \Set$), and then generalize to arbitrary functor
+categories to see what properties are needed in order to define
+them---\ie\ where the constructions ``come from''---and give some
+specific examples.  One particular example that will be considered
+throughout is $[\BT, \Type]$, which, as we will see, makes a good case
+for a ``constructive counterpart'' to $[\B, \Set]$.
+
+\begin{rem}
+  It will often be convenient to have recourse to the intuition of
+  ``sets of labels''; but in more general settings the objects of
+  $\Lab$ might not correspond to ``sets'' at all. More generally, we
+  can just think of shapes indexed by objects of $\Lab$, rather
+  than shapes ``containing labels''.
+\end{rem}
+
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
 
