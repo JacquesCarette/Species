@@ -360,6 +360,20 @@ combinatorial species from set theory to constructive type theory, making the
 theory more directly applicable in a programming context and more accessible
 to functional programmers.
 
+This port is nontrivial. In fact it took us several tries to get the
+definitions that we wanted. Part of the difficulty lies in the fact that
+species are defined over \emph{finite} sets of labels.  In a classical
+setting, while finiteness is a crucial part of the definition, it is an
+otherwise fairly implicit feature of the actual theory.  Combinatorialists do
+not need to remind themselves of this finiteness condition, as it is a
+pervasive axiom that you can only ``count'' finite collections of objects.
+When ported to a constructive setting, however, the notion of finiteness takes
+on nontrivial computational content and significance.  In particular, we are
+naturally led to work up to computationally relevant \emph{equivalences} on
+labels.  Therefore, the constructive type theory that we work in is
+\emph{Homotopy Type Theory} (HoTT) \cite{hotbook}, a theory that can naturally
+express these computationally relavant equivalences.
+
 \begin{itemize}
 \item We define for the concept of \emph{species} in 
   constructive type theory (\pref{sec:constructive-species}), characterizing
@@ -374,23 +388,10 @@ to functional programmers.
   (\pref{sec:weighted-species}).
 \end{itemize}
 
-The constructive type theory that we work in is \emph{Homotopy Type Theory}
-(HoTT) \cite{hotbook}.  Species are defined over \emph{finite} sets of labels.
-In a classical setting, while finiteness is a crucial part of the definition,
-it is an otherwise fairly implicit feature of the actual theory.
-Combinatorialists do not need to remind themselves of this finiteness
-condition, as it is a pervasive axiom that you can only ``count'' finite
-collections of objects.  When ported to a constructive setting, however, the
-notion of finiteness takes on nontrivial computational content and
-significance.  In particular, we are naturally led to work up to
-computationally relevant \emph{equivalences} on labels.  Working up to
-equivalence in this way confers additional expressive power, allowing us to
-model efficient label operations (\eg partition) without copying.
-
-In the next section we define the fragment of Homotopy Type Theory that we
-require and then present the definition of species within this fragment. Once
-we have done that, we step back and generalize various species operations so
-that they are applicable to this fragment.
+In the next section, we review the set theoretic definitions of species,
+before recasting them in the context of Homotopy Type Theory in
+\pref{sec:prelim}.  Once we have done that, we step back and generalize
+various species operations so that they are applicable to this fragment.
 
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
