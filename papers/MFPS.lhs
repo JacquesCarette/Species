@@ -594,20 +594,18 @@ concise definition of species:
 %\subsection{Species from scratch}
 %\label{sec:species-scratch}
 
-There are several reasons to generalize the definition of species
-given above.  First, $\B$ and \Set enjoy many special
-properties as categories (for example, \Set is cartesian closed, has
-all limits and colimits, and so on).  It is enlightening to see
-precisely which properties are required in which situations, and we
-miss this entirely if we start with the kitchen sink.
-The idea is to start ``from scratch'' and build up a generic notion of
-species which support the operations we want.  Along the way, we will
-also get a much clearer picture of where the operations ``come from''.
-\footnote{Much of the material in this chapter has been inspired by
-Kelly \cite{Kelly-operads} \todo{``Operads of J.P. May''},
-\todo{``Cartesian Closed Bicategory of Generalised Species of
-  Structure''}, and \todo{``Monoidal Functors, Species, and Hopf
-  Algebras''}.}
+There are several reasons to generalize the definition of species given above.
+First, $\B$ and \Set enjoy many special properties as categories (for example,
+\Set is cartesian closed, has all limits and colimits, and so on).  It is
+enlightening to see precisely which properties are required in which
+situations, and we miss this entirely if we start with the kitchen sink.  The
+idea is to start ``from scratch'' and build up a generic notion of species
+which support the operations we want.  Along the way, we will also get a much
+clearer picture of where the operations ``come from''.  \footnote{Much of this
+  material has been inspired by Kelly \cite{Kelly-operads} \todo{``Operads of
+    J.P. May''}, \todo{``Cartesian Closed Bicategory of Generalised Species of
+    Structure''}, and \todo{``Monoidal Functors, Species, and Hopf
+    Algebras''}. \scw{Perhaps this discussion would be better in related work.}}
 
 Given two arbitrary categories $\Lab$ and $\Str$, what can we say about
 functors $\Lab \to \Str$, and more generally about the functor category
@@ -638,13 +636,18 @@ able to use them with our generalized definitions.
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
 
+We next define the categories $\BT$ and $\Type$ in the context of
+\term{homotopy type theory}. This section begins by summarizing the most
+important ideas and notation of HoTT; interested readers should consult the
+HoTT book~\cite{hottbook} for more details.
+\scw{Where do we explain why HoTT? Should we move that discussion here.}
+
+\scw{These comments would be better later, it is more of an observation than
+  an explanation.}
 We have chosen to work within \term{homotopy type theory} (HoTT).  The
 choice was initially a pragmatic one, but seems increasingly like a
 canonical choice for encoding species in type theory: both have
 groupoids at their heart.
-
-We summarize the most important ideas and notation here; interested
-readers should consult the HoTT book~\cite{hottbook} for more details.
 
 The concept of \term{finiteness} plays a central (but implicit) role
 in the theory of combinatorial species, primarily through the
@@ -716,7 +719,8 @@ computational setting may seem suspect. Note, however, that
 $\transport{X \mapsto X}{\ua(f)} = f$, where $\ua : (A \iso B) \to (A
 = B)$ denotes (one direction of) the univalence axiom. So univalence
 introduces no computational problems as long as applications of $\ua$
-are only ultimately used via $\mathsf{transport}$.
+are only ultimately used via $\mathsf{transport}$.\scw{We should ensure that
+  our applications have this property.}
 
 \subsection{Finiteness}
 \label{sec:finiteness}
