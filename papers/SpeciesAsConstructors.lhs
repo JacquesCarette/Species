@@ -1,9 +1,12 @@
 %% -*- mode: LaTeX; compile-command: "mk" -*-
 
-\documentclass[adraft,copyright,creativecommons]{eptcs}
+\documentclass{entcs}
+
+\usepackage{entcsmacro}
+
 \providecommand{\event}{MSFP 2014}
 \usepackage{breakurl}
-\usepackage{natbib}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% lhs2TeX
@@ -60,7 +63,7 @@
 
 \usepackage{../species}
 
-\usepackage{amsthm}
+%\usepackage{amsthm} %% conflicts with entcsmacro
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{latexsym}
@@ -78,18 +81,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Page size
 
-\pdfpagewidth=8.5in
-\pdfpageheight=11in
+% \pdfpagewidth=8.5in
+% \pdfpageheight=11in
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Theorems etc.
 
-\newtheorem{theorem}{Theorem}
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{lemma}[theorem]{Lemma}
+% \newtheorem{theorem}{Theorem}
+% \newtheorem{proposition}[theorem]{Proposition}
+% \newtheorem{lemma}[theorem]{Lemma}
 
-\theoremstyle{definition}
-\newtheorem{definition}[theorem]{Definition}
+% \theoremstyle{definition}
+% \newtheorem{definition}[theorem]{Definition}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Diagrams
@@ -116,7 +119,7 @@
 % \newcommand{\impl}[1]{\ensuremath{\{#1\}}} % implicit arguments
 \newcommand{\impl}[1]{\ensuremath{(#1)}}   % not notating implicit
                                            % arguments at the moment
-\newcommand{\defn}{\vcentcolon\equiv}
+\newcommand{\isdefn}{\vcentcolon\equiv}
 
 \newcommand{\TyZero}{\ensuremath{\bot}}
 \newcommand{\TyOne}{\ensuremath{\top}}
@@ -256,9 +259,34 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\def\titlerunning{Labelled structures and combinatorial species}
+%% Frontmatter
 
+\def\lastname{Yorgey, Carette, Weirich}
+
+\begin{document}
+
+\begin{frontmatter}
+\def\titlerunning{Labelled structures and combinatorial species}
 \title{\titlerunning}
+
+
+%% ENTCS
+
+\author{Brent A. Yorgey}
+\address{Dept. of Computer and Information Science\\
+ The University of Pennsylvania\\
+ Philadelphia, Pennsylvania, USA}
+\author{Jacques Carette}
+\address{Dept. of Computing and Software\\ McMaster University\\
+ Hamilton, Ontario, Canada}
+\author{Stephanie Weirich}
+\address{Dept. of Computer and Information Science\\
+ The University of Pennsylvania\\
+ Philadelphia, Pennsylvania, USA}
+
+%\thanks[myemail]{Email:\href{mailto:byorgey@cis.upenn.edu}
+%{\texttt{\normalshape byorgey@cis.upenn.edu}}} 
+
 
 %% SIGPLAN
 % \authorinfo{Brent A. Yorgey \\ Stephanie Weirich}
@@ -281,26 +309,21 @@
 % Hamilton, Ontario, Canada}
 
 %% EPTCS
-\author{
-  Brent A. Yorgey \quad\quad Stephanie Weirich
-  \institute{
-    Dept. of Computer and Information Science\\
-    The University of Pennsylvania\\
-    Philadelphia, Pennsylvania, USA
-  }
-  \and
-  Jacques Carette
-  \institute{
-    Dept. of Computing and Software\\ McMaster University\\
-    Hamilton, Ontario, Canada
-  }
-}
-
-\def\authorrunning{B. Yorgey, J. Carette, S. Weirich}
-
-\begin{document}
-
-\maketitle
+% \author{
+%   Brent A. Yorgey \quad\quad Stephanie Weirich
+%   \institute{
+%     Dept. of Computer and Information Science\\
+%     The University of Pennsylvania\\
+%     Philadelphia, Pennsylvania, USA
+%   }
+%   \and
+%   Jacques Carette
+%   \institute{
+%     Dept. of Computing and Software\\ McMaster University\\
+%     Hamilton, Ontario, Canada
+%   }
+% }
+% \def\authorrunning{B. Yorgey, J. Carette, S. Weirich}
 
 \begin{abstract}
 
@@ -329,65 +352,16 @@
 
 \end{abstract}
 
-% \category{D.3.2}{Programming Languages}{Applicative (functional) languages}
+\begin{keyword} 
+Combinatorial Species
+\end{keyword}
 
-% \terms
-% Languages, Types
-
-
-% \scw{I've been thinking about the structure of this paper, trying to make it
-% tell its story more effectively.
-% The focus of the paper should be on labelled structures. The fact that they
-% are directly inspired by combinatorial species is great and should be
-% mentioned repeatedly, but in the end, it is not what the paper is about.
-% Our introduction mostly works with this format, but we could bring it out.
-% I'm imagining a progression like:
-% \begin{itemize}
-% \item What is a labelled structure? A decomposition of data structure. More
-% formally, a labelled shape combined with a mapping from labels to data values.
-% \item What is novel about this definition?
-% \begin{itemize}
-%   \item Labels must be drawn from some finite set, but can have their own
-%   structure
-%   \item We define the mapping from labels to data values abstractly. It
-%     doesn't need to be injective.
-% \end{itemize}
-% \item What is important about our definition?
-% \begin{itemize}
-%   \item Non-injective mappings represent sharing in data structures, something
-%     that is unobservable for algebraic datatypes.
-%   \item Although labels have structure, we make it convenient to work up to (partial)
-%     isomorphism. ``Relabelling'' models certain operations on data, sometimes
-%     more efficiently that with more standard representations.
-%   \item We can choose a definition of mapping that lets us reason about memory
-%     allocation and layout.
-% \end{itemize}
-% \end{itemize}
-% However, once we are past the introduction, the story gets muddled. Part of
-% this may be that I'm more of a fan of a top-down presentation, whereas the
-% current state is more bottom-up. Perhaps we could use more concrete examples
-% of what we are trying to do in Section 2 (although explaining them informally)
-% before diving into the mathematical preliminaries. Section 3 is called
-% ``Cominatorial Species'', though perhaps we should call it ``Labelled
-% shapes''. I'm not sure how important it is to start with the set-theoretic
-% definition first. Why not start with the real definition, and then later
-% explain why it is different in type theory than in set theory?  Are there
-% interesting examples of labelled shapes we can give at the end of section 3?
-% Or remarks to make about labels?  Section 4 dives into mappings. We present
-% mappings as one thing, but then change it to something else in 4.3. Why not
-% just start with the definition that we want in the first place?  Section 5
-% seems a little strange to me because it starts talking about eliminators
-% before talking about where we get labelled structures in the first place
-% (Section 6). And section 6 mixes the construction of labelled shapes with the
-% construction of labelled structures. Maybe it makes sense to combine these
-% explanations, but we need to be more explicit about what we are doing. Sec 6
-% also doesn't really connect to the finite map/array examples mentioned
-% before. Can we show an example of constructing an array?  }
+\end{frontmatter}
 
 \section{Introduction}
 \label{sec:intro}
 
-The theory of combinatorial species \citep{joyal,bll}, as it relates to the
+The theory of combinatorial species \cite{joyal,bll}, as it relates to the
 theory and practice of programming languages, has long seemed to the authors
 ``an answer looking for a question'': the theory is too beautiful, and too
 ``obviously'' related to algebraic data types, to have no applications
@@ -406,13 +380,12 @@ From a computational point of view, the right way to think about
 species is as \emph{labelled shapes} which do not contain any data.
 To recover \emph{data} structures, one must add a notion of mapping
 from labels to data.  This leads to the familiar idea of decomposing
-data structures as shapes plus data \citep{banger1993foundation,
-  jay-shapely, ContainerTypesCat, abbott_categories_2003}, with the new
+data structures as shapes plus data \cite{banger1993foundation,jay-shapely,ContainerTypesCat,abbott_categories_2003}, with the new
 twist that arbitrary labels are used to mediate between the two.  Informally,
 this pairing of a labelled shape (corresponding to a species) and a
 mapping from labels to data values is what we call a \term{labelled
   structure}\footnote{Following Flajolet \etal's lead
-  \citeyearpar{FlSaZi91,FlajoletZC94}.}.  For example,
+  \cite{FlSaZi91,FlajoletZC94}.}.  For example,
 \pref{fig:labelled-structure-example} illustrates a labelled tree
 shape paired with a mapping from labels to data.  A \emph{family} of
 labelled structures refers to a class of structures parameterized over
@@ -550,8 +523,7 @@ particular features we care about.
 \label{sec:contributions}
 
 Though our work bears similarities to previous approaches that
-separate shapes and data \citep{banger1993foundation, jay-shapely,
-ContainerTypesCat, abbott_categories_2003}, there is a key difference,
+separate shapes and data \cite{banger1993foundation,jay-shapely,ContainerTypesCat,abbott_categories_2003}, there is a key difference,
 directly inspired by the theory of species. Whereas previous approaches
 use a fixed, canonical set of labels (or left the labels entirely implicit),
 species naturally lead us to work directly with the labels, giving
@@ -603,11 +575,9 @@ In more detail, our contributions are as follows:
 We have an implementation of these ideas in Haskell, available at
 \url{http://github.com/byorgey/labelled-structures}.
 
-It is worth mentioning that in previous work \citep{carette_species,
-  yorgey-2010-species} we conjectured that the benefits of the theory
+It is worth mentioning that in previous work \cite{carette_species,yorgey-2010-species} we conjectured that the benefits of the theory
 of species would lie primarily in its ability to describe data types
-with \term{symmetry} (\ie\ quotient types \citep{hofmann1995quotient,
-  abbott_quotient}).  That promise has not gone away; but we now
+with \term{symmetry} (\ie\ quotient types \cite{hofmann1995quotient,abbott_quotient}).  That promise has not gone away; but we now
 believe that a solid understanding of labelled structures is a
 prerequisite for tackling symmetry.  In retrospect, this is
 unsurprising, since introducing species as explicitly labelled objects
@@ -620,7 +590,7 @@ and unlabelled structures via equivalence classes of labelled ones.
 We have found it convenient to work within \emph{homotopy type theory}
 (HoTT).  However, we do not need much complex machinery from the
 theory, and simply summarize the most important ideas and notation
-here; interested readers should consult the HoTT book~\citep{hottbook}
+here; interested readers should consult the HoTT book~\cite{hottbook}
 for more details.  Everything in this paper could be formalized in
 most any standard constructive type theory; we choose to work in HoTT
 because of its emphasis on equality and isomorphism, which meshes well
@@ -651,7 +621,7 @@ inductive type of polymorphic lists, with constructors $|[]| :
 
 Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
 dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
-will often use the Agda-like \citep{Agda} notations $(x:A) \times
+will often use the Agda-like \cite{Agda} notations $(x:A) \times
 B(x)$ and $(x:A) \to B(x)$, respectively (though we still occasionally
 use $\Sigma$ and $\Pi$ for emphasis).  We continue to use the standard
 abbreviations $A \times B$ and $A \to B$ for non-dependent pair and
@@ -694,9 +664,9 @@ require some work, computationally speaking.
 \label{sec:finiteness}
 
 There are many possible constructive interpretations of finiteness
-\citep{finite}; we adopt the simplest: a finite set is one which is in
+\cite{finite}; we adopt the simplest: a finite set is one which is in
 bijection to a canonical set of a known size. That is,
-\[ \Finite A \defn (n : \N) \times (\Fin n \iso A). \]  Other
+\[ \Finite A \isdefn (n : \N) \times (\Fin n \iso A). \]  Other
 constructive characterizations of finiteness may have roles to play as
 well, but we leave exploring them to future work.
 
@@ -716,7 +686,7 @@ really matters \emph{which} inhabitant we have.  Thus, instead of
 simply passing around types and requiring them to have an implicit,
 canonical finiteness proof, we will in general pass around types
 \emph{together with} some specific finiteness proof.  We can
-encapsulate this by defining \[ \FinType \defn (A : \Type) \times
+encapsulate this by defining \[ \FinType \isdefn (A : \Type) \times
 \Finite A \] as the universe of finite types. We use $\under - :
 \FinType \to \Type$ to project out the underlying type from a finite
 type, forgetting the finiteness evidence.  We also use $\lift{\Fin n}
@@ -754,16 +724,16 @@ this to future work.
 \label{sec:species}
 
 Our theory of labelled structures is inspired by, and directly based
-upon, the theory of \term{combinatorial species} \citep{joyal}.  We
+upon, the theory of \term{combinatorial species} \cite{joyal}.  We
 give a brief introduction to it here; the reader interested in a
-fuller treatment should consult \citet{bll}.  Functional programmers
-may wish to start with~\citet{yorgey-2010-species}.
+fuller treatment should consult Bergeron et al.~\cite{bll}.  Functional programmers
+may wish to start with Yorgey~\cite{yorgey-2010-species}.
 
 \subsection{Species, set-theoretically}
 \label{sec:set-species}
 
 We begin with a standard set-theoretic definition of species
-(essentially what one finds in \citet{bll}, but with slightly
+(essentially what one finds in Bergeron et al.~\cite{bll}, but with slightly
 different terminology).  We will upgrade to a \emph{type}-theoretic
 definition in \pref{sec:constructive-species}, but it is worth seeing
 both definitions and the relationship between them.
@@ -830,7 +800,7 @@ serviceable in the context of classical combinatorics, but in order to
 use it as a foundation for data structures, it is necessary to first
 ``port'' the definition from set theory to constructive type theory.
 In fact, doing so results in a greatly simplified definition: we
-merely define \[ \Species \defn \FinType \to \Type. \] The rest of the
+merely define \[ \Species \isdefn \FinType \to \Type. \] The rest of the
 definition comes ``for free'' from the structure of our type theory!
 In particular, we have \[ \relabel : (F : \Species) \to (L_1 = L_2)
 \to (F\ L_1 \to F\ L_2) \] via transport, where $\relabel$
@@ -844,7 +814,7 @@ proving that our constructions do satisfy them.
 It is important to note that an equality $L_1 = L_2$ between
 constructively finite types $L_1,L_2 : \FinType$, as required by
 $\relabel$, contains more than first meets the eye.  Since \[ \FinType
-\defn (L : \Type) \times (n : \N) \times (\Fin n \iso L), \] such
+\isdefn (L : \Type) \times (n : \N) \times (\Fin n \iso L), \] such
 equalities contain not just an equality $\under{L_1} = \under{L_2}$
 between the underlying types (typically constructed from an
 equivalence $\under{L_1} \iso \under{L_2}$ via univalence), but also
@@ -978,7 +948,7 @@ content ourselves with some informal descriptions of the semantics.
 %   I don't really understand it.  Can you elaborate a bit?}
 
 We can give a particularly simple implementation with $\Store L A
-\defn \under L \to A$, presented here using Haskell-like notation:
+\isdefn \under L \to A$, presented here using Haskell-like notation:
 \todo{Why do we use Haskell-like notation here?}
 \begin{spec}
   allocate         = id
@@ -1032,16 +1002,16 @@ dia = nd (text' 1 "F") [ lf' (sLabels !! l) (Leaf (Just $ leafData l)) || l <- [
 The \emph{zero} or \emph{empty} species, denoted $\Zero$, is the
 unique species with no shapes whatsoever, defined by
   \begin{equation*}
-  \Zero\ L \defn \TyZero.
+  \Zero\ L \isdefn \TyZero.
   \end{equation*}
 
 \paragraph{One}
 The \emph{one} or \emph{unit} species, denoted $\One$, is the species
 with a single shape of size $0$ (that is, containing no labels),
 defined by
-\[ \One\ L \defn (\TyZero \iso \under L). \] That is, a $\One$-shape with labels
+\[ \One\ L \isdefn (\TyZero \iso \under L). \] That is, a $\One$-shape with labels
 drawn from $L$ consists solely of a proof that $L$ is
-empty.\footnote{\citet{yeh-k-species} mentions something equivalent,
+empty.\footnote{\cite{yeh-k-species} mentions something equivalent,
   namely, that the unit species can be defined as the hom-functor
   $\B(\varnothing, -)$, though he certainly does not have constructive
   type theory in mind.}  (Note that there is at most one such proof.)
@@ -1071,7 +1041,7 @@ $\One$-structures, \[ \lab{\One} : \LStr \One {\lift{\Fin 0}} A. \]
 
 \paragraph{Singleton}
   The \emph{singleton} species, denoted $\X$, is defined by
-  \[ \X\ L \defn (\TyOne \iso \under L), \] that is, an $\X$-shape is
+  \[ \X\ L \isdefn (\TyOne \iso \under L), \] that is, an $\X$-shape is
   just a proof that $L$ has size $1$.  Again, there is at most one
   such proof.  Unlike $\One$, we may also think of an $\X$-shape as
   ``containing'' a single label of type $L$, which we may recover by
@@ -1094,7 +1064,7 @@ $\One$-structures, \[ \lab{\One} : \LStr \One {\lift{\Fin 0}} A. \]
 Given two species $F$ and $G$, we may form their sum. We use $\ssum$
 to denote the sum of two species to distinguish it from $+$, which
 denotes a sum of types. The definition is straightforward: \[ (F \ssum
-G)\ L \defn F\ L + G\ L. \] That is, a labelled $(F \ssum G)$-shape is
+G)\ L \isdefn F\ L + G\ L. \] That is, a labelled $(F \ssum G)$-shape is
 either a labelled $F$-shape or a labelled $G$-shape (\pref{fig:sum}).
 
   \begin{figure}
@@ -1177,7 +1147,7 @@ dia = theDia # centerXY # pad 1.1
     \label{fig:product}
   \end{figure}
 \begin{equation*}
-  (F \sprod G)\ L \defn \sum_{L_1, L_2 : \FinType} (\under{L_1} + \under{L_2} \iso \under{L}) \times F\ L_1 \times G\ L_2
+  (F \sprod G)\ L \isdefn \sum_{L_1, L_2 : \FinType} (\under{L_1} + \under{L_2} \iso \under{L}) \times F\ L_1 \times G\ L_2
 \end{equation*}
 For comparison, in set theory the definition is usually presented
 as \[ (F \sprod G)\ L = \sum_{L_1 \uplus L_2 = L} F\ L_1 \times G\
@@ -1189,7 +1159,7 @@ label represents a unique ``location'' which can hold a data value, so
 the locations in the two paired shapes should be disjoint. Another
 good way to gain intuition is to imagine indexing species not by label
 types, but by natural number sizes.  Then it is easy to see that we
-would have \[ (F \sprod G)_n \defn \sum_{n_1, n_2 : \N} (n_1 + n_2 = n)
+would have \[ (F \sprod G)_n \isdefn \sum_{n_1, n_2 : \N} (n_1 + n_2 = n)
 \times F_{n_1} \times G_{n_2}, \] that is, an $(F \sprod G)$-shape of
 size $n$ consists of an $F$-shape of size $n_1$ and a $G$-shape of
 size $n_2$, where $n_1 + n_2 = n$.  Indexing by labels is a
@@ -1227,10 +1197,10 @@ equivalence).  We can then define the usual constructors $\cons{nil}$
 and $\cons{cons}$ as follows:
 \begin{align*}
   &\cons{nil} : \LStr{\List}{\Fin 0} A \\
-  &\cons{nil} \defn \lab{\inl} \lab{\One} \\
+  &\cons{nil} \isdefn \lab{\inl} \lab{\One} \\
   &\cons{cons} : A \to \LStr \List L A \to (\Fin 1 + \under L \iso
   \under{L'}) \to \LStr \List {L'} A \\
-  &\cons{cons}\ a\ (|shape|,|elts|)\ e \defn (\inr\ (\cons{x} \sprod_e
+  &\cons{cons}\ a\ (|shape|,|elts|)\ e \isdefn (\inr\ (\cons{x} \sprod_e
   |shape|), |append|\ e\ (|allocate|\ (\lambda x. a))\ |elts|)
 \end{align*}
 The interesting thing to note here is the extra equivalence passed as
@@ -1266,7 +1236,7 @@ type-theoretic encoding is to use an arbitrary type of $F$-labels, and
 then store a mapping from these labels to the label types used for the
 $G$-shapes.  Additionally, we store an equivalence witnessing the fact
 that the $G$-labels constitute a partition of the overall label type.
-Formally, \[ (F \scomp G)\ L \defn \sum_{L_F : \Type} F\ L_F \times
+Formally, \[ (F \scomp G)\ L \isdefn \sum_{L_F : \Type} F\ L_F \times
 (Ls_G : \StoreNP {L_F} \FinType) \times (\under L \iso |sum|\ (|map|\
 \under{-}\ Ls_G)) \times |prod|\ (|map|\ G\ Ls_G). \] We assume
 functions $|sum|, |prod| : \Store J \Type \to \Type$ which compute the
@@ -1300,7 +1270,7 @@ dia = theDia # centerXY # pad 1.1
 
 Composition ($\scomp$), unlike sum ($\ssum$) and product ($\sprod$),
 is not commutative\footnote{Interestingly, a relatively recent paper
-  of \citet{Maia2008arithmetic} introduces a new monoidal structure on
+  of \cite{Maia2008arithmetic} introduces a new monoidal structure on
   species, the \term{arithmetic product}, which according to one
   intuition represents a sort of ``commutative composition''.
   Incorporating this into our framework will, we conjecture, have
@@ -1458,14 +1428,14 @@ corresponds to the Haskell type |Rose| defined as |data Rose a = Node
 a [Rose a]|, but the composition is more explicit.  The explicit use
 of composition is useful when doing generation of such structures, as
 it allows switching of generation strategies at those
-points~\citep{UszkayThesis}.
+points~\cite{UszkayThesis}.
 
 The most general type for the \cons{Node} constructor is complex,
 since it must deal with a list of subtrees all having different label
 types.  As a compromise, we can make use of a variant type
 representing labelled structures with an existentially quantified
 label type:
-\[ \LStrE F A \defn \sum_{L : \FinType} \LStr F L A \] Using $\LStrE
+\[ \LStrE F A \isdefn \sum_{L : \FinType} \LStr F L A \] Using $\LStrE
 \R A$, we can write a constructor for $\R$ with the type
 \begin{align*}
 & |nodeE| : A \to [\LStrE \R A] \to \LStrE \R A
@@ -1478,7 +1448,7 @@ value.
 \subsection{Sets, bags, and maps}
 \label{sec:sets}
 
-The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L \defn
+The species of \emph{sets}, denoted $\E$, is defined by \[ \E\ L \isdefn
 \TyOne. \] That is, there is a single $\E$-shape for every label type.
 Intuitively, $\E$-shapes impose no structure whatsoever; that is, a
 labelled $\E$-shape can be thought of simply as a \emph{set} of
@@ -1534,7 +1504,7 @@ and typical company organizational charts are both of this type.
 \paragraph{Finite maps} Formally, there is no difference between bags
 (multisets) and finite maps: both may be represented by $\LStr \E L
 A$.  The difference is the role played by the labels.  With bags, the
-labels are implicit; indeed, we might wish to define $|Bag|\ A \defn
+labels are implicit; indeed, we might wish to define $|Bag|\ A \isdefn
 \sum_{L : \FinType} \LStr \E L A$.  With finite maps, on the other
 hand, the labels play a more explicit role.
 
@@ -1549,7 +1519,7 @@ easy to model such implementations as well, by extending the framework
 in this paper to allow arbitrary extra structure on label types.
 
 \paragraph{Partition} We may define the species $\Part$ of
-\term{partitions} by \[ \Part \defn \E \sprod \E. \] $(\Part\
+\term{partitions} by \[ \Part \isdefn \E \sprod \E. \] $(\Part\
 L)$-shapes consist of a (disjoint) pair of sets of labels.  Thus
 $(\Part\ L)$-shapes represent \emph{predicates} on labels, \ie they
 are isomorphic to $\under L \to 2$.  In conjunction with Cartesian
@@ -1645,7 +1615,7 @@ simple version of this, for restricting only to particular sizes, as
 follows:
 \begin{align*}
 &\OfSize : \Species \to \N \to \Species \\
-&\OfSize\ F\ n\ L \defn (\size L = n) \times F\ L
+&\OfSize\ F\ n\ L \isdefn (\size L = n) \times F\ L
 \end{align*}
 The introduction form for $\OfSize$ is simple enough, allowing one to
 observe that an existing label type has the size that it has:
@@ -1659,10 +1629,10 @@ observe that an existing label type has the size that it has:
 % &\OfSize'\ F\ P = \lam{L}{(m : \N) \times P\ m \times (\Fin m \iso L)
 %   \times F\ L}
 % \end{align*}
-% The original $\OfSize$ can be recovered by setting $P\ m \defn (m =
+% The original $\OfSize$ can be recovered by setting $P\ m \isdefn (m =
 % n)$.  However, $\OfSize'$ is difficult to compute with, since $P$ is
-% an opaque function.  In practice, $P\ m \defn (m \leq n)$ and $P\ m
-% \defn (m \geq n)$ (along with equality) cover the vast majority of
+% an opaque function.  In practice, $P\ m \isdefn (m \leq n)$ and $P\ m
+% \isdefn (m \geq n)$ (along with equality) cover the vast majority of
 % cases we care about, so as a practical tradeoff we can add explicit
 % combinators $\cons{OfSizeLTE}$ and $\cons{OfSizeGTE}$ representing these
 % predicates, with parallel introduction forms:
@@ -1674,9 +1644,7 @@ observe that an existing label type has the size that it has:
 \paragraph{Derivative and pointing}
 
 The \term{derivative} is a well-known operation on shapes in the
-functional programming community~\citep{Huet_zipper,
-  mcbride:derivative, abbott_deriv, regular_tree_types,
-  mcbride_clowns_2008}, and it works in exactly the way one expects on
+functional programming community~\cite{Huet_zipper,mcbride:derivative,abbott_deriv,regular_tree_types,mcbride_clowns_2008}, and it works in exactly the way one expects on
 species.  That is, $F'$-shapes consist of $F$-shapes with one
 distinguished location (a ``hole'') that contains no data
 (\pref{fig:derivative}).
@@ -1710,7 +1678,7 @@ dia = theDia # centerXY # pad 1.1
     \label{fig:derivative}
   \end{figure}
 Formally, we may define
-\[ F'\ L \defn (L' : \Type) \times (\under{L'} \iso \TyOne + \under{L}) \times F\ L' \]
+\[ F'\ L \isdefn (L' : \Type) \times (\under{L'} \iso \TyOne + \under{L}) \times F\ L' \]
 Note that a mapping $\Store L A$ associates data to every label
 in the underlying $F\ L'$ structure but one, since $\under{L'} \iso \TyOne +
 \under{L}$.
@@ -1727,7 +1695,7 @@ that value missing.
 
 A related operation is that of \term{pointing}.  A pointed $F$-shape
 is an $F$-shape with a particular label distinguished.  Formally,
-\[ \pt{F}\ L \defn L \times F\ L. \]
+\[ \pt{F}\ L \isdefn L \times F\ L. \]
 Introducing a pointed structure simply requires specifying which label
 should be pointed:
 \begin{align*}
@@ -1749,11 +1717,11 @@ decomposed as ``$(L - l) + l$'' for some $l : L$, that is, \[ L \iso
 It is worth mentioning the operation of \emph{functorial composition},
 which set-theoretically is defined as the ``na\"ive'' composition
 
-\[ (F \fcomp G)\ L \defn F\ (G\ L). \]
+\[ (F \fcomp G)\ L \isdefn F\ (G\ L). \]
 
 Just as with Cartesian product, functorial composition allows encoding
 structures with sharing---for example, the species of simple,
-undirected graphs can be specified as \[ \mathcal{G} \defn (\E \sprod \E)
+undirected graphs can be specified as \[ \mathcal{G} \isdefn (\E \sprod \E)
 \fcomp (\X^2 \sprod \E), \] describing a graph as a subset ($\E \sprod
 \E$) of all ($\fcomp$) ordered pairs chosen from the complete set of
 vertex labels ($\X^2 \sprod \E$).
@@ -1787,7 +1755,7 @@ structure is not modified in any way.
 \begin{align*}
 &|partition| : \LStr F L A \to (A \to 2) \to \LStr{F \scprod \Part} L
 A \\
-&|partition|\ (f, |elts|)\ p \defn ((f,\unit \sprod_e \unit), |elts|)\\
+&|partition|\ (f, |elts|)\ p \isdefn ((f,\unit \sprod_e \unit), |elts|)\\
 & \quad \mathbf{where} \\
 & \quad\quad |e| : \left( \sum_{l : \under L} p\ (|elts ! l|) =
   \cons{True} \right) + \left( \sum_{l : \under L} p\ (|elts ! l|) =
@@ -2044,7 +2012,7 @@ example, if |appendV v1 v2 = (v,e)|, then it must be the case that |v1
 % \end{equation*}
 % with |sumN = foldV 0 (+)| and |sumTy = foldV undefined (+)|.
 
-Given such a type $\cons{Vec}$, we may define \[ \Store L A \defn
+Given such a type $\cons{Vec}$, we may define \[ \Store L A \isdefn
 \sum_{n : \N} (\under L \iso \Fin n) \times \Vect n A. \] The idea is
 that we store not only a vector of the appropriate length, but also an
 equivalence recording how the labels correspond to vector indices.
@@ -2065,13 +2033,13 @@ We can then implement the required operations as follows:
   \begin{spec}
     reindex i' (n, i, v) = (n, i . i', v)
   \end{spec}
-  This illustrates why we did not simply define $\Store L A \defn
+  This illustrates why we did not simply define $\Store L A \isdefn
   \Vect {\size L} A$, using $L$'s associated finiteness proof for the
   indexing. Decoupling the finiteness evidence of the labels from the
   indexing scheme for the vector in this way allows us to reindex
   without any shuffling of data values.  \bay{It occurs to me that we
     might actually be able to get away with just defining $\Store L A
-    \defn \Vect {\size L} A$, and using the equivalence associated to
+    \isdefn \Vect {\size L} A$, and using the equivalence associated to
     L for the indexing.  The point is that the restrictions on
     equivalences between finite types mean that we can still do
     reindexing without copying any data.  It would also means that
@@ -2166,7 +2134,7 @@ embedding out of the vector operations, turning |appendV| and
 |concatV| (and possibly |allocateV| and |mapV| as well) into
 \emph{constructors} in a new data type.  This results in something
 that looks very much like generalized tries
-\citep{Hinze-generalized-tries}.
+\cite{Hinze-generalized-tries}.
 
 \section{Labelled Structures in Haskell}
 \label{sec:haskell}
@@ -2175,12 +2143,12 @@ Although a language like Agda might have been more appropriate in some
 ways, we used Haskell because of its greater emphasis on computation,
 and the possibility of demonstrating our framework with ``real-world''
 examples.  Another definite benefit of the choice of Haskell is the
-availability of the \emph{lens} library~\citep{lens}, which we use
+availability of the \emph{lens} library~\cite{lens}, which we use
 extensively to model equivalences.
 
 On the other hand, doing dependently typed programming in Haskell
-certainly has its quirks~\citep{Lindley2013hasochism}.  We make heavy
-use of GHC's |DataKinds| extension~\citep{yorgey2012promotion} and
+certainly has its quirks~\cite{Lindley2013hasochism}.  We make heavy
+use of GHC's |DataKinds| extension~\cite{yorgey2012promotion} and
 existential wrappers in order to simulate dependent types.  Often, we
 are forced to use approximations to the types we really want, which
 occasionally gets us into trouble!  Porting our code to Agda would
@@ -2190,7 +2158,7 @@ likely be enlightening.
 \label{sec:related}
 
 The work on \emph{containers}
-\citep{abbott_categories_2003,abbott_deriv,abbott_quotient,alti:cont-tcs,alti:lics09}
+\cite{abbott_categories_2003,abbott_deriv,abbott_quotient,alti:cont-tcs,alti:lics09}
 also aims to find a more general theory of data structures which
 captures a large set of ``containers''.  The resulting theory is quite
 elegant.  It involves \emph{shapes} and a family of \emph{position}
@@ -2211,7 +2179,7 @@ positions, whereas in our approach a shape can be used with any type
 of labels.  Furthermore, for them shape is an input, while for us it
 is part of what is generated.  As a result, with containers, it does
 not seem that the positions can easily be given extra structure (the
-work on quotient containers~\citep{abbott_quotient} is quite
+work on quotient containers~\cite{abbott_quotient} is quite
 involved).  There are fewer combinators for containers than for
 labelled structures: for example, neither the Cartesian product nor
 functorial composition seem to be present.  Thus there is as of yet no
@@ -2223,8 +2191,8 @@ structures.  And therein seems to be the main difference: the extra
 generality allows containers to encapsulate fancier types, while our
 concreteness lets us uniformly and easily model low-level concerns.
 
-Shapely types \citep{jay-shapely} are closely related to containers---
-see~\citet[section 8]{abbott_categories_2003} for a careful
+Shapely types \cite{jay-shapely} are closely related to containers---
+see~\cite[section 8]{abbott_categories_2003} for a careful
 explanation of the details.  Their results show that shapely types are
 those containers which are closest to labelled structures: in many
 settings of importance, shapely types are \emph{discretely finite}
@@ -2234,12 +2202,12 @@ not explicitly make use of labels at all, but since they involve
 \emph{lists} of data values, one may say that they implicitly make
 use of labels from $\Fin n$.  There is thus a close relationship to
 our constructive finiteness proofs for label types.  Furthermore,
-there are claims \citep{jay-shapely} that this also corresponds to
+there are claims \cite{jay-shapely} that this also corresponds to
 information about memory allocation and layout, however this is not
 detailed anywhere in the literature.
 
 Another approach is that of \textit{Container Types Categorically}
-\citep{ContainerTypesCat}.  They define containers as monotone
+\cite{ContainerTypesCat}.  They define containers as monotone
 endofunctors $F$ on \cons{Rel} (\ie \emph{relators}) which have a
 \emph{membership relation}; this latter concept turns out to be a special
 kind of lax natural transformation from $F$ to the identity functor.
@@ -2247,45 +2215,45 @@ This approach is again rather difficult to adequately compare to ours.
 There is again overlap, but no inclusion in either direction.
 
 From the categorical perspective, \emph{stuff types}
-\citep{BaezDolan01,Morton2006}, brilliantly explained in Byrne's
-master's thesis \citeyearpar{Byrne2005}, are directly related to
+\cite{BaezDolan01,Morton2006}, brilliantly explained in Byrne's
+master's thesis \cite{Byrne2005}, are directly related to
 species.  Stuff types are functors from some arbitrary groupoid $X$ to
 the groupoid of finite sets and bijections.  Faithful stuff types are
 equivalent to species.  But these work much like containers: stuff
 types map a structure to its underlying set (which can be thought of as
 positions), instead of mapping labels to structures.  In a different
 direction, \emph{polynomial functors over groupoids} also generalize
-species~\citep{kock2012data}, and seem a categorically solid
+species~\cite{kock2012data}, and seem a categorically solid
 foundation for an even more general approach to data type
 constructors.  Unfortunately, no one has yet to unravel these
 definitions into something suitable for implementation.  Similarly,
-\emph{generalised species of structures}~\citep{Fiore08} may also be
+\emph{generalised species of structures}~\cite{Fiore08} may also be
 another interesting direction.  But in all these cases, there remains
 much work to be done to bridge theory and practice.
 
 Species have been the basis for many implementations in the area of
-enumerative combinatorics, such as Darwin~\citep{Berg85},
-\LUO~\citep{FlajoletSalvyZimmermann1989a}, combstruct~\citep{FlSa95},
-Aldor-Combinat~\citep{Aldor-Combinat} and
-MuPAD-Combinat~\citep{Mupad-Combinat}.  Most do not model the full
+enumerative combinatorics, such as Darwin~\cite{Berg85},
+\LUO~\cite{FlajoletSalvyZimmermann1989a}, combstruct~\cite{FlSa95},
+Aldor-Combinat~\cite{Aldor-Combinat} and
+MuPAD-Combinat~\cite{Mupad-Combinat}.  Most do not model the full
 spectrum of species combinators, but make up for it by implementing
 very sophisticated algorithms for enumeration and generation, both
 exhaustive and random.  The Haskell species package
-\citep{yorgey-2010-species, species} is a fairly direct implementation
+\cite{yorgey-2010-species,species} is a fairly direct implementation
 of the theory of species, without attempting to use this theory as a
 foundation for data structures.
 
 Lastly, we should note that we have used but a small fraction of the
-theory of species.  \citet{bll} alone still contains a vast trove of
+theory of species.  \cite{bll} alone still contains a vast trove of
 further examples (sometimes buried deep in the exercises!) of
 relevance to programming.  We have also not yet really touched the
 \emph{calculus} aspects of the theory; while the derivative is by now
-well-known, integration~\citep{Rajan93} has not really been explored.
+well-known, integration~\cite{Rajan93} has not really been explored.
 There are also new variants on
-species~\citep{Schmitt93hopfalgebras,Menni2008,Maia2008arithmetic,aguiar2010monoidal}
+species~\cite{Schmitt93hopfalgebras,Menni2008,Maia2008arithmetic,aguiar2010monoidal}
 with nontrivial applications to combinatorics, and possible
 applications to programming as well. Species have even been applied to
-the study of attribute grammars~\citep{Mishna03b}.
+the study of attribute grammars~\cite{Mishna03b}.
 
 \section{Future work}
 \label{sec:future}
@@ -2309,9 +2277,9 @@ shape, with each label mapping to a point in space.
 We have also not yet pursued weighted species, multisorted species, nor
 virtual species, all of which look quite promising for applications.
 We can also investigate other categories of labels:  for example,
-  $\mathbb{L}$-species \citep{Joyal86}, \citep[chap. 5]{bll} use
+  $\mathbb{L}$-species \cite{Joyal86}, \cite[chap. 5]{bll} use
   linearly ordered labels; the link with Girard's normal functors
-  \citep{Girard1988} is also worth pursuing in more detail.
+  \cite{Girard1988} is also worth pursuing in more detail.
   We firmly believe that alternate categories of labels will have
   significant benefits in a computational setting.
 
@@ -2322,7 +2290,7 @@ We can also investigate other categories of labels:  for example,
   of these homomorphisms when ported to a constructive setting.
 
 Another route of investigation are \emph{tensorial species}
-\citep[chap. 4]{Joyal86}, which are functors to $\cons{Vect}$ rather
+\cite[chap. 4]{Joyal86}, which are functors to $\cons{Vect}$ rather
 than $\Set$.  These seem to be directly related to our vector mappings
 (section~\ref{sec:vecmap}).
 
@@ -2375,7 +2343,7 @@ related to the identity type of the label set -- though details obviously
 need to be worked out.
 
 Another link is with reversible programming, and more particularly with
-the language $\Pi$ of \citep{InformationEffects}.  While we use
+the language $\Pi$ of \cite{InformationEffects}.  While we use
 arbitrary isomorphisms between finite sets, $\Pi$ is a convenient
 \emph{language} in which to write (and reason about) those isomorphisms.
 
@@ -2385,7 +2353,7 @@ arbitrary isomorphisms between finite sets, $\Pi$ is a convenient
 
 % \todo{write a conclusion?}
 
-\bibliographystyle{plainnat}
+\bibliographystyle{entcs}
 \bibliography{SpeciesAsConstructors}
 
 \end{document}
