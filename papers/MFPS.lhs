@@ -316,7 +316,7 @@
 
 \begin{abstract}
 
- Abstract.
+ Abstract.\scw{Write me}
 
 \end{abstract}
 
@@ -339,10 +339,11 @@ framework.\scw{foreshadow various species operations here?}
 From a computational point of view, there is a connection between the abstract
 structures of combinatorial species and the data structures and containers
 that programmers use. We can think of these structures as some sort of
-``shape'' containing \emph{labelled positions} or \emph{locations}, and a
-mapping from those labels to data. Indeed species ``obviously'' generalize
-algebraic datatypes, and this beautiful theory promises to enrich and expand
-our understanding of data.
+``shape'' containing \emph{labeled positions} or \emph{locations}. When paired
+with a mapping from those labels or positions to actual data, the theory of
+species can be applied to data structures. These data structures are
+familiar---they subsume algebraic datatypes, for example---so this beautiful
+theory promises to enrich and expand our understanding of data.
 
 However, teasing out the precise relationship between species and data types
 has proved challenging, for two reasons. First, combinatorialists are mainly
@@ -374,6 +375,8 @@ labels.  Therefore, the constructive type theory that we work in is
 \emph{Homotopy Type Theory} (HoTT) \cite{hotbook}, a theory that can naturally
 express these computationally relavant equivalences.
 
+More specifically, the contributions of this paper are:
+
 \begin{itemize}
 \item We define for the concept of \emph{species} in 
   constructive type theory (\pref{sec:constructive-species}), characterizing
@@ -388,115 +391,29 @@ express these computationally relavant equivalences.
   (\pref{sec:weighted-species}).
 \end{itemize}
 
-In the next section, we review the set theoretic definitions of species,
+In the next section, we review the set-theoretic definitions of species,
 before recasting them in the context of Homotopy Type Theory in
-\pref{sec:prelim}.  Once we have done that, we step back and generalize
-various species operations so that they are applicable to this fragment.
+\pref{sec:prelim}.
 
 \section{Species}
 \label{sec:species}
 
-\todo{Explain this. More discussion/justification.}
-We want to think of each labeled structure as \emph{indexed by} its
-set of labels (or, more generally, by the \emph{size} of the set of
-labels).  We can accomplish this by a mapping from label sets to all
-the shapes built from them, with some extra properties to
-guarantee that we really do get the same family of shapes no
+In set theory, we define species as \emph{labeled structures}---structures
+that are \emph{indexed by} a set of labels.  A labeled structure is a mapping
+from a given set of labels to all the shapes built from them, with some extra
+properties to guarantee that we really do get the same family of shapes no
 matter what set of labels we happen to choose.
 
-\begin{defn}
-A \term{species} $F$ is a pair of mappings which
-\begin{itemize}
-\item sends any finite set $U$ (of \term{labels}) to a set $F[U]$ (of
-  \term{shapes}), and
-\item sends any bijection on finite sets $\sigma : U \bij V$ (a
-  \term{relabeling}) to a function $F[\sigma] : F[U] \to F[V]$
-  (illustrated in \pref{fig:relabeling}),
-\end{itemize}
-satisfying the following functoriality conditions:
-\begin{itemize}
-\item $F[id_U] = id_{F[U]}$, and
-\item $F[\sigma \circ \tau] = F[\sigma] \circ F[\tau]$.
-\end{itemize}
+For example, the species $\L$ of \emph{lists} (or \emph{linear orderings})
+sends every set of labels (of size $n$) to the set of all sequences (of size
+$n!$) containing each label exactly once (\pref{fig:lists}). Similarly, the
+species of \emph{(rooted, ordered) binary trees} sends every set of labels to
+the set of all binary trees built over those labels (\pref{fig:binary-trees}).
+Other species describe non-algebraic data structures, such as cycles, bags and 
+permutations.
+\todo{More examples.  Cycles, bags.  Permutations.  Examples of
+    algebra: describe lists and trees algebraically, etc.}
 
-This definition is due to Joyal \cite{joyal}, as described in Bergeron
-\etal \cite{bll}.
-\end{defn}
-
-\begin{figure}
-  \centering
-  \begin{diagram}[width=200]
-import           Data.Maybe                     (fromMaybe)
-import           Diagrams.TwoD.Layout.Tree
-
-t :: BTree Int
-t = BNode 2 (leaf 1) (BNode 3 (leaf 4) (leaf 5))
-
-sig :: Int -> Char
-sig = ("acebd"!!) . pred
-
-mkNamedNode :: IsName a => (a -> String) -> a -> Diagram B R2
-mkNamedNode sh a = (text (sh a) # scale 0.3 <> circle 0.2 # fc white) # named a
-
-mkNamedTree :: IsName a => (a -> String) -> BTree a -> BTree (Diagram B R2)
-mkNamedTree = fmap . mkNamedNode
-
-drawDiaBT :: BTree (Diagram B R2) -> Diagram B R2
-drawDiaBT
-  = maybe mempty (renderTree id (~~))
-  . symmLayoutBin
-
-t1 = drawDiaBT . mkNamedTree show $ t
-t2 = drawDiaBT . mkNamedTree (:[]) $ fmap sig t
-
-linkedTrees = hcat' (with & sep .~ 1) [t1, t2]
-  # applyAll (map conn [1..5 :: Int])
-  where
-    conn i = connectOutside'
-      (with & arrowShaft .~ selectShaft i
-            & shaftStyle %~ dashing [0.05,0.05] 0
-            & arrowHead .~ noHead
-      )
-      i (sig i)
-    selectShaft i || i `elem` [1,4] = theArc # reverseTrail
-                  || i `elem` [3,5] = theArc
-    selectShaft _ = hrule 1
-    theArc = arc (0 @@@@ deg) (75 @@@@ deg)
-
-dia = linkedTrees # centerXY # frame 1
-  \end{diagram}
-  \caption{Relabeling} \label{fig:relabeling}
-\end{figure}
-
-We call $F[U]$ the set of ``$F$-shapes with labels drawn from $U$'',
-or simply ``$F$-shapes on $U$'', or even (when $U$ is clear from
-context) just ``$F$-shapes''.\footnote{Margaret Readdy's translation
-  of Bergeron \etal \cite{bll} uses the word ``structure'' instead of
-  ``shape'', but that word is likely to remind computer scientists of
-  ``data structures'', which is the wrong association: data structures
-  contain \emph{data}, whereas species shapes do not.  We choose the
-  word shape to emphasize the fact that they are ``form without
-  content''.}  $F[\sigma]$ is called the ``transport of $\sigma$ along
-$F$'', or sometimes the ``relabeling of $F$-shapes by $\sigma$''.
-
-The functoriality of relabeling means that the actual labels used
-don't matter; we get ``the same shapes'', up to relabeling, for
-any label sets of the same size.  We might say that species are
-\term{parametric} in the label sets of a given size. In particular,
-$F$'s action on all label sets of size $n$ is determined by its action
-on any particular such set: if $||U_1|| = ||U_2||$ and we know
-$F[U_1]$, we can determine $F[U_2]$ by lifting an arbitrary
-bijection between $U_1$ and $U_2$.  So we often take the finite set of
-natural numbers $[n] = \{0, \dots, n-1\}$ as \emph{the}
-canonical label set of size $n$, and write $F[n]$ (instead of
-$F[[n]]$) for the set of $F$-shapes built from this set.
-
-To make this more concrete, consider a few examples:
-\begin{itemize}
-\item The species $\L$ of \emph{lists} (or \emph{linear orderings})
-  sends every set of labels (of size $n$) to the set of all sequences
-  (of size $n!$) containing each label exactly once
-  (\pref{fig:lists}).
 
   \begin{figure}
     \centering
@@ -529,9 +446,6 @@ listStructures =
     %$
   \end{figure}
 
-\item The species of \emph{(rooted, ordered) binary trees} sends every
-  set of labels to the set of all binary trees built over those labels
-  (\pref{fig:binary-trees}).
   \begin{figure}
     \centering
     \begin{diagram}[width=400]
@@ -571,10 +485,91 @@ treeStructures =
     %$
   \end{figure}
 
-\item \todo{More examples.  Cycles, bags.  Permutations.  Examples of
-    algebra: describe lists and trees algebraically, etc.}
-
+\noindent
+In set theory, we define Species as follows:
+\begin{defn}[Species (Joyal \cite{joyal,bll})]
+\label{def:species-set}
+A \term{species} $F$ is a pair of mappings which
+\begin{itemize}
+\item sends any finite set $U$ (of \term{labels}) to a set $F[U]$ (of
+  \term{shapes}), and
+\item sends any \term{relabeling}\footnote{We use the notation $U
+    \bij V$ for any bijection between finite sets $U$ and $V$.}) $\sigma : U \bij V$ to a function $F[\sigma] : F[U] \to F[V]$
+%  (illustrated in \pref{fig:relabeling}),
 \end{itemize}
+satisfying the following functoriality conditions:
+\begin{itemize}
+\item $F[id_U] = id_{F[U]}$, and
+\item $F[\sigma \circ \tau] = F[\sigma] \circ F[\tau]$.
+\end{itemize}
+\end{defn}
+
+% \begin{figure}
+%   \centering
+%   \begin{diagram}[width=200]
+% import           Data.Maybe                     (fromMaybe)
+% import           Diagrams.TwoD.Layout.Tree
+
+% t :: BTree Int
+% t = BNode 2 (leaf 1) (BNode 3 (leaf 4) (leaf 5))
+
+% sig :: Int -> Char
+% sig = ("acebd"!!) . pred
+
+% mkNamedNode :: IsName a => (a -> String) -> a -> Diagram B R2
+% mkNamedNode sh a = (text (sh a) # scale 0.3 <> circle 0.2 # fc white) # named a
+
+% mkNamedTree :: IsName a => (a -> String) -> BTree a -> BTree (Diagram B R2)
+% mkNamedTree = fmap . mkNamedNode
+
+% drawDiaBT :: BTree (Diagram B R2) -> Diagram B R2
+% drawDiaBT
+%   = maybe mempty (renderTree id (~~))
+%   . symmLayoutBin
+
+% t1 = drawDiaBT . mkNamedTree show $ t
+% t2 = drawDiaBT . mkNamedTree (:[]) $ fmap sig t
+
+% linkedTrees = hcat' (with & sep .~ 1) [t1, t2]
+%   # applyAll (map conn [1..5 :: Int])
+%   where
+%     conn i = connectOutside'
+%       (with & arrowShaft .~ selectShaft i
+%             & shaftStyle %~ dashing [0.05,0.05] 0
+%             & arrowHead .~ noHead
+%       )
+%       i (sig i)
+%     selectShaft i || i `elem` [1,4] = theArc # reverseTrail
+%                   || i `elem` [3,5] = theArc
+%     selectShaft _ = hrule 1
+%     theArc = arc (0 @@@@ deg) (75 @@@@ deg)
+
+% dia = linkedTrees # centerXY # frame 1
+%   \end{diagram}
+%   \caption{Relabeling} \label{fig:relabeling}
+% \end{figure}
+
+We call $F[U]$ the set of ``$F$-shapes with labels drawn from $U$'',
+or simply ``$F$-shapes on $U$'', or even (when $U$ is clear from
+context) just ``$F$-shapes''.\footnote{Margaret Readdy's translation
+  of Bergeron \etal \cite{bll} uses the word ``structure'' instead of
+  ``shape'', but that word is likely to remind computer scientists of
+  ``data structures'', which is the wrong association: data structures
+  contain \emph{data}, whereas species shapes do not.  We choose the
+  word shape to emphasize the fact that they are ``form without
+  content''.}  $F[\sigma]$ is called the ``transport of $\sigma$ along
+$F$'', or sometimes the ``relabeling of $F$-shapes by $\sigma$''.
+
+The functoriality of relabeling means that the actual labels used don't
+matter; we get ``the same shapes'', up to relabeling, for any label sets of
+the same size.  In other words, $F$'s action on all label sets of size $n$ is
+determined by its action on any particular such set: if $||U_1|| = ||U_2||$
+and we know $F[U_1]$, we can determine $F[U_2]$ by lifting an arbitrary
+bijection between $U_1$ and $U_2$.  So we often take the finite set of natural
+numbers $[n] = \{0, \dots, n-1\}$ as \emph{the} canonical label set of size
+$n$, and write $F[n]$ %(instead of $F[[n]]$)
+for the set of $F$-shapes built from this set.
+
 
 Using the language of category theory, we can give an equivalent, more
 concise definition of species:
@@ -588,14 +583,15 @@ concise definition of species:
   Although the definition only says that a species $F$ sends a
   bijection $\sigma : U \bij V$ to a \emph{function} $F[\sigma] : F[U]
   \to F[V]$, functors preserve isomorphisms, so in fact every such
-  function must be a bijection.
+  function must be a bijection.\scw{I don't understand this remark. Definition
+  \pref{def:species-set}?}
 \end{rem}
 
-\subsection{Species from scratch}
+\section{Species from scratch}
 \label{sec:species-scratch}
 
 There are several reasons to generalize the definition of species
-given in the previous section.  First, $\B$ and \Set enjoy many special
+given above.  First, $\B$ and \Set enjoy many special
 properties as categories (for example, \Set is cartesian closed, has
 all limits and colimits, and so on).  It is enlightening to see
 precisely which properties are required in which situations, and we
