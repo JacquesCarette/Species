@@ -401,6 +401,9 @@ In the next section, we review the set-theoretic definitions of species,
 before recasting them in the context of homotopy type theory in
 \pref{sec:prelim}.
 
+\todo{Somewhere we need to say what category theory background we
+  assume (and spell out the things we don't assume).}
+
 \section{Species}
 \label{sec:species}
 
@@ -1075,10 +1078,17 @@ product of species.
 
 \section{Lifted monoids: sum and Cartesian product}
 
-One of the simplest operations on species is the \emph{sum} of two
+Two of the simplest operations on species are the \emph{sum} and
+\emph{Cartesian product}.  As we will see, these operations arise in
+an analogous way: the only difference is that species sum comes from
+the fact that $\Set$ has coproducts (disjoint union of sets), whereas
+the Cartesian product of species comes from the fact that $\Set$ has
+products (Cartesian product of sets).
+
+\subsection{Species sum}
+
 species. The intuition is that an $(F + G)$-shape is either an
-$F$-shape \emph{or} a $G$-shape.  \todo{insert back
-  reference to some example(s)?} Formally:
+$F$-shape \emph{or} a $G$-shape. Formally:
 
 \begin{defn}
   Given species $F, G : \B \to \Set$, we may form their sum $F + G$,
@@ -1089,6 +1099,10 @@ $F$-shape \emph{or} a $G$-shape.  \todo{insert back
   considered as a bifunctor in the evident way: $(f \uplus g)\ (\inl\ x)
   = \inl\ (f\ x)$ and $(f \uplus g)\ (\inr\ y) = \inr\ (g\ y)$.
 \end{defn}
+
+Thinking of species alternately as functors in $[\P, \Set]$, we may
+say that an $(F+G)$-shape of size $n$ is either an $F$-shape of size
+$n$ or a $G$-shape of size $n$.
 
 %   \begin{figure}
 %     \centering
@@ -1145,12 +1159,6 @@ functors is defined as the pointwise sum of their outputs, and
 likewise \Zero, the identity for the sum of species, is defined as the
 functor which constantly, \ie pointwise, returns $\varnothing$, the
 identity for the sum of sets.
-
-\subsection{Lifting monoids}
-\label{sec:lifting-monoids}
-
-\newcommand{\lifted}[1]{\hat{#1}}
-\newcommand{\lotimes}{\mathbin{\lifted{\otimes}}}
 
 This same construction works in a much more general setting.  In fact,
 any monoidal structure $(\otimes, I, \alpha, \lambda, \rho)$ on a
