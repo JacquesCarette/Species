@@ -382,15 +382,14 @@ express these computationally relavant equivalences.
 More specifically, the contributions of this paper are:
 
 \begin{itemize}
-\item We define for the concept of \emph{species} in
+\item We define the concept of \emph{species} in
   constructive type theory (\pref{sec:constructive-species}), characterizing
   them as functors from a finite collection of labels to structures.
 \item As part of our port to type theory, we generalize common
   operations on species, including sum, partitional and Cartesian
   product, arithmetic product, and composition \todo{Try to get to
     composition!}, carefully analyzing their requirements so that we
-  can be sure that they are consistent with our new interpretation in
-  type theory.
+  can be sure that they are consistent with our new interpretation.
 \item This generalization leads to new insights. In particular, we observe
   that arithmetic product arises from Day convolution (\pref{sec:day}), and give
   a novel categorical presentation of weighted species
@@ -401,7 +400,7 @@ In the next section, we review the set-theoretic definitions of species,
 before recasting them in the context of homotopy type theory in
 \pref{sec:prelim}.
 
-\section{Species}
+\section{Species in Set Theory}
 \label{sec:species}
 
 In set theory, we define species as \emph{labeled structures}---structures
@@ -415,10 +414,12 @@ sends every set of labels (of size $n$) to the set of all sequences (of size
 $n!$) containing each label exactly once (\pref{fig:lists}). Similarly, the
 species of \emph{(rooted, ordered) binary trees} sends every set of labels to
 the set of all binary trees built over those labels (\pref{fig:binary-trees}).
+\scw{We may not actually need these figures. Cut for space?}
 Other species describe non-algebraic data structures, such as cycles, bags and
 permutations.
 \todo{More examples.  Cycles, bags.  Permutations.  Examples of
     algebra: describe lists and trees algebraically, etc.}
+
 
 
   \begin{figure}
@@ -500,7 +501,7 @@ A \term{species} $F$ is a pair of mappings which
 \item sends any finite set $U$ (of \term{labels}) to a set $F[U]$ (of
   \term{shapes}), and
 \item sends any \term{relabeling}\footnote{We use the notation $U
-    \bij V$ for any bijection between finite sets $U$ and $V$.}) $\sigma : U \bij V$ to a function $F[\sigma] : F[U] \to F[V]$
+    \bij V$ for any bijection between finite sets $U$ and $V$.} $\sigma : U \bij V$ to a function $F[\sigma] : F[U] \to F[V]$
 %  (illustrated in \pref{fig:relabeling}),
 \end{itemize}
 satisfying the following functoriality conditions:
@@ -589,8 +590,8 @@ concise definition of species:
   Although the definition only says that a species $F$ sends a
   bijection $\sigma : U \bij V$ to a \emph{function} $F[\sigma] : F[U]
   \to F[V]$, functors preserve isomorphisms, so in fact every such
-  function must be a bijection.\scw{I don't understand this remark. Definition
-  \pref{def:species-set}?}
+  function must be a bijection.\scw{I don't understand this remark. ``the
+    definition'' is  \pref{def:species-set}?}
 \end{rem}
 
 %\subsection{Species from scratch}
@@ -603,7 +604,7 @@ enlightening to see precisely which properties are required in which
 situations, and we miss this entirely if we start with the kitchen sink.  The
 idea is to start ``from scratch'' and build up a generic notion of species
 which support the operations we want.  Along the way, we will also get a much
-clearer picture of where the operations ``come from''.  \footnote{Much of this
+clearer picture of where the operations ``come from''.\footnote{Much of this
   material has been inspired by Kelly \cite{Kelly-operads} \todo{``Operads of
     J.P. May''}, \todo{``Cartesian Closed Bicategory of Generalised Species of
     Structure''}, and \todo{``Monoidal Functors, Species, and Hopf
@@ -616,8 +617,8 @@ $[\Lab, \Str]$?  Of course, there is no point in calling functors $\Lab \to
 properties must $\Lab$ and $\Str$ possess to make this interesting and
 worthwhile?  In particular, what properties must $\Lab$ and $\Str$ possess to
 enable the sorts of operations we typically want to do on species?  \footnote{
-  Note that the objects of $\Lab$ might not correspond to ``sets'' at all. So
-  though our definitions are guided by the the intuition of ``sets of
+  Note that the objects of $\Lab$ might not correspond to ``sets'' at all. 
+  Although our definitions are guided by the the intuition of ``sets of
   labels'', in the most general setting we must only think of shapes as
   indexed by objects of $\Lab$, rather than shapes as ``containing labels
   drawn from some set''.  }
@@ -675,7 +676,8 @@ to denote the type of natural numbers, $\Fin : \N \to \Type_0$ the
 usual indexed type of canonical finite sets, and $[-] : \Type \to
 \Type$ the inductive type of polymorphic lists, with constructors
 $|[]| : \prod_{A:\Type} [A]$ and $- :: - : \prod_{A:\Type} A \to [A]
-\to [A]$.
+\to [A]$.\scw{How much do we use lists in this paper? The $[-]$ notation is also
+  reused in the next section.}
 
 Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
 dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
@@ -1165,7 +1167,8 @@ instance Monoid a => Monoid (e -> a) where
 \end{spec}
 but quite a bit more general.  We omit the precise details and proofs,
 partly in the interest of space, and partly because the details would
-be entirely unsurprising to a category theorist. For the present
+be entirely unsurprising to a category theorist.\scw{Omit second clause. What
+  if reader is not a category theorist? We can say that the proof is straightforward.} For the present
 purposes the intuition given by the above Haskell code should suffice;
 to understand the basic intuition behind the proof, the reader may
 enjoy proving that the above |Monoid| instance for |e -> a| satisfies
@@ -1258,7 +1261,9 @@ species.
   possible since the monoidal operation $\oplus$ is, by definition,
   required to be a bifunctor.
 
-  \todo{Explain how the above plays out in the case of species.}
+  \todo{Explain how the above plays out in the case of species.}\scw{You mean
+    when $\Lab$ is $\BT$? That seems to be the most important example that we
+    need to cover.}
 \end{example}
 
 \subsection{Cartesian/Hadamard product}
@@ -1293,7 +1298,7 @@ or one can think of the shapes themselves as being superimposed.
   \caption{Cartesian species product}
   \label{fig:Cartesian-product-dup}
 \end{figure}
-q
+
 \begin{defn}
   Lifting the identity element pointwise gives the species \[ \E\ L =
   \{\star\}, \] where every bijection is sent to the unique function
@@ -1324,6 +1329,8 @@ will be explored in the next section.
   $X \times Y + X \times Z \to X \times (Y + Z)$ is an isomorphism.
   Is $[\B, \Set]$ distributive in the same way?  If so, does lifting
   monoids always preserve distributivity? Answers: yes, and yes.}
+
+\scw{Shouldn't we also talk about $[\BT,\Type]$ explicitly?}
 
 \section{Day convolution: partitional and arithmetic product}
 \label{sec:day}
@@ -1513,7 +1520,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
       Sigma-types, \dots ?}
   \end{itemize}
 
-  Given $F,G \in [\B,\Type]$, we can thus instantiate the definition
+  Given $F,G \in [\BT,\Type]$, we can thus instantiate the definition
   of Day convolution to obtain
   \begin{align*}
     (F \cdot G)(L) &= \biguplus_{L_1, L_2} F\ L_1 \times G\ L_2 \times
@@ -1671,7 +1678,7 @@ morphisms of $\Str$.
 
 The first thing to note is that $\Str/A$ inherits coproducts from
 $\Str$: given two weighted objects $(X, \omega_X)$ and $(Y,
-\omega_Y)$, we can uniquely construct a weaighting $(X+Y, [\omega_X,
+\omega_Y)$, we can uniquely construct a weighting $(X+Y, [\omega_X,
 \omega_Y])$:
 \[ \xymatrix{ X \ar[dr]_{\omega_X} \ar[r]^-{\iota_1} & X + Y
   \ar[d]||{[\omega_X, \omega_Y]} & Y \ar[l]^-{\iota_2}
@@ -1721,12 +1728,18 @@ yields a functor $T_{A\lhd B} X$ defined as $\Sigma a:A. X^{B\left(a\right)}$.
 Roughly, their positions correspond to our labels, their shapes
 correspond to our labelled shapes, and the associated functor maps
 positions to data values, much as our mappings associate data values
-to labels.  They have developed the theory quite far; as of yet,
-however, there is no implementation of containers, nor is there a
-fully developed dictionary linking concrete structures to the
-corresponding abstract container.  It is thus difficult to do a deeper
-comparison of the approaches.  We can nevertheless make a few simple
-observations.  One significant difference is that in the containers
+to labels.  
+\scw{Explicitly point out the technical difference in the set up: species = shapes indexed by labels,
+  containers = labels indexed by shapes. Surely this must make a difference?}
+\scw{We should probably omit discussion of implementation here}
+% They have developed the theory quite far; as of yet,
+% however, there is no implementation of containers, nor is there a
+% fully developed dictionary linking concrete structures to the
+% corresponding abstract container.  
+%It is thus difficult to do a deeper
+%comparison of the approaches.  We can nevertheless make a few simple
+%observations.  
+One significant difference is that in the containers
 work, each shape is associated with a fixed, inherent set of
 positions, whereas in our approach a shape can be used with any type
 of labels.  Furthermore, for them shape is an input, while for us it
@@ -1734,20 +1747,22 @@ is part of what is generated.  As a result, with containers, it does
 not seem that the positions can easily be given extra structure (the
 work on quotient containers~\cite{abbott_quotient} is quite
 involved).  There are fewer combinators for containers than for
-labelled structures: for example, neither the Cartesian product nor
-functorial composition seem to be present.  Thus there is as of yet no
-theory of sharing for containers, nor is there a fine grained theory of
-storage.  Having said all of that, however, containers are not restricted to
-finite sets of labels, which makes them more general than labelled structures: there
-are useful types (such as streams) which are containers but not labelled
-structures.  And therein seems to be the main difference: the extra
+species: for example, neither the Cartesian product nor
+functorial composition\scw{composition probably won't make it here} seem to be present.  Thus there is as of yet no
+theory of sharing for containers. %, nor is there a fine grained theory of
+% storage.  
+Having said all of that, however, containers are not restricted to
+finite sets of labels, which makes them more general than species: there
+are useful types (such as streams) which are containers but not species.  
+\scw{Rephrase the next sentence as data vs. co-data?}
+And therein seems to be the main difference: the extra
 generality allows containers to encapsulate fancier types, while our
-concreteness lets us uniformly and easily model low-level concerns.
+concreteness lets us uniformly and more easily model low-level concerns.
 
 Shapely types \cite{jay-shapely} are closely related to containers---
 see~\cite[section 8]{abbott_categories_2003} for a careful
 explanation of the details.  Their results show that shapely types are
-those containers which are closest to labelled structures: in many
+those containers which are closest to species: in many
 settings of importance, shapely types are \emph{discretely finite}
 containers, which essentially amounts to saying that all shapes give
 rise to a finite number of positions (\ie labels).  Shapely types do
@@ -1815,7 +1830,7 @@ the study of attribute grammars~\cite{Mishna03b}.
 \label{sec:conclusion}
 
 \begin{ack}
-Ackowledgements
+Acknowledgements
 \end{ack}
 
 \bibliographystyle{entcs}
