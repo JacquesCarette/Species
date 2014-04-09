@@ -278,7 +278,7 @@
  Philadelphia, Pennsylvania, USA}
 
 %\thanks[myemail]{Email:\href{mailto:byorgey@cis.upenn.edu}
-%{\texttt{\normalshape byorgey@cis.upenn.edu}}} 
+%{\texttt{\normalshape byorgey@cis.upenn.edu}}}
 
 
 %% SIGPLAN
@@ -324,7 +324,7 @@
 
 \end{abstract}
 
-\begin{keyword} 
+\begin{keyword}
 Combinatorial Species, Homotopy Type Theory
 \end{keyword}
 
@@ -376,19 +376,21 @@ When ported to a constructive setting, however, the notion of finiteness takes
 on nontrivial computational content and significance.  In particular, we are
 naturally led to work up to computationally relevant \emph{equivalences} on
 labels.  Therefore, the constructive type theory that we work in is
-\emph{Homotopy Type Theory} (HoTT) \cite{hotbook}, a theory that can naturally
+\emph{homotopy type theory} (HoTT) \cite{hotbook}, a theory that can naturally
 express these computationally relavant equivalences.
 
 More specifically, the contributions of this paper are:
 
 \begin{itemize}
-\item We define for the concept of \emph{species} in 
+\item We define for the concept of \emph{species} in
   constructive type theory (\pref{sec:constructive-species}), characterizing
   them as functors from a finite collection of labels to structures.
-\item As part of our port to type theory, we generalize the most common
-  operations on species, including \scw{...}, carefully analyzing their
-  requirements so that we can be sure that they are consistent with our new
-  interpretation in Type Theory.
+\item As part of our port to type theory, we generalize common
+  operations on species, including sum, partitional and Cartesian
+  product, arithmetic product, and composition \todo{Try to get to
+    composition!}, carefully analyzing their requirements so that we
+  can be sure that they are consistent with our new interpretation in
+  type theory.
 \item This generalization leads to new insights. In particular, we observe
   that arithmetic product arises from Day convolution (\pref{sec:day}), and give
   a novel categorical presentation of weighted species
@@ -396,7 +398,7 @@ More specifically, the contributions of this paper are:
 \end{itemize}
 
 In the next section, we review the set-theoretic definitions of species,
-before recasting them in the context of Homotopy Type Theory in
+before recasting them in the context of homotopy type theory in
 \pref{sec:prelim}.
 
 \section{Species}
@@ -413,7 +415,7 @@ sends every set of labels (of size $n$) to the set of all sequences (of size
 $n!$) containing each label exactly once (\pref{fig:lists}). Similarly, the
 species of \emph{(rooted, ordered) binary trees} sends every set of labels to
 the set of all binary trees built over those labels (\pref{fig:binary-trees}).
-Other species describe non-algebraic data structures, such as cycles, bags and 
+Other species describe non-algebraic data structures, such as cycles, bags and
 permutations.
 \todo{More examples.  Cycles, bags.  Permutations.  Examples of
     algebra: describe lists and trees algebraically, etc.}
@@ -625,13 +627,14 @@ to arbitrary functor categories to see what properties are needed in order to
 define them---\ie\ where the constructions ``come from''.
 
 However, there is a second more important reason to generalize the
-definitions. We we wish to translate the theory of species to a constructive,
-computational setting, and the specific categories $\B$ and \Set are
-inappropriate, for reasons that we discuss below.\scw{put those reasons here?}
-Instead, in \pref{sec:finiteness} we define $[\BT, \Type]$, which, as we will
-see, is a ``constructive counterpart'' to $[\B, \Set]$. As long as we can show
-that these type-theory based categories have the right properties, we will be
-able to use them with our generalized definitions.
+definitions. We we wish to translate the theory of species to a
+constructive, computational setting, and the specific categories $\B$
+and \Set are inappropriate, for reasons that we discuss below.\scw{put
+  those reasons here?}  Instead, in \pref{sec:finiteness} we define
+categories $\BT$ and $\Type$ so that $[\BT, \Type]$ is a
+``constructive counterpart'' to $[\B, \Set]$. As long as we can show
+that these type-theory based categories have the right properties, we
+will be able to use them with our generalized definitions.
 
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
