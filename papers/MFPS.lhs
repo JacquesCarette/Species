@@ -1200,12 +1200,15 @@ instance for |e -> a| satisfies the monoid laws if the instance for
   \end{itemize}
 \end{prop}
 
+\scw{Say something like, ``thus we define the generalized versions of species
+  sum and the empty species'' to make it explicit?}
+
 Since $(\uplus,\varnothing)$ is a coproduct structure on $\Set$, it follows
 that $(+, \Zero)$ is in fact a coproduct structure on the category of
 species.
 
 \scw{Maybe for the paper we can trim these examples? The full generality is
-  great for the chapter, but the paper is focusing on the
+  great for the chapter, but the paper needs to focus on the
   example of $[\BT,\Type]$.}
 \begin{example}
   Take $\Lab = \cat{1}$ (the trivial category with one object and one
@@ -1360,13 +1363,14 @@ will be explored in the next section.
 There is another notion of product for species, the \term{partitional}
 or \term{Cauchy} product, which is more generally useful than
 Cartesian product, even though it is more complex to define.  In
-particular, when species are extended to labelled structures
-(\pref{chap:labelled}) it is the partitional product, rather than
-Cartesian, which gives rise to the usual notion of product on
+particular, 
+% when species are extended to labelled structures
+% (\pref{chap:labelled}) 
+it is the partitional product that gives rise to the usual notion of product on
 algebraic data types.  For this reason partitional product is often
 simply referred to as ``product'', without any modifier, although as
-we have seen it is Cartesian product, rather than partitional product,
-which is actually a categorical product.
+we have seen the Cartesian product %, rather than partitional product,
+is the one that is actually a categorical product.
 
 Intuitively, the partitional product $F \sprod G$ of two species $F$
 and $G$ consists of paired $F$- and $G$-shapes, but with a twist:
@@ -1431,7 +1435,7 @@ other summands).
 
 Generalizing partitional product over arbitrary functor categories is
 much more complex than generalizing sum and Cartesian product, and
-requires turning to a construction known as \term{Day convolution}.
+requires a construction known as \term{Day convolution}.
 
 \subsection{Day convolution}
 \label{sec:day-convolution}
