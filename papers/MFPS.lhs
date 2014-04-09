@@ -843,9 +843,55 @@ therefore consider $\tygrpd{\FinType}$: finite types with paths
 between them.  Unfortunately, this does not work! Intuitively, the
 problem is that the paths are between not only the types in question
 but also between the evidence of their finiteness, so that a path
-between two types requires them to be finite ``in the same way''.
+between two types requires them to be finite ``in the same way''. The
+situation can be pictured as shown in \pref{fig:fin-equiv}. The
+elements of types $A_1$ and $A_2$ are shown on the sides; the evidence
+of their finiteness is represented by bijections between their
+elements and the elements of $\Fin n$, shown along the bottom.  The
+catch is that the diagram necessarily contains only triangles:
+corresponding elements of $A_1$ and $A_2$ on the sides correspond to
+the same element of $\Fin n$ on the bottom row.  Therefore, there are
+only two degrees of freedom: once the evidence of finiteness is
+determined, there is only one valid correspondence between $A_1$ and $A_2$.
+\begin{figure}
+  \centering
+  \begin{diagram}[width=150]
+import           Data.Bits                      (xor)
+import           SpeciesDiagrams
 
-\todo{Give some intuition.  Use triangle picture.}
+mkList n d f = hcat' (with & sep .~ 2 & catMethod .~ Distrib)
+  (zipWith named (map f [0::Int ..]) (replicate n d))
+
+n :: Int
+n = 8
+
+dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
+      [ "l1"  ||> (l1 # rotateBy (-1/3))
+      , "fin" ||> fin
+      , "l2"  ||> (l2 # rotateBy (1/3))
+      ]
+      # mkConnections
+      # centerXY # pad 1.2
+      # flip appends
+        [ (unit_Y                  , text' 4 "Fin n")
+        , (unit_Y # rotateBy (-1/3), text' 4 "L₁"   )
+        , (unit_Y # rotateBy (1/3) , text' 4 "L₂"   )
+        ]
+  where
+    fin = mkList n dot (`xor` 1) # centerXY
+    l1  = mkList n dot id # centerXY
+    l2  = mkList n dot ((n-1) -) # centerXY
+    dot = circle 0.5 # fc grey
+    mkConnections = applyAll
+      [  withNames [a .> i, b .> i] $ \[p,q] -> atop (location p ~~ location q)
+      || (a,b) <- take 3 . (zip <*> tail) . cycle $ ["l1", "fin", "l2"]
+      ,  i <- [0 .. (n-1)]
+      ]
+  \end{diagram}
+  \caption{A path between inhabitants of $\FinType$ contains only
+    triangles}
+  \label{fig:fin-equiv}
+\end{figure}
 
 \begin{prop}
   There is at most one morphism between any two objects of
