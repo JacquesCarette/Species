@@ -625,7 +625,7 @@ $[\Lab, \Str]$?  Of course, there is no point in calling functors $\Lab \to
 \Str$ ``species'' for just any old categories $\Lab$ and $\Str$.  But what
 properties must $\Lab$ and $\Str$ possess to make this interesting and
 worthwhile?  In particular, what properties must $\Lab$ and $\Str$ possess to
-enable the sorts of operations we typically want to do on species?  \footnote{
+enable the sorts of operations we typically want to do on species?\footnote{
   Note that the objects of $\Lab$ might not correspond to ``sets'' at all. 
   Although our definitions are guided by the the intuition of ``sets of
   labels'', in the most general setting we must only think of shapes as
