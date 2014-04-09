@@ -1077,7 +1077,7 @@ product of species.
 
 One of the simplest operations on species is the \emph{sum} of two
 species. The intuition is that an $(F + G)$-shape is either an
-$F$-shape \emph{or} a $G$-shape (\pref{fig:sum}).  \todo{insert back
+$F$-shape \emph{or} a $G$-shape.  \todo{insert back
   reference to some example(s)?} Formally:
 
 \begin{defn}
@@ -1088,28 +1088,28 @@ $F$-shape \emph{or} a $G$-shape (\pref{fig:sum}).  \todo{insert back
   \sigma \defeq F\ \sigma + G\ \sigma. \]
 \end{defn}
 
-  \begin{figure}
-    \centering
-    \begin{diagram}[width=250]
-import SpeciesDiagrams
+%   \begin{figure}
+%     \centering
+%     \begin{diagram}[width=250]
+% import SpeciesDiagrams
 
-theDia
-  = hcat' (with & sep .~ 1)
-    [ struct 5 "F+G"
-    , text' 1 "="
-    , vcat
-      [ struct 5 "F"
-      , text' 0.5 "OR"
-      , struct 5 "G"
-      ]
-      # centerY
-    ]
+% theDia
+%   = hcat' (with & sep .~ 1)
+%     [ struct 5 "F+G"
+%     , text' 1 "="
+%     , vcat
+%       [ struct 5 "F"
+%       , text' 0.5 "OR"
+%       , struct 5 "G"
+%       ]
+%       # centerY
+%     ]
 
-dia = theDia # centerXY # pad 1.1
-    \end{diagram}
-    \caption{Species sum}
-    \label{fig:sum}
-  \end{figure}
+% dia = theDia # centerXY # pad 1.1
+%     \end{diagram}
+%     \caption{Species sum}
+%     \label{fig:sum}
+%   \end{figure}
 
 \begin{defn}
   We may also define the \term{zero} or \term{empty} species,
@@ -1277,7 +1277,7 @@ one-element sets are isomorphic in \Set.)
 In the same way that an $(F + G)$-shape is either an $F$-shape
 \emph{or} a $G$-shape on a given set of labels, an $(F \times
 G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on \emph{the
-  same set of labels} (\pref{fig:Cartesian-product-dup}).  As
+  same set of labels}.  As
 illustrated in the figure, there are several intuitive ways to think
 about this situation. One can think of two distinct shapes, with
 labels duplicated between them; one can think of the labels as
@@ -1285,12 +1285,12 @@ labels duplicated between them; one can think of the labels as
 be explored more in \pref{sec:sharing}); or one can think of the
 shapes themselves as being superimposed.
 
-\begin{figure}
-  \centering
-  \todo{Make a diagram.}
-  \caption{Cartesian species product}
-  \label{fig:Cartesian-product-dup}
-\end{figure}
+% \begin{figure}
+%   \centering
+%   \todo{Make a diagram.}
+%   \caption{Cartesian species product}
+%   \label{fig:Cartesian-product-dup}
+% \end{figure}
 
 \begin{defn}
   Lifting the identity element pointwise gives the species \[ \E\ L =
@@ -1340,32 +1340,32 @@ which is actually a categorical product.
 Intuitively, the partitional product $F \sprod G$ of two species $F$
 and $G$ consists of paired $F$- and $G$-shapes, but with a twist:
 instead of being replicated, as in Cartesian product, the labels are
-\emph{partitioned} between the two shapes (\pref{fig:product}).
+\emph{partitioned} between the two shapes.
 
-\todo{picture of a pair of trees with disjoint labels, or something
-  like that.}
+% \todo{picture of a pair of trees with disjoint labels, or something
+%   like that.}
 
-  \begin{figure}
-    \centering
-    \begin{diagram}[width=250]
-import SpeciesDiagrams
+%   \begin{figure}
+%     \centering
+%     \begin{diagram}[width=250]
+% import SpeciesDiagrams
 
-theDia
-  = hcat' (with & sep .~ 1)
-    [ struct 5 "F•G"
-    , text' 1 "="
-    , vcat' (with & sep .~ 0.2)
-      [ struct 2 "F"
-      , struct 3 "G"
-      ]
-      # centerY
-    ]
+% theDia
+%   = hcat' (with & sep .~ 1)
+%     [ struct 5 "F•G"
+%     , text' 1 "="
+%     , vcat' (with & sep .~ 0.2)
+%       [ struct 2 "F"
+%       , struct 3 "G"
+%       ]
+%       # centerY
+%     ]
 
-dia = theDia # centerXY # pad 1.1
-    \end{diagram}
-    \caption{Partitional species product}
-    \label{fig:product}
-  \end{figure}
+% dia = theDia # centerXY # pad 1.1
+%     \end{diagram}
+%     \caption{Partitional species product}
+%     \label{fig:product}
+%   \end{figure}
 
 Formally, the partitional product of species
 \begin{defn}
