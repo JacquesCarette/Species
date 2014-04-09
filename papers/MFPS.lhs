@@ -208,6 +208,10 @@
 
 \newcommand{\fin}[1]{\ensuremath{[#1]}}
 
+% monoidal lifting
+\newcommand{\lifted}[1]{\hat{#1}}
+\newcommand{\lotimes}{\mathbin{\lifted{\otimes}}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Species
 
@@ -416,101 +420,101 @@ For example, the species $\L$ of \emph{lists} (or \emph{linear orderings})
 sends every set of labels (of size $n$) to the set of all sequences (of size
 $n!$) containing each label exactly once (\pref{fig:lists}). Similarly, the
 species of \emph{(rooted, ordered) binary trees} sends every set of labels to
-the set of all binary trees built over those labels (\pref{fig:binary-trees}).
+the set of all binary trees built over those labels.
+% (\pref{fig:binary-trees}).
 \scw{We may not actually need these figures. Cut for space?}
 Other species describe non-algebraic data structures, such as cycles, bags and
 permutations.
 \todo{More examples.  Cycles, bags.  Permutations.  Examples of
     algebra: describe lists and trees algebraically, etc.}
 
+%   \begin{figure}
+%     \centering
+%     \begin{diagram}[width=400]
+% import SpeciesDiagrams
+% import Data.List
+% import Data.List.Split
 
+% dia =
+%   hcat' (with & sep .~ 0.5)
+%   [ unord (map labT [0..2])
+%   , mkArrow 2 (txt "L")
+%   , enRect listStructures
+%   ]
+%   # centerXY
+%   # pad 1.1
 
-  \begin{figure}
-    \centering
-    \begin{diagram}[width=400]
-import SpeciesDiagrams
-import Data.List
-import Data.List.Split
+% drawList = hcat . intersperse (mkArrow 0.4 mempty) . map labT
 
-dia =
-  hcat' (with & sep .~ 0.5)
-  [ unord (map labT [0..2])
-  , mkArrow 2 (txt "L")
-  , enRect listStructures
-  ]
-  # centerXY
-  # pad 1.1
+% listStructures =
+%     hcat' (with & sep .~ 0.7)
+%   . map (vcat' (with & sep .~ 0.5))
+%   . chunksOf 2
+%   . map drawList
+%   . permutations
+%   $ [0..2]
+%     \end{diagram}
+%     \caption{The species $\L$ of lists}
+%     \label{fig:lists}
+%     %$
+%   \end{figure}
 
-drawList = hcat . intersperse (mkArrow 0.4 mempty) . map labT
+%   \begin{figure}
+%     \centering
+%     \begin{diagram}[width=400]
+% import SpeciesDiagrams
+% import Data.Tree
+% import Diagrams.TwoD.Layout.Tree
+% import Control.Arrow (first, second)
 
-listStructures =
-    hcat' (with & sep .~ 0.7)
-  . map (vcat' (with & sep .~ 0.5))
-  . chunksOf 2
-  . map drawList
-  . permutations
-  $ [0..2]
-    \end{diagram}
-    \caption{The species $\L$ of lists}
-    \label{fig:lists}
-    %$
-  \end{figure}
+% dia =
+%   hcat' (with & sep .~ 0.5)
+%   [ unord (map labT [0..2])
+%   , mkArrow 2 (txt "T")
+%   , enRect treeStructures
+%   ]
+%   # centerXY
+%   # pad 1.1
 
-  \begin{figure}
-    \centering
-    \begin{diagram}[width=400]
-import SpeciesDiagrams
-import Data.Tree
-import Diagrams.TwoD.Layout.Tree
-import Control.Arrow (first, second)
+% drawTreeStruct = renderTree id (~~) . symmLayout . fmap labT
 
-dia =
-  hcat' (with & sep .~ 0.5)
-  [ unord (map labT [0..2])
-  , mkArrow 2 (txt "T")
-  , enRect treeStructures
-  ]
-  # centerXY
-  # pad 1.1
+% trees []   = []
+% trees [x]  = [ Node x [] ]
+% trees xxs  = [ Node x [l,r]
+%              || (x,xs) <- select xxs
+%              , (ys, zs) <- subsets xs
+%              , l <- trees ys
+%              , r <- trees zs
+%              ]
 
-drawTreeStruct = renderTree id (~~) . symmLayout . fmap labT
-
-trees []   = []
-trees [x]  = [ Node x [] ]
-trees xxs  = [ Node x [l,r]
-             || (x,xs) <- select xxs
-             , (ys, zs) <- subsets xs
-             , l <- trees ys
-             , r <- trees zs
-             ]
-
-treeStructures =
-    hcat' (with & sep .~ 0.5)
-  . map drawTreeStruct
-  . trees
-  $ [0..2]
-    \end{diagram}
-    \caption{The species $\T$ of binary trees}
-    \label{fig:binary-trees}
-    %$
-  \end{figure}
+% treeStructures =
+%     hcat' (with & sep .~ 0.5)
+%   . map drawTreeStruct
+%   . trees
+%   $ [0..2]
+%     \end{diagram}
+%     \caption{The species $\T$ of binary trees}
+%     \label{fig:binary-trees}
+%     %$
+%   \end{figure}
 
 \noindent
-In set theory, we define Species as follows:
+In set theory, we define species as follows:
 \begin{defn}[Species (Joyal \cite{joyal,bll})]
-\label{def:species-set}
+\label{defn:species-set}
 A \term{species} $F$ is a pair of mappings which
 \begin{itemize}
-\item sends any finite set $U$ (of \term{labels}) to a set $F[U]$ (of
+\item sends any finite set $U$ (of \term{labels}) to a set $F\ U$ (of
   \term{shapes}), and
 \item sends any \term{relabeling}\footnote{We use the notation $U
-    \bij V$ for any bijection between finite sets $U$ and $V$.} $\sigma : U \bij V$ to a function $F[\sigma] : F[U] \to F[V]$
+    \bij V$ for any bijection between finite sets $U$ and $V$.}
+  $\sigma : U \bij V$ to a function $F\ \sigma : F\ U \to F\ V$
 %  (illustrated in \pref{fig:relabeling}),
 \end{itemize}
 satisfying the following functoriality conditions:
 \begin{itemize}
-\item $F[id_U] = id_{F[U]}$, and
-\item $F[\sigma \circ \tau] = F[\sigma] \circ F[\tau]$.
+\item $F\ id_U = id_{F\ U}$, and
+\item $F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
 \end{itemize}
 \end{defn}
 
@@ -559,7 +563,7 @@ satisfying the following functoriality conditions:
 %   \caption{Relabeling} \label{fig:relabeling}
 % \end{figure}
 
-We call $F[U]$ the set of ``$F$-shapes with labels drawn from $U$'',
+We call $F\ U$ the set of ``$F$-shapes with labels drawn from $U$'',
 or simply ``$F$-shapes on $U$'', or even (when $U$ is clear from
 context) just ``$F$-shapes''.\footnote{Margaret Readdy's English translation
   of Bergeron \etal \cite{bll} uses the word ``structure'' instead of
@@ -567,19 +571,18 @@ context) just ``$F$-shapes''.\footnote{Margaret Readdy's English translation
   ``data structures'', which is the wrong association: data structures
   contain \emph{data}, whereas species shapes do not.  We choose the
   word shape to emphasize the fact that they are ``form without
-  content''.}  $F[\sigma]$ is called the ``transport of $\sigma$ along
+  content''.}  $F\ \sigma$ is called the ``transport of $\sigma$ along
 $F$'', or sometimes the ``relabeling of $F$-shapes by $\sigma$''.
 
-The functoriality of relabeling means that the actual labels used don't
-matter; we get ``the same shapes'', up to relabeling, for any label sets of
-the same size.  In other words, $F$'s action on all label sets of size $n$ is
-determined by its action on any particular such set: if $||U_1|| = ||U_2||$
-and we know $F[U_1]$, we can determine $F[U_2]$ by lifting an arbitrary
-bijection between $U_1$ and $U_2$.  So we often take the finite set of natural
-numbers $[n] = \{0, \dots, n-1\}$ as \emph{the} canonical label set of size
-$n$, and write $F[n]$ %(instead of $F[[n]]$)
-for the set of $F$-shapes built from this set.
-
+The functoriality of relabeling means that the actual labels used
+don't matter; we get ``the same shapes'', up to relabeling, for any
+label sets of the same size.  In other words, $F$'s action on all
+label sets of size $n$ is determined by its action on any particular
+such set: if $||U_1|| = ||U_2||$ and we know $F\ U_1$, we can
+determine $F\ U_2$ by lifting an arbitrary bijection between $U_1$ and
+$U_2$.  So we often take the finite set of natural numbers $[n] = \{0,
+\dots, n-1\}$ as \emph{the} canonical label set of size $n$, and write
+$F\ [n]$ for the set of $F$-shapes built from this set.
 
 Using the language of category theory, we can give an equivalent, more
 concise definition of species:
@@ -590,11 +593,14 @@ concise definition of species:
 \end{defn}
 
 \begin{rem}
-  Although the definition only says that a species $F$ sends a
-  bijection $\sigma : U \bij V$ to a \emph{function} $F[\sigma] : F[U]
-  \to F[V]$, functors preserve isomorphisms, so in fact every such
-  function must be a bijection.\scw{I don't understand this remark. ``the
-    definition'' is  \pref{def:species-set}?}
+  Although \pref{defn:species-set} only says that a species $F$ sends
+  a bijection $\sigma : U \bij V$ to a \emph{function} $F\ \sigma :
+  F\ U \to F\ V$, the functoriality of $F$ in fact guarantees that
+  bijections must be sent to bijections. In particular, $F\ \sigma$
+  always has $F(\sigma^{-1})$ as its inverse, since $F\ \sigma \comp
+  F\ \sigma^{-1} = F\ (\sigma \comp \sigma^{-1}) = F\ id
+  = id$. \scw{I don't understand this remark. ``the definition'' is
+    \pref{defn:species-set}?} \bay{Better now, I hope?}
 \end{rem}
 
 %\subsection{Species from scratch}
@@ -675,12 +681,11 @@ $\outl$ and $\outr$), dependent functions, a hierarchy of type
 universes $\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the
 subscript from $\Type_0$), and a notion of propositional equality.
 The theory also allows inductive definitions.  We use $\N : \Type_0$
-to denote the type of natural numbers, $\Fin : \N \to \Type_0$ the
-usual indexed type of canonical finite sets, and $[-] : \Type \to
-\Type$ the inductive type of polymorphic lists, with constructors
-$|[]| : \prod_{A:\Type} [A]$ and $- :: - : \prod_{A:\Type} A \to [A]
-\to [A]$.\scw{How much do we use lists in this paper? The $[-]$ notation is also
-  reused in the next section.}
+to denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
+usual indexed type of canonical finite sets.\scw{How much do we use
+  lists in this paper? The $[-]$ notation is also reused in the next
+  section.} \bay{Indeed, we only use meta-mathematical lists, not
+  lists in type theory. I removed the reference.}
 
 Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
 dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
@@ -1174,13 +1179,12 @@ instance Monoid a => Monoid (e -> a) where
   f `mappend` g  = \a -> f a `mappend` g a
 \end{spec}
 but quite a bit more general.  We omit the precise details and proofs,
-partly in the interest of space, and partly because the details would
-be entirely unsurprising to a category theorist.\scw{Omit second clause. What
-  if reader is not a category theorist? We can say that the proof is straightforward.} For the present
-purposes the intuition given by the above Haskell code should suffice;
-to understand the basic intuition behind the proof, the reader may
-enjoy proving that the above |Monoid| instance for |e -> a| satisfies
-the monoid laws if the instance for |a| does.
+partly in the interest of space, and partly because the details are
+straightforward.  For the present purposes the intuition given by the
+above Haskell code should suffice; to understand the basic intuition
+behind the proof, the reader may enjoy proving that the above |Monoid|
+instance for |e -> a| satisfies the monoid laws if the instance for
+|a| does.
 
 \begin{prop}
   The monoidal lifting defined above preserves the following properties:
@@ -1338,7 +1342,8 @@ will be explored in the next section.
   Is $[\B, \Set]$ distributive in the same way?  If so, does lifting
   monoids always preserve distributivity? Answers: yes, and yes.}
 
-\scw{Shouldn't we also talk about $[\BT,\Type]$ explicitly?}
+\scw{Shouldn't we also talk about $[\BT,\Type]$ explicitly?} \bay{Yes,
+  we should.}
 
 \section{Day convolution: partitional and arithmetic product}
 \label{sec:day}
