@@ -582,7 +582,7 @@ such set: if $||U_1|| = ||U_2||$ and we know $F\ U_1$, we can
 determine $F\ U_2$ by lifting an arbitrary bijection between $U_1$ and
 $U_2$.  So we often take the finite set of natural numbers $[n] = \{0,
 \dots, n-1\}$ as \emph{the} canonical label set of size $n$, and write
-$F\ [n]$ for the set of $F$-shapes built from this set.
+$F\ n$ for the set of $F$-shapes built from this set.
 
 Using the language of category theory, we can give an equivalent, more
 concise definition of species:
@@ -1332,7 +1332,8 @@ product (though not a categorical product) which is in some sense more
 natural than Cartesian product, even though it is more complicated; it
 will be explored in the next section.
 
-\todo{Forward reference to material on closedness?}
+\todo{Forward reference to material on closedness?  Probably should
+  omit that material from this paper, actually.}
 
 \todo{give some examples with other categories. $\Type$.  $1/\Set$,
   \ie\ pointed sets with smash product?}
@@ -1509,14 +1510,19 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   with $f$ acting on the first $m$ values of $\Fin (m+n)$ and $g$ on
   the last $n$.
 
-  Specializing the definition, \[ (F \sprod G)_n \defeq \int^{n_1,
-    n_2} F_{n_1} \times G_{n_2} \times (\Fin n \iso \Fin {n_1} + \Fin {n_2})  \] that is, an
-  $(F \sprod G)$-shape of size $n$ consists of an $F$-shape of size
-  $n_1$ and a $G$-shape of size $n_2$, where $n_1 + n_2 = n$.
-  Indexing by labels is a generalization (a \emph{categorification},
-  in fact) of this size-indexing scheme, where we replace natural
-  numbers with finite types, addition with coproduct, and
-  multiplication with product.
+  Specializing the definition,
+  \begin{align*}
+    (F \sprod G)\ n &\defeq \int^{n_1,
+      n_2} F\ n_1 \times G\ n_2 \times (\Fin n \iso \Fin {n_1} +
+    \Fin {n_2}) \\
+    &= \biguplus_{n_1 + n_2 = n} F\ n_1 \times G\ n_2
+  \end{align*}
+  that is, an $(F \sprod G)$-shape of size $n$ consists of an
+  $F$-shape of size $n_1$ and a $G$-shape of size $n_2$, where $n_1 +
+  n_2 = n$.  Indexing by labels is a generalization (a
+  \emph{categorification}, in fact) of this size-indexing scheme,
+  where we replace natural numbers with finite types, addition with
+  coproduct, and multiplication with product.
 \end{example}
 
 \begin{example}
@@ -1565,12 +1571,12 @@ n$, we have $f \otimes g : \fin{mn} \bij \fin{mn}$ defined by \todo{finish}.
 
 Instantiating the definition of Day convolution yields
 \begin{align*}
-  (F \boxtimes G)_n &= \int^{n_1,n_2} F_{n_1} \times G_{n_2} \times
+  (F \boxtimes G)\ n &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times
   \P(n, n_1n_2) \\
-  &= \int^{n_1,n_2} F_{n_1} \times G_{n_2} \times (\fin n \bij \fin
+  &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times (\fin n \bij \fin
   {n_1 n_2}) \\
   &= ? \\
-  &= \biguplus_{d \mid n} F_d \times G_{n/d}
+  &= \biguplus_{d \mid n} F\ d \times G\ (n/d)
 \end{align*}
 
 % where $\otimes$ denotes the product monoidal structure on
