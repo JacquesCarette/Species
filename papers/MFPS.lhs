@@ -263,9 +263,7 @@
 \begin{document}
 
 \begin{frontmatter}
-\def\titlerunning{Labelled structures and combinatorial species}
-\title{\titlerunning}
-
+\title{Generalizing species to type theory}
 
 %% ENTCS
 
@@ -338,7 +336,7 @@ Combinatorial Species, Homotopy Type Theory
 \label{sec:intro}
 
 The theory of combinatorial species is was first set forth by
-Joyal~\cite{joyal} as framework for understanding and unifying much of
+Joyal~\cite{joyal} as a framework for understanding and unifying much of
 \emph{enumerative combinatorics}, the branch of mathematics concerned with
 counting abstract \emph{structures}. This theory provides a unified view of
 such structures, presenting them in a general, compositional
