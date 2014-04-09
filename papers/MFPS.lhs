@@ -418,7 +418,8 @@ matter what set of labels we happen to choose.
 
 For example, the species $\L$ of \emph{lists} (or \emph{linear orderings})
 sends every set of labels (of size $n$) to the set of all sequences (of size
-$n!$) containing each label exactly once (\pref{fig:lists}). Similarly, the
+$n!$) containing each label exactly once %(\pref{fig:lists}). 
+Similarly, the
 species of \emph{(rooted, ordered) binary trees} sends every set of labels to
 the set of all binary trees built over those labels.
 % (\pref{fig:binary-trees}).
@@ -674,6 +675,7 @@ pervasive use of generating functions.  \todo{Why bother encoding
 \subsection{A fragment of homotopy type theory}
 \label{sec:HoTT}
 
+\scw{We may be able to omit/compress some of this.}
 The type theory we work with is equipped with an empty type \TyZero, a
 unit type \TyOne (with inhabitant $\unit$), coproducts (with
 constructors $\inl$ and $\inr$), dependent pairs (with projections
@@ -752,6 +754,7 @@ throughout the term being transported.
 Recall, from the definition of species, that $\B$ denotes the groupoid
 whose objects are finite sets and whose morphisms are bijections.
 
+\scw{Where does $\P$ come from? Why is it so important?}
 Let $\fin n \defeq \{0, \dots, n-1\}$ be the set of the first $n$ natural
 numbers.  Denote by $\P$ the category whose objects are natural
 numbers and whose morphisms $\mor m n$ are bijections $\fin m \bij \fin
@@ -1085,6 +1088,10 @@ product of species.
 
 \section{Lifted monoids: sum and Cartesian product}
 
+\scw{In this section and the following, I'm not always sure whether by ``species'' we mean
+$[\B,\Set]$ or $[\BT, \Type]$.}
+
+
 Two of the simplest operations on species are the \emph{sum} and
 \emph{Cartesian product}.  As we will see, these operations arise in
 an analogous way: the only difference is that species sum comes from
@@ -1199,6 +1206,9 @@ Since $(\uplus,\varnothing)$ is a coproduct structure on $\Set$, it follows
 that $(+, \Zero)$ is in fact a coproduct structure on the category of
 species.
 
+\scw{Maybe for the paper we can trim these examples? The full generality is
+  great for the chapter, but the paper is focusing on the
+  example of $[\BT,\Type]$.}
 \begin{example}
   Take $\Lab = \cat{1}$ (the trivial category with one object and one
   morphism). In this case, functors in $[\cat{1}, \Str]$ are just
