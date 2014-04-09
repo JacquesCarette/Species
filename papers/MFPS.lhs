@@ -1082,10 +1082,12 @@ $F$-shape \emph{or} a $G$-shape.  \todo{insert back
 
 \begin{defn}
   Given species $F, G : \B \to \Set$, we may form their sum $F + G$,
-  defined on objects by \[ (F + G)\ L \defeq F\ L + G\ L, \] where the
-  $+$ on the right hand side denotes the disjoint union (coproduct) of
+  defined on objects by \[ (F + G)\ L \defeq F\ L \uplus G\ L, \] where the
+  $\uplus$ on the right hand side denotes the disjoint union (coproduct) of
   sets, with the action on morphisms similarly given by \[ (F + G)\
-  \sigma \defeq F\ \sigma + G\ \sigma. \]
+  \sigma \defeq F\ \sigma \uplus G\ \sigma, \] where $\uplus$ is
+  considered as a bifunctor in the evident way: $(f \uplus g)\ (\inl\ x)
+  = \inl\ (f\ x)$ and $(f \uplus g)\ (\inr\ y) = \inr\ (g\ y)$.
 \end{defn}
 
 %   \begin{figure}
@@ -1178,7 +1180,7 @@ the monoid laws if the instance for |a| does.
   \end{itemize}
 \end{prop}
 
-Since $(+,\varnothing)$ is a coproduct structure on $\Set$, it follows
+Since $(\uplus,\varnothing)$ is a coproduct structure on $\Set$, it follows
 that $(+, \Zero)$ is in fact a coproduct structure on the category of
 species.
 
@@ -1196,7 +1198,7 @@ species.
   $\disc{\cat{2}} \to \Set$ is a pair of sets.  In this case, taking
   the lifted sum $F + G$ of two functors $F,G : \disc{\cat{2}} \to
   \Set$ corresponds to summing the pairs elementwise, that is, $(S_1,
-  T_1) + (S_2, T_2) = (S_1 + S_2, T_1 + T_2)$.  Another way of
+  T_1) + (S_2, T_2) = (S_1 \uplus S_2, T_1 \uplus T_2)$.  Another way of
   thinking of a functor $\disc{\cat{2}} \to \Set$ is as a single
   collection of elements where each element is tagged with one of two
   tags (``left'' or ``right'', $0$ or $1$, \etc).  From this point of
@@ -1277,24 +1279,24 @@ one-element sets are isomorphic in \Set.)
 In the same way that an $(F + G)$-shape is either an $F$-shape
 \emph{or} a $G$-shape on a given set of labels, an $(F \times
 G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on \emph{the
-  same set of labels}.  As
+  same set of labels} (\pref{fig:Cartesian-product-dup}).  As
 illustrated in the figure, there are several intuitive ways to think
 about this situation. One can think of two distinct shapes, with
 labels duplicated between them; one can think of the labels as
-\emph{pointers} or \emph{labels} for locations in a shared memory (to
-be explored more in \pref{sec:sharing}); or one can think of the
-shapes themselves as being superimposed.
+\emph{pointers} or \emph{labels} for locations in a shared memory;
+%% (to be explored more in \pref{sec:sharing})
+or one can think of the shapes themselves as being superimposed.
 
-% \begin{figure}
-%   \centering
-%   \todo{Make a diagram.}
-%   \caption{Cartesian species product}
-%   \label{fig:Cartesian-product-dup}
-% \end{figure}
-
+\begin{figure}
+  \centering
+  \todo{Make a diagram.}
+  \caption{Cartesian species product}
+  \label{fig:Cartesian-product-dup}
+\end{figure}
+q
 \begin{defn}
   Lifting the identity element pointwise gives the species \[ \E\ L =
-  \{\star\}, \] where every bijection sent to the unique function
+  \{\star\}, \] where every bijection is sent to the unique function
   $\{\star\} \to \{\star\}$.  By construction, $\E$ is the identity
   for Cartesian product of species.
 \end{defn}
@@ -1323,7 +1325,7 @@ will be explored in the next section.
   Is $[\B, \Set]$ distributive in the same way?  If so, does lifting
   monoids always preserve distributivity? Answers: yes, and yes.}
 
-\section{Day Convolution}
+\section{Day convolution: partitional and arithmetic product}
 \label{sec:day}
 
 There is another notion of product for species, the \term{partitional}
@@ -1371,16 +1373,17 @@ Formally, the partitional product of species
 \begin{defn}
   The \term{partitional} or \term{Cauchy product} of two species $F$
   and $G$ is the functor defined on objects by \[ (F \sprod G)\ L =
-  \sum_{L_1,L_2 \vdash L} F\ L_1 \times G\ L_2 \] where $\Sigma$
-  denotes simply an indexed coproduct of sets, and $L_1,L_2 \vdash L$
-  denotes that $L_1$ and $L_2$ constitute a partition of $L$, that is,
-  $L_1 \union L_2 = L$ and $L_1 \intersect L_2 = \varnothing$. On
-  bijections, $F \cdot G$ uses the action of $F$ on the restriction of
-  the bijections to $L_1$, and similarly for $G$ and $L_2$.
+  \biguplus_{L_1,L_2 \vdash L} F\ L_1 \times G\ L_2 \] where
+  $\biguplus$ denotes an indexed coproduct of sets, and $L_1,L_2
+  \vdash L$ denotes that $L_1$ and $L_2$ constitute a partition of
+  $L$, that is, $L_1 \union L_2 = L$ and $L_1 \intersect L_2 =
+  \varnothing$. On bijections, $F \cdot G$ uses the action of $F$ on
+  the restriction of the bijections to $L_1$, and similarly for $G$
+  and $L_2$.
 \end{defn}
 
 The identity for partitional product should evidently be some species
-$\One$ such that \[ (\One \cdot G)\ L = \left(\sum_{L_1,L_2 \vdash L}
+$\One$ such that \[ (\One \cdot G)\ L = \left(\biguplus_{L_1,L_2 \vdash L}
   \One\ L_1 \times G\ L_2 \right) \iso G\ L. \] The only way for this
 isomorphism to hold naturally in $L$ is if $\One\ \varnothing =
 \{\star\}$ (yielding a summand of $G\ L$ when $\varnothing+L = L$) and
@@ -1455,7 +1458,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   \begin{align*}
     (F \cdot G)(L) &= \int^{L_1, L_2} F\ L_1 \times G\ L_2 \times
     (L \iso L_1 + L_2) \\
-    &= \left( \sum_{L_1, L_2} F\ L_1 \times G\ L_2 \times (L \iso L_1
+    &= \left( \biguplus_{L_1, L_2} F\ L_1 \times G\ L_2 \times (L \iso L_1
       + L_2) \right) \Big/ \sim
   \end{align*}
   where every pair of bijections $\sigma_i : L_i \iso L_i'$ induces
@@ -1468,7 +1471,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   the equivalence classes can be represented canonically by a
   partition of $L$ into two disjoint subsets, giving rise to the
   earlier definition: \[ (F \sprod G)\ L =
-  \sum_{L_1,L_2 \vdash L} F\ L_1 \times G\ L_2. \]
+  \biguplus_{L_1,L_2 \vdash L} F\ L_1 \times G\ L_2. \]
 
   Also, in this case, the identity element is $j(I) = j(\varnothing) =
   \B(-,\varnothing)$, that is, the species which takes as input a
@@ -1513,7 +1516,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   Given $F,G \in [\B,\Type]$, we can thus instantiate the definition
   of Day convolution to obtain
   \begin{align*}
-    (F \cdot G)(L) &= \sum_{L_1, L_2} F\ L_1 \times G\ L_2 \times
+    (F \cdot G)(L) &= \biguplus_{L_1, L_2} F\ L_1 \times G\ L_2 \times
     (L \iso L_1 + L_2) \\
   \end{align*}
   \todo{the above needs to be a \emph{weak} Sigma-type.  Need some
@@ -1547,7 +1550,7 @@ Instantiating the definition of Day convolution yields
   &= \int^{n_1,n_2} F_{n_1} \times G_{n_2} \times (\fin n \bij \fin
   {n_1 n_2}) \\
   &= ? \\
-  &= \sum_{d \mid n} F_d \times G_{n/d}
+  &= \biguplus_{d \mid n} F_d \times G_{n/d}
 \end{align*}
 
 % where $\otimes$ denotes the product monoidal structure on
