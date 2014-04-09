@@ -1051,15 +1051,27 @@ constructive type theory.
 
 We claim that an appropriate encoding of species within homotopy type
 theory is given by $[\BT, \Type]$, the category of functors from $\BT$
-to $\Type$.  We cannot directly justify this, say, by showing that
-$[\B,\Set]$ and $[\BT,\Type]$ are equivalent as categories.  Indeed,
-they are certainly \emph{not} equivalent. The problem is that $\Set$
+to $\Type$.  We cannot directly justify this by showing that
+$[\B,\Set]$ and $[\BT,\Type]$ are categorically equivalent.  Indeed,
+they are certainly \emph{not} equivalent! The problem is that $\Set$
 (and similarly $\B$) are ``too big'': there are many sets which do not
 correspond to any type definable in type theory.
 
 However, most working mathematicians do not actually make use of such
 ``exotic'' sets.  The constructions that mathematicians care about
-\todo{finish}
+are typically precisely those which can be encoded in type theory.  In
+order to justify $[\BT, \Type]$ as a constructive counterpart to $[\B,
+\Set]$, therefore, we must look at what operations and constructions
+are typically carried out on $[\B, \Set]$, and show that $[\BT,\Type]$
+supports them as well.
+
+In order to do this, we will look carefully at common operations on
+species, elucidating precisely which properties of $\B$ and $\Set$ are
+necessary to define them.  We then show that $\BT$ and $\Type$ share
+these properties.  This approach also opens the door to other
+generalizations of species which can also be shown to fit into the
+same framework.  We turn first to the operations of sum and Cartesian
+product of species.
 
 \section{Lifted monoids: sum and Cartesian product}
 
