@@ -171,7 +171,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% HoTT
 
-\newcommand{\ptrunc}[1]{\ensuremath{\||#1\||}}
+\newcommand{\ptrunc}[1]{\ensuremath{\left\||#1\right\||}}
 \newcommand{\id}{\cons{id}}
 
 \newcommand{\tygrpd}[1]{\ensuremath{\mathbf{G}(#1)}}
@@ -731,6 +731,8 @@ and then transporting along that path results in ``automatically''
 inserting the equivalence and its inverse in all the necessary places
 throughout the term being transported.
 
+\todo{Explain propositional truncation}
+
 \subsection{Finiteness}
 \label{sec:finiteness}
 
@@ -752,27 +754,55 @@ to define a functor $\fin - : \P \to \B$ which sends $n$ to $\fin n$
 and preserves morphisms.  Defining an inverse functor $\B \to \P$ is
 more problematic. Clearly we must send each set $S$ to its size $\size
 S$ (though even this is a bit suspect, from a constructive point of
-view: where exactly does this size come from?). However, a bijection $S
-\bij T$ must be sent to a bijection $\fin{\size S} \bij \fin{\size
+view: where exactly does this size come from?). However, a bijection
+$S \bij T$ must be sent to a bijection $\fin{\size S} \bij \fin{\size
   T}$, and intuitively we have no way to pick one: we would need to
 decide on a way to match up the elements of each set $S$ with the set
-of natural numbers $\fin{\size S}$.  In a sense it ``does not matter''
-what choice we make, since the results will be isomorphic in any case,
-and this is precisely where the axiom of choice comes in. \todo{Need
-  to think through this a bit more carefully.}
+of natural numbers $\fin{\size S}$.  In one sense, it does not matter
+what choice we make, since the results will be isomorphic in any case.
+This is precisely where the axiom of choice comes in: we may use it to
+arbitrarily choose bijections between each set $S$ and the
+corresponding set of natural numbers $\fin{\size S}$.
 
-\todo{Note that HoTT can express several variants on AC.  Some are
-  inherently non-constructive so we do not want to assert them.  There
-  is one variant which is simply provable, but in order to apply it we
-  need to already have evidence of a correspondence between arbitrary
-  finite sets and canonical finite sets of the same size.}
+\newcommand{\AC}{\mathsf{AC}}
 
-This leads us to the need for \emph{computational evidence of
-  finiteness}.
+Several variants of the axiom of choice can be expressed within
+homotopy type theory.  A ``na\"ive'' variant, referred to as
+$\AC_\infty$, is given by
+\begin{equation} \tag{$\AC_\infty$}
+  \label{eq:ac-infty}
+  \left( \prod_{x : X} \sum_{(a : A(x))} P(x,a) \right) \iso \left(
+    \sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x)) \right)
+\end{equation}
+This variant is actually \emph{provable} within the theory; however,
+it is of little use here, since rather than just requiring a family of
+``nonempty'' sets, it actually requires, for each $x$, an explicit
+\emph{witness} $a : A(x)$ for which the property $P(x,a)$ holds.  That
+is, it requires that we have already made a choice for each $x$.
 
-\todo{$\infty$-groupoids?}
+There is another variant, referred to as $\AC_{-1}$ or simply $\AC$,
+that corresponds more closely to the axiom of choice in set theory:
+\begin{equation} \tag{$\AC$}
+  \label{eq:AC}
+  \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
+    \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
+\end{equation}
+While this is not provable in the theory, it is consistent to assume
+it as an axiom.  However, this is unsatisfactory: as an axiom, it has
+no computational interpretation, and is therefore unsuitable for
+constructing a functor with computational content.
 
-First, we define a counterpart to $\P$ in type theory:
+\todo{There is something funny going on here with groupoids
+  vs. $\infty$-groupoids.  Should figure out how much of a difference
+  this makes.  At the very least we should mention that we are aware
+  of the issues.}
+
+We therefore reject the use of the axiom of choice.  Our goal will now
+be to build groupoids $\PT$ and $\BT$ which are type-theoretic
+counterparts to $\P$ and $\B$, with computable functors between them
+witnessing their equivalence.
+
+First, defining a counterpart to $\P$ is straightforward:
 \begin{defn}
   $\PT$ is the groupoid where
   \begin{itemize}
@@ -783,26 +813,39 @@ First, we define a counterpart to $\P$ in type theory:
   \end{itemize}
 \end{defn}
 
-We also note the following evident way to build an $\infty$-groupoid
-out of any type:
+Constructing a counterpart to $\B$, however, is more subtle. What does
+it mean, constructively, for a type to be finite?  There are actually
+several possible answers to this question
+\cite{nlab-finiteness}. Taking our cue from the discussion above,
+however, we note that what was missing was a choice of bijections $S
+\bij \fin{\size S}$: such bijections can be thought of precisely as
+evidence of the finiteness of $S$.  This is the most straightforward
+definition of constructive finiteness, and the one we adopt here.
+More formally, a finite type is one with some natural number size $n$,
+and an equivalence between the type and $\Fin n$, that is, inhabitants
+of $\FinType$, where
+\[ \FinType \defeq (A : \Type) \times (n : \N) \times (\Fin n \iso
+A). \]
+
+We need to build a groupoid having such finite types as objects, and
+equivalences between them as morphisms.  Via univalence, we may
+conveniently package up such equivalences as paths.  We therefore note
+the following evident way to build an $\infty$-groupoid out of any
+type:
 \begin{defn}
   For any type $A$, the $\infty$-groupoid $\tygrpd{A}$ has as it
   objects values $a : A$, as its $1$-morphisms paths $a = b$ between
   objects, as $2$-morphisms paths between paths, and so on.
 \end{defn}
 
-What does it mean, constructively, for a type to be finite?  There are
-actually several possible answers to this question
-\cite{nlab-finiteness}. The most straightforward answer suffices for
-our purposes, namely, that a finite type is one with some natural
-number size $n$, and an equivalence between the type and $\Fin n$.
-That is, finite types are inhabitants of $\FinType$, where
-\[ \FinType \defeq (A : \Type) \times (n : \N) \times (\Fin n \iso
-A). \] As a first try at defining a constructive counterpart to $\B$,
-we therefore consider $\tygrpd{\FinType}$: finite types with paths
-between them.  However, this does not work! The explicit evidence of
-finiteness is actually too strong, and collapses all the interesting
-groupoid structure.
+As a first try at defining a constructive counterpart to $\B$, we
+therefore consider $\tygrpd{\FinType}$: finite types with paths
+between them.  Unfortunately, this does not work! Intuitively, the
+problem is that the paths are between not only the types in question
+but also between the evidence of their finiteness, so that a path
+between two types requires them to be finite ``in the same way''.
+
+\todo{Give some intuition.  Use triangle picture.}
 
 \begin{prop}
   There is at most one morphism between any two objects of
@@ -811,10 +854,13 @@ groupoid structure.
   homotopy type theory, $\FinType$ is a set, \ie a $0$-type.)
 \end{prop}
 
-\todo{Give some intuition.  Use triangle picture.}
-
 \begin{proof}
-  \todo{prove me.}
+  \todo{prove me?  Or omit proof for space?  The proof involves
+    unrolling the meaning of a path between sigma-types (using some
+    theorems from the HoTT book), proving that the transport of an
+    equivalence is given by composition (which can be proved by path
+    induction), and then using path induction on $p_1$ and $p_2$ to
+    show that $p_1 = p_2$ is inhabited by $\mathsf{refl}$.}
 \end{proof}
 
 The next thing to try is thus $\tygrpd{\FinTypeT}$, where \[ \FinTypeT
