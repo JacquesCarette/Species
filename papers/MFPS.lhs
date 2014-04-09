@@ -863,50 +863,56 @@ between two types requires them to be finite ``in the same way''.
     show that $p_1 = p_2$ is inhabited by $\mathsf{refl}$.}
 \end{proof}
 
-The next thing to try is thus $\tygrpd{\FinTypeT}$, where \[ \FinTypeT
-\defeq (A : \Type) \times (n : \N) \times \ptrunc{\Fin n \iso A} \]
-This does give us the right groupoid structure, and we can prove that
-it is equivalent to $\PT$---as long as equivalence of categories is a
-mere proposition! \todo{explain why} \todo{Aren't there any tricks we
-  can pull to uniquely characterize the functor we're trying to
-  construct?} Equivalence as a mere proposition is not all that
-useful, however. We want to define a functor $\tygrpd{\FinTypeT} \to
-\PT$ that we can actually compute with, but we cannot since it needs
-the equivalences in a computationally relevant way.
+Since the problem with this approach was paths between evidence of
+finiteness imposing too strong of a constraint, we next try using the
+\emph{propositional truncation} of finiteness evidence.  That is, we
+consider $\tygrpd{\FinTypeT}$, where \[ \FinTypeT \defeq (A : \Type)
+\times (n : \N) \times \ptrunc{\Fin n \iso A}. \] A path between two
+inhabitants of $\FinTypeT$ is now unconstrained by the finiteness
+evidence (there is always a path between any two inhabitants of a
+propositional truncation), and hence equivalent to a path between
+their underlying types.  This does yield the right groupoid
+structure. However, we now have a different problem: we can only prove
+that $\tygrpd{\FinTypeT}$ is equivalent to $\PT$ if we treat
+equivalence of categories is a mere proposition. The reason is that
+the recursion principle for propositional truncation only allows
+making use of the contained finiteness evidence if it is in the
+service of constructing an inhabitant of a mere proposition.  This
+ensures that the precise content of the truncation cannot ``leak''.
+However, since our goal is to construct computationally relevant
+functors witnessing the equivalence, equivalence as a mere proposition
+is unsatisfactory.
 
-In the end, we are forced to give up on constructing a groupoid via
-$\tygrpd{-}$, and define $\BT$ as follows.
+Our third attempt goes though, however.  Instead of relying directly
+on $\tygrpd{-}$, we can define $\BT$ as follows:
 
 \begin{defn}
-$\BT$ is the groupoid where
+Define the $\infty$-groupoid $\BT$ where
 \begin{itemize}
 \item the objects are values of type $\FinType \defeq (A : \Type) \times (n : \N)
-\times (\Fin n \iso A)$, and
-\item morphisms $\mor{(A,m,i)}{(B,n,j)}$ are equivalences $A \iso B$.
+\times (\Fin n \iso A)$,
+\item $1$-morphisms $\mor{(A,m,i)}{(B,n,j)}$ are paths $A = B$, and
+\item higher morphisms are paths between paths, and so on.
 \end{itemize}
 \end{defn}
 
-That is, morphisms simply ignore the equivalences contained in
-objects.
+That is, we do not hide finiteness evidence in a propositional
+truncation, but morphisms simply ignore the finiteness evidence.  This
+may seem strange: we go to the trouble of adding extra computational
+evidence to objects, but then the next minute we turn around and say
+that the additional evidence is irrelevant after all!  However, the
+point is that although the extra evidence may be irrelevant to
+\emph{morphisms}, functors out of the category may still make use of
+it (see \pref{defn:size}).  Instead of having to make an arbitrary
+choice of isomorphism when mapping out of an object, we ``blow up''
+the category by making a separate object for each possible choice, but
+ensure that objects which differ only by this choice are isomorphic.
 
 \begin{rem}
   Note that given a morphism $e : \mor {(A,m,i)} {(B,n,j)}$, it is
   provably the case that $m \equiv n$.  In particular, $i \then e \then j^{-1} :
   \Fin m \iso \Fin n$, from which we may prove $m \equiv n$ by double
   induction.
-\end{rem}
-
-\begin{rem}
-  This may seem a bit funny: we go to the trouble of adding extra
-  computational evidence to objects, but then the next minute we turn
-  around and say that the additional evidence is irrelevant after all!
-  However, the point is that although the extra evidence may be
-  irrelevant to \emph{morphisms}, functors out of the category may
-  still make use of it (see \pref{defn:size}).  Instead of having to
-  make an arbitrary choice of isomorphism when mapping out of an
-  object, we ``blow up'' the category by making a separate object for
-  each possible choice, but ensure that objects which differ only by
-  this choice are isomorphic.
 \end{rem}
 
 \begin{defn}
@@ -990,18 +996,16 @@ constructive type theory.
   overload the notation $\Type$ to also denote the category whose
   \begin{itemize}
   \item objects are types classified by $\Type_0$, and
-  \item morphisms $A \to B$ are functions with the given type.
+  \item morphisms $\mor A B$ are functions with the given type.
   \end{itemize}
 \end{defn}
 
 We claim that an appropriate encoding of species within homotopy type
 theory is given by $[\BT, \Type]$, the category of functors from $\BT$
-to $\Type$.
-
-We cannot directly justify this, say, by showing that $[\B,\Set]$ and
-$[\BT,\Type]$ are equivalent as categories.  Indeed, they are
-certainly \emph{not} equivalent. The problem is that $\Set$ (and
-similarly $\B$) are ``too big'': there are many sets which do not
+to $\Type$.  We cannot directly justify this, say, by showing that
+$[\B,\Set]$ and $[\BT,\Type]$ are equivalent as categories.  Indeed,
+they are certainly \emph{not} equivalent. The problem is that $\Set$
+(and similarly $\B$) are ``too big'': there are many sets which do not
 correspond to any type definable in type theory.
 
 However, most working mathematicians do not actually make use of such
