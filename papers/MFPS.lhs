@@ -1090,79 +1090,23 @@ identity for the sum of sets.
 \newcommand{\lotimes}{\mathbin{\lifted{\otimes}}}
 
 This same construction works in a much more general setting.  In fact,
-any monoidal structure on a category $\Str$ lifts pointwise to a
-corresponding monoidal structure on the functor category $[\Lab,
-\Str]$. The basic idea is exactly the same as the standard Haskell
-type class instance
+any monoidal structure $(\otimes, I, \alpha, \lambda, \rho)$ on a
+category $\Str$ lifts pointwise to a corresponding monoidal structure
+$(\lotimes, \lifted I, \lifted \alpha, \lifted \lambda, \lifted \rho)$
+on the functor category $[\Lab, \Str]$. The basic idea is exactly the
+same as the standard Haskell type class instance
 \begin{spec}
 instance Monoid a => Monoid (e -> a) where
   mempty         = \ _ -> mempty
   f `mappend` g  = \a -> f a `mappend` g a
 \end{spec}
-but quite a bit more general.  The construction will be entirely
-unsurprising to a category theorist, but is included here for
-completeness.
-\begin{defn}
-  Given a monoidal structure $(\otimes, I, \alpha, \lambda, \rho)$ on
-  a category $\Str$, define $(\lifted{\otimes}, \lifted{I},
-  \lifted{\alpha}, \lifted{\lambda}, \lifted{\rho})$ as follows.
-  \begin{itemize}
-  \item $\lifted{\otimes} : [\Lab,\Str] \times [\Lab,\Str] \to [\Lab,\Str]$ is the
-    bifunctor computing the lifted monoidal product.
-    \begin{itemize}
-    \item On objects, $\lotimes$ sends pairs of functors $F,G : \Lab \to
-      \Str$ to the functor $F \lotimes G : \Lab \to \Str$, defined as the
-      pointwise tensor product of $F$ and $G$.  That is, on objects of
-      $\Lab$, \[ (F \lotimes G)\ L = F\ L \otimes G\ L, \] and similarly, on
-      morphisms \[ (F \lotimes G)\ f = F\ f \otimes G\ f. \]
-      Functoriality of $F \lotimes G$ follows from that of $F$, $G$,
-      and $\otimes$:
-      \begin{align*}
-        (F \lotimes G)\
-        id &= F\ id \otimes G\ id = id \otimes id = id, \text{and} \\
-        (F \lotimes G) (f \comp g) &= F\ (f \comp g) \otimes G\ (f
-        \comp
-        g) \\
-        &= (F\ f \comp F\ g) \otimes (G\ f \comp G\ g) \\
-        &= (F\ f \otimes G\ f) \comp (F\ g \otimes G\ g) \\
-        &= (F \lotimes G)\ f \comp (F \lotimes G)\ g.
-      \end{align*}
-
-    \newcommand{\nt}{\stackrel{\bullet}{\rightarrow}}
-
-  \item $\lotimes$ also sends pairs of natural transformations $\phi :
-    F \nt G : \Lab \to \Str$, $\psi : F' \nt G' : \Lab \to \Str$ to a
-    natural transformation $\phi \lotimes \psi : F \lotimes F' \nt G
-    \lotimes G'$, defined by \todo{finish}. Naturality of $\phi
-    \lotimes \psi$ is given by \todo{finish}.
-
-% \[ \xymatrix{ F\ L
-%       \ar[r]^{\phi_L \otimes \psi_L} \ar[d]_{F f} & G\ L \ar[d]^{G f} \\
-%       F\ L' \ar[r]_{\phi_{L'} \otimes \psi_{L'}} & G\ L' } \]
-    \end{itemize}
-
-    Functoriality of $\lotimes$ XXX:
-
-    \begin{align*}
-      id \lotimes id =
-    \end{align*}
-
-  \item $\lifted{I} \in [\Lab,\Str]$ is the constant functor $\Delta_I$.
-  \item $\lifted{\alpha}$ \todo{finish}
-  \item $\lifted{\lambda}$ \todo{finish}
-  \item $\lifted{\rho}$ \todo{finish}
-  \end{itemize}
-\end{defn}
-
-\begin{thm}
-  If $(\otimes, I, \alpha, \lambda, \rho)$ is a monoidal structure on
-  $\Str$, then $(\lotimes, \lifted I, \lifted \alpha, \lifted \lambda,
-  \lifted \rho)$ defines a monoidal structure on the functor category
-  $[\Lab, \Str]$.
-\end{thm}
-\begin{proof}
-  It remains to check the coherence properties. \todo{Finish}
-\end{proof}
+but quite a bit more general.  We omit the precise details and proofs,
+partly in the interest of space, and partly because the details would
+be entirely unsurprising to a category theorist. For the present
+purposes the intuition given by the above Haskell code should suffice;
+to understand the basic intuition behind the proof, the reader may
+enjoy proving that the above |Monoid| instance for |e -> a| satisfies
+the monoid laws if the instance for |a| does.
 
 \begin{prop}
   The monoidal lifting defined above preserves the following properties:
@@ -1172,9 +1116,6 @@ completeness.
   \item If $\otimes$ is a categorical coproduct, so is $\lotimes$.
   \end{itemize}
 \end{prop}
-\begin{proof}
-  \todo{Finish}
-\end{proof}
 
 Since $(+,\varnothing)$ is a coproduct structure on $\Set$, it follows
 that $(+, \Zero)$ is in fact a coproduct structure on the category of
