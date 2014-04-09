@@ -43,7 +43,7 @@
 \usepackage{prettyref}
 
 \newrefformat{fig}{Figure~\ref{#1}}
-\newrefformat{sec}{\S\ref{#1}}
+\newrefformat{sec}{\Sect\ref{#1}}
 \newrefformat{eq}{equation~\eqref{#1}}
 \newrefformat{prob}{Problem~\ref{#1}}
 \newrefformat{tab}{Table~\ref{#1}}
@@ -555,7 +555,7 @@ satisfying the following functoriality conditions:
 
 We call $F[U]$ the set of ``$F$-shapes with labels drawn from $U$'',
 or simply ``$F$-shapes on $U$'', or even (when $U$ is clear from
-context) just ``$F$-shapes''.\footnote{Margaret Readdy's translation
+context) just ``$F$-shapes''.\footnote{Margaret Readdy's English translation
   of Bergeron \etal \cite{bll} uses the word ``structure'' instead of
   ``shape'', but that word is likely to remind computer scientists of
   ``data structures'', which is the wrong association: data structures
@@ -640,7 +640,9 @@ We next define the categories $\BT$ and $\Type$ in the context of
 \term{homotopy type theory}. This section begins by summarizing the most
 important ideas and notation of HoTT; interested readers should consult the
 HoTT book~\cite{hottbook} for more details.
-\scw{Where do we explain why HoTT? Should we move that discussion here.}
+\scw{Where do we explain why HoTT? Should we move that discussion
+  here.} \bay{Well, the following paragraph was supposed to be a start
+  in that direction.  Obviously it needs to be fleshed out.}
 
 \scw{These comments would be better later, it is more of an observation than
   an explanation.}
@@ -714,14 +716,20 @@ identical.  It is important to keep in mind that an equality $e : A =
 B$ can thus have nontrivial computational content.  In other words, $A
 = B$ means not that $A$ and $B$ are identical, but merely that they
 can be used interchangeably---and moreover, interchanging them may
-require some work, computationally speaking.  As of yet, univalence
-has no direct computational interpretation, so making use of it in a
-computational setting may seem suspect. Note, however, that
-$\transport{X \mapsto X}{\ua(f)} = f$, where $\ua : (A \iso B) \to (A
-= B)$ denotes (one direction of) the univalence axiom. So univalence
-introduces no computational problems as long as applications of $\ua$
-are only ultimately used via $\mathsf{transport}$.\scw{We should ensure that
-  our applications have this property.}
+require some work, computationally speaking.
+
+As of yet, univalence has no direct computational interpretation, so
+making use of it in a computational setting may seem suspect. Note,
+however, that $\transport{X \mapsto X}{\ua(f)} = f$, where $\ua : (A
+\iso B) \to (A = B)$ denotes (one direction of) the univalence
+axiom. So univalence introduces no computational problems as long as
+applications of $\ua$ are only ultimately used via
+$\mathsf{transport}$. \scw{We should ensure that our applications have
+  this property.}  In this case univalence is being used only as a
+sort of convenient shorthand: packaging up an equivalence into a path
+and then transporting along that path results in ``automatically''
+inserting the equivalence and its inverse in all the necessary places
+throughout the term being transported.
 
 \subsection{Finiteness}
 \label{sec:finiteness}
@@ -743,15 +751,15 @@ equivalent requires the axiom of choice.  In more detail, it is easy
 to define a functor $\fin - : \P \to \B$ which sends $n$ to $\fin n$
 and preserves morphisms.  Defining an inverse functor $\B \to \P$ is
 more problematic. Clearly we must send each set $S$ to its size $\size
-S$ (though even this is a bit suspect: where exactly does this size
-come from?). However, a morphism $S \bij T$ must be sent to some
-bijection $\fin{\size S} \bij \fin{\size T}$, and intuitively we have
-no way to pick one: we would need to decide on a way to match up the
-elements of each set $S$ with the set of natural numbers $\fin{\size
-  S}$.  In a sense it ``does not matter'' what choice we make, since
-the results will be isomorphic in any case, and this is precisely
-where the axiom of choice comes in. \todo{Need to think through this a
-  bit more carefully.}
+S$ (though even this is a bit suspect, from a constructive point of
+view: where exactly does this size come from?). However, a bijection $S
+\bij T$ must be sent to a bijection $\fin{\size S} \bij \fin{\size
+  T}$, and intuitively we have no way to pick one: we would need to
+decide on a way to match up the elements of each set $S$ with the set
+of natural numbers $\fin{\size S}$.  In a sense it ``does not matter''
+what choice we make, since the results will be isomorphic in any case,
+and this is precisely where the axiom of choice comes in. \todo{Need
+  to think through this a bit more carefully.}
 
 \todo{Note that HoTT can express several variants on AC.  Some are
   inherently non-constructive so we do not want to assert them.  There
@@ -775,14 +783,26 @@ First, we define a counterpart to $\P$ in type theory:
   \end{itemize}
 \end{defn}
 
-\todo{Define $\tygrpd{-}$.}
+We also note the following evident way to build an $\infty$-groupoid
+out of any type:
+\begin{defn}
+  For any type $A$, the $\infty$-groupoid $\tygrpd{A}$ has as it
+  objects values $a : A$, as its $1$-morphisms paths $a = b$ between
+  objects, as $2$-morphisms paths between paths, and so on.
+\end{defn}
 
-As a first try at defining a constructive counterpart to $\B$, we
-consider $\tygrpd{\FinType}$, where
+What does it mean, constructively, for a type to be finite?  There are
+actually several possible answers to this question
+\cite{nlab-finiteness}. The most straightforward answer suffices for
+our purposes, namely, that a finite type is one with some natural
+number size $n$, and an equivalence between the type and $\Fin n$.
+That is, finite types are inhabitants of $\FinType$, where
 \[ \FinType \defeq (A : \Type) \times (n : \N) \times (\Fin n \iso
-A). \] However, this does not work: the explicit evidence of
-finiteness is too strong, and collapses all the interesting groupoid
-structure.
+A). \] As a first try at defining a constructive counterpart to $\B$,
+we therefore consider $\tygrpd{\FinType}$: finite types with paths
+between them.  However, this does not work! The explicit evidence of
+finiteness is actually too strong, and collapses all the interesting
+groupoid structure.
 
 \begin{prop}
   There is at most one morphism between any two objects of
