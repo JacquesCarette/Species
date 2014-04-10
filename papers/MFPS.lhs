@@ -403,7 +403,7 @@ before recasting them in the context of homotopy type theory in
 \todo{Somewhere we need to say what category theory background we
   assume (and spell out the things we don't assume).}
 
-\section{Species in Set Theory}
+\section{Species in set theory}
 \label{sec:species}
 
 In set theory, we define species as \emph{labeled structures}---structures
@@ -921,14 +921,12 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
   homotopy type theory, $\FinType$ is a set, \ie a $0$-type.)
 \end{prop}
 
-\begin{proof}
-  \todo{prove me?  Or omit proof for space?  The proof involves
-    unrolling the meaning of a path between sigma-types (using some
-    theorems from the HoTT book), proving that the transport of an
-    equivalence is given by composition (which can be proved by path
-    induction), and then using path induction on $p_1$ and $p_2$ to
-    show that $p_1 = p_2$ is inhabited by $\mathsf{refl}$.}
-\end{proof}
+\begin{proof*}{Proof (sketch).}
+  A path $(A_1, n_1, e_1) = (A_2, n_2, e_2)$ is equivalent to $(p :
+  A_1 = A_2) \times (q : n_1 = n_2) \times (q_*(p_*(e_1)) = e_2)$.
+  Noting that $p_*(e_1)$, in particular, is given by the composition
+  of $p$ with $e_1$, and \todo{finish}
+\end{proof*}
 
 Since the problem with this approach was paths between evidence of
 finiteness imposing too strong of a constraint, we next try using the
@@ -1052,7 +1050,7 @@ pair of inverse equivalences in each of the following two diagrams:
 \end{proof}
 \end{prop}
 
-\subsection{Species in Constructive Type Theory}
+\section{Species in constructive type theory}
 \label{sec:constructive-species}
 
 Our goal is to port the theory of species from set theory into
