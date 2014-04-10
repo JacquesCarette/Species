@@ -387,7 +387,7 @@ More specifically, the contributions of this paper are:
   constructive type theory (\pref{sec:constructive-species}).% , characterizing
   % them as functors from a finite collection of labels to structures.
 \item As part of our port to type theory, we generalize common operations on
-  species, including sum, partitional and Cartesian product, 
+  species, including sum, partitional and Cartesian product,
   carefully analyzing their requirements to insure consistency
   with our new interpretation.
 % remove 'arithmetic product' from this list since it is far from 'common'!
@@ -1354,6 +1354,7 @@ analogous way, via a categorical construction known as \emph{Day
   convolution}.
 
 \subsection{Partitional product}
+\label{sec:partitional-product}
 
 The partitional product $F \sprod G$ of two species $F$
 and $G$ consists of paired $F$- and $G$-shapes, but with a twist:
@@ -1414,6 +1415,28 @@ other summands).
   \end{cases}
   \]
 \end{defn}
+
+\subsection{Arithmetic product}
+\label{sec:arithmetic-product}
+
+\newcommand{\aprod}{\boxtimes}
+
+There is another, more recently discovered monoidal structre on
+species known as \emph{arithmetic product} \cite{Maia2008arithmetic}.
+The arithmetic product of species $F$ and $G$, written $F \aprod G$,
+can intuitively be thought of as an ``$F$-assembly of cloned
+$G$-shapes'', that is, an $F$-shape containing multiple copies of a
+single $G$-shape.  Unlike the usual notion of composition, where the
+$F$-shape would be allowed to contain many different $G$-shapes, this
+notion is symmetric: an $F$-assembly of cloned $G$-shapes is
+isomorphic to a $G$-assembly of cloned $F$-shapes.  Another intuitive
+way to think of the arithmetic product, which points out the symmetry
+more clearly, is to think of a rectangular matrix of labels,
+together with an $F$-shape labelled by the rows of the grid, and a
+$G$-shape labelled by the columns.  We omit a more formal definition
+in the interest of space; in any case, a formal definition can be
+extracted from the more general definition in terms of Day convolution
+in the next section.
 
 \subsection{Day convolution}
 \label{sec:day-convolution}
@@ -1517,6 +1540,40 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 \end{example}
 
 \begin{example}
+  \todo{edit}
+  There is another monoidal structure on $\B$ (and similarly on $\P$
+  and $\N$) corresponding to the \emph{product} of sets/natural
+  numbers.  If we instantiate the framework of Day convolution with
+  this product-like monoidal structure instead of the coproduct-like
+  structure used to define partitional product---but keep everything
+  else the same, in particular continuing to use products on
+  $\Set$---we obtain an operation known as \term{arithmetic product}
+  \cite{arithmetic-product}.
+\end{example}
+
+\begin{example}
+  Let's examine this in detail in the case of $[\P,\Set]$.  The
+  monoidal structure on $\P$ is defined on objects as $m \otimes n =
+  mn$.  On morphisms, given $f : \fin m \bij \fin m$ and $g : \fin n
+  \bij \fin n$, we have $f \otimes g : \fin{mn} \bij \fin{mn}$ defined
+  by \todo{finish}.
+
+  Instantiating the definition of Day convolution yields
+  \begin{align*}
+    (F \boxtimes G)\ n &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times
+    \P(n, n_1n_2) \\
+    &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times (\fin n \bij \fin
+    {n_1 n_2}) \\
+    &= ? \\
+    &= \biguplus_{d \mid n} F\ d \times G\ (n/d)
+  \end{align*}
+
+  % where $\otimes$ denotes the product monoidal structure on $\B$.
+  % We cannot write this quite as nicely as partitional product, since
+  % there is no canonical way to decompose
+\end{example}
+
+\begin{example}
   It remains to verify that $\BT$ and $\Type$ have the right properties.
   \begin{itemize}
   \item \todo{Monoidal coproduct structure on $\BT$}
@@ -1542,49 +1599,6 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 
 \todo{Show that $\BT/\PT$ along with \Type\ have the right properties,
 instantiate framework to show how it comes out.}
-
-\subsection{Arithmetic product}
-\label{sec:arithmetic-product}
-
-There is another monoidal structure on $\B$ (and similarly on $\P$ and
-$\N$) corresponding to the \emph{product} of sets/natural numbers.  If
-we instantiate the framework of Day convolution with this product-like
-monoidal structure instead of the coproduct-like structure used to
-define partitional product---but keep everything else the same, in
-particular continuing to use products on $\Set$---we obtain an
-operation known as \term{arithmetic product}
-\cite{arithmetic-product}.
-
-Let's examine this in detail in the case of $[\P,\Set]$.  The monoidal
-structure on $\P$ is defined on objects as $m \otimes n = mn$.  On
-morphisms, given $f : \fin m \bij \fin m$ and $g : \fin n \bij \fin
-n$, we have $f \otimes g : \fin{mn} \bij \fin{mn}$ defined by \todo{finish}.
-
-Instantiating the definition of Day convolution yields
-\begin{align*}
-  (F \boxtimes G)\ n &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times
-  \P(n, n_1n_2) \\
-  &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times (\fin n \bij \fin
-  {n_1 n_2}) \\
-  &= ? \\
-  &= \biguplus_{d \mid n} F\ d \times G\ (n/d)
-\end{align*}
-
-% where $\otimes$ denotes the product monoidal structure on
-% $\B$.  We cannot write this quite as nicely as partitional product,
-% since there is no canonical way to decompose
-
-The intuition behind this operation is that we end up with a
-``matrix'' of labels, with an $F$-shape on the ``rows'' and a
-$G$-shape on the ``columns''.
-
-\todo{picture}
-
-\todo{examples}
-
-\bay{How can we say that we are using ``the same'' ``product-like''
-  monoidal structure in all these different categories?  Are they
-  related by monoidal functors?}
 
 \section{Other constructions}
 
