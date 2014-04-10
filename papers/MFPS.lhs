@@ -349,8 +349,13 @@ are mainly concerned with enumerating and generating abstract structures, not
 with storing and computing with data.  Thus, in order to apply this theory in
 a computational setting, there are hidden assumptions and glossed
 distinctions that must first be made explicit.  Second, being situated in
-traditional mathematical practice rooted in set theory%
-\footnote{notwithstanding the fact that the foundational work is categorical}, 
+traditional mathematical practice rooted in set theory,
+% \footnote{notwithstanding the fact that the foundational work is
+%   categorical},
+\bay{I removed this footnote because I don't understand its point.
+  Category theory has only relatively recently been appropriated by
+  computer science; to say that something is categorical in no way
+  implies that it has a computational flavor.}%
 species are described in ways that are \emph{untyped} and
 \emph{nonconstructive}, both of which hinder adoption and understanding in a
 computational context.
@@ -572,12 +577,18 @@ these categories in the next section.
 \label{sec:prelim}
 
 We next define the categories $\BT$ and $\Type$ in the context of
-\term{homotopy type theory} (HoTT).  Intuitively, the category $\BT$ should
-capture the idea of ``constructively finite types'', corresponding to the
-finite sets of $\B$. Intuitively, we can define finiteness in type theory by
-presenting an equivalence to some type that we already know to be finite. We
-choose to work in HoTT because its univalence axiom simplifies working with
-equivalences.  \todo{Why bother encoding finiteness in type theory?}\scw{I'm
+\term{homotopy type theory} (HoTT).  Intuitively, the category $\BT$
+should capture the idea of ``constructively finite types'',
+corresponding to the finite sets of $\B$. Intuitively, we can define
+finiteness in type theory by presenting an equivalence to some type
+that we already know to be finite. We choose to work in HoTT because
+its univalence axiom simplifies working with equivalences.  \bay{It
+  goes much deeper than this; it is no longer the case that we are
+  just using HoTT for convenience but could just as easily use some
+  other type theory (as we tried to argue in our earlier paper).  I
+  will try to write a clearer account of this later, but first I need
+  to write the section explaining how coends work out in
+  HoTT.}\todo{Why bother encoding finiteness in type theory?}\scw{I'm
   not sure we have a good answer to this question.}
 
 This section begins by summarizing the most important ideas and notation of
@@ -695,7 +706,7 @@ equivalent requires the axiom of choice.  In more detail, it is easy
 to define a functor $\fin - : \P \to \B$ which sends $n$ to $\fin n$
 and preserves morphisms.  Defining an inverse functor $\size - : \B \to \P$ is
 more problematic. Clearly we must send each set $S$ to its size $\size
-S$ %(though even this is a bit suspect, from a constructive point of
+S$. %(though even this is a bit suspect, from a constructive point of
 %view: where exactly does this size come from?). 
 However, a bijection
 $S \bij T$ must be sent to a bijection $\fin{\size S} \bij \fin{\size
@@ -752,7 +763,13 @@ Defining a counterpart to $\P$ is straightforward:
   \item the objects are natural numbers, that is,
     values of type $\N$, and
   \item the morphisms $\mor m n$ are equivalences of type $\Fin m \iso
-    \Fin n$.\scw{I'm not sure I understand what this means. How does it type check?}
+    \Fin n$.\scw{I'm not sure I understand what this means. How does
+      it type check?}\bay{Between any two objects there has to be a
+      set of morphisms.  We simply define the set of morphisms between
+      $m$ and $n$ to be inhabitants of the type $\Fin m \iso \Fin n$.
+      (Of course, there are no inhabitants unless $m = n$.) Does that
+      make sense?  What is it that confuses you?  How could we make
+      this clearer?}
   \end{itemize}
 \end{defn}
 
@@ -850,25 +867,30 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
   of $p$ with $e_1$, and \todo{finish}
 \end{proof*}
 
-Since the problem with this approach was paths between evidence of finiteness
-imposing too strong of a constraint, we next try using the \emph{propositional
-  truncation}\footnote{The propositional truncation of a type 
-  ``squashes'' the type down to a mere proposition, forgetting all information
-  contained in its inhabitants other than their existence.} of
-finiteness evidence.  That is, we consider $\tygrpd{\FinTypeT}$, where \[
-\FinTypeT \defeq (A : \Type) \times (n : \N) \times \ptrunc{\Fin n \iso A}. \]
-A path between two inhabitants of $\FinTypeT$ is now unconstrained by the
-finiteness evidence (there is always a path between any two inhabitants of a
-propositional truncation), and hence equivalent to a path between their
-underlying types.  This does yield the right groupoid structure. However, we
-now have a different problem: we can only prove that $\tygrpd{\FinTypeT}$ is
-equivalent to $\PT$ if we treat equivalence of categories is a mere
-proposition. The reason is that the recursion principle for propositional
-truncation only allows making use of the contained finiteness evidence if it
-is in the service of constructing an inhabitant of a mere proposition.  This
-ensures that the precise content of the truncation cannot ``leak''.  However,
-since our goal is to construct computationally relevant functors witnessing
-the equivalence, equivalence as a mere proposition is unsatisfactory.
+Since the problem with this approach was paths between evidence of
+finiteness imposing too strong of a constraint, we next try using the
+\emph{propositional truncation}\footnote{The propositional truncation
+  of a type ``squashes'' the type down to a mere proposition, by
+  adding a path between every pair of inhabitants. Intuitively, this
+  can be thought of as ``forgetting'' all information contained in the
+  inhabitants other than their existence, though the reality is quite
+  a bit more subtle.} of finiteness evidence.
+That is, we consider $\tygrpd{\FinTypeT}$, where \[ \FinTypeT \defeq
+(A : \Type) \times (n : \N) \times \ptrunc{\Fin n \iso A}. \] A path
+between two inhabitants of $\FinTypeT$ is now unconstrained by the
+finiteness evidence (there is always a path between any two
+inhabitants of a propositional truncation), and hence equivalent to a
+path between their underlying types.  This does yield the right
+groupoid structure. However, we now have a different problem: we can
+only prove that $\tygrpd{\FinTypeT}$ is equivalent to $\PT$ if we
+treat equivalence of categories is a mere proposition. The reason is
+that the recursion principle for propositional truncation only allows
+making use of the contained finiteness evidence if it is in the
+service of constructing an inhabitant of a mere proposition.  This
+ensures that the precise content of the truncation cannot ``leak''.
+However, since our goal is to construct computationally relevant
+functors witnessing the equivalence, equivalence as a mere proposition
+is unsatisfactory.
 
 Our third attempt goes though, however.  Instead of relying directly
 on $\tygrpd{-}$, we can define $\BT$ as follows:
@@ -1207,7 +1229,7 @@ instance for |e -> a| satisfies the monoid laws if the instance for
 \begin{example}
   We note that lifting coproducts in $\Set$ to $[\B,\Set]$ yields $(+,
   \Zero)$, and likewise lifting products yields $(\times,
-  \E)$. 
+  \E)$.
 \end{example}
 % Since $(\uplus,\varnothing)$ is a coproduct structure on $\Set$, it
 % follows that $(+, \Zero)$ is in fact a coproduct structure on the
