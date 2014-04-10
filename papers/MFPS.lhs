@@ -639,6 +639,12 @@ categories $\BT$ and $\Type$ so that $[\BT, \Type]$ is a
 that these type-theory based categories have the right properties, we
 will be able to use them with our generalized definitions.
 
+When otherwise unqualified, we will continue to use the word
+``species'' to refer to functors in $[\B, \Set]$, that is, to
+``traditional'' species.  Other, generalized notions of species will
+be referred to according to their corresponding functor category, \eg
+``$[\BT,\Type]$-species''.
+
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
 
@@ -1085,12 +1091,6 @@ same framework.  We turn first to the operations of sum and Cartesian
 product of species.
 
 \section{Lifted monoids: sum and Cartesian product}
-
-\scw{In this section and the following, I'm not always sure whether by ``species'' we mean
-$[\B,\Set]$ or $[\BT, \Type]$.} \bay{I intended to reserve the word
-``species'' for $[\B, \Set]$, and to speak of ``generalized species''
-or something like that in other cases.  I guess we should probably
-make this terminological choice explicit.}
 
 Two of the simplest operations on species are the \emph{sum} and
 \emph{Cartesian product}.  As we will see, these operations are
