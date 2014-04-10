@@ -77,9 +77,11 @@
 \ifcomments
 \newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\chaptertodo}[1]{\textcolor{gray}{[TODO (Later): #1]}}
 \else
 \newcommand{\authornote}[3]{}
 \newcommand{\todo}[1]{}
+\newcommand{\chaptertodo}[1]{}
 \fi
 
 \newcommand{\bay}[1]{\authornote{blue}{BAY}{#1}}
@@ -421,10 +423,9 @@ Similarly, the
 species of \emph{(rooted, ordered) binary trees} sends every set of labels to
 the set of all binary trees built over those labels.
 % (\pref{fig:binary-trees}).
-\scw{We may not actually need these figures. Cut for space?}
 Other species describe non-algebraic data structures, such as cycles, bags and
 permutations.
-\todo{More examples.  Cycles, bags.  Permutations.  Examples of
+\chaptertodo{More examples.  Cycles, bags.  Permutations.  Examples of
     algebra: describe lists and trees algebraically, etc.}
 
 %   \begin{figure}
@@ -682,10 +683,7 @@ universes $\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the
 subscript from $\Type_0$), and a notion of propositional equality.
 The theory also allows inductive definitions.  We use $\N : \Type_0$
 to denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
-usual indexed type of canonical finite sets.\scw{How much do we use
-  lists in this paper? The $[-]$ notation is also reused in the next
-  section.} \bay{Indeed, we only use meta-mathematical lists, not
-  lists in type theory. I removed the reference.}
+usual indexed type of canonical finite sets.
 
 Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
 dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
