@@ -1883,8 +1883,14 @@ the study of attribute grammars~\cite{Mishna03b}.
 \section{Future work}
 \label{sec:future}
 
+The most important operation we have not yet formalized is that of
+\emph{composition}, where the composition $F \comp G$ of species $F$
+and $G$ intuitively consists of $F$-shapes containing $G$-shapes.  It
+is not yet clear whether composition imposes any additional
+requirements on the categories beyond those already imposed by
+partitional and arithmetic product.
+
 \begin{itemize}
-\item composition
 \item labelled structures
 \end{itemize}
 
