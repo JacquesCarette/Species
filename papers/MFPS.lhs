@@ -1614,26 +1614,33 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 \subsection{Multisort species}
 \label{sec:multisort}
 
-\todo{General introduction to the concept of multisort species, and
-  usual definition.}
-
-\todo{The idea is to show that this fits into our general setting,
-  which also widens its applicability.}
-
 \newcommand{\lcat}[1]{#1^*}
-\newcommand{\emptylist}{[\,]}
 
-\begin{defn}
-  Given a category $\C$, define the category $\lcat{\C}$ as follows.
-  \begin{itemize}
-  \item The objects of $\lcat{\C}$ are finite (possibly empty) lists
-    $[C_1, C_2, C_3, \dots]$ of objects from $\C$.
-  \item The morphisms from $[C_1, \dots, C_n]$ to $[D_1, \dots, D_n]$
-    are lists of morphisms $[f_1, \dots, f_n]$ with $f_i : C_i \to
-    D_i$.  Note there are no morphisms $[C_1, \dots, C_m] \to [D_1,
-    \dots, D_n]$ when $m \neq n$.
-  \end{itemize}
-\end{defn}
+A \emph{multisort} species \cite[\Sect \todo{look this up}]{bll} is
+one which takes as inputs multiple ``sorts'' of labels which do not
+mix: the relabelling bijections of single-sort species generalize to
+``multibijections'' which act separately on each different sort of
+label.  It is worth noting that these can also be modelled as a
+functor category, replacing the groupoid $\B$ with the groupoid
+$\lcat{\B}$, whose objects are lists of finite sets and whose
+morphisms are lists of bijections between corresponding list elements
+\cite[Exercise \todo{look this up}]{bll}.  One can show that this
+groupoid has all the required properties to enable generalized species
+operations; and the same construction applies equally well to $\BT$.
+
+% \newcommand{\emptylist}{[\,]}
+
+% \begin{defn}
+%   Given a category $\C$, define the category $\lcat{\C}$ as follows.
+%   \begin{itemize}
+%   \item The objects of $\lcat{\C}$ are finite (possibly empty) lists
+%     $[C_1, C_2, C_3, \dots]$ of objects from $\C$.
+%   \item The morphisms from $[C_1, \dots, C_n]$ to $[D_1, \dots, D_n]$
+%     are lists of morphisms $[f_1, \dots, f_n]$ with $f_i : C_i \to
+%     D_i$.  Note there are no morphisms $[C_1, \dots, C_m] \to [D_1,
+%     \dots, D_n]$ when $m \neq n$.
+%   \end{itemize}
+% \end{defn}
 
 % \todo{Need to add more text here motivating these definitions and
 %   propositions.  Will go much better once I get a better sense of
@@ -1751,8 +1758,13 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 \subsection{Weighted species}
 \label{sec:weighted}
 
-\todo{Give an extremely brief sketch, or simply claim that it works
-  and details will be forthcoming?}
+\term{Weighted} species \cite[\Sect \todo{look this up}]{bll} can also
+be modelled as functors $\B \to \Set/A$, where $\Set/A$ denotes the
+slice category over some appropriate set $A$ of weights. This
+generalizes appropriately to type theory as well.  Due to space
+constraints, the details must be postponed to a subsequent
+publication. \bay{Is there a better way to say this?  Is it worth
+  saying at all?}
 
 \section{Related Work}
 \label{sec:related}
