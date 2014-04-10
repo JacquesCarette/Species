@@ -1441,8 +1441,16 @@ in the next section.
 \subsection{Day convolution}
 \label{sec:day-convolution}
 
+\todo{Insert a brief, hand-wavy explanation of coends somewhere around
+  here.}
+
+Just as sum and Cartesian product were seen to arise from the same
+construction applied to different monoids, both partitional and
+arithmetic product arise from \emph{Day convolution}, applied to
+different monoidal structures on $\B$.
+
 The essential idea of Day convolution, first described by Brian
-Day~\cite{day-convolution}, is to construct a monoidal structure on a
+Day~\cite{Day1970closed}, is to construct a monoidal structure on a
 functor category $[\Lab, \Str]$ based primarily on a monoidal
 structure on the \emph{domain} category $\Lab$.  In particular, Day
 convolution requires
@@ -1517,27 +1525,27 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   $\One$ defined in the previous section.
 \end{example}
 
-\begin{example}
-  Although $\B$ and $\P$ are equivalent, it is still instructive to
-  work out the general definition in the case of $\P$.  There is a
-  monoidal structure on $\P$ given by addition, with $f + g : \Fin (m
-  + n) \iso \Fin (m + n)$ defined in the evident way, with $f$ acting
-  on the first $m$ values of $\Fin (m+n)$ and $g$ on the last $n$.
+% \begin{example}
+%   Although $\B$ and $\P$ are equivalent, it is still instructive to
+%   work out the general definition in the case of $\P$.  There is a
+%   monoidal structure on $\P$ given by addition, with $f + g : \Fin (m
+%   + n) \iso \Fin (m + n)$ defined in the evident way, with $f$ acting
+%   on the first $m$ values of $\Fin (m+n)$ and $g$ on the last $n$.
 
-  Specializing the definition,
-  \begin{align*}
-    (F \sprod G)\ n &\defeq \int^{n_1,
-      n_2} F\ n_1 \times G\ n_2 \times (\Fin n \iso \Fin {n_1} +
-    \Fin {n_2}) \\
-    &= \biguplus_{n_1 + n_2 = n} F\ n_1 \times G\ n_2
-  \end{align*}
-  that is, an $(F \sprod G)$-shape of size $n$ consists of an
-  $F$-shape of size $n_1$ and a $G$-shape of size $n_2$, where $n_1 +
-  n_2 = n$.  Indexing by labels can be seen as a generalization (a
-  \emph{categorification}, in fact) of this size-indexing scheme,
-  where we replace natural numbers with finite sets and addition with
-  disjoint union.
-\end{example}
+%   Specializing the definition,
+%   \begin{align*}
+%     (F \sprod G)\ n &\defeq \int^{n_1,
+%       n_2} F\ n_1 \times G\ n_2 \times (\Fin n \iso \Fin {n_1} +
+%     \Fin {n_2}) \\
+%     &= \biguplus_{n_1 + n_2 = n} F\ n_1 \times G\ n_2
+%   \end{align*}
+%   that is, an $(F \sprod G)$-shape of size $n$ consists of an
+%   $F$-shape of size $n_1$ and a $G$-shape of size $n_2$, where $n_1 +
+%   n_2 = n$.  Indexing by labels can be seen as a generalization (a
+%   \emph{categorification}, in fact) of this size-indexing scheme,
+%   where we replace natural numbers with finite sets and addition with
+%   disjoint union.
+% \end{example}
 
 \begin{example}
   \todo{edit}
