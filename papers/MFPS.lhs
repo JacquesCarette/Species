@@ -1609,7 +1609,12 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 \subsection{Differentiation}
 \label{sec:diff}
 
-\todo{Just give a very brief sketch, and claim that it works.}
+The \emph{derivative} $F'$ of a species $F$, well-known in the
+functional programming community \cite{holes}, is defined by $F'\ L =
+F\ (L \uplus \{\star\})$.  Intuitively, an $F'$-shape is the same as
+an $F$-shape with one ``hole'' in it.  To generalize this to functor
+categories $[\Lab, \Str]$, it suffices for $\Str$ to have coproducts
+and a terminal object.
 
 \subsection{Multisort species}
 \label{sec:multisort}
