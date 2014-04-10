@@ -1094,55 +1094,126 @@ $n$ or a $G$-shape of size $n$.
 % As for introduction forms, it's pretty trivial.
 
 It's not hard to check that $(+,\Zero)$ forms a commutative monoid
-structure on species (up to isomorphism).  Stepping back a bit, we can
-see that this monoidal structure on species arises straightforwardly
-from the corresponding monoidal structure on sets: the sum of two
-functors is defined as the pointwise sum of their outputs, and
-likewise \Zero, the identity for the sum of species, is defined as the
-functor which constantly, \ie pointwise, returns $\varnothing$, the
-identity for the sum of sets.
+structure on the category of species.
 
-This same construction works in a much more general setting.  In fact,
-any monoidal structure $(\otimes, I, \alpha, \lambda, \rho)$ on a
-category $\Str$ lifts pointwise to a corresponding monoidal structure
-$(\lotimes, \lifted I, \lifted \alpha, \lifted \lambda, \lifted \rho)$
-on the functor category $[\Lab, \Str]$. The basic idea is exactly the
-same as the standard Haskell type class instance
+Stepping back a bit, we can see that this monoidal structure on
+species arises straightforwardly from the corresponding monoidal
+structure on sets: the sum of two functors is defined as the pointwise
+sum of their outputs, and likewise \Zero, the identity for the sum of
+species, is defined as the functor which constantly, \ie pointwise,
+returns $\varnothing$, the identity for the sum of sets.  This general
+construction will be spelled out in \pref{sec:lifting-monoids}; but
+first, we turn to the formally similar operation of \emph{Cartesian
+  product}.
+
+\subsection{Cartesian/Hadamard product}
+\label{sec:cartesian}
+
+In addition to coproducts $\Set$ also has products, given by $S \times
+T = \{ (s,t) \mid s \in S, t \in T \}$, with any one-element set as
+the identity. (For convenience, we may suppose there is some canonical
+choice of one-element set, $\{\star\}$; this is justified since all
+one-element sets are isomorphic in \Set.)
+\begin{defn}
+  We can use the product structure on $\Set$ to define the
+  \term{Cartesian} or \term{Hadamard product} of species, defined on
+  objects by \[ (F \times G)\ L = F\ L \times G\ L. \]
+\end{defn}
+In the same way that an $(F + G)$-shape is either an $F$-shape
+\emph{or} a $G$-shape on a given set of labels, an $(F \times
+G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on \emph{the
+  same set of labels} (\pref{fig:Cartesian-product-dup}).  As
+illustrated in the figure, there are several intuitive ways to think
+about this situation. One can think of two distinct shapes, with
+labels duplicated between them; one can think of the labels as
+\emph{pointers} or \emph{labels} for locations in a shared memory;
+%% (to be explored more in \pref{sec:sharing})
+or one can think of the shapes themselves as being superimposed.
+
+\begin{figure}
+  \centering
+  \todo{Make a diagram. Or maybe omit it for space.}
+  \caption{Cartesian species product}
+  \label{fig:Cartesian-product-dup}
+\end{figure}
+
+\begin{defn}
+  The species of \emph{sets}, $\E$, is defined as the constant functor
+  yielding $\{\star\}$, that is, \[ \E\ L = \{\star\}. \]
+\end{defn}
+
+\begin{rem}
+  $\E$ is called the \term{species of sets} since there is
+  exactly one structure on any set of labels, which can intuitively be
+  thought of as the set of labels itself, with no additional
+  structure.  In fact, since all one-element sets are isomorphic, we
+  may as well define \[ \E\ L = \{L\}. \]
+\end{rem}
+
+\begin{prop}
+  Up to isomorphism, $\E$ is the identity for Cartesian product.
+\end{prop}
+
+\subsection{Lifting monoids}
+\label{sec:lifting-monoids}
+
+Both these constructions generalize readily.  Any monoidal
+structure $(\otimes, I, \alpha, \lambda, \rho)$ on a category $\Str$
+lifts pointwise to a corresponding monoidal structure $(\lotimes,
+\lifted I, \lifted \alpha, \lifted \lambda, \lifted \rho)$ on the
+functor category $[\Lab, \Str]$. The basic idea is exactly the same as
+the standard Haskell type class instance
 \begin{spec}
 instance Monoid a => Monoid (e -> a) where
   mempty         = \ _ -> mempty
   f `mappend` g  = \a -> f a `mappend` g a
 \end{spec}
-but quite a bit more general.  We omit the precise details and proofs,
-partly in the interest of space, and partly because the details are
+but quite a bit more general.  We omit the precise details, partly in
+the interest of space, and partly because the details are
 straightforward.  For the present purposes the intuition given by the
 above Haskell code should suffice; to understand the basic intuition
 behind the proof, the reader may enjoy proving that the above |Monoid|
 instance for |e -> a| satisfies the monoid laws if the instance for
 |a| does.
 
-\begin{prop}
-  The monoidal lifting defined above preserves the following properties:
-  \begin{itemize}
-  \item If $\otimes$ is symmetric, so is $\lotimes$.
-  \item If $\otimes$ is a categorical product, so is $\lotimes$.
-  \item If $\otimes$ is a categorical coproduct, so is $\lotimes$.
-  \end{itemize}
-\end{prop}
+% \begin{prop}
+%   The monoidal lifting defined above preserves the following properties:
+%   \begin{itemize}
+%   \item If $\otimes$ is symmetric, so is $\lotimes$.
+%   \item If $\otimes$ is a categorical product, so is $\lotimes$.
+%   \item If $\otimes$ is a categorical coproduct, so is $\lotimes$.
+%   \end{itemize}
+% \end{prop}
 
 \scw{Say something like, ``thus we define the generalized versions of species
   sum and the empty species'' to make it explicit?} \bay{I am not sure
   what you mean.}
 
-Since $(\uplus,\varnothing)$ is a coproduct structure on $\Set$, it follows
-that $(+, \Zero)$ is in fact a coproduct structure on the category of
-species.
+\begin{example}
+  We note that lifting coproducts in $\Set$ to $[\B,\Set]$ yields $(+,
+  \Zero)$, and likewise lifting products yields $(\times,
+  \E)$. 
+\end{example}
+% Since $(\uplus,\varnothing)$ is a coproduct structure on $\Set$, it
+% follows that $(+, \Zero)$ is in fact a coproduct structure on the
+% category $[\B,\Set]$ of species, and likewise $(\times, \One)$ is a
+% categorical product.
 
-In $\Type$, the coproduct of two types $A$ and $B$ is given by their
-sum, $A + B$, with the void type $\TyZero$ serving as the identity.
-We may thus lift this coproduct structure to the functor category
-$[\BT, \Type]$---or indeed to any $[\Lab, \Type]$, since no
-requirements are imposed on the domain category.
+\begin{example}
+  In $\Type$, the coproduct of two types $A$ and $B$ is given by their
+  sum, $A + B$, with the void type $\TyZero$ serving as the identity.
+  We may thus lift this coproduct structure to the functor category
+  $[\BT, \Type]$---or indeed to any $[\Lab, \Type]$, since no
+  requirements are imposed on the domain category.
+\end{example}
+
+\begin{example}
+  Similarly, categorical products in $\Type$ are given by product
+  types $A \times B$, with the unit type $\TyOne$ as the identity.
+  This then lifts to products on $[\BT,\Type]$ (or, again, any
+  $[\Lab,\Type]$) which serve as an analogue of Cartesian product of
+  species.
+\end{example}
 
 % \begin{example}
 %   Take $\Lab = \cat{1}$ (the trivial category with one object and one
@@ -1217,66 +1288,6 @@ requirements are imposed on the domain category.
 %   possible since the monoidal operation $\oplus$ is, by definition,
 %   required to be a bifunctor.
 % \end{example}
-
-\subsection{Cartesian/Hadamard product}
-\label{sec:cartesian}
-
-Disjoint union is not the only monoidal structure on $\Set$. In
-addition to coproducts $\Set$ also has products, given by $S \times T
-= \{ (s,t) \mid s \in S, t \in T \}$, with any one-element set as the
-identity. (For convenience, we may suppose there is some canonical
-choice of one-element set, $\{\star\}$; this is justified since all
-one-element sets are isomorphic in \Set.)
-\begin{defn}
-  By the discussion of the previous section, this automatically lifts
-  to a pointwise product structure on species, known as the
-  \term{Cartesian} or \term{Hadamard product}: \[ (F \times G)\ L = F\
-  L \times G\ L. \]
-\end{defn}
-In the same way that an $(F + G)$-shape is either an $F$-shape
-\emph{or} a $G$-shape on a given set of labels, an $(F \times
-G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on \emph{the
-  same set of labels} (\pref{fig:Cartesian-product-dup}).  As
-illustrated in the figure, there are several intuitive ways to think
-about this situation. One can think of two distinct shapes, with
-labels duplicated between them; one can think of the labels as
-\emph{pointers} or \emph{labels} for locations in a shared memory;
-%% (to be explored more in \pref{sec:sharing})
-or one can think of the shapes themselves as being superimposed.
-
-\begin{figure}
-  \centering
-  \todo{Make a diagram.}
-  \caption{Cartesian species product}
-  \label{fig:Cartesian-product-dup}
-\end{figure}
-
-\begin{defn}
-  Lifting the identity element pointwise gives the species \[ \E\ L =
-  \{\star\}, \] where every bijection is sent to the unique function
-  $\{\star\} \to \{\star\}$.  By construction, $\E$ is the identity
-  for Cartesian product of species.
-\end{defn}
-\begin{rem}
-  $\E$ is usually called the \term{species of sets} since there is
-  exactly one structure on any set of labels, which can intuitively be
-  thought of as the set of labels itself, with no additional
-  structure.  In fact, since all one-element sets are isomorphic, we
-  may as well define \[ \E\ L = \{L\}. \]
-\end{rem}
-
-Of course, since Cartesian product is the categorical product in \Set,
-Cartesian/Hadamard product is also the product in the category of
-species.  Interestingly, there is a different notion of species
-product (though not a categorical product) which is in some sense more
-natural than Cartesian product, even though it is more complicated; it
-will be explored in the next section.
-
-Things are equally simple in the case of $[\BT,\Type]$: categorical
-products in $\Type$ are given by product types $A \times B$, with the
-unit type $\TyOne$ as the identity.  This then lifts to products on
-$[\BT,\Type]$ (or, again, any $[\Lab,\Type]$) which serve as an
-analogue of Cartesian product of species.
 
 \section{Day convolution: partitional and arithmetic product}
 \label{sec:day}
