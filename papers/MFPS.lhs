@@ -1548,65 +1548,61 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 % \end{example}
 
 \begin{example}
-  \todo{edit}
-  There is another monoidal structure on $\B$ (and similarly on $\P$
-  and $\N$) corresponding to the \emph{product} of sets/natural
-  numbers.  If we instantiate the framework of Day convolution with
-  this product-like monoidal structure instead of the coproduct-like
-  structure used to define partitional product---but keep everything
-  else the same, in particular continuing to use products on
-  $\Set$---we obtain an operation known as \term{arithmetic product}
-  \cite{arithmetic-product}.
+  There is another monoidal structure on $\B$ corresponding to the
+  Cartesian product of sets. If we instantiate the framework of Day
+  convolution with this product-like monoidal structure instead of the
+  coproduct-like structure used to define partitional product---but
+  keep everything else the same, in particular continuing to use
+  products on $\Set$---we obtain the arithmetic product.
 \end{example}
 
-\begin{example}
-  Let's examine this in detail in the case of $[\P,\Set]$.  The
-  monoidal structure on $\P$ is defined on objects as $m \otimes n =
-  mn$.  On morphisms, given $f : \fin m \bij \fin m$ and $g : \fin n
-  \bij \fin n$, we have $f \otimes g : \fin{mn} \bij \fin{mn}$ defined
-  by \todo{finish}.
+% \begin{example}
+%   Let's examine this in detail in the case of $[\P,\Set]$.  The
+%   monoidal structure on $\P$ is defined on objects as $m \otimes n =
+%   mn$.  On morphisms, given $f : \fin m \bij \fin m$ and $g : \fin n
+%   \bij \fin n$, we have $f \otimes g : \fin{mn} \bij \fin{mn}$ defined
+%   by \todo{finish}.
 
-  Instantiating the definition of Day convolution yields
-  \begin{align*}
-    (F \boxtimes G)\ n &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times
-    \P(n, n_1n_2) \\
-    &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times (\fin n \bij \fin
-    {n_1 n_2}) \\
-    &= ? \\
-    &= \biguplus_{d \mid n} F\ d \times G\ (n/d)
-  \end{align*}
+%   Instantiating the definition of Day convolution yields
+%   \begin{align*}
+%     (F \boxtimes G)\ n &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times
+%     \P(n, n_1n_2) \\
+%     &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times (\fin n \bij \fin
+%     {n_1 n_2}) \\
+%     &= ? \\
+%     &= \biguplus_{d \mid n} F\ d \times G\ (n/d)
+%   \end{align*}
 
-  % where $\otimes$ denotes the product monoidal structure on $\B$.
-  % We cannot write this quite as nicely as partitional product, since
-  % there is no canonical way to decompose
-\end{example}
+%   % where $\otimes$ denotes the product monoidal structure on $\B$.
+%   % We cannot write this quite as nicely as partitional product, since
+%   % there is no canonical way to decompose
+% \end{example}
 
 \begin{example}
   It remains to verify that $\BT$ and $\Type$ have the right properties.
   \begin{itemize}
-  \item \todo{Monoidal coproduct structure on $\BT$}
+  \item Similarly to $\B$, there are (at least) two monoidal
+    structures on $\BT$, corresponding to the coproduct and product of
+    types, respectively.  Note that in each case, the finiteness
+    evidence for types $A$ and $B$ can be combined in a canonical way
+    to construct finiteness evidence for the types $A + B$ and $A
+    \times B$, respectively.
   \item $\BT$ is indeed enriched over $\Type$, since the class of
     arrows between $(A,m,i)$ and $(B,n,j)$ is given by the type $A
     \iso B$.
-  \item There is a symmetric monoidal structure on $\Type$ given by
-    the product of types.
+  \item We have already seen that there is a symmetric monoidal
+    structure on $\Type$ given by the product of types.
   \item The last condition is the most interesting: we need to say
-    what a coend is in $\Type$. \todo{pushouts as HITs, weak
-      Sigma-types, \dots ?}
+    what a coend over $\BT$ is in $\Type$. \todo{finish}
   \end{itemize}
 
   Given $F,G \in [\BT,\Type]$, we can thus instantiate the definition
   of Day convolution to obtain
-  \begin{align*}
-    (F \cdot G)(L) &= \biguplus_{L_1, L_2} F\ L_1 \times G\ L_2 \times
-    (L \iso L_1 + L_2) \\
-  \end{align*}
-  \todo{the above needs to be a \emph{weak} Sigma-type.  Need some
-    different notation.  Is there already standard notation?}
-\end{example}
+  \[ (F \cdot G)\ L = \sum_{L_1, L_2} F\ L_1 \times G\ L_2 \times (L
+  \iso L_1 + L_2), \] and similarly for generalized arithmetic
+  product.
 
-\todo{Show that $\BT/\PT$ along with \Type\ have the right properties,
-instantiate framework to show how it comes out.}
+\end{example}
 
 \section{Other constructions}
 
