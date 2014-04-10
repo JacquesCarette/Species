@@ -66,12 +66,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Comments
 
-% big, top-level (verbatim) comments
-
-% \specialcomment{todoP}{\begingroup\color{red}TODO: }{\endgroup}
-
-% quick (inline) comments
-
 \newif\ifcomments\commentstrue
 
 \ifcomments
@@ -85,6 +79,7 @@
 \newcommand{\bay}[1]{\authornote{blue}{BAY}{#1}}
 \newcommand{\jc}[1]{\authornote{purple}{JC}{#1}}
 \newcommand{\scw}[1]{\authornote{magenta}{SCW}{#1}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Semantic markup
 
@@ -1613,7 +1608,15 @@ $G$-shape on the ``columns''.
   monoidal structure in all these different categories?  Are they
   related by monoidal functors?}
 
-\section{Multisort Species}
+\section{Other constructions}
+
+\subsection{Differentiation}
+\label{sec:diff}
+
+\todo{Just give a very brief sketch, and claim that it works.}
+
+\subsection{Multisort species}
+\label{sec:multisort}
 
 \todo{General introduction to the concept of multisort species, and
   usual definition.}
@@ -1749,6 +1752,12 @@ $G$-shape on the ``columns''.
 
 % \todo{Give some examples.}
 
+\subsection{Weighted species}
+\label{sec:weighted}
+
+\todo{Give an extremely brief sketch, or simply claim that it works
+  and details will be forthcoming?}
+
 \section{Related Work}
 \label{sec:related}
 
@@ -1860,6 +1869,11 @@ the study of attribute grammars~\cite{Mishna03b}.
 
 \section{Future work}
 \label{sec:future}
+
+\begin{itemize}
+\item composition
+\item labelled structures
+\end{itemize}
 
 \section{Conclusion}
 \label{sec:conclusion}
