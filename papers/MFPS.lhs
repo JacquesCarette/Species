@@ -418,9 +418,9 @@ the set of all binary trees built over those labels.
 Other species describe non-algebraic data structures, such as cycles, bags and
 permutations.
 
-\chaptertodo{More examples.  Cycles, bags.  Permutations.  Examples of
-    algebra: describe lists and trees algebraically, etc.}
-
+%\chaptertodo{More examples.  Cycles, bags.  Permutations.  Examples of
+%    algebra: describe lists and trees algebraically, etc.}
+%
 %   \begin{figure}
 %     \centering
 %     \begin{diagram}[width=400]
@@ -491,20 +491,22 @@ permutations.
 %     %$
 %   \end{figure}
 
-\noindent
-In set theory, we define species as follows:
+%\noindent In set theory, we define species as follows:
+% JC: should probably use a proper LaTeX package to do inline lists...
 \begin{defn}[Species (Joyal \cite{joyal,bll})]
 \label{defn:species-set}
 A \term{species} $F$ is a pair of mappings which sends any finite set $U$ (of
-\term{labels}) to a set $F\ U$ (of \term{shapes}), and sends any bijection\footnote{We use the notation
-  $U \bij V$ for any bijection between finite sets $U$ and $V$.}$\sigma : U \bij V$, to a
-function $F\ \sigma : F\ U \to F\ V$
+\term{labels}) to a set $F\ U$ (of \term{shapes}), and sends any bijection%
+\footnote{We use the notation $U \bij V$ for any bijection between sets $U$ and
+$V$.} $\sigma : U \bij V$ to a function $F\ \sigma : F\ U \to F\ V$
 %  (illustrated in \pref{fig:relabeling}),
 satisfying the functoriality conditions:
-\begin{itemize}
-\item $F\ id_U = id_{F U}$, and
-\item $F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
-\end{itemize}
+(1) $F\ id_U = id_{F U}$, and
+(2) $F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
+%\begin{itemize}
+%\item $F\ id_U = id_{F U}$, and
+%\item $F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
+%\end{itemize}
 \end{defn}
 
 We call $F\ U$ the set of ``\mbox{$F$-shapes} with labels drawn from $U$'',
@@ -532,7 +534,9 @@ Using the language of category theory, we can give an equivalent, more
 concise definition of species:
 \begin{defn}
   \label{defn:species-cat}
-  A \term{species} is a functor $F : \B \to \Set$, where $\B$ is the
+  A \term{species} is a functor $F : \B \to \Set$, where $\B$%
+\footnote{$\B$ for \emph{bijection}, a rare category named for its arrows.} 
+  is the
   groupoid of finite sets whose morphisms are bijections, and
   $\Set$ is the category of sets and (total) functions.
 \end{defn}
@@ -550,18 +554,19 @@ concise definition of species:
 %  the full justification.}
 \end{rem}
 
-We we wish to translate the theory of species to a constructive setting. This
-port requires defining categories $\BT$ and $\Type$ so that a functor $\BT \to
+Porting the theory of species to a constructive setting
+requires defining categories $\BT$ and $\Type$ so that a functor $\BT \to
 \Type$ is a ``constructive counterpart'' to a functor $\B \to \Set$. We define
 these categories in the next section.
 
-\scw{Is there a way to pronounce $\B$ and $\BT$? Why B in the first
-  place?} \bay{I don't know of a way to pronounce them.  The notation
-  $\B$ is quite standard and comes from Bergeron \etal (and perhaps
-  ultimately from Joyal?).  I suppose the B is for ``Bijections''?}
+%\scw{Is there a way to pronounce $\B$ and $\BT$? Why B in the first
+%  place?} \bay{I don't know of a way to pronounce them.  The notation
+%  $\B$ is quite standard and comes from Bergeron \etal (and perhaps
+%  ultimately from Joyal?).  I suppose the B is for ``Bijections''?}
 
 \todo{Should probably give a brief mention of the link to generating
   functions.}
+\jc{Not in this section, I don't think it really adds anything here}
 
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
