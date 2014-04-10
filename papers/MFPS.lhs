@@ -660,7 +660,7 @@ and then transporting along that path results in ``automatically''
 inserting the equivalence and its inverse in all the necessary places
 throughout the term.
 
-\todo{Explain propositional truncation}
+%\todo{Explain propositional truncation}
 
 \subsection{Finiteness}
 \label{sec:finiteness}
@@ -670,26 +670,29 @@ whose objects are finite sets and whose morphisms are bijections. We
 construct its constructive counterpart $\BT$ in two stages. First, we 
 introduce $\P$, a way to think about sets of labels in terms of natural numbers
 (because the actual contents of these sets do not matter) and develop its
-constructive analogue $\PT$. This simpler context, brings
+constructive analogue $\PT$. This simpler context brings
 many of the issues surrounding constructive finiteness into focus.
 We then show how to extend $\PT$ to $\BT$.
 
-Let $\fin n \defeq \{0, \dots, n-1\}$ be the set of the first $n$
+Let $\fin n$ % \defeq \{0, \dots, n-1\}$ 
+be the set of the first $n$
 natural numbers.  Denote by $\P$ the category whose objects are
-natural numbers and whose morphisms $\mor m n$ are bijections $\fin m
-\bij \fin n$ (hence there are no morphisms $\mor m n$ unless $m \equiv
-n$).  Often it is noted as trivial that $\P$
-is equivalent to (in fact, a skeleton of) $\B$ and hence we are
-justified in working with $\P$ rather than $\B$ when convenient.
+natural numbers and whose morphisms %$\mor m n$ 
+are bijections $\fin m
+\bij \fin n$ (hence there are no morphisms %$\mor m n$ 
+unless $m \equiv n$).  Often it is noted as trivial that $\P$
+is equivalent to (in fact, a skeleton of) $\B$ and hence that
+working with $\P$ rather than $\B$ when convenient is justified.
 
-However, upon digging a bit deeper it is not quite so trivial after
-all: in particular, showing that $\P$ and $\B$ are (strongly)
+However, this equivalence is not so trivial: in particular, showing 
+that $\P$ and $\B$ are (strongly)\scw{what does strongly mean?}
 equivalent requires the axiom of choice.  In more detail, it is easy
 to define a functor $\fin - : \P \to \B$ which sends $n$ to $\fin n$
-and preserves morphisms.  Defining an inverse functor $\B \to \P$ is
+and preserves morphisms.  Defining an inverse functor $\size - : \B \to \P$ is
 more problematic. Clearly we must send each set $S$ to its size $\size
-S$ (though even this is a bit suspect, from a constructive point of
-view: where exactly does this size come from?). However, a bijection
+S$ %(though even this is a bit suspect, from a constructive point of
+%view: where exactly does this size come from?). 
+However, a bijection
 $S \bij T$ must be sent to a bijection $\fin{\size S} \bij \fin{\size
   T}$, and intuitively we have no way to pick one: we would need to
 decide on a way to match up the elements of each set $S$ with the set
@@ -701,41 +704,41 @@ corresponding set of natural numbers $\fin{\size S}$.
 
 \newcommand{\AC}{\mathsf{AC}}
 
-Several variants of the axiom of choice can be expressed within
-homotopy type theory.  A ``na\"ive'' variant, referred to as
-$\AC_\infty$, is given by
-\begin{equation} \tag{$\AC_\infty$}
-  \label{eq:ac-infty}
-  \left( \prod_{x : X} \sum_{(a : A(x))} P(x,a) \right) \iso \left(
-    \sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x)) \right)
-\end{equation}
-This variant is actually \emph{provable} within the theory; however,
-it is of little use here, since rather than just requiring a family of
-``nonempty'' sets, it actually requires, for each $x$, an explicit
-\emph{witness} $a : A(x)$ for which the property $P(x,a)$ holds.  That
-is, it requires that we have already made a choice for each $x$.
+% Several variants of the axiom of choice can be expressed within
+% homotopy type theory.  A ``na\"ive'' variant, referred to as
+% $\AC_\infty$, is given by
+% \begin{equation} \tag{$\AC_\infty$}
+%   \label{eq:ac-infty}
+%   \left( \prod_{x : X} \sum_{(a : A(x))} P(x,a) \right) \iso \left(
+%     \sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x)) \right)
+% \end{equation}
+% This variant is actually \emph{provable} within the theory; however,
+% it is of little use here, since rather than just requiring a family of
+% ``nonempty'' sets, it actually requires, for each $x$, an explicit
+% \emph{witness} $a : A(x)$ for which the property $P(x,a)$ holds.  That
+% is, it requires that we have already made a choice for each $x$.
 
-There is another variant, referred to as $\AC_{-1}$ or simply $\AC$,
-that corresponds more closely to the axiom of choice in set theory:
+The $\AC$ axiom, which corresponds to the axiom of choice, is consistent with
+HoTT.
 \begin{equation} \tag{$\AC$}
   \label{eq:AC}
   \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
     \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
 \end{equation}
-While this is not provable in the theory, it is consistent to assume
-it as an axiom.  However, this is unsatisfactory: as an axiom, it has
-no computational interpretation, and is therefore unsuitable for
-constructing a functor with computational content.
-
-\todo{There is something funny going on here with groupoids
-  vs. $\infty$-groupoids.  Should figure out how much of a difference
-  this makes.  At the very least we should mention that we are aware
-  of the issues.}
-
+However, as an axiom, it has no computational interpretation, and is therefore
+unsuitable for constructing a functor with computational content.
+%
 We therefore reject the use of the axiom of choice.  Our goal will now
 be to build groupoids $\PT$ and $\BT$ which are type-theoretic
 counterparts to $\P$ and $\B$, with computable functors between them
 witnessing their equivalence.
+
+\todo{There is something funny going on here with groupoids
+  vs. $\infty$-groupoids.  Should figure out how much of a difference
+  this makes.  At the very least we should mention that we are aware
+  of the issues.}\scw{???}
+
+
 
 First, defining a counterpart to $\P$ is straightforward:
 \begin{defn}
@@ -906,9 +909,10 @@ We can now define a functor $\fin - : \PT \to \BT$ in the evident way:
 In the other direction, we define $\size{} : \BT \to \PT$:
 \begin{itemize}
 \item On objects, $\size{(A, m, i)} \defeq m$.
-\item On morphisms, $e : \mor {(A, m, i)} {(B, n, j)}$ is sent to \[
-  \xymatrix{\Fin m \ar@@{<->}[d]_-i & \Fin n \\ A \ar@@{<->}[r]_e & B
-    \ar@@{<->}[u]_-{j^{-1}} } \]
+\item On morphisms, $e : \mor {(A, m, i)} {(B, n, j)}$ is sent to $i \then e \then j^{-1}$.
+% \[
+%   \xymatrix{\Fin m \ar@@{<->}[d]_-i & \Fin n \\ A \ar@@{<->}[r]_e & B
+%     \ar@@{<->}[u]_-{j^{-1}} } \]
 \end{itemize}
 The functoriality of $\size{}$ can be seen by noting the cancelling
 pair of inverse equivalences in each of the following two diagrams:
