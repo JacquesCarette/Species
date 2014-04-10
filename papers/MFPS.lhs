@@ -1890,9 +1890,14 @@ is not yet clear whether composition imposes any additional
 requirements on the categories beyond those already imposed by
 partitional and arithmetic product.
 
-\begin{itemize}
-\item labelled structures
-\end{itemize}
+One of our main motivations in carrying out this line of work has been
+to ultimately extend species to \term{labelled structures} by pairing
+species shapes with mappings from labels to data.  This will allow
+modelling algebraic data types along with a wide class of more general
+data structures. \bay{What else should we say here?  We could also
+  lead off this paragraph with something like ``This work is one of
+  the first steps as part of a much larger research program aiming to
+  use species as\dots''?}
 
 \section{Conclusion}
 \label{sec:conclusion}
