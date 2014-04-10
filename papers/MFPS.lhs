@@ -552,6 +552,8 @@ port requires defining categories $\BT$ and $\Type$ so that a functor $\BT \to
 \Type$ is a ``constructive counterpart'' to a functor $\B \to \Set$. We define
 these categories in the next section.
 
+\scw{Is there a way to pronounce $\B$ and $\BT$? Why B in the first place?}
+
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
 
@@ -580,73 +582,72 @@ pervasive use of generating functions.  \todo{Why bother encoding
 \subsection{A fragment of homotopy type theory}
 \label{sec:HoTT}
 
-\scw{We may be able to omit/compress some of this.}
 The type theory we work with is equipped with an empty type \TyZero, a
-unit type \TyOne (with inhabitant $\unit$), coproducts (with
-constructors $\inl$ and $\inr$), dependent pairs (with projections
-$\outl$ and $\outr$), dependent functions, a hierarchy of type
+unit type \TyOne (with inhabitant $\unit$), coproducts $A + B$ (with
+constructors $\inl$ and $\inr$), dependent pairs $(x:A) \times
+B(x)$ (with projections
+$\outl$ and $\outr$), dependent functions $(x:A) \to B(x)$, a hierarchy of type
 universes $\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the
-subscript from $\Type_0$), and a notion of propositional equality.
+subscript from $\Type_0$), and propositional equality $A = B$.
 The theory also allows inductive definitions.  We use $\N : \Type_0$
 to denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
 usual indexed type of canonical finite sets.
 
-Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
-dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
-will often use the Agda-like \cite{Agda} notations $(x:A) \times
-B(x)$ and $(x:A) \to B(x)$, respectively (though we still occasionally
-use $\Sigma$ and $\Pi$ for emphasis).  We continue to use the standard
+Note that although we use Agda's notation~\cite{Agda} for dependent pairs and 
+functions, we ocacaisionally use the traditional $\sum_{x : A} B(x)$ and $\prod_{x:A} B(x)$ and  for 
+for emphasis.  We also use the standard
 abbreviations $A \times B$ and $A \to B$ for non-dependent pair and
-function types, that is, when $x$ does not appear free in $B$. Also,
-to reduce clutter, we sometimes make use of implicit quantification:
-free type variables in a type---like $A$ and $B$ in $A \times (B \to
-\N)$---are implicitly universally quantified, like $(A : \Type) \to (B
-: \Type) \to A \times (B \to \N)$.
+function types. 
+% Also,
+% to reduce clutter, we sometimes make use of implicit quantification:
+% free type variables in a type---like $A$ and $B$ in $A \times (B \to
+% \N)$---are implicitly universally quantified, like $(A : \Type) \to (B
+% : \Type) \to A \times (B \to \N)$.
 
-$A \iso B$ is the type of \term{equivalences} between $A$ and $B$;
-intuitively, an equivalence is a pair of inverse functions $f : A \to
-B$ and $g : B \to A$.\footnote{The precise details are more subtle
-  \cite[chap.  4]{hottbook}, but unimportant for our purposes.}  We
-overload the notations $\id$ and $\comp$ to denote the identity
-equivalence and equivalence composition respectively; we also allow
-equivalences of type $A \iso B$ to be implicitly used as functions $A
-\to B$ where it does not cause confusion.  We use the notation
-$\mkIso$ for constructing equivalences from a pair of functions. That
-is, if $f : A \to B$ and $g : B \to A$ are inverse, then $f \mkIso g :
-A \iso B$; the proof that $f$ and $g$ are inverse is left implicit.
+The type of \term{equivalences} between $A$ and $B$, written $A \iso B$ is
+definable in type theory; intuitively, an equivalence is a pair of inverse
+functions $f : A \to B$ and $g : B \to A$.\footnote{The precise details are
+  more subtle \cite[chap.  4]{hottbook}, but unimportant for our purposes.}
+We overload the notations $\id$ and $\comp$ to denote the identity equivalence
+and equivalence composition respectively; we also allow equivalences of type
+$A \iso B$ to be implicitly used as functions $A \to B$ where it does not
+cause confusion.
+\scw{The $\mkIso$ notation doesn't seem to be used in the rest of the paper.}
+% We use the notation
+% $\mkIso$ for constructing equivalences from a pair of functions. That
+% is, if $f : A \to B$ and $g : B \to A$ are inverse, then $f \mkIso g :
+% A \iso B$; the proof that $f$ and $g$ are inverse is left implicit.
 
-A few remarks about propositional equality are also in order. First,
-the structure of the type theory guarantees that functions are always
-functorial with respect to equality. That is, if $e : x = y$ is a
-witness of equality between $x$ and $y$ (informally, a ``path''
-between $x$ and $y$), and $f$ is a function of an appropriate type,
-then $f(x) = f(y)$.  Given $e$ we also have $P(x) \to P(y)$ for any
-type family $P$, called the \term{transport} of $P(x)$ along $e$ and
-notated $\transport{P}{e}$, or simply $e_*$ when $P$ is clear from
-context.
+The structure of HoTT guarantees that functions are always functorial with
+respect to equality. That is, if $e : x = y$ is a witness of equality between
+$x$ and $y$ (informally, a ``path'' between $x$ and $y$), and $f$ is a
+function of an appropriate type, then $f(x) = f(y)$.  Given $e$ we also have
+$P(x) \to P(y)$ for any type family $P$, called the \term{transport} of $P(x)$
+along $e$ and notated $\transport{P}{e}$, or simply $e_*$ when $P$ is clear
+from context.
 
-Finally, a consequence of the \emph{univalence axiom} is that an
+HoTT also includes the \emph{univalence axiom} which states that an
 equivalence $A \iso B$ can be converted to the propositional equality
-$A = B$ (and vice versa).  The intuitive idea is to formally encode
-the common mathematical practice of treating isomorphic things as
-identical.  It is important to keep in mind that an equality $e : A =
-B$ can thus have nontrivial computational content.  In other words, $A
-= B$ means not that $A$ and $B$ are identical, but merely that they
+$A = B$ (and vice versa).  This axiom formally encodes
+the mathematical practice of treating isomorphic things as
+identical. Because of this axiom, an equality $e : A =
+B$ can have nontrivial computational content.  In other words, $A
+= B$ means not that $A$ and $B$ are identical, but that they
 can be used interchangeably---and moreover, interchanging them may
 require some work, computationally speaking.
 
 As of yet, univalence has no direct computational interpretation, so
-making use of it in a computational setting may seem suspect. Note,
+using it to give a computational interpretation of species may seem suspect. Note,
 however, that \mbox{$\transport{X \mapsto X}{\ua(f)} = f$}, where $\ua : (A
 \iso B) \to (A = B)$ denotes (one direction of) the univalence
 axiom. So univalence introduces no computational problems as long as
 applications of $\ua$ are only ultimately used via
 $\mathsf{transport}$. \scw{We should ensure that our applications have
-  this property.}  In this case univalence is being used only as a
-sort of convenient shorthand: packaging up an equivalence into a path
+  this property.}  Univalence allows a
+convenient shorthand: packaging up an equivalence into a path
 and then transporting along that path results in ``automatically''
 inserting the equivalence and its inverse in all the necessary places
-throughout the term being transported.
+throughout the term.
 
 \todo{Explain propositional truncation}
 
@@ -1010,7 +1011,7 @@ can justify our constructive definition of species by showing that the
 specific functor category [$\BT$,$\Type$] satisfies the required properties in
 each case. In the following, to keep these various functor categories
 straight, we use the terminology ``species'' for $[\B,\Set]$, ``generalized
-species'' for some abstract $[\Lab, \Str]$, and ``constructive species''
+species'' for some abstract $[\Lab, \Str]$, and ``constructive species'' for
 $[\BT, \Type]$.
 
 \section{Lifted monoids: sum and Cartesian product}
