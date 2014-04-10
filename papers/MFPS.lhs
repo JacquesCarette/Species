@@ -183,15 +183,13 @@
 % typesetting for category names
 \newcommand{\cat}[1]{\ensuremath{\mathbf{#1}}\xspace}
 
-% discrete category
-\newcommand{\disc}[1]{\ensuremath{\left||#1\right||}}
+\newcommand{\op}{\ensuremath{\mathrm{op}}}            % opposite category
+\newcommand{\disc}[1]{\ensuremath{\left||#1\right||}} % discrete category
+\newcommand{\then}{\mathbin{;}}                       % flipped composition
 
 % morphisms
 \newcommand{\mor}[2]{\ensuremath{#1 \longrightarrow #2}}
 \newcommand{\nat}[2]{\ensuremath{#1 \stackrel{\bullet}{\longrightarrow} #2}}
-
-% flipped composition
-\newcommand{\then}{\mathbin{;}}
 
 % some standard categories
 \newcommand{\Set}{\cat{Set}}
@@ -556,6 +554,9 @@ these categories in the next section.
   place?} \bay{I don't know of a way to pronounce them.  The notation
   $\B$ is quite standard and comes from Bergeron \etal (and perhaps
   ultimately from Joyal?).  I suppose the B is for ``Bijections''?}
+
+\todo{Should probably give a brief mention of the link to generating
+  functions.}
 
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
@@ -1283,16 +1284,25 @@ analogue of Cartesian product of species.
 There is another notion of product for species, the \term{partitional}
 or \term{Cauchy} product, which is more generally useful than
 Cartesian product, even though it is more complex to define.  In
-particular, 
+particular,
 % when species are extended to labelled structures
-% (\pref{chap:labelled}) 
-it is the partitional product that gives rise to the usual notion of product on
-algebraic data types.  For this reason partitional product is often
-simply referred to as ``product'', without any modifier, although as
-we have seen the Cartesian product %, rather than partitional product,
-is the one that is actually a categorical product.
+% (\pref{chap:labelled})
+it is the partitional product which corresponds to product of
+generating functions, and which gives rise to the usual notion of
+product on algebraic data types.  For these reasons, partitional product
+is often simply referred to as ``product'', without any modifier,
+although as we have seen, the Cartesian product is the one that is
+actually a categorical product.
 
-Intuitively, the partitional product $F \sprod G$ of two species $F$
+There is also another less well-known product, \term{arithmetic
+  product} \cite{arithmetic-product}, which can be thought of as a
+symmetric form of composition.  These two products arise in an
+analogous way, via a categorical construction known as \emph{Day
+  convolution}.
+
+\subsection{Partitional product}
+
+The partitional product $F \sprod G$ of two species $F$
 and $G$ consists of paired $F$- and $G$-shapes, but with a twist:
 instead of being replicated, as in Cartesian product, the labels are
 \emph{partitioned} between the two shapes.
@@ -1322,7 +1332,6 @@ instead of being replicated, as in Cartesian product, the labels are
 %     \label{fig:product}
 %   \end{figure}
 
-Formally, the partitional product of species
 \begin{defn}
   The \term{partitional} or \term{Cauchy product} of two species $F$
   and $G$ is the functor defined on objects by \[ (F \sprod G)\ L =
@@ -1353,10 +1362,6 @@ other summands).
   \]
 \end{defn}
 
-Generalizing partitional product over arbitrary functor categories is
-much more complex than generalizing sum and Cartesian product, and
-requires a construction known as \term{Day convolution}.
-
 \subsection{Day convolution}
 \label{sec:day-convolution}
 
@@ -1369,7 +1374,8 @@ convolution requires
 \item a monoidal structure $\oplus$ on the domain $\Lab$;
 \item that $\Lab$ be \emph{enriched over} $\Str$, \ie\ for any two
   objects $L_1,L_2 \in \Lab$ there is a hom-object $\Lab(L_1,L_2) \in
-  \Str$ rather than a set;
+  \Str$ rather than a set, with approrpiate coherent notions of
+  composition and identity morphisms;
 \item a symmetric monoidal structure $\otimes$ on the codomain $\Str$;
 \item that $\Str$ be cocomplete, and in particular
   have coends over $\Lab$.
@@ -1382,23 +1388,23 @@ product.
 
 \begin{defn}
   Given the above conditions, the Day convolution product of $F, G \in
-  [\Lab, \Str]$ is given by the coend \[ F \oast G = \int^{L_1, L_2}
+  [\Lab^\op, \Str]$ is given by the coend \[ F \oast G = \int^{L_1, L_2}
   F\ L_1 \otimes G\ L_2 \otimes \Lab(-, L_1 \oplus L_2). \]
 \end{defn}
 
+\begin{rem}
+  Since groupoids are self-dual, we may ignore the $-^\op$ in the
+  common case that $\Lab$ is a groupoid.
+\end{rem}
+
 This operation is associative, and has as a unit $j(I)$ where $I$ is
-the unit for $\oplus$ and $j : \Lab \to [\Lab^{\text{op}}, \Str]$ is the Yoneda
+the unit for $\oplus$ and $j : \Lab \to [\Lab^\op, \Str]$ is the Yoneda
 embedding, that is, $j(L) = \Lab(-,L)$.
 
-\todo{Argh! Some inconsistency going on here with $\Lab$ vs
-  $\Lab^{op}$; the problem is that \eg\ $\B$ and $\P$ are self-dual so
-  the problem doesn't show up with them.  Perhaps we should be using
-  $[\Lab^{\mathrm{op}}, \Str]$?}
-
-\begin{rem}
-  Note that there are only covariant occurrences of $L_1$ and $L_2$ in
-  the above definition, which simplifies the definition of the coend.
-\end{rem}
+% \begin{rem}
+%   Note that there are only covariant occurrences of $L_1$ and $L_2$ in
+%   the above definition, which simplifies the definition of the coend.
+% \end{rem}
 
 \begin{example}
   Let's begin by looking at the traditional setting of $\Lab = \B$ and
@@ -1407,7 +1413,8 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   over $\Set$, which is also cocomplete and has a symmetric monoidal
   structure given by Cartesian product.
 
-  Specializing the definition to this case, we obtain
+  Specializing the definition to this case, and expressing the coend
+  as a coequalizer, we obtain
   \begin{align*}
     (F \cdot G)(L) &= \int^{L_1, L_2} F\ L_1 \times G\ L_2 \times
     (L \iso L_1 + L_2) \\
@@ -1435,12 +1442,11 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 \end{example}
 
 \begin{example}
-  $\B$ and $\P$ are equivalent, of course, but it is still instructive
-  to work out the general definition in the case of $\P$.  In this
-  case, we have a monoidal structure on $\P$ given by addition, with
-  $f + g : \Fin (m + n) \iso \Fin (m + n)$ defined in the evident way,
-  with $f$ acting on the first $m$ values of $\Fin (m+n)$ and $g$ on
-  the last $n$.
+  Although $\B$ and $\P$ are equivalent, it is still instructive to
+  work out the general definition in the case of $\P$.  There is a
+  monoidal structure on $\P$ given by addition, with $f + g : \Fin (m
+  + n) \iso \Fin (m + n)$ defined in the evident way, with $f$ acting
+  on the first $m$ values of $\Fin (m+n)$ and $g$ on the last $n$.
 
   Specializing the definition,
   \begin{align*}
@@ -1451,14 +1457,14 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   \end{align*}
   that is, an $(F \sprod G)$-shape of size $n$ consists of an
   $F$-shape of size $n_1$ and a $G$-shape of size $n_2$, where $n_1 +
-  n_2 = n$.  Indexing by labels is a generalization (a
+  n_2 = n$.  Indexing by labels can be seen as a generalization (a
   \emph{categorification}, in fact) of this size-indexing scheme,
-  where we replace natural numbers with finite types, addition with
-  coproduct, and multiplication with product.
+  where we replace natural numbers with finite sets and addition with
+  disjoint union.
 \end{example}
 
 \begin{example}
-  We should verify that $\BT$ and $\Type$ have the right properties.
+  It remains to verify that $\BT$ and $\Type$ have the right properties.
   \begin{itemize}
   \item \todo{Monoidal coproduct structure on $\BT$}
   \item $\BT$ is indeed enriched over $\Type$, since the class of
