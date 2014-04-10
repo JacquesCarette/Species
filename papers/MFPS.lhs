@@ -66,12 +66,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Comments
 
-% big, top-level (verbatim) comments
-
-% \specialcomment{todoP}{\begingroup\color{red}TODO: }{\endgroup}
-
-% quick (inline) comments
-
 \newif\ifcomments\commentstrue
 
 \ifcomments
@@ -87,6 +81,7 @@
 \newcommand{\bay}[1]{\authornote{blue}{BAY}{#1}}
 \newcommand{\jc}[1]{\authornote{purple}{JC}{#1}}
 \newcommand{\scw}[1]{\authornote{magenta}{SCW}{#1}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Semantic markup
 
@@ -401,7 +396,7 @@ before recasting them in the context of homotopy type theory in
 \todo{Somewhere we need to say what category theory background we
   assume (and spell out the things we don't assume).}
 
-\section{Species in Set Theory}
+\section{Species in set theory}
 \label{sec:species}
 
 In set theory, we define species as \emph{labeled structures}---structures
@@ -831,14 +826,12 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
   homotopy type theory, $\FinType$ is a set, \ie a $0$-type.)
 \end{prop}
 
-\begin{proof}
-  \todo{prove me?  Or omit proof for space?  The proof involves
-    unrolling the meaning of a path between sigma-types (using some
-    theorems from the HoTT book), proving that the transport of an
-    equivalence is given by composition (which can be proved by path
-    induction), and then using path induction on $p_1$ and $p_2$ to
-    show that $p_1 = p_2$ is inhabited by $\mathsf{refl}$.}
-\end{proof}
+\begin{proof*}{Proof (sketch).}
+  A path $(A_1, n_1, e_1) = (A_2, n_2, e_2)$ is equivalent to $(p :
+  A_1 = A_2) \times (q : n_1 = n_2) \times (q_*(p_*(e_1)) = e_2)$.
+  Noting that $p_*(e_1)$, in particular, is given by the composition
+  of $p$ with $e_1$, and \todo{finish}
+\end{proof*}
 
 Since the problem with this approach was paths between evidence of
 finiteness imposing too strong of a constraint, we next try using the
@@ -962,7 +955,7 @@ pair of inverse equivalences in each of the following two diagrams:
 \end{proof}
 \end{prop}
 
-\subsection{Species in Constructive Type Theory}
+\section{Species in constructive type theory}
 \label{sec:constructive-species}
 
 Our goal is to port the theory of species from set theory into
@@ -1036,8 +1029,9 @@ product of species arises from products in $\Set$.
 
 \subsection{Species sum}
 
-species. The intuition is that an $(F + G)$-shape is either an
-$F$-shape \emph{or} a $G$-shape. Formally:
+The \emph{sum} of two species, intuitively, is given by their disjoint
+union: an $(F + G)$-shape is either an $F$-shape \emph{or} a
+$G$-shape (together with a tag so we can tell which).
 
 \begin{defn}
   Given species $F, G : \B \to \Set$, we may form their sum $F + G$,
@@ -1138,15 +1132,19 @@ instance for |e -> a| satisfies the monoid laws if the instance for
 \end{prop}
 
 \scw{Say something like, ``thus we define the generalized versions of species
-  sum and the empty species'' to make it explicit?}
+  sum and the empty species'' to make it explicit?} \bay{I am not sure
+  what you mean.}
 
 Since $(\uplus,\varnothing)$ is a coproduct structure on $\Set$, it follows
 that $(+, \Zero)$ is in fact a coproduct structure on the category of
 species.
 
-\scw{Maybe for the paper we can trim these examples? The full generality is
-  great for the chapter, but the paper needs to focus on the
-  example of $[\BT,\Type]$.} \bay{I completely agree.}
+In $\Type$, the coproduct of two types $A$ and $B$ is given by their
+sum, $A + B$, with the void type $\TyZero$ serving as the identity.
+We may thus lift this coproduct structure to the functor category
+$[\BT, \Type]$---or indeed to any $[\Lab, \Type]$, since no
+requirements are imposed on the domain category.
+
 % \begin{example}
 %   Take $\Lab = \cat{1}$ (the trivial category with one object and one
 %   morphism). In this case, functors in $[\cat{1}, \Str]$ are just
@@ -1220,10 +1218,6 @@ species.
 %   possible since the monoidal operation $\oplus$ is, by definition,
 %   required to be a bifunctor.
 % \end{example}
-
-  \todo{Explain how the above plays out in the case of species.}\scw{You mean
-    when $\Lab$ is $\BT$? That seems to be the most important example that we
-    need to cover.}
 
 \subsection{Cartesian/Hadamard product}
 \label{sec:cartesian}
@@ -1543,7 +1537,15 @@ $G$-shape on the ``columns''.
   monoidal structure in all these different categories?  Are they
   related by monoidal functors?}
 
-\section{Multisort Species}
+\section{Other constructions}
+
+\subsection{Differentiation}
+\label{sec:diff}
+
+\todo{Just give a very brief sketch, and claim that it works.}
+
+\subsection{Multisort species}
+\label{sec:multisort}
 
 \todo{General introduction to the concept of multisort species, and
   usual definition.}
@@ -1679,6 +1681,12 @@ $G$-shape on the ``columns''.
 
 % \todo{Give some examples.}
 
+\subsection{Weighted species}
+\label{sec:weighted}
+
+\todo{Give an extremely brief sketch, or simply claim that it works
+  and details will be forthcoming?}
+
 \section{Related Work}
 \label{sec:related}
 
@@ -1790,6 +1798,11 @@ the study of attribute grammars~\cite{Mishna03b}.
 
 \section{Future work}
 \label{sec:future}
+
+\begin{itemize}
+\item composition
+\item labelled structures
+\end{itemize}
 
 \section{Conclusion}
 \label{sec:conclusion}
