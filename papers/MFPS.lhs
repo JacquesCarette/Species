@@ -71,9 +71,11 @@
 \ifcomments
 \newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\chaptertodo}[1]{\textcolor{gray}{[TODO (Later): #1]}}
 \else
 \newcommand{\authornote}[3]{}
 \newcommand{\todo}[1]{}
+\newcommand{\chaptertodo}[1]{}
 \fi
 
 \newcommand{\bay}[1]{\authornote{blue}{BAY}{#1}}
@@ -317,7 +319,7 @@
 
 \begin{abstract}
 
- Abstract.\scw{Write me}
+ Abstract.\vspace{1in}
 
 \end{abstract}
 
@@ -330,29 +332,26 @@ Combinatorial Species, Homotopy Type Theory
 \section{Introduction}
 \label{sec:intro}
 
-The theory of combinatorial species is was first set forth by
-Joyal~\cite{joyal} as a framework for understanding and unifying much of
+The theory of \emph{combinatorial species} is was first set forth by
+Joyal~\cite{joyal} as a system for understanding and unifying much of
 \emph{enumerative combinatorics}, the branch of mathematics concerned with
-counting abstract \emph{structures}. This theory provides a unified view of
-such structures, presenting them in a general, compositional
-framework.\scw{foreshadow various species operations here?}
+counting abstract structures. Accordingly, this theory provides a unified view
+of structures, presenting them in a general, compositional framework.
+Furthermore, there seems to be a connection between this framework of abstract
+structures and the data structures that programmers use. We can think of these
+structures as some sort of ``shape'' containing \emph{labeled positions} or
+\emph{locations}. When paired with a mapping from those labels to actual data,
+the theory of species models familiar data structures, such as algebraic
+datatypes. We would like to use this beautiful theory of species to enrich and
+expand our understanding of computational structures.
 
-From a computational point of view, there is a connection between the abstract
-structures of combinatorial species and the data structures and containers
-that programmers use. We can think of these structures as some sort of
-``shape'' containing \emph{labeled positions} or \emph{locations}. When paired
-with a mapping from those labels or positions to actual data, the theory of
-species can be applied to data structures. These data structures are
-familiar---they subsume algebraic datatypes, for example---so this beautiful
-theory promises to enrich and expand our understanding of data.
-
-However, teasing out the precise relationship between species and data types
-has proved challenging, for two reasons. First, combinatorialists are mainly
-concerned with enumerating and generating abstract structures, not with
-storing and computing with data.  Thus, in order to apply this theory in a
-computational setting, there are many hidden assumptions and glossed
+However, teasing out the precise relationship between species and data
+structures has proved challenging, for two reasons. First, combinatorialists
+are mainly concerned with enumerating and generating abstract structures, not
+with storing and computing with data.  Thus, in order to apply this theory in
+a computational setting, there are hidden assumptions and glossed
 distinctions that must first be made explicit.  Second, being situated in
-traditional mathematical practice rooted in set theory, species are usually
+traditional mathematical practice rooted in set theory, species are 
 described in ways that are \emph{untyped} and \emph{nonconstructive}, both of
 which hinder adoption and understanding in a computational context.
 
@@ -373,7 +372,7 @@ When ported to a constructive setting, however, the notion of finiteness takes
 on nontrivial computational content and significance.  In particular, we are
 naturally led to work up to computationally relevant \emph{equivalences} on
 labels.  Therefore, the constructive type theory that we work in is
-\emph{homotopy type theory} (HoTT) \cite{hotbook}, a theory that can naturally
+\emph{homotopy type theory} (HoTT) \cite{hottbook}, a theory that can naturally
 express these computationally relavant equivalences.
 
 More specifically, the contributions of this paper are:
@@ -382,16 +381,15 @@ More specifically, the contributions of this paper are:
 \item We define the concept of \emph{species} in
   constructive type theory (\pref{sec:constructive-species}), characterizing
   them as functors from a finite collection of labels to structures.
-\item As part of our port to type theory, we generalize common
-  operations on species, including sum, partitional and Cartesian
-  product, arithmetic product, and composition \todo{Try to get to
-    composition!}, carefully analyzing their requirements so that we
-  can be sure that they are consistent with our new interpretation.
+\item As part of our port to type theory, we generalize common operations on
+  species, including sum, partitional and Cartesian product, and arithmetic
+  product, carefully analyzing their requirements so that we can be sure that
+  they are consistent with our new interpretation.
 \item This generalization leads to new insights. In particular, we observe
   that arithmetic product arises from Day convolution (\pref{sec:day}).
 \end{itemize}
 
-In the next section, we review the set-theoretic definitions of species,
+In the next section, we review the set-theoretic definitions of species (\pref{sec:species}),
 before recasting them in the context of homotopy type theory in
 \pref{sec:prelim}.
 
@@ -414,9 +412,11 @@ Similarly, the
 species of \emph{(rooted, ordered) binary trees} sends every set of labels to
 the set of all binary trees built over those labels.
 % (\pref{fig:binary-trees}).
-\scw{We may not actually need these figures. Cut for space?}
 Other species describe non-algebraic data structures, such as cycles, bags and
 permutations.
+
+\chaptertodo{More examples.  Cycles, bags.  Permutations.  Examples of
+    algebra: describe lists and trees algebraically, etc.}
 
 %   \begin{figure}
 %     \centering
@@ -492,85 +492,36 @@ permutations.
 In set theory, we define species as follows:
 \begin{defn}[Species (Joyal \cite{joyal,bll})]
 \label{defn:species-set}
-A \term{species} $F$ is a pair of mappings which
-\begin{itemize}
-\item sends any finite set $U$ (of \term{labels}) to a set $F\ U$ (of
-  \term{shapes}), and
-\item sends any \term{relabeling}\footnote{We use the notation $U
-    \bij V$ for any bijection between finite sets $U$ and $V$.}
-  $\sigma : U \bij V$ to a function $F\ \sigma : F\ U \to F\ V$
+A \term{species} $F$ is a pair of mappings which sends any finite set $U$ (of
+\term{labels}) to a set $F\ U$ (of \term{shapes}), and sends any bijection\footnote{We use the notation
+  $U \bij V$ for any bijection between finite sets $U$ and $V$.}$\sigma : U \bij V$, to a
+function $F\ \sigma : F\ U \to F\ V$
 %  (illustrated in \pref{fig:relabeling}),
-\end{itemize}
-satisfying the following functoriality conditions:
+satisfying the functoriality conditions:
 \begin{itemize}
 \item $F\ id_U = id_{F U}$, and
 \item $F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
 \end{itemize}
 \end{defn}
 
-% \begin{figure}
-%   \centering
-%   \begin{diagram}[width=200]
-% import           Data.Maybe                     (fromMaybe)
-% import           Diagrams.TwoD.Layout.Tree
-
-% t :: BTree Int
-% t = BNode 2 (leaf 1) (BNode 3 (leaf 4) (leaf 5))
-
-% sig :: Int -> Char
-% sig = ("acebd"!!) . pred
-
-% mkNamedNode :: IsName a => (a -> String) -> a -> Diagram B R2
-% mkNamedNode sh a = (text (sh a) # scale 0.3 <> circle 0.2 # fc white) # named a
-
-% mkNamedTree :: IsName a => (a -> String) -> BTree a -> BTree (Diagram B R2)
-% mkNamedTree = fmap . mkNamedNode
-
-% drawDiaBT :: BTree (Diagram B R2) -> Diagram B R2
-% drawDiaBT
-%   = maybe mempty (renderTree id (~~))
-%   . symmLayoutBin
-
-% t1 = drawDiaBT . mkNamedTree show $ t
-% t2 = drawDiaBT . mkNamedTree (:[]) $ fmap sig t
-
-% linkedTrees = hcat' (with & sep .~ 1) [t1, t2]
-%   # applyAll (map conn [1..5 :: Int])
-%   where
-%     conn i = connectOutside'
-%       (with & arrowShaft .~ selectShaft i
-%             & shaftStyle %~ dashing [0.05,0.05] 0
-%             & arrowHead .~ noHead
-%       )
-%       i (sig i)
-%     selectShaft i || i `elem` [1,4] = theArc # reverseTrail
-%                   || i `elem` [3,5] = theArc
-%     selectShaft _ = hrule 1
-%     theArc = arc (0 @@@@ deg) (75 @@@@ deg)
-
-% dia = linkedTrees # centerXY # frame 1
-%   \end{diagram}
-%   \caption{Relabeling} \label{fig:relabeling}
-% \end{figure}
-
-We call $F\ U$ the set of ``$F$-shapes with labels drawn from $U$'',
-or simply ``$F$-shapes on $U$'', or even (when $U$ is clear from
-context) just ``$F$-shapes''.\footnote{Margaret Readdy's English translation
+We call $F\ U$ the set of ``\mbox{$F$-shapes} with labels drawn from $U$'',
+or simply ``\mbox{$F$-shapes} on $U$'', or even (when $U$ is clear from
+context) just ``\mbox{$F$-shapes}''.\footnote{Margaret Readdy's English translation
   of Bergeron \etal \cite{bll} uses the word ``structure'' instead of
   ``shape'', but that word is likely to remind computer scientists of
   ``data structures'', which is the wrong association: data structures
   contain \emph{data}, whereas species shapes do not.  We choose the
   word ``shape'' to emphasize the fact that they are ``form without
-  content''.}  $F\ \sigma$ is called the ``transport of $\sigma$ along
-$F$'', or sometimes the ``relabeling of $F$-shapes by $\sigma$''.
+  content''.} The bijection $\sigma$ is called a ``relabeling'' and $F\ \sigma$ is called the ``transport of $\sigma$ along
+$F$'', or sometimes the ``relabeling of \mbox{$F$-shapes} by $\sigma$''.
 
 The functoriality of relabeling means that the actual labels used
-don't matter; we get ``the same shapes'', up to relabeling, for any
+don't matter; we get ``the same shapes'' up to relabeling for any
 label sets of the same size.  In other words, $F$'s action on all
 label sets of size $n$ is determined by its action on any particular
 such set: if $||U_1|| = ||U_2||$ and we know $F\ U_1$, we can
 determine $F\ U_2$ by lifting an arbitrary bijection between $U_1$ and
-$U_2$.  So we often take the finite set of natural numbers $[n] = \{0,
+$U_2$.  Therefore, we often take the finite set of natural numbers $[n] = \{0,
 \dots, n-1\}$ as \emph{the} canonical label set of size $n$, and write
 $F\ n$ for the set of $F$-shapes built from this set.
 
@@ -584,66 +535,22 @@ concise definition of species:
 \end{defn}
 
 \begin{rem}
-  Although Definitions \ref{defn:species-set} and
-  \ref{defn:species-cat} say only that a species $F$ sends a bijection
+  Although these definitions say only that a species $F$ sends a bijection
   $\sigma : U \bij V$ to a \emph{function} $F\ \sigma : F\ U \to F\
-  V$, the functoriality of $F$ in fact guarantees that $F\ \sigma$
-  will always be a bijection as well. In particular, $(F\ \sigma)^{-1}
-  = F\ (\sigma^{-1})$, since $F\ \sigma \comp F\ (\sigma^{-1}) = F\
-  (\sigma \comp \sigma^{-1}) = F\ id = id$, and similarly $F\
-  (\sigma^{-1}) \comp F\ \sigma = id$. \scw{I don't understand this
-    remark. ``the definition'' is \pref{defn:species-set}?}
-  \bay{Better now, I hope?}
+  V$, the functoriality of $F$ guarantees that $F\ \sigma$
+  will always be a bijection as well. 
+%  In particular, $(F\ \sigma)^{-1}
+%  = F\ (\sigma^{-1})$, since $F\ \sigma \comp F\ (\sigma^{-1}) = F\
+%  (\sigma \comp \sigma^{-1}) = F\ id = id$, and similarly $F\
+%  (\sigma^{-1}) \comp F\ \sigma = id$.
+%  \bay{Better now, I hope?}\scw{Better, but perhaps we don't need to include
+%  the full justification.}
 \end{rem}
 
-%\subsection{Species from scratch}
-%\label{sec:species-scratch}
-
-There are several reasons to generalize the definition of species given above.
-First, $\B$ and \Set enjoy many special properties as categories (for example,
-\Set is cartesian closed, has all limits and colimits, and so on).  It is
-enlightening to see precisely which properties are required in which
-situations, and we miss this entirely if we start with the kitchen sink.  The
-idea is to start ``from scratch'' and build up a generic notion of species
-which support the operations we want.  Along the way, we will also get a much
-clearer picture of where the operations ``come from''.\footnote{Much of this
-  material has been inspired by Kelly \cite{Kelly-operads} \todo{``Operads of
-    J.P. May''}, \todo{``Cartesian Closed Bicategory of Generalised Species of
-    Structure''}, and \todo{``Monoidal Functors, Species, and Hopf
-    Algebras''}. \scw{Perhaps this discussion would be better in related work.}}
-
-Given two arbitrary categories $\Lab$ and $\Str$, what can we say about
-functors $\Lab \to \Str$, and more generally about the functor category
-$[\Lab, \Str]$?  Of course, there is no point in calling functors $\Lab \to
-\Str$ ``species'' for just any old categories $\Lab$ and $\Str$.  But what
-properties must $\Lab$ and $\Str$ possess to make this interesting and
-worthwhile?  In particular, what properties must $\Lab$ and $\Str$ possess to
-enable the sorts of operations we typically want to do on species?\footnote{
-  Note that the objects of $\Lab$ might not correspond to ``sets'' at all. 
-  Although our definitions are guided by the the intuition of ``sets of
-  labels'', in the most general setting we must only think of shapes as
-  indexed by objects of $\Lab$, rather than shapes as ``containing labels
-  drawn from some set''.  }
-In the following, we discuss some specific constructions on species (when
-considered as functors $\B \to \Set$), and then generalize these constructions
-to arbitrary functor categories to see what properties are needed in order to
-define them---\ie\ where the constructions ``come from''.
-
-However, there is a second more important reason to generalize the
-definitions. We we wish to translate the theory of species to a
-constructive, computational setting, and the specific categories $\B$
-and \Set are inappropriate, for reasons that we discuss below.\scw{put
-  those reasons here?}  Instead, in \pref{sec:finiteness} we define
-categories $\BT$ and $\Type$ so that $[\BT, \Type]$ is a
-``constructive counterpart'' to $[\B, \Set]$. As long as we can show
-that these type-theory based categories have the right properties, we
-will be able to use them with our generalized definitions.
-
-When otherwise unqualified, we will continue to use the word
-``species'' to refer to functors in $[\B, \Set]$, that is, to
-``traditional'' species.  Other, generalized notions of species will
-be referred to according to their corresponding functor category, \eg
-``$[\BT,\Type]$-species''.
+We we wish to translate the theory of species to a constructive setting. This
+port requires defining categories $\BT$ and $\Type$ so that a functor $\BT \to
+\Type$ is a ``constructive counterpart'' to a functor $\B \to \Set$. We define
+these categories in the next section.
 
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
@@ -682,10 +589,7 @@ universes $\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the
 subscript from $\Type_0$), and a notion of propositional equality.
 The theory also allows inductive definitions.  We use $\N : \Type_0$
 to denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
-usual indexed type of canonical finite sets.\scw{How much do we use
-  lists in this paper? The $[-]$ notation is also reused in the next
-  section.} \bay{Indeed, we only use meta-mathematical lists, not
-  lists in type theory. I removed the reference.}
+usual indexed type of canonical finite sets.
 
 Instead of writing the traditional $\sum_{x : A} B(x)$ for the type of
 dependent pairs and $\prod_{x:A} B(x)$ for dependent functions, we
@@ -733,7 +637,7 @@ require some work, computationally speaking.
 
 As of yet, univalence has no direct computational interpretation, so
 making use of it in a computational setting may seem suspect. Note,
-however, that $\transport{X \mapsto X}{\ua(f)} = f$, where $\ua : (A
+however, that \mbox{$\transport{X \mapsto X}{\ua(f)} = f$}, where $\ua : (A
 \iso B) \to (A = B)$ denotes (one direction of) the univalence
 axiom. So univalence introduces no computational problems as long as
 applications of $\ua$ are only ultimately used via
@@ -1082,13 +986,32 @@ order to justify $[\BT, \Type]$ as a constructive counterpart to $[\B,
 are typically carried out on $[\B, \Set]$, and show that $[\BT,\Type]$
 supports them as well.
 
-In order to do this, we will look carefully at common operations on
-species, elucidating precisely which properties of $\B$ and $\Set$ are
-necessary to define them.  We then show that $\BT$ and $\Type$ share
-these properties.  This approach also opens the door to other
-generalizations of species which can also be shown to fit into the
-same framework.  We turn first to the operations of sum and Cartesian
-product of species.
+In order to do this, we will look carefully at common operations on species,
+generalize them to arbitrary functors $\Lab \to \Str$, and identify precisely
+what properties of $\Lab$ and $\Str$ are necessary to define them. In this
+way, we start ``from scratch'' and build up a generic notion of species which
+supports the operations we want.  In the process, we get a much clearer
+picture of where the operations ``come from''.\footnote{Much of this material
+  has been inspired by Kelly \cite{Kelly-operads} \todo{``Operads of
+    J.P. May''}, \todo{``Cartesian Closed Bicategory of Generalised Species of
+    Structure''}, and \todo{``Monoidal Functors, Species, and Hopf
+    Algebras''}. \scw{Perhaps this discussion would be better in related
+    work.}} In particular, $\B$ and \Set enjoy many special properties as
+categories (for example, \Set is cartesian closed, has all limits and
+colimits, and so on).  It is enlightening to see precisely which of these
+properties are required in which situations.\footnote{ Note that the objects
+  of $\Lab$ might not correspond to ``sets'' at all.  Although our definitions
+  are guided by the the intuition of ``sets of labels'', in the most general
+  setting we must only think of shapes as indexed by objects of $\Lab$, rather
+  than shapes as ``containing labels drawn from some set''.}
+
+After generalizing these common operations to arbitrary functor categories, we
+can justify our constructive definition of species by showing that the
+specific functor category [$\BT$,$\Type$] satisfies the required properties in
+each case. In the following, to keep these various functor categories
+straight, we use the terminology ``species'' for $[\B,\Set]$, ``generalized
+species'' for some abstract $[\Lab, \Str]$, and ``constructive species''
+$[\BT, \Type]$.
 
 \section{Lifted monoids: sum and Cartesian product}
 
