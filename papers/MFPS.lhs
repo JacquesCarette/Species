@@ -1344,19 +1344,11 @@ product (though not a categorical product) which is in some sense more
 natural than Cartesian product, even though it is more complicated; it
 will be explored in the next section.
 
-\todo{Forward reference to material on closedness?  Probably should
-  omit that material from this paper, actually.}
-
-\todo{give some examples with other categories. $\Type$.  $1/\Set$,
-  \ie\ pointed sets with smash product?}
-
-\todo{\Set is distributive, in the sense that the canonical morphism
-  $X \times Y + X \times Z \to X \times (Y + Z)$ is an isomorphism.
-  Is $[\B, \Set]$ distributive in the same way?  If so, does lifting
-  monoids always preserve distributivity? Answers: yes, and yes.}
-
-\scw{Shouldn't we also talk about $[\BT,\Type]$ explicitly?} \bay{Yes,
-  we should.}
+Things are equally simple in the case of $[\BT,\Type]$: categorical
+products in $\Type$ are given by product types $A \times B$, with the
+unit type $\TyOne$ as the identity.  This then lifts to products on
+$[\BT,\Type]$ (or, again, any $[\Lab,\Type]$) which serve as an
+analogue of Cartesian product of species.
 
 \section{Day convolution: partitional and arithmetic product}
 \label{sec:day}
