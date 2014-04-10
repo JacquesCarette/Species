@@ -339,9 +339,9 @@ Furthermore, there seems to be a connection between this framework of abstract
 structures and the data structures that programmers use. We can think of these
 structures as some sort of ``shape'' containing \emph{labeled positions} or
 \emph{locations}. When paired with a mapping from those labels to actual data,
-the theory of species models familiar data structures, such as algebraic
-datatypes. We would like to use this beautiful theory of species to enrich and
-expand our understanding of computational structures.
+species models familiar data structures, such as algebraic datatypes. We would
+like to use this beautiful theory to enrich and expand our
+understanding of computational structures.
 
 However, teasing out the precise relationship between species and data
 structures has proved challenging, for two reasons. First, combinatorialists
@@ -349,18 +349,20 @@ are mainly concerned with enumerating and generating abstract structures, not
 with storing and computing with data.  Thus, in order to apply this theory in
 a computational setting, there are hidden assumptions and glossed
 distinctions that must first be made explicit.  Second, being situated in
-traditional mathematical practice rooted in set theory, species are 
-described in ways that are \emph{untyped} and \emph{nonconstructive}, both of
-which hinder adoption and understanding in a computational context.
+traditional mathematical practice rooted in set theory%
+\footnote{notwithstanding the fact that the foundational work is categorical}, 
+species are described in ways that are \emph{untyped} and
+\emph{nonconstructive}, both of which hinder adoption and understanding in a
+computational context.
 
 In this paper, we create a bridge between the theory of species and the theory
 and practices of programming. In particular, we ``port'' the definitions of
-combinatorial species from set theory to constructive type theory, making the
-theory more directly applicable in a programming context and more accessible
-to functional programmers.
+combinatorial species to constructive type theory, making the theory more
+directly applicable in a programming context and more accessible to functional
+programmers.
 
-This port is nontrivial. In fact it took us several tries to get the
-definitions that we wanted. Part of the difficulty lies in the fact that
+This port is nontrivial. In fact it took us several tries to get definitions
+that worked adequately. Part of the difficulty lies in the fact that
 species are defined over \emph{finite} sets of labels.  In a classical
 setting, while finiteness is a crucial part of the definition, it is an
 otherwise fairly implicit feature of the actual theory.  Combinatorialists do
@@ -371,28 +373,31 @@ on nontrivial computational content and significance.  In particular, we are
 naturally led to work up to computationally relevant \emph{equivalences} on
 labels.  Therefore, the constructive type theory that we work in is
 \emph{homotopy type theory} (HoTT) \cite{hottbook}, a theory that can naturally
-express these computationally relavant equivalences.
+express these computationally relevant equivalences.
 
 More specifically, the contributions of this paper are:
 
 \begin{itemize}
 \item We define the concept of \emph{species} in
-  constructive type theory (\pref{sec:constructive-species}), characterizing
-  them as functors from a finite collection of labels to structures.
+  constructive type theory (\pref{sec:constructive-species}).% , characterizing
+  % them as functors from a finite collection of labels to structures.
 \item As part of our port to type theory, we generalize common operations on
-  species, including sum, partitional and Cartesian product, and arithmetic
-  product, carefully analyzing their requirements so that we can be sure that
-  they are consistent with our new interpretation.
+  species, including sum, partitional and Cartesian product, 
+  carefully analyzing their requirements to insure consistency
+  with our new interpretation.
+% remove 'arithmetic product' from this list since it is far from 'common'!
 \item This generalization leads to new insights. In particular, we observe
   that arithmetic product arises from Day convolution (\pref{sec:day}).
 \end{itemize}
 
 In the next section, we review the set-theoretic definitions of species (\pref{sec:species}),
 before recasting them in the context of homotopy type theory in
-\pref{sec:prelim}.
+\pref{sec:prelim}.  We assume familiarity with dependent type theory and
+(basic) category throughout, but will spell out the basic HoTT tools
+we need, as well as more advanced categorical constructions.
 
-\todo{Somewhere we need to say what category theory background we
-  assume (and spell out the things we don't assume).}
+% \todo{Somewhere we need to say what category theory background we
+%   assume (and spell out the things we don't assume).}
 
 \section{Species in set theory}
 \label{sec:species}
