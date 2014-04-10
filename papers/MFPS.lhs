@@ -558,24 +558,26 @@ these categories in the next section.
 \label{sec:prelim}
 
 We next define the categories $\BT$ and $\Type$ in the context of
-\term{homotopy type theory}. This section begins by summarizing the most
-important ideas and notation of HoTT; interested readers should consult the
-HoTT book~\cite{hottbook} for more details.
-\scw{Where do we explain why HoTT? Should we move that discussion
-  here.} \bay{Well, the following paragraph was supposed to be a start
-  in that direction.  Obviously it needs to be fleshed out.}
+\term{homotopy type theory} (HoTT).  Intuitively, the category $\BT$ should
+capture the idea of ``constructively finite types'', corresponding to the
+finite sets of $\B$. Intuitively, we can define finiteness in type theory by
+presenting an equivalence to some type that we already know to be finite. We
+choose to work in HoTT because its univalence axiom simplifies working with
+equivalences.  \todo{Why bother encoding finiteness in type theory?}\scw{I'm
+  not sure we have a good answer to this question.}
 
-\scw{These comments would be better later, it is more of an observation than
-  an explanation.}
-We have chosen to work within \term{homotopy type theory} (HoTT).  The
-choice was initially a pragmatic one, but seems increasingly like a
-canonical choice for encoding species in type theory: both have
-groupoids at their heart.
+This section begins by summarizing the most important ideas and notation of
+HoTT; interested readers should consult the HoTT book~\cite{hottbook} for more
+details.
 
-The concept of \term{finiteness} plays a central (but implicit) role
-in the theory of combinatorial species, primarily through the
-pervasive use of generating functions.  \todo{Why bother encoding
-  finiteness in type theory?} % As it remains important in our
+% \scw{These comments would be better later, it is more of an observation than
+%   an explanation.}
+% We have chosen to work within \term{homotopy type theory}.  The
+% choice was initially a pragmatic one, but seems increasingly like a
+% canonical choice for encoding species in type theory: both have
+% groupoids at their heart.
+
+  % As it remains important in our
 % setting, we give the precise definition we use, seeing as there are
 % multiple constructive interpretations of finiteness.
 
