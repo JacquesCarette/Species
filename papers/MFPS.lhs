@@ -719,7 +719,7 @@ corresponding set of natural numbers $\fin{\size S}$.
 % is, it requires that we have already made a choice for each $x$.
 
 The $\AC$ axiom, which corresponds to the axiom of choice, is consistent with
-HoTT.
+HoTT.\scw{I think we can omit this equation for space too.}
 \begin{equation} \tag{$\AC$}
   \label{eq:AC}
   \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
@@ -728,8 +728,8 @@ HoTT.
 However, as an axiom, it has no computational interpretation, and is therefore
 unsuitable for constructing a functor with computational content.
 %
-We therefore reject the use of the axiom of choice.  Our goal will now
-be to build groupoids $\PT$ and $\BT$ which are type-theoretic
+We therefore reject the use of the axiom of choice.  Our goal
+is to build groupoids $\PT$ and $\BT$ which are type-theoretic
 counterparts to $\P$ and $\B$, with computable functors between them
 witnessing their equivalence.
 
@@ -740,14 +740,14 @@ witnessing their equivalence.
 
 
 
-First, defining a counterpart to $\P$ is straightforward:
+Defining a counterpart to $\P$ is straightforward:
 \begin{defn}
   $\PT$ is the groupoid where
   \begin{itemize}
   \item the objects are natural numbers, that is,
     values of type $\N$, and
   \item the morphisms $\mor m n$ are equivalences of type $\Fin m \iso
-    \Fin n$.
+    \Fin n$.\scw{I'm not sure I understand what this means. How does it type check?}
   \end{itemize}
 \end{defn}
 
@@ -760,7 +760,7 @@ however, we note that what was missing was a choice of bijections $S
 evidence of the finiteness of $S$.  This is the most straightforward
 definition of constructive finiteness, and the one we adopt here.
 More formally, a finite type is one with some natural number size $n$,
-and an equivalence between the type and $\Fin n$, that is, inhabitants
+and an equivalence between the type and $\Fin n$. That is, finite types are inhabitants
 of $\FinType$, where
 \[ \FinType \defeq (A : \Type) \times (n : \N) \times (\Fin n \iso
 A). \]
@@ -1195,7 +1195,9 @@ instance for |e -> a| satisfies the monoid laws if the instance for
 
 \scw{Say something like, ``thus we define the generalized versions of species
   sum and the empty species'' to make it explicit?} \bay{I am not sure
-  what you mean.}
+  what you mean.}\scw{I mean to make the definition of the generalized
+  species sum more explicit. Here its defined informally and indirectly, so it
+  is easy to miss the definition altogether.}
 
 \begin{example}
   We note that lifting coproducts in $\Set$ to $[\B,\Set]$ yields $(+,
