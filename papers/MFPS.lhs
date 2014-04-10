@@ -393,9 +393,7 @@ More specifically, the contributions of this paper are:
     composition!}, carefully analyzing their requirements so that we
   can be sure that they are consistent with our new interpretation.
 \item This generalization leads to new insights. In particular, we observe
-  that arithmetic product arises from Day convolution (\pref{sec:day}), and give
-  a novel categorical presentation of weighted species
-  (\pref{sec:weighted-species}).
+  that arithmetic product arises from Day convolution (\pref{sec:day}).
 \end{itemize}
 
 In the next section, we review the set-theoretic definitions of species,
@@ -416,7 +414,7 @@ matter what set of labels we happen to choose.
 
 For example, the species $\L$ of \emph{lists} (or \emph{linear orderings})
 sends every set of labels (of size $n$) to the set of all sequences (of size
-$n!$) containing each label exactly once %(\pref{fig:lists}). 
+$n!$) containing each label exactly once. %(\pref{fig:lists}).
 Similarly, the
 species of \emph{(rooted, ordered) binary trees} sends every set of labels to
 the set of all binary trees built over those labels.
@@ -424,8 +422,6 @@ the set of all binary trees built over those labels.
 \scw{We may not actually need these figures. Cut for space?}
 Other species describe non-algebraic data structures, such as cycles, bags and
 permutations.
-\todo{More examples.  Cycles, bags.  Permutations.  Examples of
-    algebra: describe lists and trees algebraically, etc.}
 
 %   \begin{figure}
 %     \centering
@@ -752,14 +748,22 @@ throughout the term being transported.
 Recall, from the definition of species, that $\B$ denotes the groupoid
 whose objects are finite sets and whose morphisms are bijections.
 
-\scw{Where does $\P$ come from? Why is it so important?}
-Let $\fin n \defeq \{0, \dots, n-1\}$ be the set of the first $n$ natural
-numbers.  Denote by $\P$ the category whose objects are natural
-numbers and whose morphisms $\mor m n$ are bijections $\fin m \bij \fin
-n$ (hence there are no morphisms $\mor m n$ unless $m \equiv n$).  Often it
-is noted as a triviality not requiring proof that $\P$ is equivalent
-to (in fact, a skeleton of) $\B$ and hence we are justified in working
-with $\P$ rather than $\B$ when convenient.
+\scw{Where does $\P$ come from? Why is it so important?} \bay{You're
+  right, we need to explain this a bit more.  The basic idea is that
+  talking about finite sets can be reduced to just talking about their
+  sizes.  I think it's important to talk about the relationship of
+  $\P$ and $\B$ (and, by analogy, $\PT$ and $\BT$) for several
+  reasons: first, pragmatically, it is sometimes easier to understand
+  some construction on species in terms of natural number sizes
+  instead of sets of labels.  Second, I find that it brings many of
+  the issues surrounding constructive finiteness into sharper relief.}
+Let $\fin n \defeq \{0, \dots, n-1\}$ be the set of the first $n$
+natural numbers.  Denote by $\P$ the category whose objects are
+natural numbers and whose morphisms $\mor m n$ are bijections $\fin m
+\bij \fin n$ (hence there are no morphisms $\mor m n$ unless $m \equiv
+n$).  Often it is noted as a triviality not requiring proof that $\P$
+is equivalent to (in fact, a skeleton of) $\B$ and hence we are
+justified in working with $\P$ rather than $\B$ when convenient.
 
 However, upon digging a bit deeper it is not quite so trivial after
 all: in particular, showing that $\P$ and $\B$ are (strongly)
@@ -1087,15 +1091,16 @@ product of species.
 \section{Lifted monoids: sum and Cartesian product}
 
 \scw{In this section and the following, I'm not always sure whether by ``species'' we mean
-$[\B,\Set]$ or $[\BT, \Type]$.}
-
+$[\B,\Set]$ or $[\BT, \Type]$.} \bay{I intended to reserve the word
+``species'' for $[\B, \Set]$, and to speak of ``generalized species''
+or something like that in other cases.  I guess we should probably
+make this terminological choice explicit.}
 
 Two of the simplest operations on species are the \emph{sum} and
-\emph{Cartesian product}.  As we will see, these operations arise in
-an analogous way: the only difference is that species sum comes from
-the fact that $\Set$ has coproducts (disjoint union of sets), whereas
-the Cartesian product of species comes from the fact that $\Set$ has
-products (Cartesian product of sets).
+\emph{Cartesian product}.  As we will see, these operations are
+structurally analogous: the only difference is that species sum arises
+from coproducts in $\Set$ (disjoint union), whereas the Cartesian
+product of species arises from products in $\Set$.
 
 \subsection{Species sum}
 
@@ -1209,85 +1214,84 @@ species.
 
 \scw{Maybe for the paper we can trim these examples? The full generality is
   great for the chapter, but the paper needs to focus on the
-  example of $[\BT,\Type]$.}
-\begin{example}
-  Take $\Lab = \cat{1}$ (the trivial category with one object and one
-  morphism). In this case, functors in $[\cat{1}, \Str]$ are just
-  objects of $\Str$, and a lifted monoidal operation is identical
-  to the unlifted one.
-\end{example}
+  example of $[\BT,\Type]$.} \bay{I completely agree.}
+% \begin{example}
+%   Take $\Lab = \cat{1}$ (the trivial category with one object and one
+%   morphism). In this case, functors in $[\cat{1}, \Str]$ are just
+%   objects of $\Str$, and $\lotimes$ is isomorphic to $\otimes$.
+% \end{example}
 
-\begin{example}
-  Take $\Lab = \disc{\cat{2}}$, the discrete category with two
-  objects.  Then a functor $F : \disc{\cat{2}} \to \Str$ is just a
-  pair of objects in $\Str$.  For example, if $\Str = \Set$, a functor
-  $\disc{\cat{2}} \to \Set$ is a pair of sets.  In this case, taking
-  the lifted sum $F + G$ of two functors $F,G : \disc{\cat{2}} \to
-  \Set$ corresponds to summing the pairs elementwise, that is, $(S_1,
-  T_1) + (S_2, T_2) = (S_1 \uplus S_2, T_1 \uplus T_2)$.  Another way of
-  thinking of a functor $\disc{\cat{2}} \to \Set$ is as a single
-  collection of elements where each element is tagged with one of two
-  tags (``left'' or ``right'', $0$ or $1$, \etc).  From this point of
-  view, a lifted sum can be thought of as a tag-preserving disjoint union.
+% \begin{example}
+%   Take $\Lab = \disc{\cat{2}}$, the discrete category with two
+%   objects.  Then a functor $F : \disc{\cat{2}} \to \Str$ is just a
+%   pair of objects in $\Str$.  For example, if $\Str = \Set$, a functor
+%   $\disc{\cat{2}} \to \Set$ is a pair of sets.  In this case, taking
+%   the lifted sum $F + G$ of two functors $F,G : \disc{\cat{2}} \to
+%   \Set$ corresponds to summing the pairs elementwise, that is, $(S_1,
+%   T_1) + (S_2, T_2) = (S_1 \uplus S_2, T_1 \uplus T_2)$.  Another way of
+%   thinking of a functor $\disc{\cat{2}} \to \Set$ is as a single
+%   collection of elements where each element is tagged with one of two
+%   tags (``left'' or ``right'', $0$ or $1$, \etc).  From this point of
+%   view, a lifted sum can be thought of as a tag-preserving disjoint union.
 
-  \todo{picture?}
-\end{example}
+%   \todo{picture?}
+% \end{example}
 
-\begin{example}
-  As an example in a similar vein, consider $\Lab = \disc{\N}$, the
-  discrete category with natural numbers as objects.  Functors
-  $\disc{\N} \to \Str$ are countably infinite sequences of objects
-  $[S_0, S_1, S_2, \dots]$.  One way to think of this is as a
-  collection of $\Str$-objects, one for each natural number
-  \emph{size}.  For example, if $\Str = \Set$ then the sequence of
-  sets $[S_0, S_1, S_2, \dots]$ can be thought of as a single
-  collection of elements with each element tagged by its size. (This
-  ``size'' intuition is actually fairly arbitrary at this point---the
-  objects of $\disc{\N}$ are in some sense just an arbitrary countably
-  infinite set of labels, and there is no particular reason they
-  should represent ``sizes''.  However, as we will see, this intuition
-  carries through well to subsequent examples.)
+% \begin{example}
+%   As an example in a similar vein, consider $\Lab = \disc{\N}$, the
+%   discrete category with natural numbers as objects.  Functors
+%   $\disc{\N} \to \Str$ are countably infinite sequences of objects
+%   $[S_0, S_1, S_2, \dots]$.  One way to think of this is as a
+%   collection of $\Str$-objects, one for each natural number
+%   \emph{size}.  For example, if $\Str = \Set$ then the sequence of
+%   sets $[S_0, S_1, S_2, \dots]$ can be thought of as a single
+%   collection of elements with each element tagged by its size. (This
+%   ``size'' intuition is actually fairly arbitrary at this point---the
+%   objects of $\disc{\N}$ are in some sense just an arbitrary countably
+%   infinite set of labels, and there is no particular reason they
+%   should represent ``sizes''.  However, as we will see, this intuition
+%   carries through well to subsequent examples.)
 
-  Lifting a monoidal operation to countable sequences of objects
-  performs a ``zip'', applying the monoidal operation between matching
-  positions in the two lists: \[ [S_1, S_2, S_3, \dots] \oplus [T_1,
-  T_2, T_3, \dots] = [S_1 \oplus T_1, S_2 \oplus T_2, S_3 \oplus T_3,
-  \dots] \] If $\oplus$ can be thought of as a size-preserving
-  operation---for example, disjoint union combines two collections of
-  size-$n$ things into one collection of size-$n$ things---then
-  lifting $\oplus$ combines entire size-indexed collections in a
-  size-preserving way.
-  \todo{picture}
-\end{example}
+%   Lifting a monoidal operation to countable sequences of objects
+%   performs a ``zip'', applying the monoidal operation between matching
+%   positions in the two lists: \[ [S_1, S_2, S_3, \dots] \oplus [T_1,
+%   T_2, T_3, \dots] = [S_1 \oplus T_1, S_2 \oplus T_2, S_3 \oplus T_3,
+%   \dots] \] If $\oplus$ can be thought of as a size-preserving
+%   operation---for example, disjoint union combines two collections of
+%   size-$n$ things into one collection of size-$n$ things---then
+%   lifting $\oplus$ combines entire size-indexed collections in a
+%   size-preserving way.
+%   \todo{picture}
+% \end{example}
 
-\begin{example}
-  Up until now we have mostly considered examples with $\Str = \Set$,
-  but any monoidal category will do.  $\Type$ works similarly to
-  $\Set$, for example, with disjoint union of sets replaced by
-  coproduct of types.  \todo{Give an example with some non-set-like
-    monoidal category.}
-\end{example}
+% \begin{example}
+%   Up until now we have mostly considered examples with $\Str = \Set$,
+%   but any monoidal category will do.  $\Type$ works similarly to
+%   $\Set$, for example, with disjoint union of sets replaced by
+%   coproduct of types.  \todo{Give an example with some non-set-like
+%     monoidal category.}
+% \end{example}
 
-\begin{example}
-  All the previous examples have used a discrete category in place of
-  $\Lab$; it is instructive to see an example with nontrivial
-  morphisms involved. As the simplest nontrivial example, consider
-  $\Lab = \cat{2}$, the category with two objects $0$ and $1$ and a
-  single non-identity morphism $\mor 0 1$.  A functor $\cat{2} \to
-  \Str$ is not just a pair of objects (as with $\Lab = \disc{\cat 2}$)
-  but a pair of objects with a morphism between them: \[ S_0
-  \stackrel{f}{\longrightarrow} S_1. \] Combining two such functors
-  with a lifted monoidal operation combines not just the objects but
-  also the morphisms: \[ (S_0 \stackrel{f}{\longrightarrow} S_1)
-  \oplus (T_0 \stackrel{g}{\longrightarrow} T_1) = (S_0 \oplus T_0)
-  \stackrel{f \oplus g}{\longrightarrow} (S_1 \oplus T_1) \] This is
-  possible since the monoidal operation $\oplus$ is, by definition,
-  required to be a bifunctor.
+% \begin{example}
+%   All the previous examples have used a discrete category in place of
+%   $\Lab$; it is instructive to see an example with nontrivial
+%   morphisms involved. As the simplest nontrivial example, consider
+%   $\Lab = \cat{2}$, the category with two objects $0$ and $1$ and a
+%   single non-identity morphism $\mor 0 1$.  A functor $\cat{2} \to
+%   \Str$ is not just a pair of objects (as with $\Lab = \disc{\cat 2}$)
+%   but a pair of objects with a morphism between them: \[ S_0
+%   \stackrel{f}{\longrightarrow} S_1. \] Combining two such functors
+%   with a lifted monoidal operation combines not just the objects but
+%   also the morphisms: \[ (S_0 \stackrel{f}{\longrightarrow} S_1)
+%   \oplus (T_0 \stackrel{g}{\longrightarrow} T_1) = (S_0 \oplus T_0)
+%   \stackrel{f \oplus g}{\longrightarrow} (S_1 \oplus T_1) \] This is
+%   possible since the monoidal operation $\oplus$ is, by definition,
+%   required to be a bifunctor.
+% \end{example}
 
   \todo{Explain how the above plays out in the case of species.}\scw{You mean
     when $\Lab$ is $\BT$? That seems to be the most important example that we
     need to cover.}
-\end{example}
 
 \subsection{Cartesian/Hadamard product}
 \label{sec:cartesian}
@@ -1607,8 +1611,6 @@ $G$-shape on the ``columns''.
   monoidal structure in all these different categories?  Are they
   related by monoidal functors?}
 
-\section{Composition?}
-
 \section{Multisort Species}
 
 \todo{General introduction to the concept of multisort species, and
@@ -1632,118 +1634,118 @@ $G$-shape on the ``columns''.
   \end{itemize}
 \end{defn}
 
-\todo{Need to add more text here motivating these definitions and
-  propositions.  Will go much better once I get a better sense of
-  where this all is headed exactly, and which of these properties we
-  need and why.}
+% \todo{Need to add more text here motivating these definitions and
+%   propositions.  Will go much better once I get a better sense of
+%   where this all is headed exactly, and which of these properties we
+%   need and why.}
 
-\begin{lem}
-  For any category $\C$, $\lcat{\C}$ is monoidal with list
-  concatenation |++| as the tensor product and the empty list as
-  the identity object.
-\end{lem}
+% \begin{lem}
+%   For any category $\C$, $\lcat{\C}$ is monoidal with list
+%   concatenation |++| as the tensor product and the empty list as
+%   the identity object.
+% \end{lem}
 
-\renewcommand{\Cat}{\cat{Cat}}
+% \renewcommand{\Cat}{\cat{Cat}}
 
-\todo{Note that $\lcat{-}$ is a functor $\Cat \to \Cat$? (Is it?)}
+% \todo{Note that $\lcat{-}$ is a functor $\Cat \to \Cat$? (Is it?)}
 
-\begin{defn}
-  Define the embedding functor $e : \C \to \lcat{\C}$ which sends $C$
-  to the singleton list $[C]$ and $f$ to $[f]$.
-\end{defn}
+% \begin{defn}
+%   Define the embedding functor $e : \C \to \lcat{\C}$ which sends $C$
+%   to the singleton list $[C]$ and $f$ to $[f]$.
+% \end{defn}
 
-\begin{prop}
-  $e$ is full and faithful.
-\end{prop}
+% \begin{prop}
+%   $e$ is full and faithful.
+% \end{prop}
 
-\begin{defn}
-  If $(\C, \otimes, I)$ is a monoidal category, we may define a
-  functor $F^\otimes : \lcat{\C} \to \C$ by:
-  \begin{itemize}
-  \item $F^\otimes\ \emptylist = I$
-  \item $F^\otimes\ [C_1, \dots, C_n] = C_1 \otimes \dots \otimes C_n$
-  \end{itemize}
-  and similarly for morphisms.
-\end{defn}
+% \begin{defn}
+%   If $(\C, \otimes, I)$ is a monoidal category, we may define a
+%   functor $F^\otimes : \lcat{\C} \to \C$ by:
+%   \begin{itemize}
+%   \item $F^\otimes\ \emptylist = I$
+%   \item $F^\otimes\ [C_1, \dots, C_n] = C_1 \otimes \dots \otimes C_n$
+%   \end{itemize}
+%   and similarly for morphisms.
+% \end{defn}
 
-\begin{prop}
-  $F^\otimes$ is a (strict) monoidal functor.
-  \begin{proof}
-    $F^\otimes\ \emptylist = I$ by definition, and it is easy to check
-    that $F^\otimes\ (\ell_1 \plus \ell_2) = F^\otimes\ \ell_1 \otimes
-    F^\otimes\ \ell_2$.
-  \end{proof}
-\end{prop}
+% \begin{prop}
+%   $F^\otimes$ is a (strict) monoidal functor.
+%   \begin{proof}
+%     $F^\otimes\ \emptylist = I$ by definition, and it is easy to check
+%     that $F^\otimes\ (\ell_1 \plus \ell_2) = F^\otimes\ \ell_1 \otimes
+%     F^\otimes\ \ell_2$.
+%   \end{proof}
+% \end{prop}
 
-\begin{rem}
-  Note that $F^\otimes$ is not, in general, an isomorphism.  In
-  particular, there may exist morphisms $C_1 \otimes \dots \otimes C_n
-  \to D_1 \otimes \dots \otimes D_n$ which do not arise as a tensorial
-  product of morphisms $f_i : C_i \to D_i$.  For example, in $(\Set,
-  +)$ we may define \todo{finish me}.
-\end{rem}
+% \begin{rem}
+%   Note that $F^\otimes$ is not, in general, an isomorphism.  In
+%   particular, there may exist morphisms $C_1 \otimes \dots \otimes C_n
+%   \to D_1 \otimes \dots \otimes D_n$ which do not arise as a tensorial
+%   product of morphisms $f_i : C_i \to D_i$.  For example, in $(\Set,
+%   +)$ we may define \todo{finish me}.
+% \end{rem}
 
-Given a functor category of generalized species $[\Lab, \Str]$, we may
-now form the category $[\lcat{\Lab}, \Str]$ of generalized multisort
-species.  In particular, $[\lcat{\B}, \Set]$ corresponds exactly to
-the notion of multisort species defined in Bergeron \etal \cite{bll}.
+% Given a functor category of generalized species $[\Lab, \Str]$, we may
+% now form the category $[\lcat{\Lab}, \Str]$ of generalized multisort
+% species.  In particular, $[\lcat{\B}, \Set]$ corresponds exactly to
+% the notion of multisort species defined in Bergeron \etal \cite{bll}.
 
-\todo{Note conditions under which this preserves the structure we care
-  about.  Need $\lcat{\Lab}$ to still be enriched over $\Str$.  We
-  have shown above that $\lcat{\Lab}$ preserves relevant monoidal
-  structure.  Hmm\dots multisort corresponds particularly to
-  interpreting lists using coproduct from underlying category\dots
-  where does that come from?}
+% \todo{Note conditions under which this preserves the structure we care
+%   about.  Need $\lcat{\Lab}$ to still be enriched over $\Str$.  We
+%   have shown above that $\lcat{\Lab}$ preserves relevant monoidal
+%   structure.  Hmm\dots multisort corresponds particularly to
+%   interpreting lists using coproduct from underlying category\dots
+%   where does that come from?}
 
-\section{Weighted Species}
-\label{sec:weighted-species}
+% \section{Weighted Species}
+% \label{sec:weighted-species}
 
-\todo{General explanation and intuition for weighted species, and usual definition.}
+% \todo{General explanation and intuition for weighted species, and usual definition.}
 
-\newcommand{\A}{\bbb{A}}
+% \newcommand{\A}{\bbb{A}}
 
-Given some object $A \in \Str$, consider the slice category $\Str/A$.
-We can interpret objects of $\Str/A$ as objects of $\Str$ paired with
-a ``weighting''; morphisms in $\Str/A$ are thus ``weight-preserving''
-morphisms of $\Str$.
+% Given some object $A \in \Str$, consider the slice category $\Str/A$.
+% We can interpret objects of $\Str/A$ as objects of $\Str$ paired with
+% a ``weighting''; morphisms in $\Str/A$ are thus ``weight-preserving''
+% morphisms of $\Str$.
 
-The first thing to note is that $\Str/A$ inherits coproducts from
-$\Str$: given two weighted objects $(X, \omega_X)$ and $(Y,
-\omega_Y)$, we can uniquely construct a weighting $(X+Y, [\omega_X,
-\omega_Y])$:
-\[ \xymatrix{ X \ar[dr]_{\omega_X} \ar[r]^-{\iota_1} & X + Y
-  \ar[d]||{[\omega_X, \omega_Y]} & Y \ar[l]^-{\iota_2}
-  \ar[dl]^{\omega_Y} \\ & A & } \] To see that this is indeed the
-coproduct $(X,\omega_X) + (Y,\omega_Y)$ in $\Str/A$, \todo{finish}
+% The first thing to note is that $\Str/A$ inherits coproducts from
+% $\Str$: given two weighted objects $(X, \omega_X)$ and $(Y,
+% \omega_Y)$, we can uniquely construct a weighting $(X+Y, [\omega_X,
+% \omega_Y])$:
+% \[ \xymatrix{ X \ar[dr]_{\omega_X} \ar[r]^-{\iota_1} & X + Y
+%   \ar[d]||{[\omega_X, \omega_Y]} & Y \ar[l]^-{\iota_2}
+%   \ar[dl]^{\omega_Y} \\ & A & } \] To see that this is indeed the
+% coproduct $(X,\omega_X) + (Y,\omega_Y)$ in $\Str/A$, \todo{finish}
 
-Products in $\Str/A$ are pullbacks in $\Str$.  For example, given two
-weighted sets $(X, \omega_X)$ and $(Y, \omega_Y)$ in $\Set/A$, their
-categorical product in $\Str/A$ is the set $\{(x,y) \mid x \in X, y
-\in Y, \omega_X(x) = \omega_Y(y)\}$.  However, this is not a very
-useful notion of product in this context: intuitively, taking a
-product of weighted objects should yield a combined object with some
-sort of combined weight, instead of limiting us to cases where the
-weights match.
+% Products in $\Str/A$ are pullbacks in $\Str$.  For example, given two
+% weighted sets $(X, \omega_X)$ and $(Y, \omega_Y)$ in $\Set/A$, their
+% categorical product in $\Str/A$ is the set $\{(x,y) \mid x \in X, y
+% \in Y, \omega_X(x) = \omega_Y(y)\}$.  However, this is not a very
+% useful notion of product in this context: intuitively, taking a
+% product of weighted objects should yield a combined object with some
+% sort of combined weight, instead of limiting us to cases where the
+% weights match.
 
-Instead of requiring $\Str$ to have pullbacks, we can define a
-different sort of monoidal product on $\Str/A$ if we assume that
-$\Str$ has products and $A$ is a monoid object, that is, there exist
-morphisms $\eta : 1 \to A$ and $\mu : A \times A \to A$ satisfying
-\todo{finish}.  In this case, we may define $(X, \omega_X) \otimes (Y,
-\omega_Y)$ by
-\[\xymatrixcolsep{4pc} \xymatrix{ X \times Y \ar[r]^-{\omega_X \times \omega_Y} & A
-  \times A \ar[r]^-\mu & A. } \]  The identity for $\otimes$ is given
-by $\eta$.
-%% xymatrix{ \{\star\} \ar[r]^{!} & 1 \ar[r]^\eta & A. } \]
-One can check that $\otimes$ inherits monoidal structure from
-$A$. \todo{Finish this proof.}
+% Instead of requiring $\Str$ to have pullbacks, we can define a
+% different sort of monoidal product on $\Str/A$ if we assume that
+% $\Str$ has products and $A$ is a monoid object, that is, there exist
+% morphisms $\eta : 1 \to A$ and $\mu : A \times A \to A$ satisfying
+% \todo{finish}.  In this case, we may define $(X, \omega_X) \otimes (Y,
+% \omega_Y)$ by
+% \[\xymatrixcolsep{4pc} \xymatrix{ X \times Y \ar[r]^-{\omega_X \times \omega_Y} & A
+%   \times A \ar[r]^-\mu & A. } \]  The identity for $\otimes$ is given
+% by $\eta$.
+% %% xymatrix{ \{\star\} \ar[r]^{!} & 1 \ar[r]^\eta & A. } \]
+% One can check that $\otimes$ inherits monoidal structure from
+% $A$. \todo{Finish this proof.}
 
-\todo{Show that this gives the usual notion of weighted species.}
+% \todo{Show that this gives the usual notion of weighted species.}
 
-\todo{Show that this construction preserves the properties we care
-  about.}
+% \todo{Show that this construction preserves the properties we care
+%   about.}
 
-\todo{Give some examples.}
+% \todo{Give some examples.}
 
 \section{Related Work}
 \label{sec:related}
