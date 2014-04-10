@@ -509,7 +509,7 @@ A \term{species} $F$ is a pair of mappings which
 \end{itemize}
 satisfying the following functoriality conditions:
 \begin{itemize}
-\item $F\ id_U = id_{F\ U}$, and
+\item $F\ id_U = id_{F U}$, and
 \item $F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
 \end{itemize}
 \end{defn}
@@ -566,7 +566,7 @@ context) just ``$F$-shapes''.\footnote{Margaret Readdy's English translation
   ``shape'', but that word is likely to remind computer scientists of
   ``data structures'', which is the wrong association: data structures
   contain \emph{data}, whereas species shapes do not.  We choose the
-  word shape to emphasize the fact that they are ``form without
+  word ``shape'' to emphasize the fact that they are ``form without
   content''.}  $F\ \sigma$ is called the ``transport of $\sigma$ along
 $F$'', or sometimes the ``relabeling of $F$-shapes by $\sigma$''.
 
@@ -583,20 +583,23 @@ $F\ n$ for the set of $F$-shapes built from this set.
 Using the language of category theory, we can give an equivalent, more
 concise definition of species:
 \begin{defn}
+  \label{defn:species-cat}
   A \term{species} is a functor $F : \B \to \Set$, where $\B$ is the
   groupoid of finite sets whose morphisms are bijections, and
   $\Set$ is the category of sets and (total) functions.
 \end{defn}
 
 \begin{rem}
-  Although \pref{defn:species-set} only says that a species $F$ sends
-  a bijection $\sigma : U \bij V$ to a \emph{function} $F\ \sigma :
-  F\ U \to F\ V$, the functoriality of $F$ in fact guarantees that
-  bijections must be sent to bijections. In particular, $F\ \sigma$
-  always has $F(\sigma^{-1})$ as its inverse, since $F\ \sigma \comp
-  F\ \sigma^{-1} = F\ (\sigma \comp \sigma^{-1}) = F\ id
-  = id$. \scw{I don't understand this remark. ``the definition'' is
-    \pref{defn:species-set}?} \bay{Better now, I hope?}
+  Although Definitions \ref{defn:species-set} and
+  \ref{defn:species-cat} say only that a species $F$ sends a bijection
+  $\sigma : U \bij V$ to a \emph{function} $F\ \sigma : F\ U \to F\
+  V$, the functoriality of $F$ in fact guarantees that $F\ \sigma$
+  will always be a bijection as well. In particular, $(F\ \sigma)^{-1}
+  = F\ (\sigma^{-1})$, since $F\ \sigma \comp F\ (\sigma^{-1}) = F\
+  (\sigma \comp \sigma^{-1}) = F\ id = id$, and similarly $F\
+  (\sigma^{-1}) \comp F\ \sigma = id$. \scw{I don't understand this
+    remark. ``the definition'' is \pref{defn:species-set}?}
+  \bay{Better now, I hope?}
 \end{rem}
 
 %\subsection{Species from scratch}
