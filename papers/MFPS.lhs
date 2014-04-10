@@ -661,22 +661,19 @@ throughout the term.
 \label{sec:finiteness}
 
 Recall, from the definition of species, that $\B$ denotes the groupoid
-whose objects are finite sets and whose morphisms are bijections.
+whose objects are finite sets and whose morphisms are bijections. We
+construct its constructive counterpart $\BT$ in two stages. First, we 
+introduce $\P$, a way to think about sets of labels in terms of natural numbers
+(because the actual contents of these sets do not matter) and develop its
+constructive analogue $\PT$. This simpler context, brings
+many of the issues surrounding constructive finiteness into focus.
+We then show how to extend $\PT$ to $\BT$.
 
-\scw{Where does $\P$ come from? Why is it so important?} \bay{You're
-  right, we need to explain this a bit more.  The basic idea is that
-  talking about finite sets can be reduced to just talking about their
-  sizes.  I think it's important to talk about the relationship of
-  $\P$ and $\B$ (and, by analogy, $\PT$ and $\BT$) for several
-  reasons: first, pragmatically, it is sometimes easier to understand
-  some construction on species in terms of natural number sizes
-  instead of sets of labels.  Second, I find that it brings many of
-  the issues surrounding constructive finiteness into sharper relief.}
 Let $\fin n \defeq \{0, \dots, n-1\}$ be the set of the first $n$
 natural numbers.  Denote by $\P$ the category whose objects are
 natural numbers and whose morphisms $\mor m n$ are bijections $\fin m
 \bij \fin n$ (hence there are no morphisms $\mor m n$ unless $m \equiv
-n$).  Often it is noted as a triviality not requiring proof that $\P$
+n$).  Often it is noted as trivial that $\P$
 is equivalent to (in fact, a skeleton of) $\B$ and hence we are
 justified in working with $\P$ rather than $\B$ when convenient.
 
@@ -739,7 +736,7 @@ First, defining a counterpart to $\P$ is straightforward:
 \begin{defn}
   $\PT$ is the groupoid where
   \begin{itemize}
-  \item the objects are natural numbers in our type theory, that is,
+  \item the objects are natural numbers, that is,
     values of type $\N$, and
   \item the morphisms $\mor m n$ are equivalences of type $\Fin m \iso
     \Fin n$.
@@ -840,25 +837,25 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
   of $p$ with $e_1$, and \todo{finish}
 \end{proof*}
 
-Since the problem with this approach was paths between evidence of
-finiteness imposing too strong of a constraint, we next try using the
-\emph{propositional truncation} of finiteness evidence.  That is, we
-consider $\tygrpd{\FinTypeT}$, where \[ \FinTypeT \defeq (A : \Type)
-\times (n : \N) \times \ptrunc{\Fin n \iso A}. \] A path between two
-inhabitants of $\FinTypeT$ is now unconstrained by the finiteness
-evidence (there is always a path between any two inhabitants of a
-propositional truncation), and hence equivalent to a path between
-their underlying types.  This does yield the right groupoid
-structure. However, we now have a different problem: we can only prove
-that $\tygrpd{\FinTypeT}$ is equivalent to $\PT$ if we treat
-equivalence of categories is a mere proposition. The reason is that
-the recursion principle for propositional truncation only allows
-making use of the contained finiteness evidence if it is in the
-service of constructing an inhabitant of a mere proposition.  This
-ensures that the precise content of the truncation cannot ``leak''.
-However, since our goal is to construct computationally relevant
-functors witnessing the equivalence, equivalence as a mere proposition
-is unsatisfactory.
+Since the problem with this approach was paths between evidence of finiteness
+imposing too strong of a constraint, we next try using the \emph{propositional
+  truncation}\footnote{The propositional truncation of a type 
+  ``squashes'' the type down to a mere proposition, forgetting all information
+  contained in its inhabitants other than their existence.} of
+finiteness evidence.  That is, we consider $\tygrpd{\FinTypeT}$, where \[
+\FinTypeT \defeq (A : \Type) \times (n : \N) \times \ptrunc{\Fin n \iso A}. \]
+A path between two inhabitants of $\FinTypeT$ is now unconstrained by the
+finiteness evidence (there is always a path between any two inhabitants of a
+propositional truncation), and hence equivalent to a path between their
+underlying types.  This does yield the right groupoid structure. However, we
+now have a different problem: we can only prove that $\tygrpd{\FinTypeT}$ is
+equivalent to $\PT$ if we treat equivalence of categories is a mere
+proposition. The reason is that the recursion principle for propositional
+truncation only allows making use of the contained finiteness evidence if it
+is in the service of constructing an inhabitant of a mere proposition.  This
+ensures that the precise content of the truncation cannot ``leak''.  However,
+since our goal is to construct computationally relevant functors witnessing
+the equivalence, equivalence as a mere proposition is unsatisfactory.
 
 Our third attempt goes though, however.  Instead of relying directly
 on $\tygrpd{-}$, we can define $\BT$ as follows:
