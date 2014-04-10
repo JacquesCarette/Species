@@ -1105,8 +1105,9 @@ product of species arises from products in $\Set$.
 
 \subsection{Species sum}
 
-species. The intuition is that an $(F + G)$-shape is either an
-$F$-shape \emph{or} a $G$-shape. Formally:
+The \emph{sum} of two species, intuitively, is given by their disjoint
+union: an $(F + G)$-shape is either an $F$-shape \emph{or} a
+$G$-shape (together with a tag so we can tell which).
 
 \begin{defn}
   Given species $F, G : \B \to \Set$, we may form their sum $F + G$,
@@ -1207,15 +1208,19 @@ instance for |e -> a| satisfies the monoid laws if the instance for
 \end{prop}
 
 \scw{Say something like, ``thus we define the generalized versions of species
-  sum and the empty species'' to make it explicit?}
+  sum and the empty species'' to make it explicit?} \bay{I am not sure
+  what you mean.}
 
 Since $(\uplus,\varnothing)$ is a coproduct structure on $\Set$, it follows
 that $(+, \Zero)$ is in fact a coproduct structure on the category of
 species.
 
-\scw{Maybe for the paper we can trim these examples? The full generality is
-  great for the chapter, but the paper needs to focus on the
-  example of $[\BT,\Type]$.} \bay{I completely agree.}
+In $\Type$, the coproduct of two types $A$ and $B$ is given by their
+sum, $A + B$, with the void type $\TyZero$ serving as the identity.
+We may thus lift this coproduct structure to the functor category
+$[\BT, \Type]$---or indeed to any $[\Lab, \Type]$, since no
+requirements are imposed on the domain category.
+
 % \begin{example}
 %   Take $\Lab = \cat{1}$ (the trivial category with one object and one
 %   morphism). In this case, functors in $[\cat{1}, \Str]$ are just
@@ -1289,10 +1294,6 @@ species.
 %   possible since the monoidal operation $\oplus$ is, by definition,
 %   required to be a bifunctor.
 % \end{example}
-
-  \todo{Explain how the above plays out in the case of species.}\scw{You mean
-    when $\Lab$ is $\BT$? That seems to be the most important example that we
-    need to cover.}
 
 \subsection{Cartesian/Hadamard product}
 \label{sec:cartesian}
