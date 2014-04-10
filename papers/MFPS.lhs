@@ -552,7 +552,10 @@ port requires defining categories $\BT$ and $\Type$ so that a functor $\BT \to
 \Type$ is a ``constructive counterpart'' to a functor $\B \to \Set$. We define
 these categories in the next section.
 
-\scw{Is there a way to pronounce $\B$ and $\BT$? Why B in the first place?}
+\scw{Is there a way to pronounce $\B$ and $\BT$? Why B in the first
+  place?} \bay{I don't know of a way to pronounce them.  The notation
+  $\B$ is quite standard and comes from Bergeron \etal (and perhaps
+  ultimately from Joyal?).  I suppose the B is for ``Bijections''?}
 
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
