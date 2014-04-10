@@ -399,7 +399,11 @@ In the next section, we review the set-theoretic definitions of species (\pref{s
 before recasting them in the context of homotopy type theory in
 \pref{sec:prelim}.  We assume familiarity with dependent type theory and
 (basic) category throughout, but will spell out the basic HoTT tools
-we need, as well as more advanced categorical constructions.
+we need, as well as more advanced categorical constructions. \bay{We
+  need to actually make this true.  In particular, Day convolution is
+  defined in terms of coends which can hardly be said to be ``basic category theory''.  However, I am
+  not sure we really have space to explain them.  Perhaps we can cook up
+  an extremely high-level, hand-wavy sort of explanation.}
 
 % \todo{Somewhere we need to say what category theory background we
 %   assume (and spell out the things we don't assume).}
@@ -1039,7 +1043,8 @@ picture of where the operations ``come from''.\footnote{Much of this material
     work.}} In particular, $\B$ and \Set enjoy many special properties as
 categories (for example, \Set is cartesian closed, has all limits and
 colimits, and so on).  It is enlightening to see precisely which of these
-properties are required in which situations.\footnote{ Note that the objects
+properties are required in which situations.\todo{This footnote does
+  not really belong here; find a better place for it.}\footnote{Note that the objects
   of $\Lab$ might not correspond to ``sets'' at all.  Although our definitions
   are guided by the the intuition of ``sets of labels'', in the most general
   setting we must only think of shapes as indexed by objects of $\Lab$, rather
