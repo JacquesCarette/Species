@@ -344,9 +344,10 @@ Furthermore, there seems to be a connection between this framework of abstract
 structures and the data structures that programmers use. We can think of these
 structures as some sort of ``shape'' containing \emph{labeled positions} or
 \emph{locations}. When paired with a mapping from those labels to actual data,
-species models familiar data structures, such as algebraic datatypes. We would
+species can be used to model familiar data structures---as well as
+unfamiliar ones. We would
 like to use this beautiful theory to enrich and expand our
-understanding of computational structures.
+understanding of data structures.
 
 However, teasing out the precise relationship between species and data
 structures has proved challenging, for two reasons. First, combinatorialists
@@ -362,12 +363,12 @@ species are described in ways that are \emph{untyped} and
 computational context.
 
 In this paper, we create a bridge between the theory of species and the theory
-and practices of programming. In particular, we ``port'' the definitions of
+and practice of programming. In particular, we ``port'' the definition of
 combinatorial species to constructive type theory, making the theory more
 directly applicable in a programming context and more accessible to functional
 programmers.
 
-This port is nontrivial. In fact it took us several tries to get definitions
+This port is nontrivial. In fact, it took us several tries to get definitions
 that worked adequately. Part of the difficulty lies in the fact that
 species are defined over \emph{finite} sets of labels.  In a classical
 setting, while finiteness is a crucial part of the definition, it is an
@@ -387,9 +388,10 @@ More specifically, the contributions of this paper are:
 \item We define the concept of \emph{species} in
   constructive type theory (\pref{sec:constructive-species}).% , characterizing
   % them as functors from a finite collection of labels to structures.
+\item \todo{Something here about finiteness?}
 \item As part of our port to type theory, we generalize common operations on
   species, including sum, partitional and Cartesian product,
-  carefully analyzing their requirements to insure consistency
+  carefully analyzing their requirements to ensure consistency
   with our new interpretation.
 % remove 'arithmetic product' from this list since it is far from 'common'!
 \item This generalization leads to new insights. In particular, we observe
@@ -405,18 +407,14 @@ we need, as well as more advanced categorical constructions.
 \section{Species in set theory}
 \label{sec:species}
 
-In set theory, we define species as \emph{labeled structures}---structures
-that are \emph{indexed by} a set of labels.  A labeled structure is a mapping
-from a given set of labels to all the shapes built from them, with some extra
-properties to guarantee that we really do get the same family of shapes no
-matter what set of labels we happen to choose.
-
-For example, the species $\L$ of \emph{lists} (or \emph{linear orderings})
-sends every set of labels (of size $n$) to the set of all sequences (of size
-$n!$) containing each label exactly once. %(\pref{fig:lists}).
-Similarly, the
-species of \emph{(rooted, ordered) binary trees} sends every set of labels to
-the set of all binary trees built over those labels.
+Species, intuitively, are \emph{families of labelled shapes}---shapes
+that are \emph{indexed by} sets of labels.  For example, the species
+$\L$ of \emph{lists} (or \emph{linear orderings}) sends every set of
+labels (of size $n$) to the set of all sequences (of size $n!$)
+containing each label exactly once. %(\pref{fig:lists}).
+Similarly, the species of \emph{binary trees} sends
+every set of labels to the set of all binary trees built over those
+labels.
 % (\pref{fig:binary-trees}).
 Other species describe non-algebraic data structures, such as cycles, bags and
 permutations.
@@ -503,9 +501,9 @@ A \term{species} $F$ is a pair of mappings which sends any finite set $U$ (of
 \footnote{We use the notation $U \bij V$ for any bijection between sets $U$ and
 $V$.} $\sigma : U \bij V$ to a function $F\ \sigma : F\ U \to F\ V$
 %  (illustrated in \pref{fig:relabeling}),
-satisfying the functoriality conditions:
-(1) $F\ id_U = id_{F U}$, and
-(2) $F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
+satisfying functoriality conditions:
+$F\ id_U = id_{F U}$, and
+$F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
 %\begin{itemize}
 %\item $F\ id_U = id_{F U}$, and
 %\item $F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
@@ -520,16 +518,14 @@ context) just ``\mbox{$F$-shapes}''.\footnote{Margaret Readdy's English translat
   ``data structures'', which is the wrong association: data structures
   contain \emph{data}, whereas species shapes do not.  We choose the
   word ``shape'' to emphasize the fact that they are ``form without
-  content''.} The bijection $\sigma$ is called a ``relabeling'' and $F\ \sigma$ is called the ``transport of $\sigma$ along
+  content''.} The bijection $\sigma$ is called a ``relabeling'', and $F\ \sigma$ is called the ``transport of $\sigma$ along
 $F$'', or sometimes the ``relabeling of \mbox{$F$-shapes} by $\sigma$''.
 
 The functoriality of relabeling means that the actual labels used
 don't matter; we get ``the same shapes'' up to relabeling for any
 label sets of the same size.  In other words, $F$'s action on all
 label sets of size $n$ is determined by its action on any particular
-such set: if $||U_1|| = ||U_2||$ and we know $F\ U_1$, we can
-determine $F\ U_2$ by lifting an arbitrary bijection between $U_1$ and
-$U_2$.  Therefore, we often take the finite set of natural numbers $[n] = \{0,
+such set. Therefore, we often take the finite set of natural numbers $[n] = \{0,
 \dots, n-1\}$ as \emph{the} canonical label set of size $n$, and write
 $F\ n$ for the set of $F$-shapes built from this set.
 
@@ -538,9 +534,9 @@ concise definition of species:
 \begin{defn}
   \label{defn:species-cat}
   A \term{species} is a functor $F : \B \to \Set$, where $\B$%
-\footnote{$\B$ for \emph{bijection}, a rare category named for its arrows.} 
-  is the
-  groupoid of finite sets whose morphisms are bijections, and
+is the
+  groupoid of finite sets whose morphisms are bijections,\footnote{$\B$ for \emph{bijection}, a rare category named for its arrows.} 
+   and
   $\Set$ is the category of sets and (total) functions.
 \end{defn}
 
@@ -559,8 +555,7 @@ concise definition of species:
 
 Porting the theory of species to a constructive setting
 requires defining categories $\BT$ and $\Type$ so that a functor $\BT \to
-\Type$ is a ``constructive counterpart'' to a functor $\B \to \Set$. We define
-these categories in the next section.
+\Type$ is a ``constructive counterpart'' to a functor $\B \to \Set$. 
 
 %\scw{Is there a way to pronounce $\B$ and $\BT$? Why B in the first
 %  place?} \bay{I don't know of a way to pronounce them.  The notation
@@ -574,21 +569,21 @@ these categories in the next section.
 \section{Species in Constructive Type Theory}
 \label{sec:prelim}
 
-We next define the categories $\BT$ and $\Type$ in the context of
-\term{homotopy type theory} (HoTT).  Intuitively, the category $\BT$
-should capture the idea of ``constructively finite types'',
-corresponding to the finite sets of $\B$. Intuitively, we can define
-finiteness as an equivalence to some type that we already know to be
-finite.  We choose to work in HoTT because
-its univalence axiom simplifies working with equivalences.  \bay{It
-  goes much deeper than this; it is no longer the case that we are
-  just using HoTT for convenience but could just as easily use some
-  other type theory (as we tried to argue in our earlier paper).  I
-  will try to write a clearer account of this later, but first I need
-  to write the section explaining how coends work out in
-  HoTT.}\todo{Why bother encoding finiteness in type theory?}\scw{I'm
-  not sure we have a good answer to this question.}
-
+We define the categories $\BT$ and $\Type$ in the context of
+\term{homotopy type theory} (HoTT).  % Intuitively, the category $\BT$
+% should capture the idea of ``constructively finite types'',
+% corresponding to the finite sets of $\B$. Intuitively, we can define
+% finiteness as an equivalence to some type that we already know to be
+% finite.  We choose to work in HoTT because
+% its univalence axiom simplifies working with equivalences.  \bay{It
+%   goes much deeper than this; it is no longer the case that we are
+%   just using HoTT for convenience but could just as easily use some
+%   other type theory (as we tried to argue in our earlier paper).  I
+%   will try to write a clearer account of this later, but first I need
+%   to write the section explaining how coends work out in
+%   HoTT.}\todo{Why bother encoding finiteness in type theory?}\scw{I'm
+%   not sure we have a good answer to this question.}
+%
 This section begins by summarizing the most important ideas and notation of
 HoTT; interested readers should consult the HoTT book~\cite{hottbook} for more
 details.
@@ -618,7 +613,7 @@ The theory also allows inductive definitions.  We use $\N : \Type_0$
 to denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
 usual indexed type of canonical finite sets.
 
-Note that although we use Agda's notation~\cite{Agda} for dependent pairs and 
+Although we use Agda's notation~\cite{Agda} for dependent pairs and 
 functions, we occasionally use the traditional $\sum_{x : A} B(x)$ and
 $\prod_{x:A} B(x)$ for emphasis, and the standard
 abbreviations $A \times B$ and $A \to B$ for non-dependent pair and
@@ -765,17 +760,17 @@ corresponding set of natural numbers $\fin{\size S}$.
 % \emph{witness} $a : A(x)$ for which the property $P(x,a)$ holds.  That
 % is, it requires that we have already made a choice for each $x$.
 
-The axiom of choice is consistent with
+The axiom of choice ($\AC$) is consistent with
 HoTT.\scw{I think we can omit this equation for space too. Cut it.}
 % \begin{equation} \tag{$\AC$}
 %   \label{eq:AC}
 %   \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
 %     \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
 % \end{equation}
-However, this axiom has no computational interpretation, and is therefore
+However, $\AC$ has no computational interpretation, and is therefore
 unsuitable for constructing a functor with computational content.
 %
-As is standard constructive practice, we reject this use of $\AC$.
+As is standard constructive practice, we reject $\AC$.
 %We therefore reject the use of the axiom of choice.  
 %Our goal
 %is to build groupoids $\PT$ and $\BT$ which are type-theoretic
@@ -800,17 +795,19 @@ A). \]
 
 We need to build a groupoid having such finite types as objects, and
 equivalences between them as morphisms.  Via univalence, we may
-conveniently package up such equivalences as paths.  We note
-the following method to build an $\infty$-groupoid out of any
-type:
+conveniently package up such equivalences as paths.  
+
+Unfortunately, the standard method to build an 
+$\infty$-groupoid out of any
+type does not work! Consider:
 \begin{defn}
   For a type $A$, the $\infty$-groupoid $\tygrpd{A}$ has 
   values $a : A$ as its objects, paths $a = b$ as its $1$-morphisms,
   paths between paths as $2$-morphims, and so on.
 \end{defn}
-
-We then naturally attempt to use $\tygrpd{\FinType}$ as a constructive
-counterpart to $\B$.  Unfortunately, this does not work! Intuitively, the
+If we use $\tygrpd{\FinType}$ as a constructive
+counterpart to $\B$, we only have only have one morphism between each object.
+Intuitively, the
 problem is that the paths involve not just the types in question
 but also the evidence of their finiteness, so that a path
 between two finite types requires them to be finite ``in the same way''. 
@@ -957,7 +954,7 @@ $e : \mor {(A, m, i)} {(B, n, j)}$ are sent to $i \then e \then j^{-1}$.
 % \[
 %   \xymatrix{\Fin m \ar@@{<->}[d]_-i & \Fin n \\ A \ar@@{<->}[r]_e & B
 %     \ar@@{<->}[u]_-{j^{-1}} } \]
-The functoriality of $\size{}$ can be seen by noting the cancelling
+The functoriality of $\size{}$ can be seen by noting the canceling
 pair of inverse equivalences in each of the following two diagrams:
   \[ \xymatrix{\Fin m \ar@@<-.4em>@@{<->}[d]_i
          \ar@@<.4em>@@{<->}[d]^{i^{-1}}
@@ -1153,7 +1150,7 @@ one-element sets are isomorphic in \Set.)
   objects by $ (F \times G)\ L = F\ L \times G\ L. $
 \end{defn}
 An $(F \times G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on
-\emph{the same set of labels}.% (\pref{fig:Cartesian-product-dup}).  
+\emph{the same set of labels}. % (\pref{fig:Cartesian-product-dup}).  
 There are several ways to think
 about this situation. One can think of two distinct shapes, with
 labels duplicated between them; one can think of the labels as
