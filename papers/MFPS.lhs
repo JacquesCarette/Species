@@ -262,17 +262,15 @@
 
 %% ENTCS
 
-\author{Brent A. Yorgey}
-\address{Dept. of Computer and Information Science\\
+\author[Penn]{Brent A. Yorgey},
+\author[Mac]{Jacques Carette},
+\author[Penn]{Stephanie Weirich}
+
+\address[Penn]{Dept. of Computer and Information Science\\
  The University of Pennsylvania\\
  Philadelphia, Pennsylvania, USA}
-\author{Jacques Carette}
-\address{Dept. of Computing and Software\\ McMaster University\\
+\address[Mac]{Dept. of Computing and Software\\ McMaster University\\
  Hamilton, Ontario, Canada}
-\author{Stephanie Weirich}
-\address{Dept. of Computer and Information Science\\
- The University of Pennsylvania\\
- Philadelphia, Pennsylvania, USA}
 
 %\thanks[myemail]{Email:\href{mailto:byorgey@cis.upenn.edu}
 %{\texttt{\normalshape byorgey@cis.upenn.edu}}}
