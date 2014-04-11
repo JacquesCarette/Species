@@ -1435,18 +1435,46 @@ $F$-shape would be allowed to contain many different $G$-shapes, this
 notion is symmetric: an $F$-assembly of cloned $G$-shapes is
 isomorphic to a $G$-assembly of cloned $F$-shapes.  Another intuitive
 way to think of the arithmetic product, which points out the symmetry
-more clearly, is to think of a rectangular matrix of labels,
-together with an $F$-shape labelled by the rows of the grid, and a
-$G$-shape labelled by the columns.  We omit a more formal definition
-in the interest of space; in any case, a formal definition can be
-extracted from the more general definition in terms of Day convolution
-in the next section.
+more clearly, is to think of a rectangular matrix of labels, together
+with an $F$-shape labelled by the rows of the grid, and a $G$-shape
+labelled by the columns.  We omit a more formal definition in the
+interest of space; in any case, a formal definition can be extracted
+from the more general definition in terms of Day convolution in
+\pref{sec:day-convolution}.  Before defining Day convolution, however,
+we first give some brief intuition for the concept of a \emph{coend}.
+
+\subsection{Coends}
+\label{sec:coends}
+
+\newcommand{\D}{\bbb{D}}
+
+Given a bifunctor $T : \C^\op \times \C \to \D$, a \term{coend} over
+$T$, denoted $\int^C T(C,C)$, is an object of $\D$.  In the specific
+case when the objects of $\D$ can be thought of as sets or types with
+``elements''\footnote{This definition can be made precise in full
+  generality (without requiring the objects of $\D$ to have
+  ``elements'') using a \emph{coequalizer}.}, the coend $\int^C
+T(C,C)$ is given by a quotient of an indexed coproduct $\left( \sum_{C
+    \in \C} T(C,C) \right) / \sim$.  Elements of the indexed coproduct
+look like pairs $(C, t)$ where $C \in \C$ and $t \in T(C,C)$. The idea
+behind the quotient is that we want to consider two pairs $(C,t)$ and
+$(C', t')$ equivalent if they are related by the functoriality of $T$.
+In particular, for each arrow $f : C \to C'$ in $\C$ and each $x \in
+T(C',C)$, we set $(C, T(f,1)\ x) \sim (C', T(1,f)\ x)$.  That is, we
+can always ``swap out $(C,t)$ for $(C',t')$'' as long as we have some
+way to map from $C$ to $C'$ and the associated values $t$ and $t'$ are
+related by the same mapping.
+
+Intuitively, the functor $T$ can be thought of as an ``interface'';
+$(C,t)$ is then a ``module'' with ``representation type'' $C$ and
+``implementation'' $t$.  Indeed, in Haskell, the coend of $T$ is given
+by the type |exists e. T e e| (or rather, by an isomorphic encoding,
+since |exists| is not actually valid Haskell snytax).  $T$ is required
+to be a bifunctor from $\C^\op \times \C$ since the representation
+type may occur both co- and contravariantly in the interface.
 
 \subsection{Day convolution}
 \label{sec:day-convolution}
-
-\todo{Insert a brief, hand-wavy explanation of coends somewhere around
-  here.}
 
 Just as sum and Cartesian product were seen to arise from the same
 construction applied to different monoids, both partitional and
@@ -1502,7 +1530,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   structure given by Cartesian product.
 
   Specializing the definition to this case, and expressing the coend
-  as a coequalizer, we obtain
+  as a quotient, we obtain
   \begin{align*}
     (F \cdot G)(L) &= \int^{L_1, L_2} F\ L_1 \times G\ L_2 \times
     (L \iso L_1 + L_2) \\
