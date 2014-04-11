@@ -9,12 +9,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% lhs2TeX
 
-%include lhs2TeX.fmt
+%include polycode.fmt
 
 % Use 'arrayhs' mode, so code blocks will not be split across page breaks.
-% \arrayhs
+\arrayhs
 
-% \renewcommand{\Conid}[1]{\mathsf{#1}}
+\renewcommand{\Conid}[1]{\mathsf{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
@@ -1454,10 +1454,12 @@ related by the same mapping.
 Intuitively, the functor $T$ can be thought of as an ``interface'';
 $(C,t)$ is then a ``module'' with ``representation type'' $C$ and
 ``implementation'' $t$.  Indeed, in Haskell, the coend of $T$ is given
-by the type |exists e. T e e| (or rather, by an isomorphic encoding,
-since |exists| is not actually valid Haskell snytax).  $T$ is required
-to be a bifunctor from $\C^\op \times \C$ since the representation
-type may occur both co- and contravariantly in the interface.
+by the type \texttt{exists c.\ T c c} (or rather, by an isomorphic
+encoding, since \texttt{exists} is not actually valid Haskell snytax)
+\cite{edward blog post} \todo{look this up and add the right
+  reference}.  $T$ is required to be a bifunctor from $\C^\op \times
+\C$ since the representation type may occur both co- and
+contravariantly in the interface.
 
 \subsection{Day convolution}
 \label{sec:day-convolution}
