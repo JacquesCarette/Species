@@ -66,8 +66,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Comments
 
-\newif\ifcomments\commentstrue
-%\newif\ifcomments\commentsfalse
+%\newif\ifcomments\commentstrue
+\newif\ifcomments\commentsfalse
 
 \ifcomments
 \newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
@@ -1638,7 +1638,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 
 \section{Other constructions}
 
-\subsection{Differentiation}
+
 \label{sec:diff}
 
 The \emph{derivative} $F'$ of a species $F$, well-known in the functional
@@ -1648,7 +1648,6 @@ an $F$-shape with one ``hole'' in it.  To generalize this to functor
 categories $[\Lab, \Str]$, it suffices for $\Str$ to have coproducts
 and a terminal object.
 
-\subsection{Multisort species}
 \label{sec:multisort}
 
 \newcommand{\lcat}[1]{#1^*}
@@ -1792,7 +1791,7 @@ operations; and the same construction applies equally well to $\BT$.
 
 % \todo{Give some examples.}
 
-\subsection{Weighted species}
+
 \label{sec:weighted}
 
 \term{Weighted} species \cite[\Sect \todo{look this up}]{bll} can also
@@ -1807,6 +1806,7 @@ publication. \bay{Is there a better way to say this?  Is it worth
   section? Of course some of it is straightforward and the future work is
   finding a venue with enough space to explain it. But they are connected as
   more operations on species.}
+
 
 \section{Related Work}
 \label{sec:related}
