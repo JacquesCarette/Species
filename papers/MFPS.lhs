@@ -956,7 +956,7 @@ $e : \mor {(A, m, i)} {(B, n, j)}$ are sent to $i \then e \then j^{-1}$.
 % \[
 %   \xymatrix{\Fin m \ar@@{<->}[d]_-i & \Fin n \\ A \ar@@{<->}[r]_e & B
 %     \ar@@{<->}[u]_-{j^{-1}} } \]
-The functoriality of $\size{}$ can be seen by noting the canceling
+The functoriality of $\size{}$ can be seen by noting the cancelling
 pair of inverse equivalences in each of the following two diagrams:
   \[ \xymatrix{\Fin m \ar@@<-.4em>@@{<->}[d]_i
          \ar@@<.4em>@@{<->}[d]^{i^{-1}}
