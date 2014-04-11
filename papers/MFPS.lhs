@@ -106,7 +106,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% General math
 
-\newcommand{\bbb}[1]{\ensuremath{\mathbb{#1}}}
+\newcommand{\bbb}[1]{\ensuremath{\mathbb{#1}}\xspace}
 \providecommand{\N}{\bbb{N}}
 \providecommand{\Z}{\bbb{Z}}
 \providecommand{\Q}{\bbb{Q}}
@@ -388,7 +388,7 @@ More specifically, the contributions of this paper are:
 \item We define the concept of \emph{species} in
   constructive type theory (\pref{sec:constructive-species}).% , characterizing
   % them as functors from a finite collection of labels to structures.
-\item \todo{Something here about finiteness?}
+\item Find a suitable definition of \emph{finiteness} consistent with HoTT.
 \item As part of our port to type theory, we generalize common operations on
   species, including sum, partitional and Cartesian product,
   carefully analyzing their requirements to ensure consistency
@@ -529,13 +529,12 @@ such set. Therefore, we often take the finite set of natural numbers $[n] = \{0,
 \dots, n-1\}$ as \emph{the} canonical label set of size $n$, and write
 $F\ n$ for the set of $F$-shapes built from this set.
 
-Using the language of category theory, we can give an equivalent, more
-concise definition of species:
+Using categorical language, an equivalent, more
+concise definition of species is:
 \begin{defn}
   \label{defn:species-cat}
-  A \term{species} is a functor $F : \B \to \Set$, where $\B$%
-is the
-  groupoid of finite sets whose morphisms are bijections,\footnote{$\B$ for \emph{bijection}, a rare category named for its arrows.} 
+  A \term{species} is a functor $F : \B \to \Set$, where $\B$ is the
+  groupoid of finite sets and bijections,\footnote{$\B$ for \emph{bijection}, a rare category named for its arrows.} 
    and
   $\Set$ is the category of sets and (total) functions.
 \end{defn}
@@ -555,7 +554,7 @@ is the
 
 Porting the theory of species to a constructive setting
 requires defining categories $\BT$ and $\Type$ so that a functor $\BT \to
-\Type$ is a ``constructive counterpart'' to a functor $\B \to \Set$. 
+\Type$ is a ``constructive counterpart'' to $\B \to \Set$. 
 
 %\scw{Is there a way to pronounce $\B$ and $\BT$? Why B in the first
 %  place?} \bay{I don't know of a way to pronounce them.  The notation
@@ -614,7 +613,7 @@ use $\N : \Type_0$ to denote the type of natural numbers, and $\Fin :
 
 Although we use Agda's notation~\cite{Agda} for dependent pairs and 
 functions, we occasionally use the traditional $\sum_{x : A} B(x)$ and
-$\prod_{x:A} B(x)$ for emphasis, and the standard
+$\prod_{x:A} B(x)$ for emphasis, and the 
 abbreviations $A \times B$ and $A \to B$ for non-dependent pair and
 function types. 
 % Also,
@@ -673,12 +672,11 @@ throughout the term.
 \subsection{Finiteness}
 \label{sec:finiteness}
 
-Recall that $\B$ denotes the groupoid whose objects are finite sets
-and whose morphisms are bijections. We define its constructive
+Recall that $\B$ denotes the groupoid of finite sets and bijections.
+We define its constructive
 counterpart $\BT$ in two stages. First, we introduce $\P$, the
 skeleton of $\B$, which corresponds to working directly with the
-\emph{sizes} of finite sets (because the actual contents of these sets
-do not matter), and define its constructive analogue $\PT$. This
+\emph{sizes} of finite sets, and define its constructive analogue $\PT$. This
 simpler context brings many of the issues surrounding constructive
 finiteness into focus.  We then show how to extend $\PT$ to $\BT$.
 
@@ -706,17 +704,12 @@ unless $m \equiv n$).  Defining a counterpart to $\P$ is straightforward:
   this makes.  At the very least we should mention that we are aware
   of the issues.}\scw{???}
 
-Often it is noted as trivial that $\P$ is equivalent to (in fact, a
-skeleton of) $\B$ and hence that working with $\P$ rather than $\B$
-when convenient is justified. However, in our setting, this equivalence is not so
-trivial after all: in particular, showing that $\P$ and $\B$ are
-\scw{what does strongly mean?}  \jc{means that $\P$ and $\B$ are
-  strict categories, which in turn means that they have sets of
-  objects with decidable equality, that the functors which demonstrate
-  the equivalence are strict [aka preserve equality], and that the
-  natural transformations FG and GF are \emph{equal} to the identity}
-\bay{No, that is the definition of \emph{isomorphism} of categories,
-  which we certainly don't want. Strong equivalence is just the usual
+Often it is noted as trivial that $\P$ is equivalent to $\B$ and 
+hence that working with $\P$ rather than $\B$
+when convenient is justified. Constructively, this equivalence is not so
+trivial: in particular, showing that $\P$ and $\B$ are
+\scw{what does strongly mean?}
+\bay{ Strong equivalence is just the usual
   notion of equivalence, as opposed to weak equivalence which only
   requires some other category $X$ with essentially surjective and
   fully faithful functors $X \to \P$ and $X \to \B$.  See
@@ -726,7 +719,7 @@ trivial after all: in particular, showing that $\P$ and $\B$ are
   notions are the same in the presence of AC.  Anyway, I think a
   careful discussion of this should go in my thesis, and we should
   just remove the references to ``strong'' equivalence from the
-  paper.}  equivalent requires the axiom of choice.  In more detail,
+  paper.} equivalent requires the axiom of choice.  In more detail,
 it is easy to define a functor $\fin - : \P \to \B$ which sends $n$ to
 $\fin n$ and preserves morphisms;  defining an inverse functor $\size
 - : \B \to \P$ is more problematic. We can send each set $S$ to its
@@ -781,7 +774,7 @@ construct something equivalent to $\PT$, but without the use of $\AC$.
 Furthermore, it is not \latin{a priori} clear what it should mean,
 constructively, for a type to be finite.  There are, indeed, several
 possible answers to this question \cite{finite}. Taking our cue from
-the discussion above, however, we note that what was missing in trying
+the discussion above, we note that what was missing in trying
 to define $\size- : \B \to \P$ was a choice of bijections $S \bij
 \fin{\size S}$: such bijections can be thought of as evidence of the
 finiteness of $S$.  This is the most straightforward definition of
@@ -795,7 +788,6 @@ A). \]
 We need to build a groupoid having such finite types as objects, and
 equivalences between them as morphisms.  Via univalence, we may
 conveniently package up such equivalences as paths.  
-
 Unfortunately, the standard method to build an 
 $\infty$-groupoid out of any
 type does not work! Consider:
