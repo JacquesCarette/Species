@@ -145,9 +145,9 @@
 \newcommand{\dep}[1]{\prod_{#1}}
 \newcommand{\fun}[1]{\lambda #1.\ }
 
-\newcommand{\TyZero}{\ensuremath{\bot}}
-\newcommand{\TyOne}{\ensuremath{\top}}
-\newcommand{\unit}{\ensuremath{\star}}
+\newcommand{\TyZero}{\ensuremath{\bot}\xspace}
+\newcommand{\TyOne}{\ensuremath{\top}\xspace}
+\newcommand{\unit}{\ensuremath{\star}\xspace}
 
 \newcommand{\cons}[1]{\ensuremath{\mathsf{#1}}}
 
@@ -579,8 +579,8 @@ We next define the categories $\BT$ and $\Type$ in the context of
 \term{homotopy type theory} (HoTT).  Intuitively, the category $\BT$
 should capture the idea of ``constructively finite types'',
 corresponding to the finite sets of $\B$. Intuitively, we can define
-finiteness in type theory by presenting an equivalence to some type
-that we already know to be finite. We choose to work in HoTT because
+finiteness as an equivalence to some type that we already know to be
+finite.  We choose to work in HoTT because
 its univalence axiom simplifies working with equivalences.  \bay{It
   goes much deeper than this; it is no longer the case that we are
   just using HoTT for convenience but could just as easily use some
@@ -608,7 +608,7 @@ details.
 \subsection{A fragment of homotopy type theory}
 \label{sec:HoTT}
 
-The type theory we work with is equipped with an empty type \TyZero, a
+We work with a type theory equipped with an empty type \TyZero, a
 unit type \TyOne (with inhabitant $\unit$), coproducts $A + B$ (with
 constructors $\inl$ and $\inr$), dependent pairs $(x:A) \times
 B(x)$ (with projections
@@ -620,8 +620,8 @@ to denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
 usual indexed type of canonical finite sets.
 
 Note that although we use Agda's notation~\cite{Agda} for dependent pairs and 
-functions, we ocacaisionally use the traditional $\sum_{x : A} B(x)$ and $\prod_{x:A} B(x)$ and  for 
-for emphasis.  We also use the standard
+functions, we occasionally use the traditional $\sum_{x : A} B(x)$ and
+$\prod_{x:A} B(x)$ for emphasis, and the standard
 abbreviations $A \times B$ and $A \to B$ for non-dependent pair and
 function types. 
 % Also,
@@ -630,7 +630,7 @@ function types.
 % \N)$---are implicitly universally quantified, like $(A : \Type) \to (B
 % : \Type) \to A \times (B \to \N)$.
 
-The type of \term{equivalences} between $A$ and $B$, written $A \iso B$ is
+The type of \term{equivalences} between $A$ and $B$, written $A \iso B$, is
 definable in type theory; intuitively, an equivalence is a pair of inverse
 functions $f : A \to B$ and $g : B \to A$.\footnote{The precise details are
   more subtle \cite[chap.  4]{hottbook}, but unimportant for our purposes.}
@@ -649,18 +649,18 @@ respect to equality. That is, if $e : x = y$ is a witness of equality between
 $x$ and $y$ (informally, a ``path'' between $x$ and $y$), and $f$ is a
 function of an appropriate type, then $f(x) = f(y)$.  Given $e$ we also have
 $P(x) \to P(y)$ for any type family $P$, called the \term{transport} of $P(x)$
-along $e$ and notated $\transport{P}{e}$, or simply $e_*$ when $P$ is clear
+along $e$ and denoted $\transport{P}{e}$, or simply $e_*$ when $P$ is clear
 from context.
 
-HoTT also includes the \emph{univalence axiom} which states that an
+HoTT includes the \emph{univalence axiom} which states that an
 equivalence $A \iso B$ can be converted to the propositional equality
 $A = B$ (and vice versa).  This axiom formally encodes
 the mathematical practice of treating isomorphic things as
-identical. Because of this axiom, an equality $e : A =
-B$ can have nontrivial computational content.  In other words, $A
-= B$ means not that $A$ and $B$ are identical, but that they
-can be used interchangeably---and moreover, interchanging them may
-require some work, computationally speaking.
+identical.  In other words, $A = B$ does not mean that $A$ and $B$ are
+identical, but that they can be used interchangeably---and moreover,
+interchanging them may require some work, computationally speaking.
+Thus an equality $e : A = B$ can have nontrivial computational
+content.  
 
 As of yet, univalence has no direct computational interpretation, so
 using it to give a computational interpretation of species may seem suspect. Note,
@@ -680,7 +680,7 @@ throughout the term.
 \subsection{Finiteness}
 \label{sec:finiteness}
 
-Recall, from the definition of species, that $\B$ denotes the groupoid
+Recall that $\B$ denotes the groupoid
 whose objects are finite sets and whose morphisms are bijections. We
 construct its constructive counterpart $\BT$ in two stages. First, we 
 introduce $\P$, a way to think about sets of labels in terms of natural numbers
@@ -689,9 +689,7 @@ constructive analogue $\PT$. This simpler context brings
 many of the issues surrounding constructive finiteness into focus.
 We then show how to extend $\PT$ to $\BT$.
 
-Let $\fin n$ % \defeq \{0, \dots, n-1\}$ 
-be the set of the first $n$
-natural numbers.  Denote by $\P$ the category whose objects are
+Denote by $\P$ the category whose objects are
 natural numbers and whose morphisms %$\mor m n$ 
 are bijections $\fin m
 \bij \fin n$ (hence there are no morphisms %$\mor m n$ 
@@ -701,17 +699,22 @@ working with $\P$ rather than $\B$ when convenient is justified.
 
 However, this equivalence is not so trivial: in particular, showing 
 that $\P$ and $\B$ are (strongly)\scw{what does strongly mean?}
+\jc{means that $\P$ and $\B$ are strict categories, which in turn
+means that they have sets of objects with decidable equality, that
+the functors which demonstrate the equivalence are strict [aka
+preserve equality], and that the natural transformations FG and GF
+are \emph{equal} to the identity}
 equivalent requires the axiom of choice.  In more detail, it is easy
 to define a functor $\fin - : \P \to \B$ which sends $n$ to $\fin n$
 and preserves morphisms.  Defining an inverse functor $\size - : \B \to \P$ is
-more problematic. Clearly we must send each set $S$ to its size $\size
-S$. %(though even this is a bit suspect, from a constructive point of
+more problematic. We must send each set $S$ to its size $\size
+S$, %(though even this is a bit suspect, from a constructive point of
 %view: where exactly does this size come from?). 
-However, a bijection
-$S \bij T$ must be sent to a bijection $\fin{\size S} \bij \fin{\size
-  T}$, and intuitively we have no way to pick one: we would need to
+and a bijection
+$S \bij T$ to a bijection $\fin{\size S} \bij \fin{\size
+  T}$. Intuitively we have no way to pick one: we would need to
 decide on a way to match up the elements of each set $S$ with the set
-of natural numbers $\fin{\size S}$.  In one sense, it does not matter
+of natural numbers $\fin{\size S}$.  It does not actually matter
 what choice we make, since the results will be isomorphic in any case.
 This is precisely where the axiom of choice comes in: we may use it to
 arbitrarily choose bijections between each set $S$ and the
@@ -733,36 +736,28 @@ corresponding set of natural numbers $\fin{\size S}$.
 % \emph{witness} $a : A(x)$ for which the property $P(x,a)$ holds.  That
 % is, it requires that we have already made a choice for each $x$.
 
-The $\AC$ axiom, which corresponds to the axiom of choice, is consistent with
+The axiom of choice ($\AC$ below) is consistent with
 HoTT.\scw{I think we can omit this equation for space too.}
 \begin{equation} \tag{$\AC$}
   \label{eq:AC}
   \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
     \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
 \end{equation}
-However, as an axiom, it has no computational interpretation, and is therefore
+However this axiom has no computational interpretation, and is therefore
 unsuitable for constructing a functor with computational content.
 %
-We therefore reject the use of the axiom of choice.  Our goal
-is to build groupoids $\PT$ and $\BT$ which are type-theoretic
-counterparts to $\P$ and $\B$, with computable functors between them
-witnessing their equivalence.
-
-\todo{There is something funny going on here with groupoids
-  vs. $\infty$-groupoids.  Should figure out how much of a difference
-  this makes.  At the very least we should mention that we are aware
-  of the issues.}\scw{???}
-
-
-
+As is standard constructive practice, we reject this use of $\AC$.
+%We therefore reject the use of the axiom of choice.  
+%Our goal
+%is to build groupoids $\PT$ and $\BT$ which are type-theoretic
+%counterparts to $\P$ and $\B$, with computable functors between them
+%witnessing their equivalence.
 Defining a counterpart to $\P$ is straightforward:
 \begin{defn}
-  $\PT$ is the groupoid where
-  \begin{itemize}
-  \item the objects are natural numbers, that is,
-    values of type $\N$, and
-  \item the morphisms $\mor m n$ are equivalences of type $\Fin m \iso
-    \Fin n$.\scw{I'm not sure I understand what this means. How does
+  $\PT$ is the groupoid where (1) the objects are values of type $\N$,
+  and (2) the morphisms $\mor m n$ are equivalences of type $\Fin m \iso
+    \Fin n$.
+    \scw{I'm not sure I understand what this means. How does
       it type check?}\bay{Between any two objects there has to be a
       set of morphisms.  We simply define the set of morphisms between
       $m$ and $n$ to be inhabitants of the type $\Fin m \iso \Fin n$.
@@ -770,38 +765,41 @@ Defining a counterpart to $\P$ is straightforward:
       make sense?  What is it that confuses you?  How could we make
       this clearer?}\scw{Ok. I was thinking of $\Fin m \iso \Fin n$ as a 
       function, but then it has the wrong ``type''. But morphisms are not functions.}
-  \end{itemize}
 \end{defn}
 
-Constructing a counterpart to $\B$, however, is more subtle. What does
+\todo{There is something funny going on here with groupoids
+  vs. $\infty$-groupoids.  Should figure out how much of a difference
+  this makes.  At the very least we should mention that we are aware
+  of the issues.}\scw{???}
+
+Constructing a counterpart to $\B$ is more subtle. What does
 it mean, constructively, for a type to be finite?  There are actually
 several possible answers to this question
-\cite{finite}. Taking our cue from the discussion above,
-however, we note that what was missing was a choice of bijections $S
-\bij \fin{\size S}$: such bijections can be thought of precisely as
-evidence of the finiteness of $S$.  This is the most straightforward
-definition of constructive finiteness, and the one we adopt here.
-More formally, a finite type is one with some natural number size $n$,
-and an equivalence between the type and $\Fin n$. That is, finite types are inhabitants
-of $\FinType$, where
+\cite{finite}. Taking our cue from the discussion above we note that what was
+missing was a choice of bijections $S \bij \fin{\size S}$: such bijections can
+be thought of as evidence of the finiteness of $S$.  This is the most
+straightforward definition of constructive finiteness, and the one we adopt
+here.  More formally, 
+%a finite type is one with some natural number size $n$,
+%and an equivalence between the type and $\Fin n$. That is, 
+finite types are inhabitants of $\FinType$, where
 \[ \FinType \defeq (A : \Type) \times (n : \N) \times (\Fin n \iso
 A). \]
 
 We need to build a groupoid having such finite types as objects, and
 equivalences between them as morphisms.  Via univalence, we may
-conveniently package up such equivalences as paths.  We therefore note
-the following evident way to build an $\infty$-groupoid out of any
+conveniently package up such equivalences as paths.  We note
+the following method to build an $\infty$-groupoid out of any
 type:
 \begin{defn}
-  For any type $A$, the $\infty$-groupoid $\tygrpd{A}$ has as it
-  objects values $a : A$, as its $1$-morphisms paths $a = b$ between
-  objects, as $2$-morphisms paths between paths, and so on.
+  For a type $A$, the $\infty$-groupoid $\tygrpd{A}$ has 
+  values $a : A$ as its objects, paths $a = b$ as its $1$-morphisms,
+  paths between paths as $2$-morphims, and so on.
 \end{defn}
 
-As a first try at defining a constructive counterpart to $\B$, we
-therefore consider $\tygrpd{\FinType}$: finite types with paths
-between them.  Unfortunately, this does not work! Intuitively, the
-problem is that the paths are between not only the types in question
+We then naturally attempt to use $\tygrpd{\FinType}$ as a constructive
+counterpart to $\B$.  Unfortunately, this does not work! Intuitively, the
+problem is that the paths involve not just the types in question
 but also between the evidence of their finiteness, so that a path
 between two types requires them to be finite ``in the same way''. The
 situation can be pictured as shown in \pref{fig:fin-equiv}. The
@@ -809,10 +807,11 @@ elements of types $A_1$ and $A_2$ are shown on the sides; the evidence
 of their finiteness is represented by bijections between their
 elements and the elements of $\Fin n$, shown along the bottom.  The
 catch is that the diagram necessarily contains only triangles:
-corresponding elements of $A_1$ and $A_2$ on the sides correspond to
+corresponding elements of $A_1$ and $A_2$ must correspond to
 the same element of $\Fin n$ on the bottom row.  Therefore, there are
 only two degrees of freedom: once the evidence of finiteness is
 determined, there is only one valid correspondence between $A_1$ and $A_2$.
+Intuitively, there should be $n!$ valid correspondences between them.
 \begin{figure}
   \centering
   \begin{diagram}[width=150]
@@ -854,7 +853,8 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
 \end{figure}
 
 \scw{We need to say explicitly why only having one morphism between any two
-  objects of $\tygrpd{\FinType}$ is bad.}
+  objects of $\tygrpd{\FinType}$ is bad.}\jc{We sort of said so before:
+  all permutations should be valid paths}
 
 \begin{prop}
   There is at most one morphism between any two objects of
@@ -867,17 +867,19 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
   A path $(A_1, n_1, e_1) = (A_2, n_2, e_2)$ is equivalent to $(p :
   A_1 = A_2) \times (q : n_1 = n_2) \times (q_*(p_*(e_1)) = e_2)$.
   Noting that $p_*(e_1)$, in particular, is given by the composition
-  of $p$ with $e_1$, and \todo{finish}
+  of $p$ with $e_1$, and \todo{finish} \jc{do we even need this proof
+  sketch?}
 \end{proof*}
 
-Since the problem with this approach was paths between evidence of
-finiteness imposing too strong of a constraint, we next try using the
+As having paths between evidence of finiteness imposes too strong a
+constraint, we next try using the
 \emph{propositional truncation}\footnote{The propositional truncation
   of a type ``squashes'' the type down to a mere proposition, by
   adding a path between every pair of inhabitants. Intuitively, this
   can be thought of as ``forgetting'' all information contained in the
   inhabitants other than their existence, though the reality is quite
-  a bit more subtle.} of finiteness evidence.
+  a bit more subtle.} 
+of finiteness evidence.
 That is, we consider $\tygrpd{\FinTypeT}$, where \[ \FinTypeT \defeq
 (A : \Type) \times (n : \N) \times \ptrunc{\Fin n \iso A}. \] A path
 between two inhabitants of $\FinTypeT$ is now unconstrained by the
@@ -886,7 +888,7 @@ inhabitants of a propositional truncation), and hence equivalent to a
 path between their underlying types.  This does yield the right
 groupoid structure. However, we now have a different problem: we can
 only prove that $\tygrpd{\FinTypeT}$ is equivalent to $\PT$ if we
-treat equivalence of categories is a mere proposition. The reason is
+treat equivalence of categories as a mere proposition. The reason is
 that the recursion principle for propositional truncation only allows
 making use of the contained finiteness evidence if it is in the
 service of constructing an inhabitant of a mere proposition.  This
@@ -895,8 +897,7 @@ However, since our goal is to construct computationally relevant
 functors witnessing the equivalence, equivalence as a mere proposition
 is unsatisfactory.
 
-Our third attempt goes though, however.  Instead of relying directly
-on $\tygrpd{-}$, we can define $\BT$ as follows:
+Instead, we define $\BT$ as follows:
 
 \begin{defn}
 Define the $\infty$-groupoid $\BT$ where
@@ -911,15 +912,16 @@ Define the $\infty$-groupoid $\BT$ where
 That is, we do not hide finiteness evidence in a propositional
 truncation, but morphisms simply ignore the finiteness evidence.  This
 may seem strange: we go to the trouble of adding extra computational
-evidence to objects, but then the next minute we turn around and say
-that the additional evidence is irrelevant after all!  However, the
-point is that although the extra evidence may be irrelevant to
+evidence to objects, but then we turn around and say that the additional
+evidence is irrelevant after all!  However, the point is that although the
+extra evidence may be irrelevant to
 \emph{morphisms}, functors out of the category may still make use of
 it (see \pref{defn:size}).  Instead of having to make an arbitrary
 choice of isomorphism when mapping out of an object, we ``blow up''
 the category by making a separate object for each possible choice, but
 ensure that objects which differ only by this choice are isomorphic.
 
+\jc{the definition below uses $\equiv$, which has not been defined.}
 \begin{rem}
   Note that given a morphism $e : \mor {(A,m,i)} {(B,n,j)}$, it is
   provably the case that $m \equiv n$.  In particular, $i \then e \then j^{-1} :
@@ -928,22 +930,17 @@ ensure that objects which differ only by this choice are isomorphic.
 \end{rem}
 
 \begin{defn}
-We can now define a functor $\fin - : \PT \to \BT$ in the evident way:
-\begin{itemize}
-\item On objects, $\fin n \defeq (\Fin n, n, \id)$.
-\item $\fin -$ is the identity on morphisms.
-\end{itemize}
+We define a functor, $\fin - : \PT \to \BT$ where on objects
+$\fin n \defeq (\Fin n, n, \id)$, and $\fin -$ is the identity on morphisms.
 \end{defn}
 
 \begin{defn} \label{defn:size}
-In the other direction, we define $\size{} : \BT \to \PT$:
-\begin{itemize}
-\item On objects, $\size{(A, m, i)} \defeq m$.
-\item On morphisms, $e : \mor {(A, m, i)} {(B, n, j)}$ is sent to $i \then e \then j^{-1}$.
+In the other direction, we define $\size{} : \BT \to \PT$ that sends
+objects $(A, m, i)$ to $m$, an a morphism
+$e : \mor {(A, m, i)} {(B, n, j)}$ is sent to $i \then e \then j^{-1}$.
 % \[
 %   \xymatrix{\Fin m \ar@@{<->}[d]_-i & \Fin n \\ A \ar@@{<->}[r]_e & B
 %     \ar@@{<->}[u]_-{j^{-1}} } \]
-\end{itemize}
 The functoriality of $\size{}$ can be seen by noting the cancelling
 pair of inverse equivalences in each of the following two diagrams:
   \[ \xymatrix{\Fin m \ar@@<-.4em>@@{<->}[d]_i
@@ -1001,8 +998,7 @@ pair of inverse equivalences in each of the following two diagrams:
 \section{Species in constructive type theory}
 \label{sec:constructive-species}
 
-Our goal is to port the theory of species from set theory into
-constructive type theory.
+We now port the theory of species to constructive type theory.
 
 \begin{defn}
   Recall that $\Type = \Type_0$ denotes the universe of types.  We
