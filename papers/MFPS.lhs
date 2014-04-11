@@ -1060,21 +1060,22 @@ product of species arises from products in $\Set$.
 
 \subsection{Species sum}
 
-The \emph{sum} of two species, intuitively, is given by their disjoint
+The \emph{sum} of two species is given by their disjoint
 union: an $(F + G)$-shape is either an $F$-shape \emph{or} a
 $G$-shape (together with a tag so we can tell which).
 
 \begin{defn}
-  Given species $F, G : \B \to \Set$, we may form their sum $F + G$,
-  defined on objects by \[ (F + G)\ L \defeq F\ L \uplus G\ L, \] where the
-  $\uplus$ on the right hand side denotes the disjoint union (coproduct) of
-  sets, with the action on morphisms similarly given by \[ (F + G)\
+  Given $F, G : \B \to \Set$, $F + G$ is
+  defined on objects by \[ (F + G)\ L \defeq F\ L \uplus G\ L, \] where 
+  $\uplus$ denotes disjoint union (coproduct) of
+  sets, and the action on morphisms \[ (F + G)\
   \sigma \defeq F\ \sigma \uplus G\ \sigma, \] where $\uplus$ is
-  considered as a bifunctor in the evident way: $(f \uplus g)\ (\inl\ x)
-  = \inl\ (f\ x)$ and $(f \uplus g)\ (\inr\ y) = \inr\ (g\ y)$.
+  considered as a bifunctor in the evident way. 
+  % $(f \uplus g)\ (\inl\ x)
+  % = \inl\ (f\ x)$ and $(f \uplus g)\ (\inr\ y) = \inr\ (g\ y)$.
 \end{defn}
 
-Thinking of species alternately as functors in $[\P, \Set]$, we may
+Thinking of species as functors in $[\P, \Set]$, we may
 say that an $(F+G)$-shape of size $n$ is either an $F$-shape of size
 $n$ or a $G$-shape of size $n$.
 
@@ -1102,12 +1103,10 @@ $n$ or a $G$-shape of size $n$.
 %   \end{figure}
 
 \begin{defn}
-  We may also define the \term{zero} or \term{empty} species,
-  $\Zero$, as the unique species with no shapes whatsoever.  That is,
+  The \term{zero} or \term{empty} species,
+  $\Zero$, is the unique species with no shapes whatsoever.  That is,
   on objects,
-  \begin{equation*}
-    \Zero\ L \defeq \varnothing,
-  \end{equation*}
+    $\Zero\ L \defeq \varnothing$,
   and on morphisms $\Zero$ sends every $\sigma$ to the unique function
   $\varnothing \to \varnothing$.
 \end{defn}
@@ -1125,8 +1124,10 @@ $n$ or a $G$-shape of size $n$.
 % about each fundamental monoidal construction along with its unit.
 % As for introduction forms, it's pretty trivial.
 
-It's not hard to check that $(+,\Zero)$ forms a commutative monoid
-structure on the category of species.
+One can check that $(+,\Zero)$ gives a symmetric monoidal structure
+to $[\B, \Set]$.
+%It is easy to check that $(+,\Zero)$ forms a commutative monoid
+%structure on the category of species.
 
 Stepping back a bit, we can see that this monoidal structure on
 species arises straightforwardly from the corresponding monoidal
