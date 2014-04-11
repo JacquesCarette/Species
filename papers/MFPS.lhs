@@ -9,12 +9,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% lhs2TeX
 
-%include polycode.fmt
+%include lhs2TeX.fmt
 
 % Use 'arrayhs' mode, so code blocks will not be split across page breaks.
-\arrayhs
+% \arrayhs
 
-\renewcommand{\Conid}[1]{\mathsf{#1}}
+% \renewcommand{\Conid}[1]{\mathsf{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
@@ -150,7 +150,9 @@
 
 \newcommand{\cons}[1]{\ensuremath{\mathsf{#1}}}
 
+\providecommand{\False}{}
 \renewcommand{\False}{\cons{F}}
+\providecommand{\True}{}
 \renewcommand{\True}{\cons{T}}
 
 \newcommand{\inl}{\cons{inl}}
