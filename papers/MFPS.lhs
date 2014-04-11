@@ -1334,17 +1334,14 @@ straightforward.
 \label{sec:day}
 
 There is another notion of product for species, the \term{partitional}
-or \term{Cauchy} product, which is more generally useful than
-Cartesian product, even though it is more complex to define.  In
-particular,
-% when species are extended to labelled structures
-% (\pref{chap:labelled})
-it is the partitional product which corresponds to product of
-generating functions, and which gives rise to the usual notion of
-product on algebraic data types.  For these reasons, partitional product
-is often simply referred to as ``product'', without any modifier,
-although as we have seen, the Cartesian product is the one that is
-actually a categorical product.
+or \term{Cauchy} product.  It it is the partitional product, rather
+than Cartesian product, which corresponds to the product of generating
+functions, and which gives rise to the usual notion of product on
+algebraic data types.  For these reasons, partitional product is often
+simply referred to as ``product'', without any modifier.
+% , although as
+% we have seen, the Cartesian product is the one that is actually a
+% categorical product.
 
 There is also another less well-known product, \term{arithmetic
   product} \cite{Maia2008arithmetic}, which can be thought of as a
@@ -1401,7 +1398,7 @@ The identity for partitional product should evidently be some species
 $\One$ such that \[ (\One \cdot G)\ L = \left(\biguplus_{L_1,L_2 \vdash L}
   \One\ L_1 \times G\ L_2 \right) \iso G\ L. \] The only way for this
 isomorphism to hold naturally in $L$ is if $\One\ \varnothing =
-\{\star\}$ (yielding a summand of $G\ L$ when $\varnothing+L = L$) and
+\{\star\}$ (yielding a summand of $G\ L$ when $\varnothing,L \vdash L$) and
 $\One\ L_1 = \varnothing$ for all other $L_1$ (cancelling all the
 other summands).
 
@@ -1465,9 +1462,8 @@ $(C,t)$ is then a ``module'' with ``representation type'' $C$ and
 ``implementation'' $t$.  Indeed, in Haskell, the coend of $T$ is given
 by the type \texttt{exists c.\ T c c} (or rather, by an isomorphic
 encoding, since \texttt{exists} is not actually valid Haskell snytax)
-\cite{edward blog post} \todo{look this up and add the right
-  reference}.  $T$ is required to be a bifunctor from $\C^\op \times
-\C$ since the representation type may occur both co- and
+\cite{kmett2008kan}. $T$ is required to be a bifunctor from $\C^\op
+\times \C$ since the representation type may occur both co- and
 contravariantly in the interface.
 
 \subsection{Day convolution}
