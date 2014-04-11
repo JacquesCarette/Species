@@ -66,8 +66,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Comments
 
-\newif\ifcomments\commentstrue
-%\newif\ifcomments\commentsfalse
+%\newif\ifcomments\commentstrue
+\newif\ifcomments\commentsfalse
 
 \ifcomments
 \newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
@@ -768,7 +768,8 @@ Defining a counterpart to $\P$ is straightforward:
       $m$ and $n$ to be inhabitants of the type $\Fin m \iso \Fin n$.
       (Of course, there are no inhabitants unless $m = n$.) Does that
       make sense?  What is it that confuses you?  How could we make
-      this clearer?}
+      this clearer?}\scw{Ok. I was thinking of $\Fin m \iso \Fin n$ as a 
+      function, but then it has the wrong ``type''. But morphisms are not functions.}
   \end{itemize}
 \end{defn}
 
@@ -851,6 +852,9 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
     triangles}
   \label{fig:fin-equiv}
 \end{figure}
+
+\scw{We need to say explicitly why only having one morphism between any two
+  objects of $\tygrpd{\FinType}$ is bad.}
 
 \begin{prop}
   There is at most one morphism between any two objects of
@@ -1014,21 +1018,21 @@ theory is given by $[\BT, \Type]$, the category of functors from $\BT$
 to $\Type$.  We cannot directly justify this by showing that
 $[\B,\Set]$ and $[\BT,\Type]$ are categorically equivalent.  Indeed,
 they are certainly \emph{not} equivalent! The problem is that $\Set$
-(and similarly $\B$) are ``too big'': there are many sets which do not
+(and similarly $\B$) is ``too big'': there are many sets that do not
 correspond to any type definable in type theory.
 
 However, most working mathematicians do not actually make use of such
-``exotic'' sets.  The constructions that mathematicians care about
+``exotic'' sets.  The constructions they care about
 are typically precisely those which can be encoded in type theory.  In
 order to justify $[\BT, \Type]$ as a constructive counterpart to $[\B,
 \Set]$, therefore, we must look at what operations and constructions
 are typically carried out on $[\B, \Set]$, and show that $[\BT,\Type]$
 supports them as well.
 
-In order to do this, we will look carefully at common operations on species,
+To do this, we look carefully at common operations on species,
 generalize them to arbitrary functors $\Lab \to \Str$, and identify precisely
 what properties of $\Lab$ and $\Str$ are necessary to define them. In this
-way, we start ``from scratch'' and build up a generic notion of species which
+way, we start ``from scratch'' and build up a generic notion of species that
 supports the operations we want.  In the process, we get a much clearer
 picture of where the operations ``come from''.\footnote{Much of this material
   has been inspired by Kelly \cite{Kelly-operads} \todo{``Operads of
@@ -1159,7 +1163,7 @@ In the same way that an $(F + G)$-shape is either an $F$-shape
 G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on \emph{the
   same set of labels} (\pref{fig:Cartesian-product-dup}).  As
 illustrated in the figure, there are several intuitive ways to think
-about this situation. One can think of two distinct shapes, with
+about this situation.\scw{update this sentence if we cut the figure} One can think of two distinct shapes, with
 labels duplicated between them; one can think of the labels as
 \emph{pointers} or \emph{labels} for locations in a shared memory;
 %% (to be explored more in \pref{sec:sharing})
@@ -1599,6 +1603,10 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 
 \end{example}
 
+\scw{We need to give an example somewhere that connects the partitional
+  product and arithmetic product to actual data structures. What would we use
+  these operations for?}
+
 \section{Other constructions}
 
 \subsection{Differentiation}
@@ -1766,6 +1774,11 @@ constraints, the details must be postponed to a subsequent
 publication. \bay{Is there a better way to say this?  Is it worth
   saying at all?}
 
+\scw{Maybe we should combine this entire section with the future work work
+  section? Of course some of it is straightforward and the future work is
+  finding a venue with enough space to explain it. But they are connected as
+  more operations on species.}
+
 \section{Related Work}
 \label{sec:related}
 
@@ -1881,9 +1894,9 @@ data structures. \bay{What else should we say here?  We could also
 \section{Conclusion}
 \label{sec:conclusion}
 
-\begin{ack}
-Acknowledgements
-\end{ack}
+%\begin{ack}
+%Acknowledgements
+%\end{ack}
 
 \bibliographystyle{entcs}
 \bibliography{MFPS}
