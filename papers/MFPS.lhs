@@ -1476,11 +1476,11 @@ construction applied to different monoids, both partitional and
 arithmetic product arise from \emph{Day convolution}, applied to
 different monoidal structures on $\B$.
 
-The essential idea of Day convolution, first described by Brian
+The essential idea, first described by Brian
 Day~\cite{Day1970closed}, is to construct a monoidal structure on a
 functor category $[\Lab, \Str]$ based primarily on a monoidal
-structure on the \emph{domain} category $\Lab$.  In particular, Day
-convolution requires
+structure on the \emph{domain} category $\Lab$.  In particular, this
+requires
 \begin{itemize}
 \item a monoidal structure $\oplus$ on the domain $\Lab$;
 \item that $\Lab$ be \emph{enriched over} $\Str$, \ie\ for any two
