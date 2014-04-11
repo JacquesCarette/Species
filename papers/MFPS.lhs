@@ -693,12 +693,23 @@ is equivalent to (in fact, a skeleton of) $\B$ and hence that
 working with $\P$ rather than $\B$ when convenient is justified.
 
 However, this equivalence is not so trivial: in particular, showing 
-that $\P$ and $\B$ are (strongly)\scw{what does strongly mean?}
+that $\P$ and $\B$ are \scw{what does strongly mean?}
 \jc{means that $\P$ and $\B$ are strict categories, which in turn
 means that they have sets of objects with decidable equality, that
 the functors which demonstrate the equivalence are strict [aka
 preserve equality], and that the natural transformations FG and GF
-are \emph{equal} to the identity}
+are \emph{equal} to the identity} \bay{No, that is the definition of
+\emph{isomorphism} of categories, which we certainly don't
+want. Strong equivalence is just the usual notion of equivalence, as
+opposed to weak equivalence which only requires some other category
+$X$ with essentially surjective and fully faithful functors $X \to \P$
+and $X \to \B$.  See
+\url{http://ncatlab.org/nlab/show/equivalence+of+categories}.  Weak
+equivalence is relevant here since the difference between strong and
+weak equivalence is precisely the axiom of choice---that is, the two
+notions are the same in the presence of AC.  Anyway, I think a careful
+discussion of this should go in my thesis, and we should just remove
+the references to ``strong'' equivalence from the paper.}
 equivalent requires the axiom of choice.  In more detail, it is easy
 to define a functor $\fin - : \P \to \B$ which sends $n$ to $\fin n$
 and preserves morphisms.  Defining an inverse functor $\size - : \B \to \P$ is
@@ -958,7 +969,7 @@ pair of inverse equivalences in each of the following two diagrams:
 
 \begin{prop}
   The pair of functors $\xymatrix{\PT \ar@@<.5ex>[r]^{\fin -} & \BT
-    \ar@@<.5ex>[l]^{\size{}}}$ constitutes a (strong) equivalence
+    \ar@@<.5ex>[l]^{\size{}}}$ constitutes an equivalence
   between the groupoids $\PT$ and $\BT$.
 
 \begin{proof}
