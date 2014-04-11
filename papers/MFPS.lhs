@@ -1649,178 +1649,169 @@ The last condition is the most interesting: we need to say
   product and arithmetic product to actual data structures. What would we use
   these operations for?}
 
-\section{Other constructions}
+% \section{Other constructions}
 
 
-\label{sec:diff}
+% \label{sec:diff}
 
-The \emph{derivative} $F'$ of a species $F$, well-known in the functional
-programming community \cite{mcbride:derivative}, is defined by $F'\ L =
-F\ (L \uplus \{\star\})$.  Intuitively, an $F'$-shape is the same as
-an $F$-shape with one ``hole'' in it.  To generalize this to functor
-categories $[\Lab, \Str]$, it suffices for $\Str$ to have coproducts
-and a terminal object.
+% The \emph{derivative} $F'$ of a species $F$, well-known in the functional
+% programming community \cite{mcbride:derivative}, is defined by $F'\ L =
+% F\ (L \uplus \{\star\})$.  Intuitively, an $F'$-shape is the same as
+% an $F$-shape with one ``hole'' in it.  To generalize this to functor
+% categories $[\Lab, \Str]$, it suffices for $\Str$ to have coproducts
+% and a terminal object.
 
-\label{sec:multisort}
+% \label{sec:multisort}
 
-\newcommand{\lcat}[1]{#1^*}
+% \newcommand{\lcat}[1]{#1^*}
 
-A \emph{multisort} species \cite[\Sect \todo{look this up}]{bll} is
-one which takes as inputs multiple ``sorts'' of labels which do not
-mix: the relabelling bijections of single-sort species generalize to
-``multibijections'' which act separately on each different sort of
-label.  It is worth noting that these can also be modelled as a
-functor category, replacing the groupoid $\B$ with the groupoid
-$\lcat{\B}$, whose objects are lists of finite sets and whose
-morphisms are lists of bijections between corresponding list elements
-\cite[Exercise \todo{look this up}]{bll}.  One can show that this
-groupoid has all the required properties to enable generalized species
-operations; and the same construction applies equally well to $\BT$.
+% A \emph{multisort} species \cite[\Sect \todo{look this up}]{bll} is
+% one which takes as inputs multiple ``sorts'' of labels which do not
+% mix: the relabelling bijections of single-sort species generalize to
+% ``multibijections'' which act separately on each different sort of
+% label.  It is worth noting that these can also be modelled as a
+% functor category, replacing the groupoid $\B$ with the groupoid
+% $\lcat{\B}$, whose objects are lists of finite sets and whose
+% morphisms are lists of bijections between corresponding list elements
+% \cite[Exercise \todo{look this up}]{bll}.  One can show that this
+% groupoid has all the required properties to enable generalized species
+% operations; and the same construction applies equally well to $\BT$.
 
-% \newcommand{\emptylist}{[\,]}
+% % \newcommand{\emptylist}{[\,]}
 
-% \begin{defn}
-%   Given a category $\C$, define the category $\lcat{\C}$ as follows.
-%   \begin{itemize}
-%   \item The objects of $\lcat{\C}$ are finite (possibly empty) lists
-%     $[C_1, C_2, C_3, \dots]$ of objects from $\C$.
-%   \item The morphisms from $[C_1, \dots, C_n]$ to $[D_1, \dots, D_n]$
-%     are lists of morphisms $[f_1, \dots, f_n]$ with $f_i : C_i \to
-%     D_i$.  Note there are no morphisms $[C_1, \dots, C_m] \to [D_1,
-%     \dots, D_n]$ when $m \neq n$.
-%   \end{itemize}
-% \end{defn}
+% % \begin{defn}
+% %   Given a category $\C$, define the category $\lcat{\C}$ as follows.
+% %   \begin{itemize}
+% %   \item The objects of $\lcat{\C}$ are finite (possibly empty) lists
+% %     $[C_1, C_2, C_3, \dots]$ of objects from $\C$.
+% %   \item The morphisms from $[C_1, \dots, C_n]$ to $[D_1, \dots, D_n]$
+% %     are lists of morphisms $[f_1, \dots, f_n]$ with $f_i : C_i \to
+% %     D_i$.  Note there are no morphisms $[C_1, \dots, C_m] \to [D_1,
+% %     \dots, D_n]$ when $m \neq n$.
+% %   \end{itemize}
+% % \end{defn}
 
-% \todo{Need to add more text here motivating these definitions and
-%   propositions.  Will go much better once I get a better sense of
-%   where this all is headed exactly, and which of these properties we
-%   need and why.}
+% % \todo{Need to add more text here motivating these definitions and
+% %   propositions.  Will go much better once I get a better sense of
+% %   where this all is headed exactly, and which of these properties we
+% %   need and why.}
 
-% \begin{lem}
-%   For any category $\C$, $\lcat{\C}$ is monoidal with list
-%   concatenation |++| as the tensor product and the empty list as
-%   the identity object.
-% \end{lem}
+% % \begin{lem}
+% %   For any category $\C$, $\lcat{\C}$ is monoidal with list
+% %   concatenation |++| as the tensor product and the empty list as
+% %   the identity object.
+% % \end{lem}
 
-% \renewcommand{\Cat}{\cat{Cat}}
+% % \renewcommand{\Cat}{\cat{Cat}}
 
-% \todo{Note that $\lcat{-}$ is a functor $\Cat \to \Cat$? (Is it?)}
+% % \todo{Note that $\lcat{-}$ is a functor $\Cat \to \Cat$? (Is it?)}
 
-% \begin{defn}
-%   Define the embedding functor $e : \C \to \lcat{\C}$ which sends $C$
-%   to the singleton list $[C]$ and $f$ to $[f]$.
-% \end{defn}
+% % \begin{defn}
+% %   Define the embedding functor $e : \C \to \lcat{\C}$ which sends $C$
+% %   to the singleton list $[C]$ and $f$ to $[f]$.
+% % \end{defn}
 
-% \begin{prop}
-%   $e$ is full and faithful.
-% \end{prop}
+% % \begin{prop}
+% %   $e$ is full and faithful.
+% % \end{prop}
 
-% \begin{defn}
-%   If $(\C, \otimes, I)$ is a monoidal category, we may define a
-%   functor $F^\otimes : \lcat{\C} \to \C$ by:
-%   \begin{itemize}
-%   \item $F^\otimes\ \emptylist = I$
-%   \item $F^\otimes\ [C_1, \dots, C_n] = C_1 \otimes \dots \otimes C_n$
-%   \end{itemize}
-%   and similarly for morphisms.
-% \end{defn}
+% % \begin{defn}
+% %   If $(\C, \otimes, I)$ is a monoidal category, we may define a
+% %   functor $F^\otimes : \lcat{\C} \to \C$ by:
+% %   \begin{itemize}
+% %   \item $F^\otimes\ \emptylist = I$
+% %   \item $F^\otimes\ [C_1, \dots, C_n] = C_1 \otimes \dots \otimes C_n$
+% %   \end{itemize}
+% %   and similarly for morphisms.
+% % \end{defn}
 
-% \begin{prop}
-%   $F^\otimes$ is a (strict) monoidal functor.
-%   \begin{proof}
-%     $F^\otimes\ \emptylist = I$ by definition, and it is easy to check
-%     that $F^\otimes\ (\ell_1 \plus \ell_2) = F^\otimes\ \ell_1 \otimes
-%     F^\otimes\ \ell_2$.
-%   \end{proof}
-% \end{prop}
+% % \begin{prop}
+% %   $F^\otimes$ is a (strict) monoidal functor.
+% %   \begin{proof}
+% %     $F^\otimes\ \emptylist = I$ by definition, and it is easy to check
+% %     that $F^\otimes\ (\ell_1 \plus \ell_2) = F^\otimes\ \ell_1 \otimes
+% %     F^\otimes\ \ell_2$.
+% %   \end{proof}
+% % \end{prop}
 
-% \begin{rem}
-%   Note that $F^\otimes$ is not, in general, an isomorphism.  In
-%   particular, there may exist morphisms $C_1 \otimes \dots \otimes C_n
-%   \to D_1 \otimes \dots \otimes D_n$ which do not arise as a tensorial
-%   product of morphisms $f_i : C_i \to D_i$.  For example, in $(\Set,
-%   +)$ we may define \todo{finish me}.
-% \end{rem}
+% % \begin{rem}
+% %   Note that $F^\otimes$ is not, in general, an isomorphism.  In
+% %   particular, there may exist morphisms $C_1 \otimes \dots \otimes C_n
+% %   \to D_1 \otimes \dots \otimes D_n$ which do not arise as a tensorial
+% %   product of morphisms $f_i : C_i \to D_i$.  For example, in $(\Set,
+% %   +)$ we may define \todo{finish me}.
+% % \end{rem}
 
-% Given a functor category of generalized species $[\Lab, \Str]$, we may
-% now form the category $[\lcat{\Lab}, \Str]$ of generalized multisort
-% species.  In particular, $[\lcat{\B}, \Set]$ corresponds exactly to
-% the notion of multisort species defined in Bergeron \etal \cite{bll}.
+% % Given a functor category of generalized species $[\Lab, \Str]$, we may
+% % now form the category $[\lcat{\Lab}, \Str]$ of generalized multisort
+% % species.  In particular, $[\lcat{\B}, \Set]$ corresponds exactly to
+% % the notion of multisort species defined in Bergeron \etal \cite{bll}.
 
-% \todo{Note conditions under which this preserves the structure we care
-%   about.  Need $\lcat{\Lab}$ to still be enriched over $\Str$.  We
-%   have shown above that $\lcat{\Lab}$ preserves relevant monoidal
-%   structure.  Hmm\dots multisort corresponds particularly to
-%   interpreting lists using coproduct from underlying category\dots
-%   where does that come from?}
+% % \todo{Note conditions under which this preserves the structure we care
+% %   about.  Need $\lcat{\Lab}$ to still be enriched over $\Str$.  We
+% %   have shown above that $\lcat{\Lab}$ preserves relevant monoidal
+% %   structure.  Hmm\dots multisort corresponds particularly to
+% %   interpreting lists using coproduct from underlying category\dots
+% %   where does that come from?}
 
-% \section{Weighted Species}
-% \label{sec:weighted-species}
+% % \section{Weighted Species}
+% % \label{sec:weighted-species}
 
-% \todo{General explanation and intuition for weighted species, and usual definition.}
+% % \todo{General explanation and intuition for weighted species, and usual definition.}
 
-% \newcommand{\A}{\bbb{A}}
+% % \newcommand{\A}{\bbb{A}}
 
-% Given some object $A \in \Str$, consider the slice category $\Str/A$.
-% We can interpret objects of $\Str/A$ as objects of $\Str$ paired with
-% a ``weighting''; morphisms in $\Str/A$ are thus ``weight-preserving''
-% morphisms of $\Str$.
+% % Given some object $A \in \Str$, consider the slice category $\Str/A$.
+% % We can interpret objects of $\Str/A$ as objects of $\Str$ paired with
+% % a ``weighting''; morphisms in $\Str/A$ are thus ``weight-preserving''
+% % morphisms of $\Str$.
 
-% The first thing to note is that $\Str/A$ inherits coproducts from
-% $\Str$: given two weighted objects $(X, \omega_X)$ and $(Y,
-% \omega_Y)$, we can uniquely construct a weighting $(X+Y, [\omega_X,
-% \omega_Y])$:
-% \[ \xymatrix{ X \ar[dr]_{\omega_X} \ar[r]^-{\iota_1} & X + Y
-%   \ar[d]||{[\omega_X, \omega_Y]} & Y \ar[l]^-{\iota_2}
-%   \ar[dl]^{\omega_Y} \\ & A & } \] To see that this is indeed the
-% coproduct $(X,\omega_X) + (Y,\omega_Y)$ in $\Str/A$, \todo{finish}
+% % The first thing to note is that $\Str/A$ inherits coproducts from
+% % $\Str$: given two weighted objects $(X, \omega_X)$ and $(Y,
+% % \omega_Y)$, we can uniquely construct a weighting $(X+Y, [\omega_X,
+% % \omega_Y])$:
+% % \[ \xymatrix{ X \ar[dr]_{\omega_X} \ar[r]^-{\iota_1} & X + Y
+% %   \ar[d]||{[\omega_X, \omega_Y]} & Y \ar[l]^-{\iota_2}
+% %   \ar[dl]^{\omega_Y} \\ & A & } \] To see that this is indeed the
+% % coproduct $(X,\omega_X) + (Y,\omega_Y)$ in $\Str/A$, \todo{finish}
 
-% Products in $\Str/A$ are pullbacks in $\Str$.  For example, given two
-% weighted sets $(X, \omega_X)$ and $(Y, \omega_Y)$ in $\Set/A$, their
-% categorical product in $\Str/A$ is the set $\{(x,y) \mid x \in X, y
-% \in Y, \omega_X(x) = \omega_Y(y)\}$.  However, this is not a very
-% useful notion of product in this context: intuitively, taking a
-% product of weighted objects should yield a combined object with some
-% sort of combined weight, instead of limiting us to cases where the
-% weights match.
+% % Products in $\Str/A$ are pullbacks in $\Str$.  For example, given two
+% % weighted sets $(X, \omega_X)$ and $(Y, \omega_Y)$ in $\Set/A$, their
+% % categorical product in $\Str/A$ is the set $\{(x,y) \mid x \in X, y
+% % \in Y, \omega_X(x) = \omega_Y(y)\}$.  However, this is not a very
+% % useful notion of product in this context: intuitively, taking a
+% % product of weighted objects should yield a combined object with some
+% % sort of combined weight, instead of limiting us to cases where the
+% % weights match.
 
-% Instead of requiring $\Str$ to have pullbacks, we can define a
-% different sort of monoidal product on $\Str/A$ if we assume that
-% $\Str$ has products and $A$ is a monoid object, that is, there exist
-% morphisms $\eta : 1 \to A$ and $\mu : A \times A \to A$ satisfying
-% \todo{finish}.  In this case, we may define $(X, \omega_X) \otimes (Y,
-% \omega_Y)$ by
-% \[\xymatrixcolsep{4pc} \xymatrix{ X \times Y \ar[r]^-{\omega_X \times \omega_Y} & A
-%   \times A \ar[r]^-\mu & A. } \]  The identity for $\otimes$ is given
-% by $\eta$.
-% %% xymatrix{ \{\star\} \ar[r]^{!} & 1 \ar[r]^\eta & A. } \]
-% One can check that $\otimes$ inherits monoidal structure from
-% $A$. \todo{Finish this proof.}
+% % Instead of requiring $\Str$ to have pullbacks, we can define a
+% % different sort of monoidal product on $\Str/A$ if we assume that
+% % $\Str$ has products and $A$ is a monoid object, that is, there exist
+% % morphisms $\eta : 1 \to A$ and $\mu : A \times A \to A$ satisfying
+% % \todo{finish}.  In this case, we may define $(X, \omega_X) \otimes (Y,
+% % \omega_Y)$ by
+% % \[\xymatrixcolsep{4pc} \xymatrix{ X \times Y \ar[r]^-{\omega_X \times \omega_Y} & A
+% %   \times A \ar[r]^-\mu & A. } \]  The identity for $\otimes$ is given
+% % by $\eta$.
+% % %% xymatrix{ \{\star\} \ar[r]^{!} & 1 \ar[r]^\eta & A. } \]
+% % One can check that $\otimes$ inherits monoidal structure from
+% % $A$. \todo{Finish this proof.}
 
-% \todo{Show that this gives the usual notion of weighted species.}
+% % \todo{Show that this gives the usual notion of weighted species.}
 
-% \todo{Show that this construction preserves the properties we care
-%   about.}
+% % \todo{Show that this construction preserves the properties we care
+% %   about.}
 
-% \todo{Give some examples.}
+% % \todo{Give some examples.}
 
 
-\label{sec:weighted}
+% \label{sec:weighted}
 
-\term{Weighted} species \cite[\Sect \todo{look this up}]{bll} can also
-be modelled as functors $\B \to \Set/A$, where $\Set/A$ denotes the
-slice category over some appropriate set $A$ of weights. This
-generalizes appropriately to type theory as well. 
-% Due to space
-% constraints, the details must be postponed to a subsequent
-%publication. 
-\bay{Is there a better way to say this?  Is it worth
-  saying at all?}\scw{let's cut the sentence; it doesn't add much.}
+% \term{Weighted} species \cite[\Sect \todo{look this up}]{bll} can also
+% be modelled as functors $\B \to \Set/A$, where $\Set/A$ denotes the
+% slice category over some appropriate set $A$ of weights. This
+% generalizes appropriately to type theory as well. 
 
-\scw{Maybe we should combine this entire section with the future work work
-  section? Of course some of it is straightforward and the future work is
-  finding a venue with enough space to explain it. But they are connected as
-  more operations on species.}
 
 
 \section{Related Work}
@@ -1921,6 +1912,13 @@ There is overlap, but no inclusion in either direction.
 \label{sec:future}
 \label{sec:conclusion}
 
+In this paper, we given constructive definition of species and have
+generalized sums, and cartesian, partitional and arithmetic products so that
+they apply to both the original set-theoretic and our revised type-theoretic
+definitions. We can generalize several other species constructions including
+\emph{species derivatives}, \emph{multisort species} and \emph{weighted
+  species}. (Space constraints prevent their inclusion here.)
+
 The most important operation we have not yet formalized is that of
 \emph{composition}, where the composition $F \comp G$ of species $F$
 and $G$ intuitively consists of $F$-shapes containing $G$-shapes.  It
@@ -1937,11 +1935,13 @@ data structures. \bay{What else should we say here?  We could also
   the first steps as part of a much larger research program aiming to
   use species as\dots''?}
 
-It should also be remarked that the objects of $\Lab$ might not correspond to
-``sets'' at all.  Although our definitions are guided by the the intuition of
-``sets of labels'', in the most general setting we must only think of shapes as
-indexed by objects of $\Lab$, rather than shapes as ``containing labels drawn
-from some set''.  We need to properly leverage this extra generality.
+\scw{Do we need this last paragraph? The focus of this paper is when 
+$\Lab$ is $\BT$ so it is further afield from our goal. Also, what benefit could we derive from a different $\Lab$?}
+Furthermore, objects of $\Lab$ might not correspond to ``sets'' at all.
+Although our definitions are guided by the the intuition of ``sets of
+labels'', in the most general setting we must only think of shapes as indexed
+by objects of $\Lab$, rather than shapes as ``containing labels drawn from
+some set''. We need to properly leverage this extra generality.
 
 %\begin{ack}
 %Acknowledgements
