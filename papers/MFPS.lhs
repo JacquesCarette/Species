@@ -1149,21 +1149,96 @@ one-element sets are isomorphic in \Set.)
   The \term{Cartesian} or \term{Hadamard product} of species, is defined on
   objects by $ (F \times G)\ L = F\ L \times G\ L. $
 \end{defn}
-An $(F \times G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on
-\emph{the same set of labels}. % (\pref{fig:Cartesian-product-dup}).  
-There are several ways to think
-about this situation. One can think of two distinct shapes, with
-labels duplicated between them; one can think of the labels as
-\emph{pointers} or \emph{labels} for locations in a shared memory;
+An $(F \times G)$-shape is both an $F$-shape \emph{and} a $G$-shape,
+on \emph{the same set of labels}.  There are several ways to think
+about this situation, as illustrated in \pref{fig:Cartesian-product}.
+One can think of two distinct shapes, with labels duplicated between
+them; one can think of the labels as \emph{pointers} or \emph{labels}
+for locations in a shared memory;
 %% (to be explored more in \pref{sec:sharing})
 or one can think of the shapes themselves as being superimposed.
 
-% \begin{figure}
-%   \centering
-%   \todo{Make a diagram. Or maybe omit it for space.}
-%   \caption{Cartesian species product}
-%   \label{fig:Cartesian-product-dup}
-% \end{figure}
+\begin{figure}
+  \centering
+  \begin{diagram}[width=380]
+import           Data.Bits
+import           Data.List.Split
+import           Diagrams.TwoD.Layout.Tree
+import           Diagrams.TwoD.Path.Metafont
+
+import           SpeciesDiagrams
+
+mkLeaf :: IsName n => Diagram B R2 -> n -> Diagram B R2
+mkLeaf shp n = shp # fc white # named n
+
+tree2 nd
+  = maybe mempty (renderTree nd (~~))
+  . symmLayoutBin' (with & slVSep .~ 4 & slHSep .~ 6)
+  $ (BNode (1 :: Int) (BNode 2 (BNode 3 Empty (BNode 4 Empty Empty)) Empty) (BNode 5 (BNode 6 Empty Empty) (BNode 7 Empty Empty)))
+
+listL nd n = hcat . map nd $ [1 :: Int .. n]
+
+connectAll l1 l2 n perm =
+  withNames (map (l1 .>) [1 :: Int .. n]) $ \l1s ->
+  withNames (map (l2 .>) [1 :: Int .. n]) $ \l2s ->
+  applyAll (zipWith conn l1s (perm l2s))
+
+conn l1 l2 = beneath (lc grey . metafont $ location l1 .- leaving unit_Y <> arriving unit_Y -. endpt (location l2))
+
+-- (mkLeaf shp . (l .>))
+
+sharedMem = vcat' (with & sep .~ 3)
+  [ hcat' (with & sep .~ 1)
+    [ tree2 (mkLeaf (circle 1) . ("l1" .>)) # centerY
+    , listL (mkLeaf (circle 1) . ("l2" .>)) 7 # centerY
+    ] # centerXY
+  , listL (mkLeaf (square 2) . ("s" .>)) 7 # centerXY
+  ]
+  # connectAll "l1" "s" 7 perm1
+  # connectAll "l2" "s" 7 perm2
+  # centerXY # pad 1.1
+
+perm1 = id
+perm2 = concat . map reverse . chunksOf 2
+
+asFun :: ([Int] -> [Int]) -> Int -> Int
+asFun perm i = perm [1..7] !! (i - 1)
+
+numbering = vcat' (with & sep .~ 3)
+  [ tree2 numbered # centerX
+  , listL (numbered . asFun perm2) 7 # centerX
+  ]
+  where
+    numbered n = mkLeaf (text (show n) # fc black <> circle 1) ()
+
+super = tree2 (mkLeaf (circle 1))
+  # cCurve 2 1
+  # cStr   1 4
+  # cCurve 4 3
+  # cStr   3 6
+  # cCurve 6 5
+  # cCurve 5 7
+  where
+    cCurve, cStr :: Int -> Int -> Diagram B R2 -> Diagram B R2
+    cCurve = connectOutside' (aSty & arrowShaft .~ arc (0 @@@@ turn) (1/5 @@@@ turn) # reverseTrail)
+    cStr   = connectOutside' aSty
+    aSty   = with & shaftStyle %~ dashing [0.3,0.3] 0 . lw 0.2
+                  & arrowHead .~ tri
+                  & headSize .~ 1
+
+dia 
+  = frame 0.5 . centerXY . lw 0.1
+  . hcat' (with & sep .~ 2) . map centerXY 
+  $
+  [ numbering
+  , sharedMem
+  , super
+  ]
+  \end{diagram}
+  %$
+  \caption{Three views on Cartesian product of species}
+  \label{fig:Cartesian-product}
+\end{figure}
 
 \begin{defn}
   The species of \emph{sets}, $\E$, is defined as the constant functor
