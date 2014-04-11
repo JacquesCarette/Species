@@ -1914,10 +1914,9 @@ definitions. We can generalize several other species constructions including
   species}. (Space constraints prevent their inclusion here.)
 
 The most important operation we have not yet formalized is that of
-\emph{composition}, where the composition $F \comp G$ of species $F$
-and $G$ intuitively consists of $F$-shapes containing $G$-shapes.  It
-is not yet clear whether composition imposes any additional
-requirements on the categories beyond those already imposed by
+\emph{composition}, where the composition $F \comp G$ intuitively consists of
+$F$-shapes containing $G$-shapes.  It is not clear whether composition imposes
+any new requirements on the categories beyond those already imposed by
 partitional and arithmetic product.
 
 One of our main motivations in carrying out this line of work has been
@@ -1931,11 +1930,11 @@ data structures. \bay{What else should we say here?  We could also
 
 \scw{Do we need this last paragraph? The focus of this paper is when 
 $\Lab$ is $\BT$ so it is further afield from our goal. Also, what benefit could we derive from a different $\Lab$?}
-Furthermore, objects of $\Lab$ might not correspond to ``sets'' at all.
-Although our definitions are guided by the the intuition of ``sets of
-labels'', in the most general setting we must only think of shapes as indexed
-by objects of $\Lab$, rather than shapes as ``containing labels drawn from
-some set''. We need to properly leverage this extra generality.
+% Furthermore, objects of $\Lab$ might not correspond to ``sets'' at all.
+% Although our definitions are guided by the the intuition of ``sets of
+% labels'', in the most general setting we must only think of shapes as indexed
+% by objects of $\Lab$, rather than shapes as ``containing labels drawn from
+% some set''. We need to properly leverage this extra generality.
 
 %\begin{ack}
 %Acknowledgements
