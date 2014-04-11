@@ -1066,21 +1066,22 @@ product of species arises from products in $\Set$.
 
 \subsection{Species sum}
 
-The \emph{sum} of two species, intuitively, is given by their disjoint
+The \emph{sum} of two species is given by their disjoint
 union: an $(F + G)$-shape is either an $F$-shape \emph{or} a
 $G$-shape (together with a tag so we can tell which).
 
 \begin{defn}
-  Given species $F, G : \B \to \Set$, we may form their sum $F + G$,
-  defined on objects by \[ (F + G)\ L \defeq F\ L \uplus G\ L, \] where the
-  $\uplus$ on the right hand side denotes the disjoint union (coproduct) of
-  sets, with the action on morphisms similarly given by \[ (F + G)\
+  Given $F, G : \B \to \Set$, $F + G$ is
+  defined on objects by \[ (F + G)\ L \defeq F\ L \uplus G\ L, \] where 
+  $\uplus$ denotes disjoint union (coproduct) of
+  sets, and the action on morphisms \[ (F + G)\
   \sigma \defeq F\ \sigma \uplus G\ \sigma, \] where $\uplus$ is
-  considered as a bifunctor in the evident way: $(f \uplus g)\ (\inl\ x)
-  = \inl\ (f\ x)$ and $(f \uplus g)\ (\inr\ y) = \inr\ (g\ y)$.
+  considered as a bifunctor in the evident way. 
+  % $(f \uplus g)\ (\inl\ x)
+  % = \inl\ (f\ x)$ and $(f \uplus g)\ (\inr\ y) = \inr\ (g\ y)$.
 \end{defn}
 
-Thinking of species alternately as functors in $[\P, \Set]$, we may
+Thinking of species as functors in $[\P, \Set]$, we may
 say that an $(F+G)$-shape of size $n$ is either an $F$-shape of size
 $n$ or a $G$-shape of size $n$.
 
@@ -1108,12 +1109,10 @@ $n$ or a $G$-shape of size $n$.
 %   \end{figure}
 
 \begin{defn}
-  We may also define the \term{zero} or \term{empty} species,
-  $\Zero$, as the unique species with no shapes whatsoever.  That is,
+  The \term{zero} or \term{empty} species,
+  $\Zero$, is the unique species with no shapes whatsoever.  That is,
   on objects,
-  \begin{equation*}
-    \Zero\ L \defeq \varnothing,
-  \end{equation*}
+    $\Zero\ L \defeq \varnothing$,
   and on morphisms $\Zero$ sends every $\sigma$ to the unique function
   $\varnothing \to \varnothing$.
 \end{defn}
@@ -1131,15 +1130,14 @@ $n$ or a $G$-shape of size $n$.
 % about each fundamental monoidal construction along with its unit.
 % As for introduction forms, it's pretty trivial.
 
-It's not hard to check that $(+,\Zero)$ forms a commutative monoid
-structure on the category of species.
-
+One can check that $(+,\Zero)$ gives a symmetric monoidal structure
+to $[\B, \Set]$.
 Stepping back a bit, we can see that this monoidal structure on
 species arises straightforwardly from the corresponding monoidal
 structure on sets: the sum of two functors is defined as the pointwise
 sum of their outputs, and likewise \Zero, the identity for the sum of
-species, is defined as the functor which constantly, \ie pointwise,
-returns $\varnothing$, the identity for the sum of sets.  This general
+species, is defined as the functor which pointwise
+returns $\varnothing$, the identity for the coproduct of sets.  This general
 construction will be spelled out in \pref{sec:lifting-monoids}; but
 first, we turn to the formally similar operation of \emph{Cartesian
   product}.
@@ -1147,21 +1145,18 @@ first, we turn to the formally similar operation of \emph{Cartesian
 \subsection{Cartesian/Hadamard product}
 \label{sec:cartesian}
 
-In addition to coproducts $\Set$ also has products, given by $S \times
+$\Set$ also has products, given by $S \times
 T = \{ (s,t) \mid s \in S, t \in T \}$, with any one-element set as
-the identity. (For convenience, we may suppose there is some canonical
+the identity. (We may suppose there is some canonical
 choice of one-element set, $\{\star\}$; this is justified since all
 one-element sets are isomorphic in \Set.)
 \begin{defn}
-  We can use the product structure on $\Set$ to define the
-  \term{Cartesian} or \term{Hadamard product} of species, defined on
-  objects by \[ (F \times G)\ L = F\ L \times G\ L. \]
+  The \term{Cartesian} or \term{Hadamard product} of species, is defined on
+  objects by $ (F \times G)\ L = F\ L \times G\ L. $
 \end{defn}
-In the same way that an $(F + G)$-shape is either an $F$-shape
-\emph{or} a $G$-shape on a given set of labels, an $(F \times
-G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on \emph{the
-  same set of labels}.% (\pref{fig:Cartesian-product-dup}).  
-There are several intuitive ways to think
+An $(F \times G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on
+\emph{the same set of labels}.% (\pref{fig:Cartesian-product-dup}).  
+There are several ways to think
 about this situation. One can think of two distinct shapes, with
 labels duplicated between them; one can think of the labels as
 \emph{pointers} or \emph{labels} for locations in a shared memory;
@@ -1177,38 +1172,41 @@ or one can think of the shapes themselves as being superimposed.
 
 \begin{defn}
   The species of \emph{sets}, $\E$, is defined as the constant functor
-  yielding $\{\star\}$, that is, \[ \E\ L = \{\star\}. \]
+  yielding $\{\star\}$, that is, $\E\ L = \{\star\}$.
 \end{defn}
 
 \begin{rem}
   $\E$ is called the \term{species of sets} since there is
-  exactly one structure on any set of labels, which can intuitively be
+  exactly one structure on any set of labels, which can be
   thought of as the set of labels itself, with no additional
-  structure.  In fact, since all one-element sets are isomorphic, we
-  may as well define \[ \E\ L = \{L\}. \]
+  structure.  In fact, as all one-element sets are isomorphic, we
+  may define $\E\ L = \{L\}$.
 \end{rem}
 
 \begin{prop}
   Up to isomorphism, $\E$ is the identity for Cartesian product.
 \end{prop}
 
-\subsection{Lifting monoids}
+\subsection{Lifting monoidal structure}
 \label{sec:lifting-monoids}
 
-Both these constructions generalize readily.  Any monoidal
-structure $(\otimes, I, \alpha, \lambda, \rho)$ on a category $\Str$
-lifts pointwise to a corresponding monoidal structure $(\lotimes,
-\lifted I, \lifted \alpha, \lifted \lambda, \lifted \rho)$ on the
-functor category $[\Lab, \Str]$. The basic idea is exactly the same as
-the standard Haskell type class instance
+Both these constructions generalize readily.  
+\begin{prop}
+Any monoidal structure $(\otimes, I, \alpha, \lambda, \rho)$ on a category
+$\Str$ lifts pointwise to a monoidal structure $(\lotimes,
+\lifted I, \lifted \alpha, \lifted \lambda, \lifted \rho)$ on 
+$[\Lab, \Str]$.
+\end{prop}
+\noindent The basic idea is exactly the same as the standard Haskell type class
+instance
 \begin{spec}
 instance Monoid a => Monoid (e -> a) where
   mempty         = \ _ -> mempty
   f `mappend` g  = \a -> f a `mappend` g a
 \end{spec}
-but quite a bit more general.  We omit the precise details, partly in
-the interest of space, and partly because the details are
-straightforward.  
+%but quite a bit more general.  We omit the precise details, partly in
+%the interest of space, and partly because the details are
+%straightforward.  
 % For the present purposes the intuition given by the
 % above Haskell code should suffice; to understand the basic intuition
 % behind the proof, the reader may enjoy proving that the above |Monoid|
@@ -1228,12 +1226,13 @@ straightforward.
   sum and the empty species'' to make it explicit?} \bay{I am not sure
   what you mean.}\scw{I mean to make the definition of the generalized
   species sum more explicit. Here its defined informally and indirectly, so it
-  is easy to miss the definition altogether.}
+  is easy to miss the definition altogether.}\jc{I agree.  Let's hope we will
+  have room to do this}
 
 \begin{example}
-  We note that lifting coproducts in $\Set$ to $[\B,\Set]$ yields $(+,
-  \Zero)$, and likewise lifting products yields $(\times,
-  \E)$.
+  We note that lifting coproducts in $\Set$ to $[\B,\Set]$ yields the $(+,
+  \Zero)$ structure on species, and likewise lifting products yields $(\times,
+  \E)$, Cartesian product.
 \end{example}
 % Since $(\uplus,\varnothing)$ is a coproduct structure on $\Set$, it
 % follows that $(+, \Zero)$ is in fact a coproduct structure on the
