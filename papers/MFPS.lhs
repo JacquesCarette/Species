@@ -869,13 +869,13 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
   homotopy type theory, $\FinType$ is a set, \ie a $0$-type.)
 \end{prop}
 
-\begin{proof*}{Proof (sketch).}
-  A path $(A_1, n_1, e_1) = (A_2, n_2, e_2)$ is equivalent to $(p :
-  A_1 = A_2) \times (q : n_1 = n_2) \times (q_*(p_*(e_1)) = e_2)$.
-  Noting that $p_*(e_1)$, in particular, is given by the composition
-  of $p$ with $e_1$, and \todo{finish} \jc{do we even need this proof
-  sketch?}
-\end{proof*}
+% \begin{proof*}{Proof (sketch).}
+%   A path $(A_1, n_1, e_1) = (A_2, n_2, e_2)$ is equivalent to $(p :
+%   A_1 = A_2) \times (q : n_1 = n_2) \times (q_*(p_*(e_1)) = e_2)$.
+%   Noting that $p_*(e_1)$, in particular, is given by the composition
+%   of $p$ with $e_1$, and \todo{finish} \jc{do we even need this proof
+%   sketch?} \bay{No.}
+% \end{proof*}
 
 As having paths between evidence of finiteness imposes too strong a
 constraint, we next try using the
