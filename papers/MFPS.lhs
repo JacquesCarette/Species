@@ -1665,7 +1665,7 @@ and a terminal object.
 
 \newcommand{\lcat}[1]{#1^*}
 
-A \emph{multisort} species \cite[\Sect \todo{look this up}]{bll} is
+A \emph{multisort} species \cite[\Sect 2.4]{bll} is
 one which takes as inputs multiple ``sorts'' of labels which do not
 mix: the relabelling bijections of single-sort species generalize to
 ``multibijections'' which act separately on each different sort of
@@ -1673,7 +1673,7 @@ label.  It is worth noting that these can also be modelled as a
 functor category, replacing the groupoid $\B$ with the groupoid
 $\lcat{\B}$, whose objects are lists of finite sets and whose
 morphisms are lists of bijections between corresponding list elements
-\cite[Exercise \todo{look this up}]{bll}.  One can show that this
+\cite[Exercise 2.4.6]{bll}.  One can show that this
 groupoid has all the required properties to enable generalized species
 operations; and the same construction applies equally well to $\BT$.
 
@@ -1807,7 +1807,7 @@ operations; and the same construction applies equally well to $\BT$.
 
 \label{sec:weighted}
 
-\term{Weighted} species \cite[\Sect \todo{look this up}]{bll} can also
+\term{Weighted} species \cite[\Sect 2.3]{bll} can also
 be modelled as functors $\B \to \Set/A$, where $\Set/A$ denotes the
 slice category over some appropriate set $A$ of weights. This
 generalizes appropriately to type theory as well. 
