@@ -971,10 +971,10 @@ pair of inverse equivalences in each of the following two diagrams:
     $\fin{\size e} \equiv \fin{i \then e \then j^{-1}} \equiv i \then e \then j^{-1}$.
   \end{itemize}
   We must exhibit a natural isomorphism $\alpha : \nat{Id}{\fin{\size
-      -}}$.  The component of $\alpha$ at $(A,m,i)$ must be a morphism
+      -}}$.  $\alpha_{(A,m,i)}$ must be a morphism
   in $\BT$ from $(A,m,i)$ to $(\Fin m, m, \id)$, that is, an
-  equivalence $A \iso \Fin m$.  Therefore we define \[
-  \alpha_{(A,m,i)} \defeq i^{-1}. \]  Naturality of $\alpha$ is given
+  equivalence $A \iso \Fin m$.  Therefore we define $
+  \alpha_{(A,m,i)} \defeq i^{-1}$.  Naturality of $\alpha$ is given
   by the diagram
   \[ \xymatrix{
          (A,m,i) \ar[r]^-{i^{-1}} \ar[d]_e
@@ -997,20 +997,16 @@ We now port the theory of species to constructive type theory.
 
 \begin{defn}
   Recall that $\Type = \Type_0$ denotes the universe of types.  We
-  overload the notation $\Type$ to also denote the category whose
-  \begin{itemize}
-  \item objects are types classified by $\Type_0$, and
-  \item morphisms $\mor A B$ are functions with the given type.
-  \end{itemize}
+  also denote by $\Type$ the category whose objects are values of
+  $\Type_0$, and morphisms $\mor A B$ are functions.
 \end{defn}
 
 We claim that an appropriate encoding of species within homotopy type
 theory is given by $[\BT, \Type]$, the category of functors from $\BT$
 to $\Type$.  We cannot directly justify this by showing that
-$[\B,\Set]$ and $[\BT,\Type]$ are categorically equivalent.  Indeed,
-they are certainly \emph{not} equivalent! The problem is that $\Set$
-(and similarly $\B$) is ``too big'': there are many sets that do not
-correspond to any type definable in type theory.
+$[\B,\Set]$ and $[\BT,\Type]$ are categorically equivalent, which is
+unlikely to be true.  For one, $\Set$ is ``too big'': there are many sets that
+do not correspond to any type definable in type theory.
 
 However, most working mathematicians do not actually make use of such
 ``exotic'' sets.  The constructions they care about
@@ -1029,17 +1025,12 @@ picture of where the operations ``come from''.
 In particular, $\B$ and \Set enjoy many special properties as
 categories (for example, \Set is cartesian closed, has all limits and
 colimits, and so on).  It is enlightening to see precisely which of these
-properties are required in which situations.\todo{This footnote does
-  not really belong here; find a better place for it.}\footnote{Note that the objects
-  of $\Lab$ might not correspond to ``sets'' at all.  Although our definitions
-  are guided by the the intuition of ``sets of labels'', in the most general
-  setting we must only think of shapes as indexed by objects of $\Lab$, rather
-  than shapes as ``containing labels drawn from some set''.}
+properties are required in which situations.
 
 After generalizing these common operations to arbitrary functor categories, we
 can justify our constructive definition of species by showing that the
-specific functor category [$\BT$,$\Type$] satisfies the required properties in
-each case. In the following, to keep these various functor categories
+functor category [$\BT$,$\Type$] satisfies each required property.
+In the following, to keep these various functor categories
 straight, we use the terminology ``species'' for $[\B,\Set]$, ``generalized
 species'' for some abstract $[\Lab, \Str]$, and ``constructive species'' for
 $[\BT, \Type]$.
@@ -1915,6 +1906,12 @@ data structures. \bay{What else should we say here?  We could also
   lead off this paragraph with something like ``This work is one of
   the first steps as part of a much larger research program aiming to
   use species as\dots''?}
+
+It should also be remarked that the objects of $\Lab$ might not correspond to
+``sets'' at all.  Although our definitions are guided by the the intuition of
+``sets of labels'', in the most general setting we must only think of shapes as
+indexed by objects of $\Lab$, rather than shapes as ``containing labels drawn
+from some set''.  We need to properly leverage this extra generality.
 
 \section{Conclusion}
 \label{sec:conclusion}
