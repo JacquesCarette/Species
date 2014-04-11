@@ -1332,8 +1332,10 @@ instance Monoid a => Monoid (e -> a) where
 
 There is another notion of product for species, the \term{partitional}
 or \term{Cauchy} product.  It it is the partitional product, rather
-than Cartesian product, which corresponds to the product of generating
-functions, and which gives rise to the usual notion of product on
+than Cartesian product, 
+% which corresponds to the product of generating
+% functions, and 
+which gives rise to the usual notion of product on
 algebraic data types.  For these reasons, partitional product is often
 simply referred to as ``product'', without any modifier.
 % , although as
@@ -1350,8 +1352,9 @@ analogous way, via a categorical construction known as \emph{Day
 \label{sec:partitional-product}
 
 The partitional product $F \sprod G$ of two species $F$
-and $G$ consists of paired $F$- and $G$-shapes, but with a twist:
-instead of being replicated, as in Cartesian product, the labels are
+and $G$ consists of paired $F$- and $G$-shapes %, but with a twist:
+% instead of being replicated, as in Cartesian product, the labels are
+with the labels
 \emph{partitioned} between the two shapes.
 
 % \todo{picture of a pair of trees with disjoint labels, or something
@@ -1385,19 +1388,21 @@ instead of being replicated, as in Cartesian product, the labels are
   \biguplus_{L_1,L_2 \vdash L} F\ L_1 \times G\ L_2 \] where
   $\biguplus$ denotes an indexed coproduct of sets, and $L_1,L_2
   \vdash L$ denotes that $L_1$ and $L_2$ constitute a partition of
-  $L$, that is, $L_1 \union L_2 = L$ and $L_1 \intersect L_2 =
-  \varnothing$. On bijections, $F \cdot G$ uses the action of $F$ on
+  $L$, (\ie $L_1 \union L_2 = L$ and $L_1 \intersect L_2 =
+  \varnothing$). On bijections, $F \cdot G$ uses the action of $F$ on
   the restriction of the bijections to $L_1$, and similarly for $G$
   and $L_2$.
 \end{defn}
 
-The identity for partitional product should evidently be some species
+The identity for partitional product needs to be some species
 $\One$ such that \[ (\One \cdot G)\ L = \left(\biguplus_{L_1,L_2 \vdash L}
-  \One\ L_1 \times G\ L_2 \right) \iso G\ L. \] The only way for this
-isomorphism to hold naturally in $L$ is if $\One\ \varnothing =
-\{\star\}$ (yielding a summand of $G\ L$ when $\varnothing,L \vdash L$) and
-$\One\ L_1 = \varnothing$ for all other $L_1$ (cancelling all the
-other summands).
+  \One\ L_1 \times G\ L_2 \right) \iso G\ L, \] naturally in $L$.  This
+leads to
+%  The only way for this
+%isomorphism to hold naturally in $L$ is if $\One\ \varnothing =
+%\{\star\}$ (yielding a summand of $G\ L$ when $\varnothing+L = L$) and
+%$\One\ L_1 = \varnothing$ for all other $L_1$ (cancelling all the
+%other summands).
 
 \begin{defn}
   The unit species, $\One$, is defined by
