@@ -1489,7 +1489,7 @@ requires
   have coends over $\Lab$.
 \end{itemize}
 
-Note that any monoidal structures will do; in particular there is no
+Note that any monoidal structure $\oplus$ will do; in particular there is no
 requirement that $\oplus$ be ``sum-like'' or $\otimes$
 ``product-like'', though that is indeed the case for partitional
 product.
@@ -1519,12 +1519,11 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 % \end{rem}
 
 \begin{example}
-  Let's begin by looking at the traditional setting of $\Lab = \B$ and
-  $\Str = \Set$.  Though $\B$ does not have coproducts, it does have a
-  monoidal structure given by disjoint union.  $\B$ is indeed enriched
-  over $\Set$, which is also cocomplete and has a symmetric monoidal
-  structure given by Cartesian product.
-
+  In the setting of $[\B, \Set]$, $\B$ is indeed enriched over $\Set$,
+  has a monoidal structure given by disjoint union%
+  \footnote{This structure does not arise from a coproduct, as $\B$ does
+  not have them.}, $\Set$ is cocomplete, and has a 
+  symmetric monoidal structure given by Cartesian product.
   Specializing the definition to this case, and expressing the coend
   as a quotient, we obtain
   \begin{align*}
@@ -1578,8 +1577,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 \begin{example}
   There is another monoidal structure on $\B$ corresponding to the
   Cartesian product of sets. If we instantiate the framework of Day
-  convolution with this product-like monoidal structure instead of the
-  coproduct-like structure used to define partitional product---but
+  convolution with this product-like monoidal structure ---but
   keep everything else the same, in particular continuing to use
   products on $\Set$---we obtain the arithmetic product.
 \end{example}
@@ -1610,7 +1608,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   It remains to verify that $\BT$ and $\Type$ have the right properties.
 %  \begin{itemize}
 %  \item
-  Like $\B$ there are monoidal
+  Like $\B$, there are monoidal
     structures on $\BT$ corresponding to the coproduct and product of
     types. It is worth noting, however, that there are \emph{many}
     monoidal structures corresponding to each. A monoidal operation
@@ -1634,8 +1632,8 @@ The last condition is the most interesting: we need to say
     induced by transport of paths in $\BT$.
 %  \end{itemize}
 
-  Given $F,G \in [\BT,\Type]$, we can thus instantiate the definition
-  of Day convolution to obtain
+  Given $F,G \in [\BT,\Type]$, we can instantiate the definition
+  of Day convolution to get
   \[ (F \cdot G)\ L = \sum_{L_1, L_2} F\ L_1 \times G\ L_2 \times (L
   \iso L_1 + L_2), \] and similarly for generalized arithmetic
   product.
@@ -1908,7 +1906,7 @@ There is overlap, but no inclusion in either direction.
 \label{sec:future}
 \label{sec:conclusion}
 
-In this paper, we given constructive definition of species and have
+In this paper, we give a constructive definition of species and have
 generalized sums, and cartesian, partitional and arithmetic products so that
 they apply to both the original set-theoretic and our revised type-theoretic
 definitions. We can generalize several other species constructions including
