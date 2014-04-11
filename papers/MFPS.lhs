@@ -534,9 +534,9 @@ concise definition of species:
 \begin{defn}
   \label{defn:species-cat}
   A \term{species} is a functor $F : \B \to \Set$, where $\B$%
-\footnote{$\B$ for \emph{bijection}, a rare category named for its arrows.} 
-  is the
-  groupoid of finite sets whose morphisms are bijections, and
+is the
+  groupoid of finite sets whose morphisms are bijections,\footnote{$\B$ for \emph{bijection}, a rare category named for its arrows.} 
+   and
   $\Set$ is the category of sets and (total) functions.
 \end{defn}
 
@@ -555,7 +555,7 @@ concise definition of species:
 
 Porting the theory of species to a constructive setting
 requires defining categories $\BT$ and $\Type$ so that a functor $\BT \to
-\Type$ is a ``constructive counterpart'' to a functor $\B \to \Set$.
+\Type$ is a ``constructive counterpart'' to a functor $\B \to \Set$. 
 
 %\scw{Is there a way to pronounce $\B$ and $\BT$? Why B in the first
 %  place?} \bay{I don't know of a way to pronounce them.  The notation
@@ -612,7 +612,7 @@ equality $A = B$.  The theory also allows inductive definitions.  We
 use $\N : \Type_0$ to denote the type of natural numbers, and $\Fin :
 \N \to \Type_0$ the usual indexed type of canonical finite sets.
 
-Note that although we use Agda's notation~\cite{Agda} for dependent pairs and 
+Although we use Agda's notation~\cite{Agda} for dependent pairs and 
 functions, we occasionally use the traditional $\sum_{x : A} B(x)$ and
 $\prod_{x:A} B(x)$ for emphasis, and the standard
 abbreviations $A \times B$ and $A \to B$ for non-dependent pair and
@@ -759,17 +759,17 @@ corresponding set of natural numbers $\fin{\size S}$.
 % \emph{witness} $a : A(x)$ for which the property $P(x,a)$ holds.  That
 % is, it requires that we have already made a choice for each $x$.
 
-The axiom of choice is consistent with
+The axiom of choice ($\AC$) is consistent with
 HoTT.\scw{I think we can omit this equation for space too. Cut it.}
 % \begin{equation} \tag{$\AC$}
 %   \label{eq:AC}
 %   \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
 %     \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
 % \end{equation}
-However, this axiom has no computational interpretation, and is therefore
+However, $\AC$ has no computational interpretation, and is therefore
 unsuitable for constructing a functor with computational content.
 %
-As is standard constructive practice, we reject this use of $\AC$.
+As is standard constructive practice, we reject $\AC$.
 %We therefore reject the use of the axiom of choice.  
 %Our goal
 %is to build groupoids $\PT$ and $\BT$ which are type-theoretic
@@ -794,23 +794,24 @@ A). \]
 
 We need to build a groupoid having such finite types as objects, and
 equivalences between them as morphisms.  Via univalence, we may
-conveniently package up such equivalences as paths.  We note
-the following method to build an $\infty$-groupoid out of any
-type:
+conveniently package up such equivalences as paths.  
+
+Unfortunately, the standard method to build an 
+$\infty$-groupoid out of any
+type does not work! Consider:
 \begin{defn}
   For a type $A$, the $\infty$-groupoid $\tygrpd{A}$ has 
   values $a : A$ as its objects, paths $a = b$ as its $1$-morphisms,
   paths between paths as $2$-morphims, and so on.
 \end{defn}
 
-We then naturally attempt to use $\tygrpd{\FinType}$ as a constructive
-counterpart to $\B$.  Unfortunately, this does not work! Intuitively,
-the problem is that the paths involve not just the types in question
-but also the evidence of their finiteness, so that a path between two
-finite types requires them to be finite ``in the same way''. The
-finiteness evidence for two types thus completely determines a unique
-correspondence between them---but there ought to be $n!$ such
-correspondences.
+$\tygrpd{\FinType}$ does not work as a constructive
+counterpart to $\B$, because it has only one morphism between each
+pair of objects.
+Intuitively, the
+problem is that the paths involve not just the types in question
+but also the evidence of their finiteness, so that a path
+between two finite types requires them to be finite ``in the same way''. 
 
 % The situation can be pictured as shown in \pref{fig:fin-equiv}. The elements
 % of types $A_1$ and $A_2$ are shown on the sides; the evidence of their
@@ -955,7 +956,7 @@ $e : \mor {(A, m, i)} {(B, n, j)}$ are sent to $i \then e \then j^{-1}$.
 % \[
 %   \xymatrix{\Fin m \ar@@{<->}[d]_-i & \Fin n \\ A \ar@@{<->}[r]_e & B
 %     \ar@@{<->}[u]_-{j^{-1}} } \]
-The functoriality of $\size{}$ can be seen by noting the cancelling
+The functoriality of $\size{}$ can be seen by noting the canceling
 pair of inverse equivalences in each of the following two diagrams:
   \[ \xymatrix{\Fin m \ar@@<-.4em>@@{<->}[d]_i
          \ar@@<.4em>@@{<->}[d]^{i^{-1}}
@@ -1151,7 +1152,7 @@ one-element sets are isomorphic in \Set.)
   objects by $ (F \times G)\ L = F\ L \times G\ L. $
 \end{defn}
 An $(F \times G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on
-\emph{the same set of labels}.% (\pref{fig:Cartesian-product-dup}).  
+\emph{the same set of labels}. % (\pref{fig:Cartesian-product-dup}).  
 There are several ways to think
 about this situation. One can think of two distinct shapes, with
 labels duplicated between them; one can think of the labels as
