@@ -1502,8 +1502,8 @@ product.
 \end{defn}
 
 \begin{rem}
-  Note that $\int^{L_1, L_2} \dots$ is used as an abbrevation for an
-  iterated coend $\int^{L_1} \int^{L_2} \dots$.
+  Note that $\int^{L_1, L_2} \dots$ is used as an abbrevation for a
+  coend over the product category $\Lab \times \Lab$.
 \end{rem}
 \begin{rem}
   Since groupoids are self-dual, we may ignore the $-^\op$ in the
