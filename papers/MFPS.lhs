@@ -571,7 +571,7 @@ these categories in the next section.
   functions.}
 \jc{Not in this section, I don't think it really adds anything here}
 
-\section{Homotopy type theory and finiteness}
+\section{Species in Constructive Type Theory}
 \label{sec:prelim}
 
 We next define the categories $\BT$ and $\Type$ in the context of
@@ -765,7 +765,7 @@ corresponding set of natural numbers $\fin{\size S}$.
 % \emph{witness} $a : A(x)$ for which the property $P(x,a)$ holds.  That
 % is, it requires that we have already made a choice for each $x$.
 
-The axiom of choice ($\AC$ below) is consistent with
+The axiom of choice is consistent with
 HoTT.\scw{I think we can omit this equation for space too. Cut it.}
 % \begin{equation} \tag{$\AC$}
 %   \label{eq:AC}
@@ -813,56 +813,56 @@ We then naturally attempt to use $\tygrpd{\FinType}$ as a constructive
 counterpart to $\B$.  Unfortunately, this does not work! Intuitively, the
 problem is that the paths involve not just the types in question
 but also the evidence of their finiteness, so that a path
-between two finite types requires them to be finite ``in the same way''. The
-situation can be pictured as shown in \pref{fig:fin-equiv}. The
-elements of types $A_1$ and $A_2$ are shown on the sides; the evidence
-of their finiteness is represented by bijections between their
-elements and the elements of $\Fin n$, shown along the bottom.  The
-catch is that the diagram necessarily contains only triangles:
-corresponding elements of $A_1$ and $A_2$ must correspond to
-the same element of $\Fin n$ on the bottom row.  Therefore, there are
-only two degrees of freedom: once the evidence of finiteness is
-determined, there is only one valid correspondence between $A_1$ and
-$A_2$---but there ought to be $n!$ such correspondences.
-\begin{figure}
-  \centering
-  \begin{diagram}[width=150]
-import           Data.Bits                      (xor)
-import           SpeciesDiagrams
+between two finite types requires them to be finite ``in the same way''. 
 
-mkList n d f = hcat' (with & sep .~ 2 & catMethod .~ Distrib)
-  (zipWith named (map f [0::Int ..]) (replicate n d))
+% The situation can be pictured as shown in \pref{fig:fin-equiv}. The elements
+% of types $A_1$ and $A_2$ are shown on the sides; the evidence of their
+% finiteness is represented by bijections between their elements and the
+% elements of $\Fin n$, shown along the bottom.  The catch is that the diagram
+% necessarily contains only triangles: corresponding elements of $A_1$ and $A_2$
+% must correspond to the same element of $\Fin n$ on the bottom row.  Therefore,
+% there are only two degrees of freedom: once the evidence of finiteness is
+% determined, there is only one valid correspondence between $A_1$ and
+% $A_2$---but there ought to be $n!$ such correspondences.
+% \begin{figure}
+%   \centering
+%   \begin{diagram}[width=150]
+% import           Data.Bits                      (xor)
+% import           SpeciesDiagrams
 
-n :: Int
-n = 8
+% mkList n d f = hcat' (with & sep .~ 2 & catMethod .~ Distrib)
+%   (zipWith named (map f [0::Int ..]) (replicate n d))
 
-dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
-      [ "l1"  ||> (l1 # rotateBy (-1/3))
-      , "fin" ||> fin
-      , "l2"  ||> (l2 # rotateBy (1/3))
-      ]
-      # mkConnections
-      # centerXY # pad 1.2
-      # flip appends
-        [ (unit_Y                  , text' 4 "Fin n")
-        , (unit_Y # rotateBy (-1/3), text' 4 "L₁"   )
-        , (unit_Y # rotateBy (1/3) , text' 4 "L₂"   )
-        ]
-  where
-    fin = mkList n dot (`xor` 1) # centerXY
-    l1  = mkList n dot id # centerXY
-    l2  = mkList n dot ((n-1) -) # centerXY
-    dot = circle 0.5 # fc grey
-    mkConnections = applyAll
-      [  withNames [a .> i, b .> i] $ \[p,q] -> atop (location p ~~ location q)
-      || (a,b) <- take 3 . (zip <*> tail) . cycle $ ["l1", "fin", "l2"]
-      ,  i <- [0 .. (n-1)]
-      ]
-  \end{diagram}
-  \caption{A path between inhabitants of $\FinType$ contains only
-    triangles}
-  \label{fig:fin-equiv}
-\end{figure}
+% n :: Int
+% n = 8
+
+% dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
+%       [ "l1"  ||> (l1 # rotateBy (-1/3))
+%       , "fin" ||> fin
+%       , "l2"  ||> (l2 # rotateBy (1/3))
+%       ]
+%       # mkConnections
+%       # centerXY # pad 1.2
+%       # flip appends
+%         [ (unit_Y                  , text' 4 "Fin n")
+%         , (unit_Y # rotateBy (-1/3), text' 4 "L₁"   )
+%         , (unit_Y # rotateBy (1/3) , text' 4 "L₂"   )
+%         ]
+%   where
+%     fin = mkList n dot (`xor` 1) # centerXY
+%     l1  = mkList n dot id # centerXY
+%     l2  = mkList n dot ((n-1) -) # centerXY
+%     dot = circle 0.5 # fc grey
+%     mkConnections = applyAll
+%       [  withNames [a .> i, b .> i] $ \[p,q] -> atop (location p ~~ location q)
+%       || (a,b) <- take 3 . (zip <*> tail) . cycle $ ["l1", "fin", "l2"]
+%       ,  i <- [0 .. (n-1)]
+%       ]
+%   \end{diagram}
+%   \caption{A path between inhabitants of $\FinType$ contains only
+%     triangles}
+%   \label{fig:fin-equiv}
+% \end{figure}
 
 \scw{We need to say explicitly why only having one morphism between any two
   objects of $\tygrpd{\FinType}$ is bad.}\jc{We sort of said so before:
@@ -1011,15 +1011,13 @@ pair of inverse equivalences in each of the following two diagrams:
 \end{proof}
 \end{prop}
 
-\section{Species in constructive type theory}
+\subsection{Species in constructive type theory}
 \label{sec:constructive-species}
-
-We now port the theory of species to constructive type theory.
 
 \begin{defn}
   Recall that $\Type = \Type_0$ denotes the universe of types.  We
   also denote by $\Type$ the category whose objects are values of
-  $\Type_0$, and morphisms $\mor A B$ are functions.
+  $\Type_0$ and morphisms $\mor A B$ are functions.
 \end{defn}
 
 We claim that an appropriate encoding of species within homotopy type
