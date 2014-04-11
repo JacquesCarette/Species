@@ -12,7 +12,7 @@ main = shake shakeOptions $ do
   "*.tex" *> \output -> do
       let input = output -<.> "lhs"
       need [input, "SpeciesDiagrams.hs"]
-      system' lhs2TeX $ ["-o", output] ++ [input]
+      system' lhs2TeX $ ["--verb", "-o", output] ++ [input]
 
   "*.pdf" *> \output -> do
       let input = output -<.> "tex"
