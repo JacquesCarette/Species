@@ -1610,13 +1610,15 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 \begin{example}
   It remains to verify that $\BT$ and $\Type$ have the right properties.
 %  \begin{itemize}
-%  \item 
-Similarly to $\B$, there are (at least) two monoidal
-    structures on $\BT$, corresponding to the coproduct and product of
-    types, respectively.  Note that in each case, the finiteness
-    evidence for types $A$ and $B$ can be combined in a canonical way
-    to construct finiteness evidence for the types $A + B$ and $A
-    \times B$, respectively.
+%  \item
+  Like $\B$ there are monoidal
+    structures on $\BT$ corresponding to the coproduct and product of
+    types. It is worth noting, however, that there are \emph{many}
+    monoidal structures corresponding to each. A monoidal operation
+    does not simply combine two types into their coproduct or product,
+    but also combines their finiteness evidence into corresponding
+    evidence for the combined type, and there are many ways to
+    accomplish this.
 %  \item 
 $\BT$ is indeed enriched over $\Type$, since the class of
     arrows between $(A,m,i)$ and $(B,n,j)$ is given by the type $A
