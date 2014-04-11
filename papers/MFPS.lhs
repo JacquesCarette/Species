@@ -261,7 +261,7 @@
 \begin{document}
 
 \begin{frontmatter}
-\title{Generalizing species to type theory}
+\title{Type-Theoretic Foundations for Combinatorial Species}
 
 %% ENTCS
 
@@ -604,14 +604,13 @@ details.
 
 We work with a type theory equipped with an empty type \TyZero, a unit
 type \TyOne (with inhabitant $\unit$), coproducts $A + B$ (with
-constructors $\inl$ and $\inr$), dependent pairs $(x:A) \times B(x)$
-(with projections $\outl$ and $\outr$), dependent functions $(x:A) \to
-B(x)$, a hierarchy of type universes $\Type_0$, $\Type_1$,
-$\Type_2$\dots (we usually omit the subscript from $\Type_0$),
-judgmental equality $A \equiv B$, and propositional equality $A = B$.
-The theory also allows inductive definitions.  We use $\N : \Type_0$
-to denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
-usual indexed type of canonical finite sets.
+constructors $\inl$ and $\inr$), dependent pairs $(x:A) \times B(x)$,
+dependent functions $(x:A) \to B(x)$, a hierarchy of type universes
+$\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the subscript
+from $\Type_0$), judgmental equality $A \equiv B$, and propositional
+equality $A = B$.  The theory also allows inductive definitions.  We
+use $\N : \Type_0$ to denote the type of natural numbers, and $\Fin :
+\N \to \Type_0$ the usual indexed type of canonical finite sets.
 
 Although we use Agda's notation~\cite{Agda} for dependent pairs and 
 functions, we occasionally use the traditional $\sum_{x : A} B(x)$ and
@@ -625,7 +624,7 @@ function types.
 % : \Type) \to A \times (B \to \N)$.
 
 The type of \term{equivalences} between $A$ and $B$, written $A \iso B$, is
-definable in type theory; intuitively, an equivalence is a pair of inverse
+definable in HoTT; intuitively, an equivalence is a pair of inverse
 functions $f : A \to B$ and $g : B \to A$.\footnote{The precise details are
   more subtle \cite[chap.  4]{hottbook}, but unimportant for our purposes.}
 We overload the notations $\id$ and $\comp$ to denote the identity equivalence
@@ -674,14 +673,14 @@ throughout the term.
 \subsection{Finiteness}
 \label{sec:finiteness}
 
-Recall that $\B$ denotes the groupoid
-whose objects are finite sets and whose morphisms are bijections. We
-construct its constructive counterpart $\BT$ in two stages. First, we 
-introduce $\P$, a way to think about sets of labels in terms of natural numbers
-(because the actual contents of these sets do not matter) and define its
-constructive analogue $\PT$. This simpler context brings
-many of the issues surrounding constructive finiteness into focus.
-We then show how to extend $\PT$ to $\BT$.
+Recall that $\B$ denotes the groupoid whose objects are finite sets
+and whose morphisms are bijections. We define its constructive
+counterpart $\BT$ in two stages. First, we introduce $\P$, the
+skeleton of $\B$, which corresponds to working directly with the
+\emph{sizes} of finite sets (because the actual contents of these sets
+do not matter), and define its constructive analogue $\PT$. This
+simpler context brings many of the issues surrounding constructive
+finiteness into focus.  We then show how to extend $\PT$ to $\BT$.
 
 Denote by $\P$ the category whose objects are
 natural numbers and whose morphisms %$\mor m n$ 
@@ -709,7 +708,7 @@ unless $m \equiv n$).  Defining a counterpart to $\P$ is straightforward:
 
 Often it is noted as trivial that $\P$ is equivalent to (in fact, a
 skeleton of) $\B$ and hence that working with $\P$ rather than $\B$
-when convenient is justified. However, this equivalence is not so
+when convenient is justified. However, in our setting, this equivalence is not so
 trivial after all: in particular, showing that $\P$ and $\B$ are
 \scw{what does strongly mean?}  \jc{means that $\P$ and $\B$ are
   strict categories, which in turn means that they have sets of
@@ -729,7 +728,7 @@ trivial after all: in particular, showing that $\P$ and $\B$ are
   just remove the references to ``strong'' equivalence from the
   paper.}  equivalent requires the axiom of choice.  In more detail,
 it is easy to define a functor $\fin - : \P \to \B$ which sends $n$ to
-$\fin n$ and preserves morphisms.  Defining an inverse functor $\size
+$\fin n$ and preserves morphisms;  defining an inverse functor $\size
 - : \B \to \P$ is more problematic. We can send each set $S$ to its
 size $\size
 S$, %(though even this is a bit suspect, from a constructive point of
@@ -780,9 +779,9 @@ As is standard constructive practice, we reject $\AC$.
 Constructing a counterpart to $\B$, then, is more subtle: we wish to
 construct something equivalent to $\PT$, but without the use of $\AC$.
 Furthermore, it is not \latin{a priori} clear what it should mean,
-constructively, for a type to be finite.  There are, indeed,
-several possible answers to this question \cite{finite}. Taking our
-cue from the discussion above, we note that what was missing in trying
+constructively, for a type to be finite.  There are, indeed, several
+possible answers to this question \cite{finite}. Taking our cue from
+the discussion above, however, we note that what was missing in trying
 to define $\size- : \B \to \P$ was a choice of bijections $S \bij
 \fin{\size S}$: such bijections can be thought of as evidence of the
 finiteness of $S$.  This is the most straightforward definition of
@@ -805,8 +804,10 @@ type does not work! Consider:
   values $a : A$ as its objects, paths $a = b$ as its $1$-morphisms,
   paths between paths as $2$-morphims, and so on.
 \end{defn}
-If we use $\tygrpd{\FinType}$ as a constructive
-counterpart to $\B$, we only have only have one morphism between each object.
+
+$\tygrpd{\FinType}$ does not work as a constructive
+counterpart to $\B$, because it has only one morphism between each
+pair of objects.
 Intuitively, the
 problem is that the paths involve not just the types in question
 but also the evidence of their finiteness, so that a path
@@ -943,18 +944,19 @@ ensure that objects which differ only by this choice are isomorphic.
 \end{rem}
 
 \begin{defn}
-  We define  a functor  $\fin -  : \PT  \to \BT$:  on objects  $\fin n
-  \defeq (\Fin n, n, \id)$, and $\fin -$ is the identity on morphisms.
+  We define a functor $\fin - : \PT \to \BT$ as follows: on objects,
+  $\fin n \defeq (\Fin n, n, \id)$, and $\fin -$ is the identity on
+  morphisms.
 \end{defn}
 
 \begin{defn} \label{defn:size}
-In the other direction, we define $\size : \BT \to \PT$ that sends
+In the other direction, we define $\size : \BT \to \PT$ which sends
 objects $(A, m, i)$ to $m$, and morphisms
 $e : \mor {(A, m, i)} {(B, n, j)}$ are sent to $i \then e \then j^{-1}$.
 % \[
 %   \xymatrix{\Fin m \ar@@{<->}[d]_-i & \Fin n \\ A \ar@@{<->}[r]_e & B
 %     \ar@@{<->}[u]_-{j^{-1}} } \]
-The functoriality of $\size{}$ can be seen by noting the canceling
+The functoriality of $\size{}$ can be seen by noting the cancelling
 pair of inverse equivalences in each of the following two diagrams:
   \[ \xymatrix{\Fin m \ar@@<-.4em>@@{<->}[d]_i
          \ar@@<.4em>@@{<->}[d]^{i^{-1}}
@@ -1008,7 +1010,7 @@ pair of inverse equivalences in each of the following two diagrams:
 \end{proof}
 \end{prop}
 
-\subsection{Species in constructive type theory}
+\subsection{Generalized species}
 \label{sec:constructive-species}
 
 \begin{defn}
@@ -1440,8 +1442,9 @@ we first give some brief intuition for the concept of a \emph{coend}.
 \newcommand{\D}{\bbb{D}}
 
 Given a bifunctor $T : \C^\op \times \C \to \D$, a \term{coend} over
-$T$, denoted $\int^C T(C,C)$, is an object of $\D$.  In the specific
-case when the objects of $\D$ can be thought of as sets or types with
+$T$, denoted $\int^C T(C,C)$, is an object of $\D$ together with some
+(di)naturality conditions.  In the specific case when the objects of
+$\D$ can be thought of as sets or types with
 ``elements''\footnote{This definition can be made precise in full
   generality (without requiring the objects of $\D$ to have
   ``elements'') using a \emph{coequalizer}.}, the coend $\int^C
