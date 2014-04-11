@@ -1495,6 +1495,10 @@ product.
 \end{defn}
 
 \begin{rem}
+  Note that $\int^{L_1, L_2} \dots$ is used as an abbrevation for an
+  iterated coend $\int^{L_1} \int^{L_2} \dots$.
+\end{rem}
+\begin{rem}
   Since groupoids are self-dual, we may ignore the $-^\op$ in the
   common case that $\Lab$ is a groupoid.
 \end{rem}
@@ -1611,7 +1615,11 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   \item We have already seen that there is a symmetric monoidal
     structure on $\Type$ given by the product of types.
   \item The last condition is the most interesting: we need to say
-    what a coend over $\BT$ is in $\Type$. \todo{finish}
+    what a coend over $\BT$ is in $\Type$. In fact, in this case a
+    coend is just a $\Sigma$-type!  This is because the morphisms in
+    $\BT$ are paths, and hence the required identifications between
+    inhabitants of the $\Sigma$-type are already present---they are
+    induced by transport of paths in $\BT$.
   \end{itemize}
 
   Given $F,G \in [\BT,\Type]$, we can thus instantiate the definition
