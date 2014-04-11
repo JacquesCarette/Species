@@ -317,9 +317,13 @@
 % \def\authorrunning{B. Yorgey, J. Carette, S. Weirich}
 
 \begin{abstract}
-
- Abstract.\vspace{1in}
-
+  This paper develops a constructive definition of Joyal's theory of
+  combinatorial species using Homotopy Type Theory. We justify our definitions
+  by generalizing various operations on species to arbitrary functor
+  categories. In particular, we use lifted monoids to define species sum and
+  cartesian product, and day convolution to define partitional and arithmetic
+  products. This foundational work is the first step in the application of the
+  theory of species to a wide class of data structures.
 \end{abstract}
 
 \begin{keyword}
