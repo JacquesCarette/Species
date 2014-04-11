@@ -349,8 +349,13 @@ are mainly concerned with enumerating and generating abstract structures, not
 with storing and computing with data.  Thus, in order to apply this theory in
 a computational setting, there are hidden assumptions and glossed
 distinctions that must first be made explicit.  Second, being situated in
-traditional mathematical practice rooted in set theory%
-\footnote{notwithstanding the fact that the foundational work is categorical}, 
+traditional mathematical practice rooted in set theory,
+% \footnote{notwithstanding the fact that the foundational work is
+%   categorical},
+\bay{I removed this footnote because I don't understand its point.
+  Category theory has only relatively recently been appropriated by
+  computer science; to say that something is categorical in no way
+  implies that it has a computational flavor.}%
 species are described in ways that are \emph{untyped} and
 \emph{nonconstructive}, both of which hinder adoption and understanding in a
 computational context.
@@ -382,7 +387,7 @@ More specifically, the contributions of this paper are:
   constructive type theory (\pref{sec:constructive-species}).% , characterizing
   % them as functors from a finite collection of labels to structures.
 \item As part of our port to type theory, we generalize common operations on
-  species, including sum, partitional and Cartesian product, 
+  species, including sum, partitional and Cartesian product,
   carefully analyzing their requirements to insure consistency
   with our new interpretation.
 % remove 'arithmetic product' from this list since it is far from 'common'!
@@ -394,7 +399,11 @@ In the next section, we review the set-theoretic definitions of species (\pref{s
 before recasting them in the context of homotopy type theory in
 \pref{sec:prelim}.  We assume familiarity with dependent type theory and
 (basic) category throughout, but will spell out the basic HoTT tools
-we need, as well as more advanced categorical constructions.
+we need, as well as more advanced categorical constructions. \bay{We
+  need to actually make this true.  In particular, Day convolution is
+  defined in terms of coends which can hardly be said to be ``basic category theory''.  However, I am
+  not sure we really have space to explain them.  Perhaps we can cook up
+  an extremely high-level, hand-wavy sort of explanation.}
 
 % \todo{Somewhere we need to say what category theory background we
 %   assume (and spell out the things we don't assume).}
@@ -418,9 +427,9 @@ the set of all binary trees built over those labels.
 Other species describe non-algebraic data structures, such as cycles, bags and
 permutations.
 
-\chaptertodo{More examples.  Cycles, bags.  Permutations.  Examples of
-    algebra: describe lists and trees algebraically, etc.}
-
+%\chaptertodo{More examples.  Cycles, bags.  Permutations.  Examples of
+%    algebra: describe lists and trees algebraically, etc.}
+%
 %   \begin{figure}
 %     \centering
 %     \begin{diagram}[width=400]
@@ -491,20 +500,22 @@ permutations.
 %     %$
 %   \end{figure}
 
-\noindent
-In set theory, we define species as follows:
+%\noindent In set theory, we define species as follows:
+% JC: should probably use a proper LaTeX package to do inline lists...
 \begin{defn}[Species (Joyal \cite{joyal,bll})]
 \label{defn:species-set}
 A \term{species} $F$ is a pair of mappings which sends any finite set $U$ (of
-\term{labels}) to a set $F\ U$ (of \term{shapes}), and sends any bijection\footnote{We use the notation
-  $U \bij V$ for any bijection between finite sets $U$ and $V$.}$\sigma : U \bij V$, to a
-function $F\ \sigma : F\ U \to F\ V$
+\term{labels}) to a set $F\ U$ (of \term{shapes}), and sends any bijection%
+\footnote{We use the notation $U \bij V$ for any bijection between sets $U$ and
+$V$.} $\sigma : U \bij V$ to a function $F\ \sigma : F\ U \to F\ V$
 %  (illustrated in \pref{fig:relabeling}),
 satisfying the functoriality conditions:
-\begin{itemize}
-\item $F\ id_U = id_{F U}$, and
-\item $F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
-\end{itemize}
+(1) $F\ id_U = id_{F U}$, and
+(2) $F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
+%\begin{itemize}
+%\item $F\ id_U = id_{F U}$, and
+%\item $F (\sigma \circ \tau) = F\ \sigma \circ F\ \tau$.
+%\end{itemize}
 \end{defn}
 
 We call $F\ U$ the set of ``\mbox{$F$-shapes} with labels drawn from $U$'',
@@ -532,7 +543,9 @@ Using the language of category theory, we can give an equivalent, more
 concise definition of species:
 \begin{defn}
   \label{defn:species-cat}
-  A \term{species} is a functor $F : \B \to \Set$, where $\B$ is the
+  A \term{species} is a functor $F : \B \to \Set$, where $\B$%
+\footnote{$\B$ for \emph{bijection}, a rare category named for its arrows.} 
+  is the
   groupoid of finite sets whose morphisms are bijections, and
   $\Set$ is the category of sets and (total) functions.
 \end{defn}
@@ -550,29 +563,36 @@ concise definition of species:
 %  the full justification.}
 \end{rem}
 
-We we wish to translate the theory of species to a constructive setting. This
-port requires defining categories $\BT$ and $\Type$ so that a functor $\BT \to
+Porting the theory of species to a constructive setting
+requires defining categories $\BT$ and $\Type$ so that a functor $\BT \to
 \Type$ is a ``constructive counterpart'' to a functor $\B \to \Set$. We define
 these categories in the next section.
 
-\scw{Is there a way to pronounce $\B$ and $\BT$? Why B in the first
-  place?} \bay{I don't know of a way to pronounce them.  The notation
-  $\B$ is quite standard and comes from Bergeron \etal (and perhaps
-  ultimately from Joyal?).  I suppose the B is for ``Bijections''?}
+%\scw{Is there a way to pronounce $\B$ and $\BT$? Why B in the first
+%  place?} \bay{I don't know of a way to pronounce them.  The notation
+%  $\B$ is quite standard and comes from Bergeron \etal (and perhaps
+%  ultimately from Joyal?).  I suppose the B is for ``Bijections''?}
 
 \todo{Should probably give a brief mention of the link to generating
   functions.}
+\jc{Not in this section, I don't think it really adds anything here}
 
 \section{Homotopy type theory and finiteness}
 \label{sec:prelim}
 
 We next define the categories $\BT$ and $\Type$ in the context of
-\term{homotopy type theory} (HoTT).  Intuitively, the category $\BT$ should
-capture the idea of ``constructively finite types'', corresponding to the
-finite sets of $\B$. Intuitively, we can define finiteness in type theory by
-presenting an equivalence to some type that we already know to be finite. We
-choose to work in HoTT because its univalence axiom simplifies working with
-equivalences.  \todo{Why bother encoding finiteness in type theory?}\scw{I'm
+\term{homotopy type theory} (HoTT).  Intuitively, the category $\BT$
+should capture the idea of ``constructively finite types'',
+corresponding to the finite sets of $\B$. Intuitively, we can define
+finiteness in type theory by presenting an equivalence to some type
+that we already know to be finite. We choose to work in HoTT because
+its univalence axiom simplifies working with equivalences.  \bay{It
+  goes much deeper than this; it is no longer the case that we are
+  just using HoTT for convenience but could just as easily use some
+  other type theory (as we tried to argue in our earlier paper).  I
+  will try to write a clearer account of this later, but first I need
+  to write the section explaining how coends work out in
+  HoTT.}\todo{Why bother encoding finiteness in type theory?}\scw{I'm
   not sure we have a good answer to this question.}
 
 This section begins by summarizing the most important ideas and notation of
@@ -690,7 +710,7 @@ equivalent requires the axiom of choice.  In more detail, it is easy
 to define a functor $\fin - : \P \to \B$ which sends $n$ to $\fin n$
 and preserves morphisms.  Defining an inverse functor $\size - : \B \to \P$ is
 more problematic. Clearly we must send each set $S$ to its size $\size
-S$ %(though even this is a bit suspect, from a constructive point of
+S$. %(though even this is a bit suspect, from a constructive point of
 %view: where exactly does this size come from?). 
 However, a bijection
 $S \bij T$ must be sent to a bijection $\fin{\size S} \bij \fin{\size
@@ -747,7 +767,13 @@ Defining a counterpart to $\P$ is straightforward:
   \item the objects are natural numbers, that is,
     values of type $\N$, and
   \item the morphisms $\mor m n$ are equivalences of type $\Fin m \iso
-    \Fin n$.\scw{I'm not sure I understand what this means. How does it type check?}
+    \Fin n$.\scw{I'm not sure I understand what this means. How does
+      it type check?}\bay{Between any two objects there has to be a
+      set of morphisms.  We simply define the set of morphisms between
+      $m$ and $n$ to be inhabitants of the type $\Fin m \iso \Fin n$.
+      (Of course, there are no inhabitants unless $m = n$.) Does that
+      make sense?  What is it that confuses you?  How could we make
+      this clearer?}
   \end{itemize}
 \end{defn}
 
@@ -845,25 +871,30 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
   of $p$ with $e_1$, and \todo{finish}
 \end{proof*}
 
-Since the problem with this approach was paths between evidence of finiteness
-imposing too strong of a constraint, we next try using the \emph{propositional
-  truncation}\footnote{The propositional truncation of a type 
-  ``squashes'' the type down to a mere proposition, forgetting all information
-  contained in its inhabitants other than their existence.} of
-finiteness evidence.  That is, we consider $\tygrpd{\FinTypeT}$, where \[
-\FinTypeT \defeq (A : \Type) \times (n : \N) \times \ptrunc{\Fin n \iso A}. \]
-A path between two inhabitants of $\FinTypeT$ is now unconstrained by the
-finiteness evidence (there is always a path between any two inhabitants of a
-propositional truncation), and hence equivalent to a path between their
-underlying types.  This does yield the right groupoid structure. However, we
-now have a different problem: we can only prove that $\tygrpd{\FinTypeT}$ is
-equivalent to $\PT$ if we treat equivalence of categories is a mere
-proposition. The reason is that the recursion principle for propositional
-truncation only allows making use of the contained finiteness evidence if it
-is in the service of constructing an inhabitant of a mere proposition.  This
-ensures that the precise content of the truncation cannot ``leak''.  However,
-since our goal is to construct computationally relevant functors witnessing
-the equivalence, equivalence as a mere proposition is unsatisfactory.
+Since the problem with this approach was paths between evidence of
+finiteness imposing too strong of a constraint, we next try using the
+\emph{propositional truncation}\footnote{The propositional truncation
+  of a type ``squashes'' the type down to a mere proposition, by
+  adding a path between every pair of inhabitants. Intuitively, this
+  can be thought of as ``forgetting'' all information contained in the
+  inhabitants other than their existence, though the reality is quite
+  a bit more subtle.} of finiteness evidence.
+That is, we consider $\tygrpd{\FinTypeT}$, where \[ \FinTypeT \defeq
+(A : \Type) \times (n : \N) \times \ptrunc{\Fin n \iso A}. \] A path
+between two inhabitants of $\FinTypeT$ is now unconstrained by the
+finiteness evidence (there is always a path between any two
+inhabitants of a propositional truncation), and hence equivalent to a
+path between their underlying types.  This does yield the right
+groupoid structure. However, we now have a different problem: we can
+only prove that $\tygrpd{\FinTypeT}$ is equivalent to $\PT$ if we
+treat equivalence of categories is a mere proposition. The reason is
+that the recursion principle for propositional truncation only allows
+making use of the contained finiteness evidence if it is in the
+service of constructing an inhabitant of a mere proposition.  This
+ensures that the precise content of the truncation cannot ``leak''.
+However, since our goal is to construct computationally relevant
+functors witnessing the equivalence, equivalence as a mere proposition
+is unsatisfactory.
 
 Our third attempt goes though, however.  Instead of relying directly
 on $\tygrpd{-}$, we can define $\BT$ as follows:
@@ -1012,7 +1043,8 @@ picture of where the operations ``come from''.\footnote{Much of this material
     work.}} In particular, $\B$ and \Set enjoy many special properties as
 categories (for example, \Set is cartesian closed, has all limits and
 colimits, and so on).  It is enlightening to see precisely which of these
-properties are required in which situations.\footnote{ Note that the objects
+properties are required in which situations.\todo{This footnote does
+  not really belong here; find a better place for it.}\footnote{Note that the objects
   of $\Lab$ might not correspond to ``sets'' at all.  Although our definitions
   are guided by the the intuition of ``sets of labels'', in the most general
   setting we must only think of shapes as indexed by objects of $\Lab$, rather
@@ -1202,7 +1234,7 @@ instance for |e -> a| satisfies the monoid laws if the instance for
 \begin{example}
   We note that lifting coproducts in $\Set$ to $[\B,\Set]$ yields $(+,
   \Zero)$, and likewise lifting products yields $(\times,
-  \E)$. 
+  \E)$.
 \end{example}
 % Since $(\uplus,\varnothing)$ is a coproduct structure on $\Set$, it
 % follows that $(+, \Zero)$ is in fact a coproduct structure on the
@@ -1322,6 +1354,7 @@ analogous way, via a categorical construction known as \emph{Day
   convolution}.
 
 \subsection{Partitional product}
+\label{sec:partitional-product}
 
 The partitional product $F \sprod G$ of two species $F$
 and $G$ consists of paired $F$- and $G$-shapes, but with a twist:
@@ -1383,11 +1416,41 @@ other summands).
   \]
 \end{defn}
 
+\subsection{Arithmetic product}
+\label{sec:arithmetic-product}
+
+\newcommand{\aprod}{\boxtimes}
+
+There is another, more recently discovered monoidal structre on
+species known as \emph{arithmetic product} \cite{Maia2008arithmetic}.
+The arithmetic product of species $F$ and $G$, written $F \aprod G$,
+can intuitively be thought of as an ``$F$-assembly of cloned
+$G$-shapes'', that is, an $F$-shape containing multiple copies of a
+single $G$-shape.  Unlike the usual notion of composition, where the
+$F$-shape would be allowed to contain many different $G$-shapes, this
+notion is symmetric: an $F$-assembly of cloned $G$-shapes is
+isomorphic to a $G$-assembly of cloned $F$-shapes.  Another intuitive
+way to think of the arithmetic product, which points out the symmetry
+more clearly, is to think of a rectangular matrix of labels,
+together with an $F$-shape labelled by the rows of the grid, and a
+$G$-shape labelled by the columns.  We omit a more formal definition
+in the interest of space; in any case, a formal definition can be
+extracted from the more general definition in terms of Day convolution
+in the next section.
+
 \subsection{Day convolution}
 \label{sec:day-convolution}
 
+\todo{Insert a brief, hand-wavy explanation of coends somewhere around
+  here.}
+
+Just as sum and Cartesian product were seen to arise from the same
+construction applied to different monoids, both partitional and
+arithmetic product arise from \emph{Day convolution}, applied to
+different monoidal structures on $\B$.
+
 The essential idea of Day convolution, first described by Brian
-Day~\cite{day-convolution}, is to construct a monoidal structure on a
+Day~\cite{Day1970closed}, is to construct a monoidal structure on a
 functor category $[\Lab, \Str]$ based primarily on a monoidal
 structure on the \emph{domain} category $\Lab$.  In particular, Day
 convolution requires
@@ -1462,128 +1525,127 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   $\One$ defined in the previous section.
 \end{example}
 
-\begin{example}
-  Although $\B$ and $\P$ are equivalent, it is still instructive to
-  work out the general definition in the case of $\P$.  There is a
-  monoidal structure on $\P$ given by addition, with $f + g : \Fin (m
-  + n) \iso \Fin (m + n)$ defined in the evident way, with $f$ acting
-  on the first $m$ values of $\Fin (m+n)$ and $g$ on the last $n$.
+% \begin{example}
+%   Although $\B$ and $\P$ are equivalent, it is still instructive to
+%   work out the general definition in the case of $\P$.  There is a
+%   monoidal structure on $\P$ given by addition, with $f + g : \Fin (m
+%   + n) \iso \Fin (m + n)$ defined in the evident way, with $f$ acting
+%   on the first $m$ values of $\Fin (m+n)$ and $g$ on the last $n$.
 
-  Specializing the definition,
-  \begin{align*}
-    (F \sprod G)\ n &\defeq \int^{n_1,
-      n_2} F\ n_1 \times G\ n_2 \times (\Fin n \iso \Fin {n_1} +
-    \Fin {n_2}) \\
-    &= \biguplus_{n_1 + n_2 = n} F\ n_1 \times G\ n_2
-  \end{align*}
-  that is, an $(F \sprod G)$-shape of size $n$ consists of an
-  $F$-shape of size $n_1$ and a $G$-shape of size $n_2$, where $n_1 +
-  n_2 = n$.  Indexing by labels can be seen as a generalization (a
-  \emph{categorification}, in fact) of this size-indexing scheme,
-  where we replace natural numbers with finite sets and addition with
-  disjoint union.
+%   Specializing the definition,
+%   \begin{align*}
+%     (F \sprod G)\ n &\defeq \int^{n_1,
+%       n_2} F\ n_1 \times G\ n_2 \times (\Fin n \iso \Fin {n_1} +
+%     \Fin {n_2}) \\
+%     &= \biguplus_{n_1 + n_2 = n} F\ n_1 \times G\ n_2
+%   \end{align*}
+%   that is, an $(F \sprod G)$-shape of size $n$ consists of an
+%   $F$-shape of size $n_1$ and a $G$-shape of size $n_2$, where $n_1 +
+%   n_2 = n$.  Indexing by labels can be seen as a generalization (a
+%   \emph{categorification}, in fact) of this size-indexing scheme,
+%   where we replace natural numbers with finite sets and addition with
+%   disjoint union.
+% \end{example}
+
+\begin{example}
+  There is another monoidal structure on $\B$ corresponding to the
+  Cartesian product of sets. If we instantiate the framework of Day
+  convolution with this product-like monoidal structure instead of the
+  coproduct-like structure used to define partitional product---but
+  keep everything else the same, in particular continuing to use
+  products on $\Set$---we obtain the arithmetic product.
 \end{example}
+
+% \begin{example}
+%   Let's examine this in detail in the case of $[\P,\Set]$.  The
+%   monoidal structure on $\P$ is defined on objects as $m \otimes n =
+%   mn$.  On morphisms, given $f : \fin m \bij \fin m$ and $g : \fin n
+%   \bij \fin n$, we have $f \otimes g : \fin{mn} \bij \fin{mn}$ defined
+%   by \todo{finish}.
+
+%   Instantiating the definition of Day convolution yields
+%   \begin{align*}
+%     (F \boxtimes G)\ n &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times
+%     \P(n, n_1n_2) \\
+%     &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times (\fin n \bij \fin
+%     {n_1 n_2}) \\
+%     &= ? \\
+%     &= \biguplus_{d \mid n} F\ d \times G\ (n/d)
+%   \end{align*}
+
+%   % where $\otimes$ denotes the product monoidal structure on $\B$.
+%   % We cannot write this quite as nicely as partitional product, since
+%   % there is no canonical way to decompose
+% \end{example}
 
 \begin{example}
   It remains to verify that $\BT$ and $\Type$ have the right properties.
   \begin{itemize}
-  \item \todo{Monoidal coproduct structure on $\BT$}
+  \item Similarly to $\B$, there are (at least) two monoidal
+    structures on $\BT$, corresponding to the coproduct and product of
+    types, respectively.  Note that in each case, the finiteness
+    evidence for types $A$ and $B$ can be combined in a canonical way
+    to construct finiteness evidence for the types $A + B$ and $A
+    \times B$, respectively.
   \item $\BT$ is indeed enriched over $\Type$, since the class of
     arrows between $(A,m,i)$ and $(B,n,j)$ is given by the type $A
     \iso B$.
-  \item There is a symmetric monoidal structure on $\Type$ given by
-    the product of types.
+  \item We have already seen that there is a symmetric monoidal
+    structure on $\Type$ given by the product of types.
   \item The last condition is the most interesting: we need to say
-    what a coend is in $\Type$. \todo{pushouts as HITs, weak
-      Sigma-types, \dots ?}
+    what a coend over $\BT$ is in $\Type$. \todo{finish}
   \end{itemize}
 
   Given $F,G \in [\BT,\Type]$, we can thus instantiate the definition
   of Day convolution to obtain
-  \begin{align*}
-    (F \cdot G)(L) &= \biguplus_{L_1, L_2} F\ L_1 \times G\ L_2 \times
-    (L \iso L_1 + L_2) \\
-  \end{align*}
-  \todo{the above needs to be a \emph{weak} Sigma-type.  Need some
-    different notation.  Is there already standard notation?}
+  \[ (F \cdot G)\ L = \sum_{L_1, L_2} F\ L_1 \times G\ L_2 \times (L
+  \iso L_1 + L_2), \] and similarly for generalized arithmetic
+  product.
+
 \end{example}
-
-\todo{Show that $\BT/\PT$ along with \Type\ have the right properties,
-instantiate framework to show how it comes out.}
-
-\subsection{Arithmetic product}
-\label{sec:arithmetic-product}
-
-There is another monoidal structure on $\B$ (and similarly on $\P$ and
-$\N$) corresponding to the \emph{product} of sets/natural numbers.  If
-we instantiate the framework of Day convolution with this product-like
-monoidal structure instead of the coproduct-like structure used to
-define partitional product---but keep everything else the same, in
-particular continuing to use products on $\Set$---we obtain an
-operation known as \term{arithmetic product}
-\cite{arithmetic-product}.
-
-Let's examine this in detail in the case of $[\P,\Set]$.  The monoidal
-structure on $\P$ is defined on objects as $m \otimes n = mn$.  On
-morphisms, given $f : \fin m \bij \fin m$ and $g : \fin n \bij \fin
-n$, we have $f \otimes g : \fin{mn} \bij \fin{mn}$ defined by \todo{finish}.
-
-Instantiating the definition of Day convolution yields
-\begin{align*}
-  (F \boxtimes G)\ n &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times
-  \P(n, n_1n_2) \\
-  &= \int^{n_1,n_2} F\ n_1 \times G\ n_2 \times (\fin n \bij \fin
-  {n_1 n_2}) \\
-  &= ? \\
-  &= \biguplus_{d \mid n} F\ d \times G\ (n/d)
-\end{align*}
-
-% where $\otimes$ denotes the product monoidal structure on
-% $\B$.  We cannot write this quite as nicely as partitional product,
-% since there is no canonical way to decompose
-
-The intuition behind this operation is that we end up with a
-``matrix'' of labels, with an $F$-shape on the ``rows'' and a
-$G$-shape on the ``columns''.
-
-\todo{picture}
-
-\todo{examples}
-
-\bay{How can we say that we are using ``the same'' ``product-like''
-  monoidal structure in all these different categories?  Are they
-  related by monoidal functors?}
 
 \section{Other constructions}
 
 \subsection{Differentiation}
 \label{sec:diff}
 
-\todo{Just give a very brief sketch, and claim that it works.}
+The \emph{derivative} $F'$ of a species $F$, well-known in the
+functional programming community \cite{holes}, is defined by $F'\ L =
+F\ (L \uplus \{\star\})$.  Intuitively, an $F'$-shape is the same as
+an $F$-shape with one ``hole'' in it.  To generalize this to functor
+categories $[\Lab, \Str]$, it suffices for $\Str$ to have coproducts
+and a terminal object.
 
 \subsection{Multisort species}
 \label{sec:multisort}
 
-\todo{General introduction to the concept of multisort species, and
-  usual definition.}
-
-\todo{The idea is to show that this fits into our general setting,
-  which also widens its applicability.}
-
 \newcommand{\lcat}[1]{#1^*}
-\newcommand{\emptylist}{[\,]}
 
-\begin{defn}
-  Given a category $\C$, define the category $\lcat{\C}$ as follows.
-  \begin{itemize}
-  \item The objects of $\lcat{\C}$ are finite (possibly empty) lists
-    $[C_1, C_2, C_3, \dots]$ of objects from $\C$.
-  \item The morphisms from $[C_1, \dots, C_n]$ to $[D_1, \dots, D_n]$
-    are lists of morphisms $[f_1, \dots, f_n]$ with $f_i : C_i \to
-    D_i$.  Note there are no morphisms $[C_1, \dots, C_m] \to [D_1,
-    \dots, D_n]$ when $m \neq n$.
-  \end{itemize}
-\end{defn}
+A \emph{multisort} species \cite[\Sect \todo{look this up}]{bll} is
+one which takes as inputs multiple ``sorts'' of labels which do not
+mix: the relabelling bijections of single-sort species generalize to
+``multibijections'' which act separately on each different sort of
+label.  It is worth noting that these can also be modelled as a
+functor category, replacing the groupoid $\B$ with the groupoid
+$\lcat{\B}$, whose objects are lists of finite sets and whose
+morphisms are lists of bijections between corresponding list elements
+\cite[Exercise \todo{look this up}]{bll}.  One can show that this
+groupoid has all the required properties to enable generalized species
+operations; and the same construction applies equally well to $\BT$.
+
+% \newcommand{\emptylist}{[\,]}
+
+% \begin{defn}
+%   Given a category $\C$, define the category $\lcat{\C}$ as follows.
+%   \begin{itemize}
+%   \item The objects of $\lcat{\C}$ are finite (possibly empty) lists
+%     $[C_1, C_2, C_3, \dots]$ of objects from $\C$.
+%   \item The morphisms from $[C_1, \dots, C_n]$ to $[D_1, \dots, D_n]$
+%     are lists of morphisms $[f_1, \dots, f_n]$ with $f_i : C_i \to
+%     D_i$.  Note there are no morphisms $[C_1, \dots, C_m] \to [D_1,
+%     \dots, D_n]$ when $m \neq n$.
+%   \end{itemize}
+% \end{defn}
 
 % \todo{Need to add more text here motivating these definitions and
 %   propositions.  Will go much better once I get a better sense of
@@ -1701,8 +1763,13 @@ $G$-shape on the ``columns''.
 \subsection{Weighted species}
 \label{sec:weighted}
 
-\todo{Give an extremely brief sketch, or simply claim that it works
-  and details will be forthcoming?}
+\term{Weighted} species \cite[\Sect \todo{look this up}]{bll} can also
+be modelled as functors $\B \to \Set/A$, where $\Set/A$ denotes the
+slice category over some appropriate set $A$ of weights. This
+generalizes appropriately to type theory as well.  Due to space
+constraints, the details must be postponed to a subsequent
+publication. \bay{Is there a better way to say this?  Is it worth
+  saying at all?}
 
 \section{Related Work}
 \label{sec:related}
@@ -1816,10 +1883,21 @@ the study of attribute grammars~\cite{Mishna03b}.
 \section{Future work}
 \label{sec:future}
 
-\begin{itemize}
-\item composition
-\item labelled structures
-\end{itemize}
+The most important operation we have not yet formalized is that of
+\emph{composition}, where the composition $F \comp G$ of species $F$
+and $G$ intuitively consists of $F$-shapes containing $G$-shapes.  It
+is not yet clear whether composition imposes any additional
+requirements on the categories beyond those already imposed by
+partitional and arithmetic product.
+
+One of our main motivations in carrying out this line of work has been
+to ultimately extend species to \term{labelled structures} by pairing
+species shapes with mappings from labels to data.  This will allow
+modelling algebraic data types along with a wide class of more general
+data structures. \bay{What else should we say here?  We could also
+  lead off this paragraph with something like ``This work is one of
+  the first steps as part of a much larger research program aiming to
+  use species as\dots''?}
 
 \section{Conclusion}
 \label{sec:conclusion}
