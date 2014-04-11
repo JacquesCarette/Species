@@ -9,12 +9,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% lhs2TeX
 
-%include lhs2TeX.fmt
+%include polycode.fmt
 
 % Use 'arrayhs' mode, so code blocks will not be split across page breaks.
-% \arrayhs
+\arrayhs
 
-% \renewcommand{\Conid}[1]{\mathsf{#1}}
+\renewcommand{\Conid}[1]{\mathsf{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Package imports
@@ -607,13 +607,13 @@ details.
 \subsection{A fragment of homotopy type theory}
 \label{sec:HoTT}
 
-We work with a type theory equipped with an empty type \TyZero, a
-unit type \TyOne (with inhabitant $\unit$), coproducts $A + B$ (with
-constructors $\inl$ and $\inr$), dependent pairs $(x:A) \times
-B(x)$ (with projections
-$\outl$ and $\outr$), dependent functions $(x:A) \to B(x)$, a hierarchy of type
-universes $\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the
-subscript from $\Type_0$), and propositional equality $A = B$.
+We work with a type theory equipped with an empty type \TyZero, a unit
+type \TyOne (with inhabitant $\unit$), coproducts $A + B$ (with
+constructors $\inl$ and $\inr$), dependent pairs $(x:A) \times B(x)$
+(with projections $\outl$ and $\outr$), dependent functions $(x:A) \to
+B(x)$, a hierarchy of type universes $\Type_0$, $\Type_1$,
+$\Type_2$\dots (we usually omit the subscript from $\Type_0$),
+judgmental equality $A \equiv B$, and propositional equality $A = B$.
 The theory also allows inductive definitions.  We use $\N : \Type_0$
 to denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
 usual indexed type of canonical finite sets.
@@ -683,7 +683,7 @@ Recall that $\B$ denotes the groupoid
 whose objects are finite sets and whose morphisms are bijections. We
 construct its constructive counterpart $\BT$ in two stages. First, we 
 introduce $\P$, a way to think about sets of labels in terms of natural numbers
-(because the actual contents of these sets do not matter) and develop its
+(because the actual contents of these sets do not matter) and define its
 constructive analogue $\PT$. This simpler context brings
 many of the issues surrounding constructive finiteness into focus.
 We then show how to extend $\PT$ to $\BT$.
@@ -692,37 +692,56 @@ Denote by $\P$ the category whose objects are
 natural numbers and whose morphisms %$\mor m n$ 
 are bijections $\fin m
 \bij \fin n$ (hence there are no morphisms %$\mor m n$ 
-unless $m \equiv n$).  Often it is noted as trivial that $\P$
-is equivalent to (in fact, a skeleton of) $\B$ and hence that
-working with $\P$ rather than $\B$ when convenient is justified.
+unless $m \equiv n$).  Defining a counterpart to $\P$ is straightforward:
+\begin{defn}
+  $\PT$ is the groupoid where (1) the objects are values of type $\N$,
+  and (2) the morphisms $\mor m n$ are equivalences of type $\Fin m \iso
+    \Fin n$.
+    \scw{I'm not sure I understand what this means. How does
+      it type check?}\bay{Between any two objects there has to be a
+      set of morphisms.  We simply define the set of morphisms between
+      $m$ and $n$ to be inhabitants of the type $\Fin m \iso \Fin n$.
+      (Of course, there are no inhabitants unless $m = n$.) Does that
+      make sense?  What is it that confuses you?  How could we make
+      this clearer?}\scw{Ok. I was thinking of $\Fin m \iso \Fin n$ as a 
+      function, but then it has the wrong ``type''. But morphisms are not functions.}
+\end{defn}
 
-However, this equivalence is not so trivial: in particular, showing 
-that $\P$ and $\B$ are \scw{what does strongly mean?}
-\jc{means that $\P$ and $\B$ are strict categories, which in turn
-means that they have sets of objects with decidable equality, that
-the functors which demonstrate the equivalence are strict [aka
-preserve equality], and that the natural transformations FG and GF
-are \emph{equal} to the identity} \bay{No, that is the definition of
-\emph{isomorphism} of categories, which we certainly don't
-want. Strong equivalence is just the usual notion of equivalence, as
-opposed to weak equivalence which only requires some other category
-$X$ with essentially surjective and fully faithful functors $X \to \P$
-and $X \to \B$.  See
-\url{http://ncatlab.org/nlab/show/equivalence+of+categories}.  Weak
-equivalence is relevant here since the difference between strong and
-weak equivalence is precisely the axiom of choice---that is, the two
-notions are the same in the presence of AC.  Anyway, I think a careful
-discussion of this should go in my thesis, and we should just remove
-the references to ``strong'' equivalence from the paper.}
-equivalent requires the axiom of choice.  In more detail, it is easy
-to define a functor $\fin - : \P \to \B$ which sends $n$ to $\fin n$
-and preserves morphisms.  Defining an inverse functor $\size - : \B \to \P$ is
-more problematic. We must send each set $S$ to its size $\size
+\todo{There is something funny going on here with groupoids
+  vs. $\infty$-groupoids.  Should figure out how much of a difference
+  this makes.  At the very least we should mention that we are aware
+  of the issues.}\scw{???}
+
+Often it is noted as trivial that $\P$ is equivalent to (in fact, a
+skeleton of) $\B$ and hence that working with $\P$ rather than $\B$
+when convenient is justified. However, this equivalence is not so
+trivial after all: in particular, showing that $\P$ and $\B$ are
+\scw{what does strongly mean?}  \jc{means that $\P$ and $\B$ are
+  strict categories, which in turn means that they have sets of
+  objects with decidable equality, that the functors which demonstrate
+  the equivalence are strict [aka preserve equality], and that the
+  natural transformations FG and GF are \emph{equal} to the identity}
+\bay{No, that is the definition of \emph{isomorphism} of categories,
+  which we certainly don't want. Strong equivalence is just the usual
+  notion of equivalence, as opposed to weak equivalence which only
+  requires some other category $X$ with essentially surjective and
+  fully faithful functors $X \to \P$ and $X \to \B$.  See
+  \url{http://ncatlab.org/nlab/show/equivalence+of+categories}.  Weak
+  equivalence is relevant here since the difference between strong and
+  weak equivalence is precisely the axiom of choice---that is, the two
+  notions are the same in the presence of AC.  Anyway, I think a
+  careful discussion of this should go in my thesis, and we should
+  just remove the references to ``strong'' equivalence from the
+  paper.}  equivalent requires the axiom of choice.  In more detail,
+it is easy to define a functor $\fin - : \P \to \B$ which sends $n$ to
+$\fin n$ and preserves morphisms.  Defining an inverse functor $\size
+- : \B \to \P$ is more problematic. We can send each set $S$ to its
+size $\size
 S$, %(though even this is a bit suspect, from a constructive point of
 %view: where exactly does this size come from?). 
-and a bijection
+but we must send a bijection
 $S \bij T$ to a bijection $\fin{\size S} \bij \fin{\size
-  T}$. Intuitively we have no way to pick one: we would need to
+  T}$, and we have no way to pick one: we would need to
 decide on a way to match up the elements of each set $S$ with the set
 of natural numbers $\fin{\size S}$.  It does not actually matter
 what choice we make, since the results will be isomorphic in any case.
@@ -762,34 +781,17 @@ As is standard constructive practice, we reject this use of $\AC$.
 %is to build groupoids $\PT$ and $\BT$ which are type-theoretic
 %counterparts to $\P$ and $\B$, with computable functors between them
 %witnessing their equivalence.
-Defining a counterpart to $\P$ is straightforward:
-\begin{defn}
-  $\PT$ is the groupoid where (1) the objects are values of type $\N$,
-  and (2) the morphisms $\mor m n$ are equivalences of type $\Fin m \iso
-    \Fin n$.
-    \scw{I'm not sure I understand what this means. How does
-      it type check?}\bay{Between any two objects there has to be a
-      set of morphisms.  We simply define the set of morphisms between
-      $m$ and $n$ to be inhabitants of the type $\Fin m \iso \Fin n$.
-      (Of course, there are no inhabitants unless $m = n$.) Does that
-      make sense?  What is it that confuses you?  How could we make
-      this clearer?}\scw{Ok. I was thinking of $\Fin m \iso \Fin n$ as a 
-      function, but then it has the wrong ``type''. But morphisms are not functions.}
-\end{defn}
 
-\todo{There is something funny going on here with groupoids
-  vs. $\infty$-groupoids.  Should figure out how much of a difference
-  this makes.  At the very least we should mention that we are aware
-  of the issues.}\scw{???}
-
-Constructing a counterpart to $\B$ is more subtle. What does
-it mean, constructively, for a type to be finite?  There are actually
-several possible answers to this question
-\cite{finite}. Taking our cue from the discussion above, we note that what was
-missing was a choice of bijections $S \bij \fin{\size S}$: such bijections can
-be thought of as evidence of the finiteness of $S$.  This is the most
-straightforward definition of constructive finiteness, and the one we adopt
-here.  More formally, 
+Constructing a counterpart to $\B$, then, is more subtle: we wish to
+construct something equivalent to $\PT$, but without the use of $\AC$.
+Furthermore, it is not \latin{a priori} clear what it should mean,
+constructively, for a type to be finite.  There are, indeed,
+several possible answers to this question \cite{finite}. Taking our
+cue from the discussion above, we note that what was missing in trying
+to define $\size- : \B \to \P$ was a choice of bijections $S \bij
+\fin{\size S}$: such bijections can be thought of as evidence of the
+finiteness of $S$.  This is the most straightforward definition of
+constructive finiteness, and the one we adopt here.  More formally,
 %a finite type is one with some natural number size $n$,
 %and an equivalence between the type and $\Fin n$. That is, 
 finite types are inhabitants of $\FinType$, where
@@ -810,8 +812,8 @@ type:
 We then naturally attempt to use $\tygrpd{\FinType}$ as a constructive
 counterpart to $\B$.  Unfortunately, this does not work! Intuitively, the
 problem is that the paths involve not just the types in question
-but also between the evidence of their finiteness, so that a path
-between two types requires them to be finite ``in the same way''. The
+but also the evidence of their finiteness, so that a path
+between two finite types requires them to be finite ``in the same way''. The
 situation can be pictured as shown in \pref{fig:fin-equiv}. The
 elements of types $A_1$ and $A_2$ are shown on the sides; the evidence
 of their finiteness is represented by bijections between their
@@ -820,8 +822,8 @@ catch is that the diagram necessarily contains only triangles:
 corresponding elements of $A_1$ and $A_2$ must correspond to
 the same element of $\Fin n$ on the bottom row.  Therefore, there are
 only two degrees of freedom: once the evidence of finiteness is
-determined, there is only one valid correspondence between $A_1$ and $A_2$.
-Intuitively, there should be $n!$ valid correspondences between them.
+determined, there is only one valid correspondence between $A_1$ and
+$A_2$---but there ought to be $n!$ such correspondences.
 \begin{figure}
   \centering
   \begin{diagram}[width=150]
@@ -882,30 +884,28 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
 % \end{proof*}
 
 As having paths between evidence of finiteness imposes too strong a
-constraint, we next try using the
-\emph{propositional truncation}\footnote{The propositional truncation
-  of a type ``squashes'' the type down to a mere proposition, by
-  adding a path between every pair of inhabitants. Intuitively, this
-  can be thought of as ``forgetting'' all information contained in the
-  inhabitants other than their existence, though the reality is quite
-  a bit more subtle.} 
-of finiteness evidence.
-That is, we consider $\tygrpd{\FinTypeT}$, where \[ \FinTypeT \defeq
-(A : \Type) \times (n : \N) \times \ptrunc{\Fin n \iso A}. \] A path
-between two inhabitants of $\FinTypeT$ is now unconstrained by the
-finiteness evidence (there is always a path between any two
-inhabitants of a propositional truncation), and hence equivalent to a
-path between their underlying types.  This does yield the right
-groupoid structure. However, we now have a different problem: we can
-only prove that $\tygrpd{\FinTypeT}$ is equivalent to $\PT$ if we
-treat equivalence of categories as a mere proposition. The reason is
-that the recursion principle for propositional truncation only allows
-making use of the contained finiteness evidence if it is in the
-service of constructing an inhabitant of a mere proposition.  This
-ensures that the precise content of the truncation cannot ``leak''.
-However, since our goal is to construct computationally relevant
-functors witnessing the equivalence, equivalence as a mere proposition
-is unsatisfactory.
+constraint, we next try using the \emph{propositional
+  truncation}\footnote{The propositional truncation of a type
+  ``squashes'' the type down to a mere proposition, by adding a path
+  between every pair of inhabitants. Intuitively, this can be thought
+  of as ``forgetting'' all information contained in the inhabitants
+  other than their existence, though the reality is more subtle.}  of
+finiteness evidence.  That is, we consider $\tygrpd{\FinTypeT}$,
+where \[ \FinTypeT \defeq (A : \Type) \times (n : \N) \times
+\ptrunc{\Fin n \iso A}. \] A path between two inhabitants of
+$\FinTypeT$ is now unconstrained by the finiteness evidence (there is
+always a path between any two inhabitants of a propositional
+truncation), and hence equivalent to a path between their underlying
+types.  This does yield the right groupoid structure. However, we now
+have a different problem: we can only prove that $\tygrpd{\FinTypeT}$
+is equivalent to $\PT$ if we treat equivalence of categories as a mere
+proposition. The reason is that the recursion principle for
+propositional truncation only allows making use of the contained
+finiteness evidence if it is in the service of constructing an
+inhabitant of a mere proposition.  This ensures that the precise
+content of the truncation cannot ``leak''.  However, since our goal is
+to construct computationally relevant functors witnessing the
+equivalence, equivalence as a mere proposition is unsatisfactory.
 
 Instead, we define $\BT$ as follows:
 
@@ -932,22 +932,28 @@ the category by making a separate object for each possible choice, but
 ensure that objects which differ only by this choice are isomorphic.
 
 \jc{the definition below uses $\equiv$, which has not been defined.}
+\bay{$\equiv$ represents judgmental (as opposed to propositional)
+  equality.  I added a mention of it in \pref{sec:HoTT}. Though come
+  to think of it, the equality below should be propositional, not
+  judgmental!  You cannot ``prove'' a judgmental equality from within
+  the theory.}
 \begin{rem}
   Note that given a morphism $e : \mor {(A,m,i)} {(B,n,j)}$, it is
-  provably the case that $m \equiv n$.  In particular, $i \then e \then j^{-1} :
-  \Fin m \iso \Fin n$, from which we may prove $m \equiv n$ by double
-  induction.
+  provably the case that $m = n$.  In particular, $i \then e \then j^{-1} :
+  \Fin m \iso \Fin n$, from which we may prove $m = n$ by double
+  induction.\bay{Do we actually need/use this remark?  Consider cutting it
+  for space.}
 \end{rem}
 
 \begin{defn}
-We define a functor, $\fin - : \PT \to \BT$ where on objects
-$\fin n \defeq (\Fin n, n, \id)$, and $\fin -$ is the identity on morphisms.
+  We define  a functor  $\fin -  : \PT  \to \BT$:  on objects  $\fin n
+  \defeq (\Fin n, n, \id)$, and $\fin -$ is the identity on morphisms.
 \end{defn}
 
 \begin{defn} \label{defn:size}
-In the other direction, we define $\size{} : \BT \to \PT$ that sends
-objects $(A, m, i)$ to $m$, an a morphism
-$e : \mor {(A, m, i)} {(B, n, j)}$ is sent to $i \then e \then j^{-1}$.
+In the other direction, we define $\size : \BT \to \PT$ that sends
+objects $(A, m, i)$ to $m$, and morphisms
+$e : \mor {(A, m, i)} {(B, n, j)}$ are sent to $i \then e \then j^{-1}$.
 % \[
 %   \xymatrix{\Fin m \ar@@{<->}[d]_-i & \Fin n \\ A \ar@@{<->}[r]_e & B
 %     \ar@@{<->}[u]_-{j^{-1}} } \]
@@ -1024,8 +1030,8 @@ unlikely to be true.  For one, $\Set$ is ``too big'': there are many sets that
 do not correspond to any type definable in type theory.
 
 However, most working mathematicians do not actually make use of such
-``exotic'' sets.  The constructions they care about
-are typically precisely those which can be encoded in type theory.  In
+``exotic'' sets;  the constructions they care about
+are typically those which can indeed be encoded in type theory.  In
 order to justify $[\BT, \Type]$ as a constructive counterpart to $[\B,
 \Set]$, therefore, we must look at what operations and constructions
 are typically carried out on $[\B, \Set]$, and show that $[\BT,\Type]$
@@ -1458,10 +1464,12 @@ related by the same mapping.
 Intuitively, the functor $T$ can be thought of as an ``interface'';
 $(C,t)$ is then a ``module'' with ``representation type'' $C$ and
 ``implementation'' $t$.  Indeed, in Haskell, the coend of $T$ is given
-by the type |exists e. T e e| (or rather, by an isomorphic encoding,
-since |exists| is not actually valid Haskell snytax).  $T$ is required
-to be a bifunctor from $\C^\op \times \C$ since the representation
-type may occur both co- and contravariantly in the interface.
+by the type \texttt{exists c.\ T c c} (or rather, by an isomorphic
+encoding, since \texttt{exists} is not actually valid Haskell snytax)
+\cite{edward blog post} \todo{look this up and add the right
+  reference}.  $T$ is required to be a bifunctor from $\C^\op \times
+\C$ since the representation type may occur both co- and
+contravariantly in the interface.
 
 \subsection{Day convolution}
 \label{sec:day-convolution}
