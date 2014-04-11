@@ -317,9 +317,13 @@
 % \def\authorrunning{B. Yorgey, J. Carette, S. Weirich}
 
 \begin{abstract}
-
- Abstract.\vspace{1in}
-
+  This paper develops a constructive definition of Joyal's theory of
+  combinatorial species using Homotopy Type Theory. We justify our definitions
+  by generalizing various operations on species to arbitrary functor
+  categories. In particular, we use lifted monoids to define species sum and
+  cartesian product, and day convolution to define partitional and arithmetic
+  products. This foundational work is the first step in the application of the
+  theory of species to a wide class of data structures.
 \end{abstract}
 
 \begin{keyword}
@@ -762,12 +766,12 @@ corresponding set of natural numbers $\fin{\size S}$.
 % is, it requires that we have already made a choice for each $x$.
 
 The axiom of choice ($\AC$ below) is consistent with
-HoTT.\scw{I think we can omit this equation for space too.}
-\begin{equation} \tag{$\AC$}
-  \label{eq:AC}
-  \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
-    \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
-\end{equation}
+HoTT.\scw{I think we can omit this equation for space too. Cut it.}
+% \begin{equation} \tag{$\AC$}
+%   \label{eq:AC}
+%   \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
+%     \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
+% \end{equation}
 However, this axiom has no computational interpretation, and is therefore
 unsuitable for constructing a functor with computational content.
 %
@@ -1156,20 +1160,20 @@ one-element sets are isomorphic in \Set.)
 In the same way that an $(F + G)$-shape is either an $F$-shape
 \emph{or} a $G$-shape on a given set of labels, an $(F \times
 G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on \emph{the
-  same set of labels} (\pref{fig:Cartesian-product-dup}).  As
-illustrated in the figure, there are several intuitive ways to think
-about this situation.\scw{update this sentence if we cut the figure} One can think of two distinct shapes, with
+  same set of labels}.% (\pref{fig:Cartesian-product-dup}).  
+There are several intuitive ways to think
+about this situation. One can think of two distinct shapes, with
 labels duplicated between them; one can think of the labels as
 \emph{pointers} or \emph{labels} for locations in a shared memory;
 %% (to be explored more in \pref{sec:sharing})
 or one can think of the shapes themselves as being superimposed.
 
-\begin{figure}
-  \centering
-  \todo{Make a diagram. Or maybe omit it for space.}
-  \caption{Cartesian species product}
-  \label{fig:Cartesian-product-dup}
-\end{figure}
+% \begin{figure}
+%   \centering
+%   \todo{Make a diagram. Or maybe omit it for space.}
+%   \caption{Cartesian species product}
+%   \label{fig:Cartesian-product-dup}
+% \end{figure}
 
 \begin{defn}
   The species of \emph{sets}, $\E$, is defined as the constant functor
@@ -1204,11 +1208,12 @@ instance Monoid a => Monoid (e -> a) where
 \end{spec}
 but quite a bit more general.  We omit the precise details, partly in
 the interest of space, and partly because the details are
-straightforward.  For the present purposes the intuition given by the
-above Haskell code should suffice; to understand the basic intuition
-behind the proof, the reader may enjoy proving that the above |Monoid|
-instance for |e -> a| satisfies the monoid laws if the instance for
-|a| does.
+straightforward.  
+% For the present purposes the intuition given by the
+% above Haskell code should suffice; to understand the basic intuition
+% behind the proof, the reader may enjoy proving that the above |Monoid|
+% instance for |e -> a| satisfies the monoid laws if the instance for
+% |a| does.
 
 % \begin{prop}
 %   The monoidal lifting defined above preserves the following properties:
@@ -1606,25 +1611,29 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 
 \begin{example}
   It remains to verify that $\BT$ and $\Type$ have the right properties.
-  \begin{itemize}
-  \item Similarly to $\B$, there are (at least) two monoidal
+%  \begin{itemize}
+%  \item 
+Similarly to $\B$, there are (at least) two monoidal
     structures on $\BT$, corresponding to the coproduct and product of
     types, respectively.  Note that in each case, the finiteness
     evidence for types $A$ and $B$ can be combined in a canonical way
     to construct finiteness evidence for the types $A + B$ and $A
     \times B$, respectively.
-  \item $\BT$ is indeed enriched over $\Type$, since the class of
+%  \item 
+$\BT$ is indeed enriched over $\Type$, since the class of
     arrows between $(A,m,i)$ and $(B,n,j)$ is given by the type $A
     \iso B$.
-  \item We have already seen that there is a symmetric monoidal
+%  \item 
+We have already seen that there is a symmetric monoidal
     structure on $\Type$ given by the product of types.
-  \item The last condition is the most interesting: we need to say
+%  \item 
+The last condition is the most interesting: we need to say
     what a coend over $\BT$ is in $\Type$. In fact, in this case a
     coend is just a $\Sigma$-type!  This is because the morphisms in
     $\BT$ are paths, and hence the required identifications between
     inhabitants of the $\Sigma$-type are already present---they are
     induced by transport of paths in $\BT$.
-  \end{itemize}
+%  \end{itemize}
 
   Given $F,G \in [\BT,\Type]$, we can thus instantiate the definition
   of Day convolution to obtain
@@ -1640,7 +1649,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 
 \section{Other constructions}
 
-\subsection{Differentiation}
+
 \label{sec:diff}
 
 The \emph{derivative} $F'$ of a species $F$, well-known in the functional
@@ -1650,7 +1659,6 @@ an $F$-shape with one ``hole'' in it.  To generalize this to functor
 categories $[\Lab, \Str]$, it suffices for $\Str$ to have coproducts
 and a terminal object.
 
-\subsection{Multisort species}
 \label{sec:multisort}
 
 \newcommand{\lcat}[1]{#1^*}
@@ -1794,48 +1802,51 @@ operations; and the same construction applies equally well to $\BT$.
 
 % \todo{Give some examples.}
 
-\subsection{Weighted species}
+
 \label{sec:weighted}
 
 \term{Weighted} species \cite[\Sect \todo{look this up}]{bll} can also
 be modelled as functors $\B \to \Set/A$, where $\Set/A$ denotes the
 slice category over some appropriate set $A$ of weights. This
-generalizes appropriately to type theory as well.  Due to space
-constraints, the details must be postponed to a subsequent
-publication. \bay{Is there a better way to say this?  Is it worth
-  saying at all?}
+generalizes appropriately to type theory as well. 
+% Due to space
+% constraints, the details must be postponed to a subsequent
+%publication. 
+\bay{Is there a better way to say this?  Is it worth
+  saying at all?}\scw{let's cut the sentence; it doesn't add much.}
 
 \scw{Maybe we should combine this entire section with the future work work
   section? Of course some of it is straightforward and the future work is
   finding a venue with enough space to explain it. But they are connected as
   more operations on species.}
 
+
 \section{Related Work}
 \label{sec:related}
 
-We have been highly motivated by the wealth of work which already 
-exists on species.  We survey those parts which are most immediately
-applicable as an appropriate survey would in itself go over the space
-limit.  \cite{bll} alone still contains a vast trove of
-further examples (sometimes buried deep in the exercises!) of
-relevance to programming.  From the theory side, certain fascinating
-aspects like integration~\cite{Rajan93} (and more generally, the solution
-of algebraic and differential equations) have not been adequately
+This work draws on the rich pre-existing literature on species; we 
+describe the most relevant here, although there is much more.
+%We have been highly motivated by the wealth of work which already 
+%exists on species.  We survey those parts which are most immediately
+%applicable as an appropriate survey would in itself go over the space
+%limit. 
+Bergeron et al. \cite{bll} alone contains many additional examples 
+relevant to programming.  From the theory side, certain fascinating
+aspects like integration~\cite{Rajan93}, and more generally, the solution
+of algebraic and differential equations, have not been adequately
 investigated.  Furthermore, a number of variants on species
 \cite{Schmitt93hopfalgebras,Menni2008,Maia2008arithmetic,aguiar2010monoidal,Mishna03b}
-with nontrivial applications to combinatorics, and potential
-applications to programming as well remain untapped.  We should also single
-out the work of Kelly \cite{kelly:operads} on Operads, which has influenced
+with nontrivial applications to combinatorics remain untapped.  
+The work of Kelly \cite{kelly:operads} on Operads influenced
 our presentation of Day Convolution.
 
 Species have been the basis for many implementations in the area of
 enumerative combinatorics, such as Darwin~\cite{Berg85},
 \LUO~\cite{FlajoletSalvyZimmermann1989a}, combstruct~\cite{FlSa95},
 Aldor-Combinat~\cite{Aldor-Combinat} and
-MuPAD-Combinat~\cite{Mupad-Combinat}.  Most do not model the full
-spectrum of species combinators, but make up for it by implementing
+MuPAD-Combinat~\cite{Mupad-Combinat}. These packages implement
 very sophisticated algorithms for enumeration and generation, both
-exhaustive and random.  The Haskell species package
+exhaustive and random, though few include the full spectrum of species combinators.  The Haskell species package
 \cite{yorgey-2010-species,species} is a fairly direct implementation
 of the theory of species.
 
@@ -1863,8 +1874,7 @@ Rougly, their positions and our labels correspond.
 %positions to data values, much as our mappings associate data values
 %to labels.  
 The basic difference is that species ``build up'' shapes
-from labels, while containers ``observe'' positions contained in shapes,
-an algebraic versus coalgebraic view.  Containers thus naturally 
+from labels, while containers ``observe'' positions contained in shapes---an algebraic versus coalgebraic view.  Containers thus naturally 
 require dependent types, while much of species theory can be dealt
 with using simpler types.
 %\scw{We should probably omit discussion of implementation here}
@@ -1878,8 +1888,8 @@ with using simpler types.
 This implies in particular that each shape is associated to a fixed,
 inherent set of positions.  At present, we do not see how to reconcile
 that view with sharing features, such as the Cartesian product on species.
-Of course, the coalgebraic view of containers allows them to capture
-useful types (such as streams) which are not species.
+Of course, the coalgebraic view of containers captures
+useful types (such as streams) that are not species.
 
 Shapely types \cite{jay-shapely} are closely related to containers---
 see~\cite[section 8]{abbott_categories_2003} for a careful
@@ -1905,8 +1915,9 @@ kind of lax natural transformation from $F$ to the identity functor.
 This approach is rather difficult to adequately compare to ours.
 There is overlap, but no inclusion in either direction.
 
-\section{Future work}
+\section{Future work and Conclusion}
 \label{sec:future}
+\label{sec:conclusion}
 
 The most important operation we have not yet formalized is that of
 \emph{composition}, where the composition $F \comp G$ of species $F$
@@ -1929,9 +1940,6 @@ It should also be remarked that the objects of $\Lab$ might not correspond to
 ``sets of labels'', in the most general setting we must only think of shapes as
 indexed by objects of $\Lab$, rather than shapes as ``containing labels drawn
 from some set''.  We need to properly leverage this extra generality.
-
-\section{Conclusion}
-\label{sec:conclusion}
 
 %\begin{ack}
 %Acknowledgements
