@@ -396,14 +396,7 @@ In the next section, we review the set-theoretic definitions of species (\pref{s
 before recasting them in the context of homotopy type theory in
 \pref{sec:prelim}.  We assume familiarity with dependent type theory and
 (basic) category throughout, but will spell out the basic HoTT tools
-we need, as well as more advanced categorical constructions. 
-\bay{We need to actually make this true.  In particular, Day convolution is
-  defined in terms of coends which can hardly be said to be ``basic category theory''.  However, I am
-  not sure we really have space to explain them.  Perhaps we can cook up
-  an extremely high-level, hand-wavy sort of explanation.}
-
-% \todo{Somewhere we need to say what category theory background we
-%   assume (and spell out the things we don't assume).}
+we need, as well as more advanced categorical constructions.
 
 \section{Species in set theory}
 \label{sec:species}
