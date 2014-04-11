@@ -951,7 +951,10 @@ $e : \mor {(A, m, i)} {(B, n, j)}$ are sent to $i \then e \then j^{-1}$.
 %     \ar@@{<->}[u]_-{j^{-1}} } \]
 The functoriality of $\size{}$ can be seen by noting the cancelling
 pair of inverse equivalences in each of the following two diagrams:
-  \[ \xymatrix{\Fin m \ar@@<-.4em>@@{<->}[d]_i
+  \[ 
+     % something like this might take less space:
+     %\xymatrix{\Fin m \ar@@{<->}[r]_i & A \ar@@(ru,ld)_{\id}}
+     \xymatrix{\Fin m \ar@@<-.4em>@@{<->}[d]_i
          \ar@@<.4em>@@{<->}[d]^{i^{-1}}
        \\
          A \ar@@(dl,dr)_{\id}
@@ -1009,7 +1012,7 @@ pair of inverse equivalences in each of the following two diagrams:
 \begin{defn}
   Recall that $\Type = \Type_0$ denotes the universe of types.  We
   also denote by $\Type$ the category whose objects are values of
-  $\Type_0$ and morphisms $\mor A B$ are functions.
+  $\Type_0$ and morphisms are (typed) functions.
 \end{defn}
 
 We claim that an appropriate encoding of species within homotopy type
@@ -1188,12 +1191,12 @@ $\Str$ lifts pointwise to a monoidal structure $(\lotimes,
 $[\Lab, \Str]$.
 \end{prop}
 \noindent The basic idea is exactly the same as the standard Haskell type class
-instance
-\begin{spec}
-instance Monoid a => Monoid (e -> a) where
-  mempty         = \ _ -> mempty
-  f `mappend` g  = \a -> f a `mappend` g a
-\end{spec}
+instance for \verb|Monoid (e -> a)|.
+% \begin{spec}
+% instance Monoid a => Monoid (e -> a) where
+%   mempty         = \ _ -> mempty
+%   f `mappend` g  = \a -> f a `mappend` g a
+% \end{spec}
 %but quite a bit more general.  We omit the precise details, partly in
 %the interest of space, and partly because the details are
 %straightforward.  
