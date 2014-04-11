@@ -693,12 +693,23 @@ is equivalent to (in fact, a skeleton of) $\B$ and hence that
 working with $\P$ rather than $\B$ when convenient is justified.
 
 However, this equivalence is not so trivial: in particular, showing 
-that $\P$ and $\B$ are (strongly)\scw{what does strongly mean?}
+that $\P$ and $\B$ are \scw{what does strongly mean?}
 \jc{means that $\P$ and $\B$ are strict categories, which in turn
 means that they have sets of objects with decidable equality, that
 the functors which demonstrate the equivalence are strict [aka
 preserve equality], and that the natural transformations FG and GF
-are \emph{equal} to the identity}
+are \emph{equal} to the identity} \bay{No, that is the definition of
+\emph{isomorphism} of categories, which we certainly don't
+want. Strong equivalence is just the usual notion of equivalence, as
+opposed to weak equivalence which only requires some other category
+$X$ with essentially surjective and fully faithful functors $X \to \P$
+and $X \to \B$.  See
+\url{http://ncatlab.org/nlab/show/equivalence+of+categories}.  Weak
+equivalence is relevant here since the difference between strong and
+weak equivalence is precisely the axiom of choice---that is, the two
+notions are the same in the presence of AC.  Anyway, I think a careful
+discussion of this should go in my thesis, and we should just remove
+the references to ``strong'' equivalence from the paper.}
 equivalent requires the axiom of choice.  In more detail, it is easy
 to define a functor $\fin - : \P \to \B$ which sends $n$ to $\fin n$
 and preserves morphisms.  Defining an inverse functor $\size - : \B \to \P$ is
@@ -738,7 +749,7 @@ HoTT.\scw{I think we can omit this equation for space too.}
   \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
     \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
 \end{equation}
-However this axiom has no computational interpretation, and is therefore
+However, this axiom has no computational interpretation, and is therefore
 unsuitable for constructing a functor with computational content.
 %
 As is standard constructive practice, we reject this use of $\AC$.
@@ -770,7 +781,7 @@ Defining a counterpart to $\P$ is straightforward:
 Constructing a counterpart to $\B$ is more subtle. What does
 it mean, constructively, for a type to be finite?  There are actually
 several possible answers to this question
-\cite{finite}. Taking our cue from the discussion above we note that what was
+\cite{finite}. Taking our cue from the discussion above, we note that what was
 missing was a choice of bijections $S \bij \fin{\size S}$: such bijections can
 be thought of as evidence of the finiteness of $S$.  This is the most
 straightforward definition of constructive finiteness, and the one we adopt
@@ -858,13 +869,13 @@ dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
   homotopy type theory, $\FinType$ is a set, \ie a $0$-type.)
 \end{prop}
 
-\begin{proof*}{Proof (sketch).}
-  A path $(A_1, n_1, e_1) = (A_2, n_2, e_2)$ is equivalent to $(p :
-  A_1 = A_2) \times (q : n_1 = n_2) \times (q_*(p_*(e_1)) = e_2)$.
-  Noting that $p_*(e_1)$, in particular, is given by the composition
-  of $p$ with $e_1$, and \todo{finish} \jc{do we even need this proof
-  sketch?}
-\end{proof*}
+% \begin{proof*}{Proof (sketch).}
+%   A path $(A_1, n_1, e_1) = (A_2, n_2, e_2)$ is equivalent to $(p :
+%   A_1 = A_2) \times (q : n_1 = n_2) \times (q_*(p_*(e_1)) = e_2)$.
+%   Noting that $p_*(e_1)$, in particular, is given by the composition
+%   of $p$ with $e_1$, and \todo{finish} \jc{do we even need this proof
+%   sketch?} \bay{No.}
+% \end{proof*}
 
 As having paths between evidence of finiteness imposes too strong a
 constraint, we next try using the
@@ -958,7 +969,7 @@ pair of inverse equivalences in each of the following two diagrams:
 
 \begin{prop}
   The pair of functors $\xymatrix{\PT \ar@@<.5ex>[r]^{\fin -} & \BT
-    \ar@@<.5ex>[l]^{\size{}}}$ constitutes a (strong) equivalence
+    \ar@@<.5ex>[l]^{\size{}}}$ constitutes an equivalence
   between the groupoids $\PT$ and $\BT$.
 
 \begin{proof}
@@ -1482,8 +1493,8 @@ product.
 \end{defn}
 
 \begin{rem}
-  Note that $\int^{L_1, L_2} \dots$ is used as an abbrevation for an
-  iterated coend $\int^{L_1} \int^{L_2} \dots$.
+  Note that $\int^{L_1, L_2} \dots$ is used as an abbrevation for a
+  coend over the product category $\Lab \times \Lab$.
 \end{rem}
 \begin{rem}
   Since groupoids are self-dual, we may ignore the $-^\op$ in the
