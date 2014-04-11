@@ -1616,7 +1616,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   Like $\B$ there are monoidal
     structures on $\BT$ corresponding to the coproduct and product of
     types. It is worth noting, however, that there are \emph{many}
-    monoidal structures corresponding to each. A monoidal operation
+    monoidal structures corresponding to each. A monoidal operation on $\BT$
     does not simply combine two types into their coproduct or product,
     but also combines their finiteness evidence into corresponding
     evidence for the combined type, and there are many ways to
