@@ -1268,7 +1268,7 @@ $\Str$ lifts pointwise to a monoidal structure $(\lotimes,
 $[\Lab, \Str]$.
 \end{prop}
 \noindent The basic idea is exactly the same as the standard Haskell type class
-instance for \verb|Monoid (e -> a)|.
+instance \verb|Monoid a => Monoid (e -> a)|.
 % \begin{spec}
 % instance Monoid a => Monoid (e -> a) where
 %   mempty         = \ _ -> mempty
