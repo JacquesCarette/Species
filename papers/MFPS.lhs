@@ -1911,18 +1911,20 @@ There is overlap, but no inclusion in either direction.
 \label{sec:future}
 \label{sec:conclusion}
 
-In this paper, we given constructive definition of species and have
-generalized sums, and cartesian, partitional and arithmetic products so that
-they apply to both the original set-theoretic and our revised type-theoretic
-definitions. We can generalize several other species constructions including
-\emph{species derivatives}, \emph{multisort species} and \emph{weighted
-  species}. (Space constraints prevent their inclusion here.)
+In this paper, we have given a constructive definition of species and
+have generalized sums, and cartesian, partitional and arithmetic
+products so that they apply to both the original set-theoretic and our
+revised type-theoretic definitions. We can generalize several other
+species constructions as well, including \emph{species derivatives},
+\emph{multisort species} and \emph{weighted species}. (Space
+constraints prevent their inclusion here.)
 
 The most important operation we have not yet formalized is that of
-\emph{composition}, where the composition $F \comp G$ intuitively consists of
-$F$-shapes containing $G$-shapes.  It is not clear whether composition imposes
-any new requirements on the categories beyond those already imposed by
-partitional and arithmetic product.
+\emph{composition}, where the composition $F \comp G$ intuitively
+consists of $F$-shapes containing $G$-shapes.  It seems that
+composition is yet more complicated still than partitional and
+arithmetic product; it is not yet clear whether composition imposes
+any additional requirements on the categories.
 
 One of our main motivations in carrying out this line of work has been
 to ultimately extend species to \term{labelled structures} by pairing
