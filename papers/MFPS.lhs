@@ -66,8 +66,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Comments
 
-%\newif\ifcomments\commentstrue
-\newif\ifcomments\commentsfalse
+\newif\ifcomments\commentstrue
+%\newif\ifcomments\commentsfalse
 
 \ifcomments
 \newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
