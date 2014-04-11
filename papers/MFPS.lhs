@@ -1913,9 +1913,9 @@ data structures. \bay{What else should we say here?  We could also
 \section{Conclusion}
 \label{sec:conclusion}
 
-\begin{ack}
-Acknowledgements
-\end{ack}
+%\begin{ack}
+%Acknowledgements
+%\end{ack}
 
 \bibliographystyle{entcs}
 \bibliography{MFPS}
