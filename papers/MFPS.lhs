@@ -318,10 +318,10 @@
 
 \begin{abstract}
   This paper develops a constructive definition of Joyal's theory of
-  combinatorial species using Homotopy Type Theory. We justify our definitions
+  combinatorial species using homotopy type theory. We justify our definitions
   by generalizing various operations on species to arbitrary functor
   categories. In particular, we use lifted monoids to define species sum and
-  cartesian product, and day convolution to define partitional and arithmetic
+  Cartesian product, and Day convolution to define partitional and arithmetic
   products. This foundational work is the first step in the application of the
   theory of species to a wide class of data structures.
 \end{abstract}
@@ -388,7 +388,8 @@ More specifically, the contributions of this paper are:
 \item We define the concept of \emph{species} in
   constructive type theory (\pref{sec:constructive-species}).% , characterizing
   % them as functors from a finite collection of labels to structures.
-\item Find a suitable definition of \emph{finiteness} consistent with HoTT.
+\item Find a suitable definition of \emph{finiteness} consistent with HoTT
+and species.
 \item As part of our port to type theory, we generalize common operations on
   species, including sum, partitional and Cartesian product,
   carefully analyzing their requirements to ensure consistency
@@ -1606,7 +1607,7 @@ embedding, that is, $j(L) = \Lab(-,L)$.
   Like $\B$, there are monoidal
     structures on $\BT$ corresponding to the coproduct and product of
     types. It is worth noting, however, that there are \emph{many}
-    monoidal structures corresponding to each. A monoidal operation
+    monoidal structures corresponding to each. A monoidal operation on $\BT$
     does not simply combine two types into their coproduct or product,
     but also combines their finiteness evidence into corresponding
     evidence for the combined type, and there are many ways to
@@ -1909,10 +1910,11 @@ definitions. We can generalize several other species constructions including
   species}. (Space constraints prevent their inclusion here.)
 
 The most important operation we have not yet formalized is that of
-\emph{composition}, where the composition $F \comp G$ intuitively consists of
-$F$-shapes containing $G$-shapes.  It is not clear whether composition imposes
-any new requirements on the categories beyond those already imposed by
-partitional and arithmetic product.
+\emph{composition}, where the composition $F \comp G$ intuitively
+consists of $F$-shapes containing $G$-shapes.  It seems that
+composition is yet more complicated still than partitional and
+arithmetic product; it is not yet clear whether composition imposes
+any additional requirements on the categories.
 
 One of our main motivations in carrying out this line of work has been
 to ultimately extend species to \term{labelled structures} by pairing
