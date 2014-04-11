@@ -320,8 +320,10 @@
   This paper develops a constructive definition of Joyal's theory of
   combinatorial species using homotopy type theory. We justify our definitions
   by generalizing various operations on species to arbitrary functor
-  categories. In particular, we use lifted monoids to define species sum and
-  Cartesian product, and Day convolution to define partitional and arithmetic
+  categories. In particular, we lift monoidal structures from the codomain
+  category to define species sum and
+  Cartesian product, and Day convolution to push monoidal structures from
+  the domain category to define partitional and arithmetic
   products. This foundational work is the first step in the application of the
   theory of species to a wide class of data structures.
 \end{abstract}
