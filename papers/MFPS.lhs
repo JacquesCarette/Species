@@ -1034,12 +1034,8 @@ generalize them to arbitrary functors $\Lab \to \Str$, and identify precisely
 what properties of $\Lab$ and $\Str$ are necessary to define them. In this
 way, we start ``from scratch'' and build up a generic notion of species that
 supports the operations we want.  In the process, we get a much clearer
-picture of where the operations ``come from''.\footnote{Much of this material
-  has been inspired by Kelly \cite{Kelly-operads} \todo{``Operads of
-    J.P. May''}, \todo{``Cartesian Closed Bicategory of Generalised Species of
-    Structure''}, and \todo{``Monoidal Functors, Species, and Hopf
-    Algebras''}. \scw{Perhaps this discussion would be better in related
-    work.}} In particular, $\B$ and \Set enjoy many special properties as
+picture of where the operations ``come from''.
+In particular, $\B$ and \Set enjoy many special properties as
 categories (for example, \Set is cartesian closed, has all limits and
 colimits, and so on).  It is enlightening to see precisely which of these
 properties are required in which situations.\todo{This footnote does
@@ -1612,8 +1608,8 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 \subsection{Differentiation}
 \label{sec:diff}
 
-The \emph{derivative} $F'$ of a species $F$, well-known in the
-functional programming community \cite{holes}, is defined by $F'\ L =
+The \emph{derivative} $F'$ of a species $F$, well-known in the functional
+programming community \cite{mcbride:derivative}, is defined by $F'\ L =
 F\ (L \uplus \{\star\})$.  Intuitively, an $F'$-shape is the same as
 an $F$-shape with one ``hole'' in it.  To generalize this to functor
 categories $[\Lab, \Str]$, it suffices for $\Str$ to have coproducts
@@ -1793,7 +1789,9 @@ of algebraic and differential equations) have not been adequately
 investigated.  Furthermore, a number of variants on species
 \cite{Schmitt93hopfalgebras,Menni2008,Maia2008arithmetic,aguiar2010monoidal,Mishna03b}
 with nontrivial applications to combinatorics, and potential
-applications to programming as well remain untapped.
+applications to programming as well remain untapped.  We should also single
+out the work of Kelly \cite{kelly:operads} on Operads, which has influenced
+our presentation of Day Convolution.
 
 Species have been the basis for many implementations in the area of
 enumerative combinatorics, such as Darwin~\cite{Berg85},
