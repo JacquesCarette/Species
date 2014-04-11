@@ -1442,8 +1442,9 @@ we first give some brief intuition for the concept of a \emph{coend}.
 \newcommand{\D}{\bbb{D}}
 
 Given a bifunctor $T : \C^\op \times \C \to \D$, a \term{coend} over
-$T$, denoted $\int^C T(C,C)$, is an object of $\D$.  In the specific
-case when the objects of $\D$ can be thought of as sets or types with
+$T$, denoted $\int^C T(C,C)$, is an object of $\D$ together with some
+(di)naturality conditions.  In the specific case when the objects of
+$\D$ can be thought of as sets or types with
 ``elements''\footnote{This definition can be made precise in full
   generality (without requiring the objects of $\D$ to have
   ``elements'') using a \emph{coequalizer}.}, the coend $\int^C
