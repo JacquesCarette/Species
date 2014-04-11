@@ -66,8 +66,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Comments
 
-\newif\ifcomments\commentstrue
-%\newif\ifcomments\commentsfalse
+%\newif\ifcomments\commentstrue
+\newif\ifcomments\commentsfalse
 
 \ifcomments
 \newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
@@ -747,12 +747,12 @@ corresponding set of natural numbers $\fin{\size S}$.
 % is, it requires that we have already made a choice for each $x$.
 
 The axiom of choice ($\AC$ below) is consistent with
-HoTT.\scw{I think we can omit this equation for space too.}
-\begin{equation} \tag{$\AC$}
-  \label{eq:AC}
-  \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
-    \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
-\end{equation}
+HoTT.\scw{I think we can omit this equation for space too. Cut it.}
+% \begin{equation} \tag{$\AC$}
+%   \label{eq:AC}
+%   \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
+%     \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
+% \end{equation}
 However, this axiom has no computational interpretation, and is therefore
 unsuitable for constructing a functor with computational content.
 %
@@ -1155,20 +1155,20 @@ one-element sets are isomorphic in \Set.)
 In the same way that an $(F + G)$-shape is either an $F$-shape
 \emph{or} a $G$-shape on a given set of labels, an $(F \times
 G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on \emph{the
-  same set of labels} (\pref{fig:Cartesian-product-dup}).  As
-illustrated in the figure, there are several intuitive ways to think
-about this situation.\scw{update this sentence if we cut the figure} One can think of two distinct shapes, with
+  same set of labels}.% (\pref{fig:Cartesian-product-dup}).  
+There are several intuitive ways to think
+about this situation. One can think of two distinct shapes, with
 labels duplicated between them; one can think of the labels as
 \emph{pointers} or \emph{labels} for locations in a shared memory;
 %% (to be explored more in \pref{sec:sharing})
 or one can think of the shapes themselves as being superimposed.
 
-\begin{figure}
-  \centering
-  \todo{Make a diagram. Or maybe omit it for space.}
-  \caption{Cartesian species product}
-  \label{fig:Cartesian-product-dup}
-\end{figure}
+% \begin{figure}
+%   \centering
+%   \todo{Make a diagram. Or maybe omit it for space.}
+%   \caption{Cartesian species product}
+%   \label{fig:Cartesian-product-dup}
+% \end{figure}
 
 \begin{defn}
   The species of \emph{sets}, $\E$, is defined as the constant functor
@@ -1203,11 +1203,12 @@ instance Monoid a => Monoid (e -> a) where
 \end{spec}
 but quite a bit more general.  We omit the precise details, partly in
 the interest of space, and partly because the details are
-straightforward.  For the present purposes the intuition given by the
-above Haskell code should suffice; to understand the basic intuition
-behind the proof, the reader may enjoy proving that the above |Monoid|
-instance for |e -> a| satisfies the monoid laws if the instance for
-|a| does.
+straightforward.  
+% For the present purposes the intuition given by the
+% above Haskell code should suffice; to understand the basic intuition
+% behind the proof, the reader may enjoy proving that the above |Monoid|
+% instance for |e -> a| satisfies the monoid laws if the instance for
+% |a| does.
 
 % \begin{prop}
 %   The monoidal lifting defined above preserves the following properties:
@@ -1605,25 +1606,29 @@ embedding, that is, $j(L) = \Lab(-,L)$.
 
 \begin{example}
   It remains to verify that $\BT$ and $\Type$ have the right properties.
-  \begin{itemize}
-  \item Similarly to $\B$, there are (at least) two monoidal
+%  \begin{itemize}
+%  \item 
+Similarly to $\B$, there are (at least) two monoidal
     structures on $\BT$, corresponding to the coproduct and product of
     types, respectively.  Note that in each case, the finiteness
     evidence for types $A$ and $B$ can be combined in a canonical way
     to construct finiteness evidence for the types $A + B$ and $A
     \times B$, respectively.
-  \item $\BT$ is indeed enriched over $\Type$, since the class of
+%  \item 
+$\BT$ is indeed enriched over $\Type$, since the class of
     arrows between $(A,m,i)$ and $(B,n,j)$ is given by the type $A
     \iso B$.
-  \item We have already seen that there is a symmetric monoidal
+%  \item 
+We have already seen that there is a symmetric monoidal
     structure on $\Type$ given by the product of types.
-  \item The last condition is the most interesting: we need to say
+%  \item 
+The last condition is the most interesting: we need to say
     what a coend over $\BT$ is in $\Type$. In fact, in this case a
     coend is just a $\Sigma$-type!  This is because the morphisms in
     $\BT$ are paths, and hence the required identifications between
     inhabitants of the $\Sigma$-type are already present---they are
     induced by transport of paths in $\BT$.
-  \end{itemize}
+%  \end{itemize}
 
   Given $F,G \in [\BT,\Type]$, we can thus instantiate the definition
   of Day convolution to obtain
@@ -1904,8 +1909,9 @@ kind of lax natural transformation from $F$ to the identity functor.
 This approach is rather difficult to adequately compare to ours.
 There is overlap, but no inclusion in either direction.
 
-\section{Future work}
+\section{Future work and Conclusion}
 \label{sec:future}
+\label{sec:conclusion}
 
 The most important operation we have not yet formalized is that of
 \emph{composition}, where the composition $F \comp G$ of species $F$
@@ -1928,9 +1934,6 @@ It should also be remarked that the objects of $\Lab$ might not correspond to
 ``sets of labels'', in the most general setting we must only think of shapes as
 indexed by objects of $\Lab$, rather than shapes as ``containing labels drawn
 from some set''.  We need to properly leverage this extra generality.
-
-\section{Conclusion}
-\label{sec:conclusion}
 
 %\begin{ack}
 %Acknowledgements
