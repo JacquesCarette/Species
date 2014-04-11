@@ -538,9 +538,9 @@ concise definition of species:
 \begin{defn}
   \label{defn:species-cat}
   A \term{species} is a functor $F : \B \to \Set$, where $\B$%
-\footnote{$\B$ for \emph{bijection}, a rare category named for its arrows.} 
-  is the
-  groupoid of finite sets whose morphisms are bijections, and
+is the
+  groupoid of finite sets whose morphisms are bijections,\footnote{$\B$ for \emph{bijection}, a rare category named for its arrows.} 
+   and
   $\Set$ is the category of sets and (total) functions.
 \end{defn}
 
@@ -560,7 +560,7 @@ concise definition of species:
 Porting the theory of species to a constructive setting
 requires defining categories $\BT$ and $\Type$ so that a functor $\BT \to
 \Type$ is a ``constructive counterpart'' to a functor $\B \to \Set$. We define
-these categories in the next section.
+these categories next.
 
 %\scw{Is there a way to pronounce $\B$ and $\BT$? Why B in the first
 %  place?} \bay{I don't know of a way to pronounce them.  The notation
@@ -574,8 +574,8 @@ these categories in the next section.
 \section{Species in Constructive Type Theory}
 \label{sec:prelim}
 
-We next define the categories $\BT$ and $\Type$ in the context of
-\term{homotopy type theory} (HoTT).  Intuitively, the category $\BT$
+We define the categories $\BT$ and $\Type$ in the context of
+\term{homotopy type theory} (HoTT).  The category $\BT$
 should capture the idea of ``constructively finite types'',
 corresponding to the finite sets of $\B$. Intuitively, we can define
 finiteness as an equivalence to some type that we already know to be
@@ -589,7 +589,7 @@ its univalence axiom simplifies working with equivalences.  \bay{It
   HoTT.}\todo{Why bother encoding finiteness in type theory?}\scw{I'm
   not sure we have a good answer to this question.}
 
-This section begins by summarizing the most important ideas and notation of
+Below, we summarize the most important ideas and notation of
 HoTT; interested readers should consult the HoTT book~\cite{hottbook} for more
 details.
 
@@ -618,7 +618,7 @@ The theory also allows inductive definitions.  We use $\N : \Type_0$
 to denote the type of natural numbers, and $\Fin : \N \to \Type_0$ the
 usual indexed type of canonical finite sets.
 
-Note that although we use Agda's notation~\cite{Agda} for dependent pairs and 
+Although we use Agda's notation~\cite{Agda} for dependent pairs and 
 functions, we occasionally use the traditional $\sum_{x : A} B(x)$ and
 $\prod_{x:A} B(x)$ for emphasis, and the standard
 abbreviations $A \times B$ and $A \to B$ for non-dependent pair and
@@ -765,14 +765,14 @@ corresponding set of natural numbers $\fin{\size S}$.
 % \emph{witness} $a : A(x)$ for which the property $P(x,a)$ holds.  That
 % is, it requires that we have already made a choice for each $x$.
 
-The axiom of choice is consistent with
+The axiom of choice ($\AC$) is consistent with
 HoTT.\scw{I think we can omit this equation for space too. Cut it.}
 % \begin{equation} \tag{$\AC$}
 %   \label{eq:AC}
 %   \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
 %     \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
 % \end{equation}
-However, this axiom has no computational interpretation, and is therefore
+However, $\AC$ has no computational interpretation, and is therefore
 unsuitable for constructing a functor with computational content.
 %
 As is standard constructive practice, we reject this use of $\AC$.
@@ -957,7 +957,7 @@ $e : \mor {(A, m, i)} {(B, n, j)}$ are sent to $i \then e \then j^{-1}$.
 % \[
 %   \xymatrix{\Fin m \ar@@{<->}[d]_-i & \Fin n \\ A \ar@@{<->}[r]_e & B
 %     \ar@@{<->}[u]_-{j^{-1}} } \]
-The functoriality of $\size{}$ can be seen by noting the cancelling
+The functoriality of $\size{}$ can be seen by noting the canceling
 pair of inverse equivalences in each of the following two diagrams:
   \[ \xymatrix{\Fin m \ar@@<-.4em>@@{<->}[d]_i
          \ar@@<.4em>@@{<->}[d]^{i^{-1}}
