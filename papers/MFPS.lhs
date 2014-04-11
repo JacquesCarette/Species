@@ -261,7 +261,7 @@
 \begin{document}
 
 \begin{frontmatter}
-\title{Generalizing species to type theory}
+\title{Type-Theoretic Foundations for Combinatorial Species}
 
 %% ENTCS
 
