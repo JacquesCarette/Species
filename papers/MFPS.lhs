@@ -67,6 +67,7 @@
 %% Comments
 
 \newif\ifcomments\commentstrue
+%\newif\ifcomments\commentsfalse
 
 \ifcomments
 \newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
@@ -350,10 +351,6 @@ distinctions that must first be made explicit.  Second, being situated in
 traditional mathematical practice rooted in set theory,
 % \footnote{notwithstanding the fact that the foundational work is
 %   categorical},
-\bay{I removed this footnote because I don't understand its point.
-  Category theory has only relatively recently been appropriated by
-  computer science; to say that something is categorical in no way
-  implies that it has a computational flavor.}%
 species are described in ways that are \emph{untyped} and
 \emph{nonconstructive}, both of which hinder adoption and understanding in a
 computational context.
@@ -397,8 +394,8 @@ In the next section, we review the set-theoretic definitions of species (\pref{s
 before recasting them in the context of homotopy type theory in
 \pref{sec:prelim}.  We assume familiarity with dependent type theory and
 (basic) category throughout, but will spell out the basic HoTT tools
-we need, as well as more advanced categorical constructions. \bay{We
-  need to actually make this true.  In particular, Day convolution is
+we need, as well as more advanced categorical constructions. 
+\bay{We need to actually make this true.  In particular, Day convolution is
   defined in terms of coends which can hardly be said to be ``basic category theory''.  However, I am
   not sure we really have space to explain them.  Perhaps we can cook up
   an extremely high-level, hand-wavy sort of explanation.}
