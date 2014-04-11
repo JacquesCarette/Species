@@ -1803,10 +1803,12 @@ operations; and the same construction applies equally well to $\BT$.
 \term{Weighted} species \cite[\Sect \todo{look this up}]{bll} can also
 be modelled as functors $\B \to \Set/A$, where $\Set/A$ denotes the
 slice category over some appropriate set $A$ of weights. This
-generalizes appropriately to type theory as well.  Due to space
-constraints, the details must be postponed to a subsequent
-publication. \bay{Is there a better way to say this?  Is it worth
-  saying at all?}
+generalizes appropriately to type theory as well. 
+% Due to space
+% constraints, the details must be postponed to a subsequent
+%publication. 
+\bay{Is there a better way to say this?  Is it worth
+  saying at all?}\scw{let's cut the sentence; it doesn't add much.}
 
 \scw{Maybe we should combine this entire section with the future work work
   section? Of course some of it is straightforward and the future work is
@@ -1817,29 +1819,29 @@ publication. \bay{Is there a better way to say this?  Is it worth
 \section{Related Work}
 \label{sec:related}
 
-We have been highly motivated by the wealth of work which already 
-exists on species.  We survey those parts which are most immediately
-applicable as an appropriate survey would in itself go over the space
-limit.  \cite{bll} alone still contains a vast trove of
-further examples (sometimes buried deep in the exercises!) of
-relevance to programming.  From the theory side, certain fascinating
-aspects like integration~\cite{Rajan93} (and more generally, the solution
-of algebraic and differential equations) have not been adequately
+This work draws on the rich pre-existing literature on species; we 
+describe the most relevant here, although there is much more.
+%We have been highly motivated by the wealth of work which already 
+%exists on species.  We survey those parts which are most immediately
+%applicable as an appropriate survey would in itself go over the space
+%limit. 
+Bergeron et al. \cite{bll} alone contains many additional examples 
+relevant to programming.  From the theory side, certain fascinating
+aspects like integration~\cite{Rajan93}, and more generally, the solution
+of algebraic and differential equations, have not been adequately
 investigated.  Furthermore, a number of variants on species
 \cite{Schmitt93hopfalgebras,Menni2008,Maia2008arithmetic,aguiar2010monoidal,Mishna03b}
-with nontrivial applications to combinatorics, and potential
-applications to programming as well remain untapped.  We should also single
-out the work of Kelly \cite{kelly:operads} on Operads, which has influenced
+with nontrivial applications to combinatorics remain untapped.  
+The work of Kelly \cite{kelly:operads} on Operads influenced
 our presentation of Day Convolution.
 
 Species have been the basis for many implementations in the area of
 enumerative combinatorics, such as Darwin~\cite{Berg85},
 \LUO~\cite{FlajoletSalvyZimmermann1989a}, combstruct~\cite{FlSa95},
 Aldor-Combinat~\cite{Aldor-Combinat} and
-MuPAD-Combinat~\cite{Mupad-Combinat}.  Most do not model the full
-spectrum of species combinators, but make up for it by implementing
+MuPAD-Combinat~\cite{Mupad-Combinat}. These packages implement
 very sophisticated algorithms for enumeration and generation, both
-exhaustive and random.  The Haskell species package
+exhaustive and random, though few include the full spectrum of species combinators.  The Haskell species package
 \cite{yorgey-2010-species,species} is a fairly direct implementation
 of the theory of species.
 
@@ -1867,8 +1869,7 @@ Rougly, their positions and our labels correspond.
 %positions to data values, much as our mappings associate data values
 %to labels.  
 The basic difference is that species ``build up'' shapes
-from labels, while containers ``observe'' positions contained in shapes,
-an algebraic versus coalgebraic view.  Containers thus naturally 
+from labels, while containers ``observe'' positions contained in shapes---an algebraic versus coalgebraic view.  Containers thus naturally 
 require dependent types, while much of species theory can be dealt
 with using simpler types.
 %\scw{We should probably omit discussion of implementation here}
@@ -1882,8 +1883,8 @@ with using simpler types.
 This implies in particular that each shape is associated to a fixed,
 inherent set of positions.  At present, we do not see how to reconcile
 that view with sharing features, such as the Cartesian product on species.
-Of course, the coalgebraic view of containers allows them to capture
-useful types (such as streams) which are not species.
+Of course, the coalgebraic view of containers captures
+useful types (such as streams) that are not species.
 
 Shapely types \cite{jay-shapely} are closely related to containers---
 see~\cite[section 8]{abbott_categories_2003} for a careful
