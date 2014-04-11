@@ -749,7 +749,7 @@ HoTT.\scw{I think we can omit this equation for space too.}
   \left( \prod_{x : X} \ptrunc{\sum_{(a : A(x))} P(x,a)} \right) \to
     \ptrunc{\sum_{(g : \prod_{x:X} A(x))} \prod_{(x:X)} P(x,g(x))}
 \end{equation}
-However this axiom has no computational interpretation, and is therefore
+However, this axiom has no computational interpretation, and is therefore
 unsuitable for constructing a functor with computational content.
 %
 As is standard constructive practice, we reject this use of $\AC$.
@@ -781,7 +781,7 @@ Defining a counterpart to $\P$ is straightforward:
 Constructing a counterpart to $\B$ is more subtle. What does
 it mean, constructively, for a type to be finite?  There are actually
 several possible answers to this question
-\cite{finite}. Taking our cue from the discussion above we note that what was
+\cite{finite}. Taking our cue from the discussion above, we note that what was
 missing was a choice of bijections $S \bij \fin{\size S}$: such bijections can
 be thought of as evidence of the finiteness of $S$.  This is the most
 straightforward definition of constructive finiteness, and the one we adopt
