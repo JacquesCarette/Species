@@ -1465,7 +1465,7 @@ $(C,t)$ is then a ``module'' with ``representation type'' $C$ and
 ``implementation'' $t$.  Indeed, in Haskell, the coend of $T$ is given
 by the type \texttt{exists c.\ T c c} (or rather, by an isomorphic
 encoding, since \texttt{exists} is not actually valid Haskell snytax)
-\cite{edward blog post} \todo{look this up and add the right
+\cite{edward-blog-post} \todo{look this up and add the right
   reference}.  $T$ is required to be a bifunctor from $\C^\op \times
 \C$ since the representation type may occur both co- and
 contravariantly in the interface.
@@ -1917,7 +1917,7 @@ kind of lax natural transformation from $F$ to the identity functor.
 This approach is rather difficult to adequately compare to ours.
 There is overlap, but no inclusion in either direction.
 
-\section{Future work and Conclusion}
+\section{Conclusion and Future work}
 \label{sec:future}
 \label{sec:conclusion}
 
