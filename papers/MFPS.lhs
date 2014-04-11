@@ -775,7 +775,7 @@ HoTT.\scw{I think we can omit this equation for space too. Cut it.}
 However, $\AC$ has no computational interpretation, and is therefore
 unsuitable for constructing a functor with computational content.
 %
-As is standard constructive practice, we reject this use of $\AC$.
+As is standard constructive practice, we reject $\AC$.
 %We therefore reject the use of the axiom of choice.  
 %Our goal
 %is to build groupoids $\PT$ and $\BT$ which are type-theoretic
@@ -800,17 +800,19 @@ A). \]
 
 We need to build a groupoid having such finite types as objects, and
 equivalences between them as morphisms.  Via univalence, we may
-conveniently package up such equivalences as paths.  We note
-the following method to build an $\infty$-groupoid out of any
-type:
+conveniently package up such equivalences as paths.  
+
+Unfortunately, the standard method to build an 
+$\infty$-groupoid out of any
+type does not work! Consider:
 \begin{defn}
   For a type $A$, the $\infty$-groupoid $\tygrpd{A}$ has 
   values $a : A$ as its objects, paths $a = b$ as its $1$-morphisms,
   paths between paths as $2$-morphims, and so on.
 \end{defn}
-
-We then naturally attempt to use $\tygrpd{\FinType}$ as a constructive
-counterpart to $\B$.  Unfortunately, this does not work! Intuitively, the
+If we use $\tygrpd{\FinType}$ as a constructive
+counterpart to $\B$, we only have only have one morphism between each object.
+Intuitively, the
 problem is that the paths involve not just the types in question
 but also the evidence of their finiteness, so that a path
 between two finite types requires them to be finite ``in the same way''. 
@@ -1153,7 +1155,7 @@ one-element sets are isomorphic in \Set.)
   objects by $ (F \times G)\ L = F\ L \times G\ L. $
 \end{defn}
 An $(F \times G)$-shape is both an $F$-shape \emph{and} a $G$-shape, on
-\emph{the same set of labels}.% (\pref{fig:Cartesian-product-dup}).  
+\emph{the same set of labels}. % (\pref{fig:Cartesian-product-dup}).  
 There are several ways to think
 about this situation. One can think of two distinct shapes, with
 labels duplicated between them; one can think of the labels as
