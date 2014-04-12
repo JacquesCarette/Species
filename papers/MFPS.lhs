@@ -390,8 +390,8 @@ More specifically, the contributions of this paper are:
 \item We define the concept of \emph{species} in
   constructive type theory (\pref{sec:constructive-species}).% , characterizing
   % them as functors from a finite collection of labels to structures.
-\item Find a suitable definition of \emph{finiteness} consistent with HoTT
-and species.
+\item We find a suitable definition of \emph{finiteness} consistent with HoTT
+  and species.
 \item As part of our port to type theory, we generalize common operations on
   species, including sum, partitional and Cartesian product,
   carefully analyzing their requirements to ensure consistency
