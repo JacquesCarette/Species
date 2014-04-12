@@ -1212,23 +1212,28 @@ numbering = vcat' (with & sep .~ 3)
     numbered n = mkLeaf (text (show n) # fc black <> circle 1) ()
 
 super = tree2 (mkLeaf (circle 1))
-  # cCurve 2 1
+  # cCurve 2 1 (1/4 @@@@ turn)
   # cStr   1 4
-  # cCurve 4 3
+  # cCurve 4 3 (1/2 @@@@ turn)
   # cStr   3 6
-  # cCurve 6 5
-  # cCurve 5 7
+  # cCurve 6 5 (1/4 @@@@ turn)
+  # cCurve 5 7 (0 @@@@ turn)
   where
-    cCurve, cStr :: Int -> Int -> Diagram B R2 -> Diagram B R2
-    cCurve = connectOutside' (aSty & arrowShaft .~ arc (0 @@@@ turn) (1/5 @@@@ turn) # reverseTrail)
+    cCurve :: Int -> Int -> Angle -> Diagram B R2 -> Diagram B R2
+    cCurve n1 n2 a =
+      connectPerim'
+        (aSty & arrowShaft .~ arc (0 @@@@ turn) (1/5 @@@@ turn) # reverseTrail)
+        n1 n2
+        a (a ^+^ (1/4 @@@@ turn))
+    cStr :: Int -> Int -> Diagram B R2 -> Diagram B R2
     cStr   = connectOutside' aSty
     aSty   = with & shaftStyle %~ dashing [0.3,0.3] 0 . lw 0.2
                   & arrowHead .~ tri
                   & headSize .~ 1
 
-dia 
+dia
   = frame 0.5 . centerXY . lw 0.1
-  . hcat' (with & sep .~ 2) . map centerXY 
+  . hcat' (with & sep .~ 2) . map centerXY
   $
   [ numbering
   , sharedMem
