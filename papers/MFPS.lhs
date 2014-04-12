@@ -1501,18 +1501,79 @@ species known as \emph{arithmetic product} \cite{Maia2008arithmetic}.
 The arithmetic product of species $F$ and $G$, written $F \aprod G$,
 can intuitively be thought of as an ``$F$-assembly of cloned
 $G$-shapes'', that is, an $F$-shape containing multiple copies of a
-single $G$-shape.  Unlike the usual notion of composition, where the
-$F$-shape would be allowed to contain many different $G$-shapes, this
-notion is symmetric: an $F$-assembly of cloned $G$-shapes is
-isomorphic to a $G$-assembly of cloned $F$-shapes.  Another intuitive
-way to think of the arithmetic product, which points out the symmetry
-more clearly, is to think of a rectangular matrix of labels, together
-with an $F$-shape labelled by the rows of the grid, and a $G$-shape
-labelled by the columns.  We omit a more formal definition in the
-interest of space; in any case, a formal definition can be extracted
-from the more general definition in terms of Day convolution in
-\pref{sec:day-convolution}.  Before defining Day convolution, however,
-we first give some brief intuition for the concept of a \emph{coend}.
+single $G$-shape (\pref{fig:arithmetic-product}).  Unlike the usual
+notion of composition, where the $F$-shape would be allowed to contain
+many different $G$-shapes, this notion is symmetric: an $F$-assembly
+of cloned $G$-shapes is isomorphic to a $G$-assembly of cloned
+$F$-shapes.  Another intuitive way to think of the arithmetic product,
+which points out the symmetry more clearly, is to think of a
+rectangular matrix of labels, together with an $F$-shape labelled by
+the rows of the grid, and a $G$-shape labelled by the columns.  We
+omit a more formal definition in the interest of space; in any case, a
+formal definition can be extracted from the more general definition in
+terms of Day convolution in \pref{sec:day-convolution}.  Before
+defining Day convolution, however, we first give some brief intuition
+for the concept of a \emph{coend}.
+
+\begin{figure}
+  \centering
+  \begin{diagram}[width=380]
+import           Diagrams.TwoD.Layout.Tree
+
+mkLeaf :: IsName n => Diagram B R2 -> n -> Diagram B R2
+mkLeaf shp n = shp # fc white # named n
+
+grays  = map (\k -> blend k black white) [0, 0.2, 0.8, 1, 0.5]
+shapes = [circle 0.2, triangle 0.4, square 0.4]
+
+grid = vcat' (with & sep .~ 0.5)
+  [ tree3 (\n -> mkLeaf (circle 0.4 # fc (grays !! (n-1))) n) # translateX 3.4
+  , hcat' (with & sep .~ 0.5)
+    [ list2 (\n -> (mkLeaf ((shapes !! (n-1)) # rotateBy (1/4) <> circle 0.4) n)) # rotateBy (3/4)
+    , theGrid
+    ]
+  ]
+  where
+    theGrid :: Diagram B R2
+    theGrid = vcat . map hcat $
+      [ [ (shapes !! i) # fc (grays !! j) <> square 1
+        || j <- [1,0,3,2,4]
+        ]
+      || i <- [0..2]
+      ]
+
+assembly1 =
+  tree3 (mkLeaf $ enrect (list2 (mkLeaf (circle 0.4)) # centerX # scale 0.5))
+
+assembly2 = hcat' (with & sep .~ 0.4)
+  (map (fc white . enrect . (mkLeaf (tree3 (mkLeaf (circle 0.4)) # centerXY # scale 0.5))) [1 .. 3 :: Int])
+  <>
+  hrule 7 # alignL
+
+enrect d = d <> roundedRect (width d + 0.2) (height d + 0.2) 0.2
+
+tree3 nd
+  = maybe mempty (renderTree nd (~~))
+  . uniqueXLayout 1 1
+  $ (BNode (1 :: Int) (BNode 2 Empty Empty) (BNode 3 (BNode 4 Empty Empty) (BNode 5 Empty Empty)))
+
+list2 nd = hcat' (with & sep .~ 1 & catMethod .~ Distrib)
+  (map nd [1 :: Int .. 3])
+  <>
+  hrule 2 # alignL
+  where
+    aSty = with & arrowHead .~ noHead
+
+dia = frame 0.2 . centerXY . hcat' (with & sep .~ 2) . map centerXY $
+  [ grid
+  , assembly1 # scale 1.3
+  , assembly2
+  ]
+  # lw 0.05
+  \end{diagram}
+  \caption{Three views on arithmetic product of species}
+  \label{fig:arithmetic-product}
+\end{figure}
 
 \subsection{Coends}
 \label{sec:coends}
