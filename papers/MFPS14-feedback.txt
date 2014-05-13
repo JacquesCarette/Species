@@ -1,0 +1,91 @@
+Dear Brent Yorgey,
+
+The review of papers submitted to MFPS 2014 is now complete, and we
+regret to inform you that your submission with number 31
+
+Type-Theoretic Foundations for Combinatorial Species
+
+was not selected by the Programme Committee
+
+Below you will find the reviews that we collected from the PC and
+other reviewers.  We hope that you will find them useful and
+constructive, and will consider submitting to the coming editions of
+MFPS.
+
+Information regarding participation can be found at the website
+
+http://www.cs.cornell.edu/Conferences/MFPS30/
+
+With best regards,
+Alexandra Silva, Sam Staton, Bart Jacobs (PC chairs)
+
+
+----------------------- REVIEW 1 ---------------------
+PAPER: 31
+TITLE: Type-Theoretic Foundations for Combinatorial Species
+AUTHORS: Brent Yorgey, Jacques Carette and Stephanie Weirich
+
+OVERALL EVALUATION: 1 (weak accept)
+
+----------- REVIEW -----------
+This paper creates a bridge between the theory of species and the theory and practice of programming. This is realised by “porting” the definition of combinatorial species to constructive type theory, making the theory more directly applicable in a programming context and more accessible to functional programmers.
+
+I think this is  a nice work appropriate for MFPS.
+
+Typos:
+page 1 line 2 : is was => was
+page 11 line 15 : snytax => syntax
+page 11 line -12 : approrpiate => appropriate
+
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 31
+TITLE: Type-Theoretic Foundations for Combinatorial Species
+AUTHORS: Brent Yorgey, Jacques Carette and Stephanie Weirich
+
+OVERALL EVALUATION: 1 (weak accept)
+
+----------- REVIEW -----------
+This paper describes an extension of the theory of species of structures to homotopy type theory. There are some interesting issues that must be overcome, and the authors give a narrative in which they describe their initial naive, unsuccessful attempts, as well as their final successful approach. I quite like this style. Following this initial part, the authors show how certain important structures for manipulating species can be defined in their homotopy type setup. This is nice but ultimately not particularly difficult---I feel it basically follows automatically from what is already known about how these structures are defined. The category theory basically makes it too easy.
+
+I think this paper can be accepted, since it certainly contains original and interesting contributions to science, which could well go on to be well-used as homotopy type theory expands its grip on the universe. However, I assign a weak accept score as ultimately I don't think the work is very technically deep (with apologies to the authors.)
+
+
+----------------------- REVIEW 3 ---------------------
+PAPER: 31
+TITLE: Type-Theoretic Foundations for Combinatorial Species
+AUTHORS: Brent Yorgey, Jacques Carette and Stephanie Weirich
+
+OVERALL EVALUATION: -2 (reject)
+
+----------- REVIEW -----------
+The authors set out to develop basic theory of combinatorial spieces in the context of type theory. To be more precise, they would like to do it in homotopy type theory (HoTT). I think this is a very worthwhile project and I would like to encourage the authors to carry out the development. However, the paper in its present form contains serious technical flaws and cannot be accepted. The errors seem reperable to me once the authors get better acquainted with how HoTT works, especially with the bits about category theory.
+
+The authors do not seem to be aware of how one has to treat categories in HoTT. Chapter 9 of the HoTT book carefully defines precategories and categories by requiring that morphisms form sets (0-types). This is not just an idle requirement, for without it one has to worry about the higher coherence problems (what happens when we compose associativity paths between four morphisms in two different ways, etc?). If we knew how to define in HoTT categories with arbitrary hom-types that would be great indeed.  Thus Definition 3.9 is fatally flawed.
+
+Furthermore, the authors are freely using the notion of an infinity-groupoid without explaining what it is. The HoTT book is careful to state that types are *like* infinity groupoids, but it never uses this fact in a technical way. It is not clear how the authors use the notion of an infinity groupoid (strict, weak), because the first mention of infinity groupoid just falls from the sky in Definition 3.2. What is this "standard way of building an infinity groupoid in type theory" that you refer to?
+
+I have a number of other technical remarks.
+
+Page 4, bottom: if you use the hereditarily finite sets (i.e., finite rank) for your set-theoretic groupoid of finite sets and bijections, then you just need to well-order V_omega, which is not a problem. So I am not sure you really need choice to show that B and P are equivalent, at least if you show a bit of flexibility with B.
+
+Page 5: you present the lack of equivalence between B and P as a problem, but I fail to see this. Why do you need the equivalence? Presumably, you could do everything with just B. Have a look at how cardinalities are done in Chapter 10 of the HoTT book: there is no need to find "canonical" representatives of cardinalities (your P consists of canonical representatives of finite sets) because you can use truncations to achieve the same effect.
+
+Page 5, definition of U_||Fin||. Why don't you consider the truncation (A : U) x || (n : N) x (Fin n ~ A) ||? It should be equivalent to the one you give, because n exists uniquely.
+
+Page 6, Definition 3.4: What notion of infinity groupoid are you using? I am not aware of any such notion in HoTT, and in fact it is an open problem how to define higher categories and higher groupoids in HoTT.
+
+Page 6, Definition 3.6: I don't think [-] acts as identity on morphisms, at least there will be an application of ua involved to get from equivalences to paths.
+
+Proof of 3.8: please don't typeset proofs in italic.
+
+The rest of the paper is a review of combinatorial spieces which does not even use HoTT in an essential way.
+
+If the authors are serious about doing combinatorial spieces in HoTT, they might consider the following questions:
+
+1. What is the appropriate notion of finiteness? You consider this, but I think you did not drive your argument far enough. There are many constructive notions of finiteness and it would be interesting to investigate them from the point of view of HoTT and combinatorial spieces. Here is a suggestion off the top of my head: call a type finite if its equality is decidable and there merely exists k:nat and a bijection from the type {n : nat | n < k} to it. (I am using "merely" in the technical sense as in the HoTT book). Prove that such types form a category (not a precategory, but a category, again referring to chapter 9). Prove that the types are closed under many constructions, such as: product, sum, decidable subset, function space. This should give you a rich supply of finite types. And do not worry about P.
+
+2. Consider carefully where you need to use 0-types as opposed to general types. It is highly likely that you will have to use 0-types in places, in order to avoid higher coherence issues. Again, you should understand why Chapter 9 of HoTT book limits attention to categories whose Hom's are 0-types.
+
+3. What advantage does HoTT have over ordinary type theory? What concrete benefits do you get form ua?
+
