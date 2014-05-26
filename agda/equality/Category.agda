@@ -748,3 +748,79 @@ module FunctorCatThms {ℓ₁ ℓ₂ : Level} (ext : ∀ {ℓ₁ ℓ₂} → Ext
         , (natTransf-≡ ext (λ X → proj₁ (proj₂ (δ X))))
         , (natTransf-≡ ext (λ X → proj₂ (proj₂ (δ X))))
     )
+
+{- One goal of this development is to formalize anafunctors in HoTT,
+   and show they are equivalent to functors.  This is both a nice
+   illustration of the power of doing category theory in HoTT, and
+   also (I hope) sheds some light on some situations computationally:
+   in particular there are certain functors (e.g. the one from B -> P)
+   which are not obvious how to define, but can be defined as
+   anafunctors; composing with the equivalence to functors shows how
+   to construct the functor.
+
+   What follows is a (certainly incomplete) roadmap of what still
+   needs to be done to get there.
+
+  - Prove that D^C is a category whenever D is (theorem 9.2.5 in the
+    HoTT book). Note that
+
+    * 'idtoiso' in the book is spelled ≡→≅ above, and conversely for isotoid.
+    * Lemma 9.1.9 in the book is called Hom-,
+
+    Completing the proof may require proving more supporting lemmas
+    about idtoiso (e.g. equations 9.1.11-13 in the book).
+
+  - For functors, define
+    * composition (9.2.6, 9.2.9, 9.2.10)
+    * full (9.4.3)
+    * faithful (9.4.3)
+    * (split) essential surjectivity (9.4.4, 9.4.6)
+
+  - Formalize adjunctions (9.3.1, 9.3.2) and (adjoint) equivalence of
+    categories (9.4.1).
+
+  - Prove that a fully faithful, essentially surjective functor is an
+    equivalence of categories. (9.4.5)
+
+  - Formalize an anafunctor C -> D (for C,D precategories) as
+    * a precategory X
+    * a fully faithful, essentially surjective functor X -> C
+    * a functor X -> D
+
+  - Prove that (under suitable assumptions about things being
+    categories instead of just precategories) the type of anafunctors
+    is equivalent to the type of functors.  See my thesis document for
+    a proof sketch.  Note this requires 9.4.5 above, as well as
+    possibly some extra lemmas about transport of equivalences of
+    categories.
+
+  - Construct the categories P and B, and apply the above construction
+    to yield a functor B -> P.
+-}
+
+-- theorem 9.2.5
+cat-[_,_]
+  : {ℓ₁ ℓ₂ : Level}
+  → Precategory ℓ₁ ℓ₂
+  → Category ℓ₁ ℓ₂
+  → {ext : ∀ {ℓ₁ ℓ₂} → Extensionality ℓ₁ ℓ₂}
+  → Category (ℓ₁ ⊔ ℓ₂) (ℓ₁ ⊔ ℓ₂)
+cat-[_,_] C D {ext} = {!!}
+
+-- A functor is full if it is a surjection from each hom-set
+Is-full : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set {!!}
+Is-full = {!!}
+
+-- A functor is faithful if it is an injection from each hom-set
+Is-faithful : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set {!!}
+Is-faithful = {!!}
+
+-- F : C -> D is split essentially surjective if for each d ∈ D, there
+-- (constructively) exists c ∈ C such that F c ≅ d.
+Is-split-essentially-surjective : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set {!!}
+Is-split-essentially-surjective = {!!}
+
+-- F : C -> D is essentially surjective if for each d ∈ D, there
+-- *merely* exists c ∈ C such that F c ≅ d.
+Is-essentially-surjective : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set {!!}
+Is-essentially-surjective = {!!}
