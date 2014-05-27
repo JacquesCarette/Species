@@ -508,6 +508,8 @@ private
   Hom-category-Set-≅ _ _ _ = refl _
 
 ------------------------------------------------------------------------
+-- Brent's stuff starting here
+------------------------------------------------------------------------
 -- Functors
 
 Functor′ : (ℓ₁ ℓ₂ : Level) → Precategory ℓ₁ ℓ₂ → Precategory ℓ₁ ℓ₂ → Set (ℓ₂ ⊔ ℓ₁)
@@ -637,13 +639,21 @@ natTransf-≡ {D = D} ext components-≡ =
    = (x y : Hom X Y) → (p q : x ≡ y) → (∃ λ (e : p ≡ q) → (∀ f → e ≡ f))
 -}
 
+NatTransf-closure :  ∀ {ℓ₁ ℓ₂ : Level} 
+  {C D : Precategory ℓ₁ ℓ₂} {F G : Functor ℓ₁ ℓ₂ C D} →  (n : ℕ) ->
+  H-level n (NatTransf′  ℓ₁ ℓ₂ F G) ->  H-level n (NatTransf ℓ₁ ℓ₂ F G)
+NatTransf-closure zero (γ , pf) = record { natTransf = γ } , (λ y → cong (λ nt → record { natTransf = nt }) (pf (NatTransf.natTransf y)))
+NatTransf-closure (suc n) Hn = {!!}
+
+
 ------------------------------------------------------------------------
 -- Functor (pre)categories
-{-
+
 lemma : ∀ {ℓ₁ ℓ₂ : Level} {C D : Precategory ℓ₁ ℓ₂} {F G : Functor ℓ₁ ℓ₂ C D} →
   H-level 2 (NatTransf′ ℓ₁ ℓ₂ F G) → H-level 2 (NatTransf ℓ₁ ℓ₂ F G)
-lemma h = {!!}   -- Seems obviously true, not sure how to prove it
+lemma h = λ x y x₁ y₁ → {!!} , {!!}   -- Seems obviously true, not sure how to prove it
 
+{-
 -- The precategory [C,D] of functors C -> D.
 precategory-[_,_]
   : {ℓ₁ ℓ₂ : Level}
