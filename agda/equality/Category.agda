@@ -639,7 +639,7 @@ natTransf-≡ {D = D} ext components-≡ =
 
 ------------------------------------------------------------------------
 -- Functor (pre)categories
-
+{-
 lemma : ∀ {ℓ₁ ℓ₂ : Level} {C D : Precategory ℓ₁ ℓ₂} {F G : Functor ℓ₁ ℓ₂ C D} →
   H-level 2 (NatTransf′ ℓ₁ ℓ₂ F G) → H-level 2 (NatTransf ℓ₁ ℓ₂ F G)
 lemma h = {!!}   -- Seems obviously true, not sure how to prove it
@@ -825,3 +825,6 @@ Is-split-essentially-surjective = {!!}
 -- *merely* exists c ∈ C such that F c ≅ d.
 Is-essentially-surjective : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set {!!}
 Is-essentially-surjective = {!!}
+
+
+-}
