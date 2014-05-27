@@ -805,7 +805,8 @@ cat-[_,_]
   → Category ℓ₁ ℓ₂
   → {ext : ∀ {ℓ₁ ℓ₂} → Extensionality ℓ₁ ℓ₂}
   → Category (ℓ₁ ⊔ ℓ₂) (ℓ₁ ⊔ ℓ₂)
-cat-[_,_] C D {ext} = {!!}
+cat-[_,_] C D {ext} = record { category =  precategory-[ C , proj₁ (D.category) ] {ext} , {!!} }
+  where module D = Category D
 
 -- A functor is full if it is a surjection from each hom-set
 Is-full : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set {!!}
