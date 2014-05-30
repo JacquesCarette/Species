@@ -14,8 +14,8 @@ module FunctorCat
 
 -- open import Bijection eq hiding (id; _∘_; inverse; finally-↔)
 open Derived-definitions-and-properties eq
--- open import Equivalence eq as Eq
---   using (_≃_; ⟨_,_⟩; module _≃_; Is-equivalence)
+open import Equivalence eq as Eq
+  using (_≃_; ⟨_,_⟩; module _≃_; Is-equivalence)
 -- open import Function-universe eq hiding (id) renaming (_∘_ to _⊚_)
 open import H-level eq
 open import H-level.Closure eq
@@ -27,9 +27,11 @@ open import Category eq
 ------------------------------------------------------------------------
 -- Functor (pre)categories
 
-lemma : ∀ {ℓ₁ ℓ₂ : Level} {C D : Precategory ℓ₁ ℓ₂} {F G : Functor ℓ₁ ℓ₂ C D} →
-  H-level 2 (NatTransf′ ℓ₁ ℓ₂ F G) → H-level 2 (NatTransf ℓ₁ ℓ₂ F G)
-lemma h = {!!}   -- Seems obviously true, not sure how to prove it
+-- should be proven in Category, where this is currently commented out
+postulate
+  lemma : ∀ {ℓ₁ ℓ₂ : Level} {C D : Precategory ℓ₁ ℓ₂} {F G : Functor ℓ₁ ℓ₂ C D} →
+    H-level 2 (NatTransf′ ℓ₁ ℓ₂ F G) → H-level 2 (NatTransf ℓ₁ ℓ₂ F G)
+-- lemma h = {!!}   -- Seems obviously true, not sure how to prove it
 
 -- The precategory [C,D] of functors C -> D.
 precategory-[_,_]
@@ -192,13 +194,21 @@ cat-[_,_]
   → Category ℓ₁ ℓ₂
   → {ext : ∀ {ℓ₁ ℓ₂} → Extensionality ℓ₁ ℓ₂}
   → Category (ℓ₁ ⊔ ℓ₂) (ℓ₁ ⊔ ℓ₂)
-cat-[_,_] C D {ext} = precategory-to-category C⇒D {!!} {!!}
+cat-[_,_] C D {ext} = precategory-to-category C⇒D  ≡≃≅ {!!}
   where module D = Category D
         C⇒D = precategory-[ C , D.precategory ] {ext}
+        open Precategory C⇒D
+
+        ≡≃≅ : ∀ {X Y : Obj} → (X ≡ Y) ≃ (X ≅ Y)
+        ≡≃≅ {X} {Y} = {!!}
 
 -- A functor is full if it is a surjection from each hom-set
 Is-full : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set (ℓ₁ ⊔ ℓ₂)
-Is-full {C = C} {D} F = ∀ {X Y} → {!!}
+Is-full {C = C} {D} F = ∀ {X Y} → (h : D.Hom (F.F₀ X) (F.F₀ Y)) → Σ (C.Hom X Y) (λ f → F.F₁ f ≡ h)
+  where
+    module C = Precategory C
+    module D = Precategory D
+    module F = Functor F
 
 -- A functor is faithful if it is an injection from each hom-set
 Is-faithful : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set (ℓ₂ ⊔ ℓ₁)
@@ -210,10 +220,19 @@ Is-faithful {C = C} {D} F = ∀ {X Y} → (f g : C.Hom X Y) → (F.F₁ f) ≡ (
 
 -- F : C -> D is split essentially surjective if for each d ∈ D, there
 -- (constructively) exists c ∈ C such that F c ≅ d.
-Is-split-essentially-surjective : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set {!!}
-Is-split-essentially-surjective F = {!!}
+Is-split-essentially-surjective : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set ℓ₁
+Is-split-essentially-surjective {C = C} {D} F = ∀ {d : D.Obj} → Σ C.Obj (λ c → F.F₀ c ≡ d) 
+  where
+    module C = Precategory C
+    module D = Precategory D
+    module F = Functor F
 
 -- F : C -> D is essentially surjective if for each d ∈ D, there
 -- *merely* exists c ∈ C such that F c ≅ d.
-Is-essentially-surjective : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set {!!}
-Is-essentially-surjective F = {!!}
+-- JC: not sure if below is 'merely' enough.
+Is-essentially-surjective : ∀ {ℓ₁ ℓ₂} {C D : Precategory ℓ₁ ℓ₂} → Functor ℓ₁ ℓ₂ C D → Set ℓ₁
+Is-essentially-surjective {C = C} {D} F = ∀ {d : D.Obj} → ∃ (λ c → F.F₀ c ≡ d)
+  where
+    module C = Precategory C
+    module D = Precategory D
+    module F = Functor F

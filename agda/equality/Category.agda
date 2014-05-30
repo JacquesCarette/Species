@@ -639,11 +639,14 @@ natTransf-≡ {D = D} ext components-≡ =
    = (x y : Hom X Y) → (p q : x ≡ y) → (∃ λ (e : p ≡ q) → (∀ f → e ≡ f))
 -}
 
+{-
+-- commenting out these two lemmas, else Agda won't typecheck the next file with
+   unsolved metas
 NatTransf-closure :  ∀ {ℓ₁ ℓ₂ : Level} 
   {C D : Precategory ℓ₁ ℓ₂} {F G : Functor ℓ₁ ℓ₂ C D} →  (n : ℕ) ->
   H-level n (NatTransf′  ℓ₁ ℓ₂ F G) ->  H-level n (NatTransf ℓ₁ ℓ₂ F G)
 NatTransf-closure zero (γ , pf) = record { natTransf = γ } , (λ y → cong (λ nt → record { natTransf = nt }) (pf (NatTransf.natTransf y)))
-NatTransf-closure (suc n) Hn = {!!}
+NatTransf-closure (suc n) Hn = λ x y → {!!}
 
 
 ------------------------------------------------------------------------
@@ -653,7 +656,7 @@ lemma : ∀ {ℓ₁ ℓ₂ : Level} {C D : Precategory ℓ₁ ℓ₂} {F G : Fun
   H-level 2 (NatTransf′ ℓ₁ ℓ₂ F G) → H-level 2 (NatTransf ℓ₁ ℓ₂ F G)
 lemma h = λ x y x₁ y₁ → {!!} , {!!}   -- Seems obviously true, not sure how to prove it
 
-{-
+
 -- The precategory [C,D] of functors C -> D.
 precategory-[_,_]
   : {ℓ₁ ℓ₂ : Level}
