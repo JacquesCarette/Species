@@ -1,22 +1,18 @@
 import           Development.Shake
 import           Development.Shake.FilePath
 
-lhs2TeX  = "lhs2TeX"
-pdflatex = "pdflatex"
-bibtex   = "bibtex"
-
 main :: IO ()
 main = shake shakeOptions $ do
-  want ["MFPS.pdf"]
+  want ["POPL15.pdf"]
 
-  "*.tex" *> \output -> do
-      let input = output -<.> "lhs"
-      need [input, "SpeciesDiagrams.hs"]
-      system' lhs2TeX $ ["--poly", "-o", output] ++ [input]
+  -- "*.tex" *> \output -> do
+  --     let input = output -<.> "lhs"
+  --     need [input, "SpeciesDiagrams.hs"]
+  --     cmd "lhs2TeX --poly -o" [output] [input]
 
   "*.pdf" *> \output -> do
       let input = output -<.> "tex"
       need [input, output -<.> "bib"]
-      system' pdflatex $ ["--enable-write18", input]
-      system' bibtex $ [dropExtension input]
-      system' pdflatex $ ["--enable-write18", input]
+      () <- cmd "pdflatex --enable-write18" [input]
+      () <- cmd "bibtex" [dropExtension input]
+      cmd "pdflatex --enable-write18" [input]

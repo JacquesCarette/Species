@@ -1,0 +1,90 @@
+%% -*- mode: LaTeX; compile-command: "mk" -*-
+
+\documentclass[preprint,authoryear]{sigplanconf}
+
+\usepackage{amsmath}
+
+\begin{document}
+
+\special{papersize=8.5in,11in}
+\setlength{\pdfpageheight}{\paperheight}
+\setlength{\pdfpagewidth}{\paperwidth}
+
+\conferenceinfo{POPL '15}{January 11--18, 2015, Mumbai, India}
+\copyrightyear{2015}
+%\copyrightdata{978-1-nnnn-nnnn-n/yy/mm}
+%\doi{nnnnnnn.nnnnnnn}
+
+% Uncomment one of the following two, if you are not going for the
+% traditional copyright transfer agreement.
+
+\exclusivelicense                % ACM gets exclusive license to publish,
+                                 % you retain copyright
+
+%\permissiontopublish             % ACM gets nonexclusive license to publish
+                                  % (paid open-access papers,
+                                  % short abstracts)
+
+\titlebanner{DRAFT --- do not distribute}        % These are ignored unless
+\preprintfooter{Submitted to POPL'15}   % 'preprint' option specified.
+
+\title{Type-Theoretic Foundations for Combinatorial Species}
+%\subtitle{Subtitle Text, if any}
+
+\authorinfo{Brent A. Yorgey \\ Stephanie Weirich}
+{Dept. of Computer and Information Science\\ The University of Pennsylvania\\
+Philadelphia, Pennsylvania, USA}
+{\{byorgey,sweirich\}@cis.upenn.edu}
+
+\authorinfo{Jacques Carette}
+{Dept. of Computing and Software\\ McMaster University\\
+Hamilton, Ontario, Canada}
+{carette@mcmaster.ca}
+
+\maketitle
+
+\begin{abstract}
+  This paper develops a constructive definition of Joyal's theory of
+  combinatorial species using homotopy type theory. We justify our definitions
+  by generalizing various operations on species to arbitrary functor
+  categories. In particular, we lift monoidal structures from the codomain
+  category to define species sum and
+  Cartesian product, and Day convolution to push monoidal structures from
+  the domain category to define partitional and arithmetic
+  products. This foundational work is the first step in the application of the
+  theory of species to a wide class of data structures.
+\end{abstract}
+
+\category{CR-number}{subcategory}{third-level}
+
+% general terms are not compulsory anymore,
+% you may leave them out
+% \terms
+% term1, term2
+
+\keywords
+Combinatorial Species, Homotopy Type Theory
+
+\section{Introduction}
+
+
+\acks
+
+Acknowledgments, if needed.
+
+% We recommend abbrvnat bibliography style.
+
+\bibliographystyle{abbrvnat}
+
+% The bibliography should be embedded for final submission.
+
+% \begin{thebibliography}{}
+% \softraggedright
+
+% \bibitem[Smith et~al.(2009)Smith, Jones]{smith02}
+% P. Q. Smith, and X. Y. Jones. ...reference text...
+
+% \end{thebibliography}
+
+
+\end{document}
