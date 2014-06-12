@@ -99,6 +99,9 @@
 \providecommand{\R}{\bbb{R}}
 \providecommand{\C}{\bbb{C}}
 
+\newcommand{\all}[1]{\forall #1.\;}
+\newcommand{\exist}[1]{\exists #1.\;}
+
 \newcommand{\mcal}[1]{\ensuremath{\mathcal{#1}}}
 \let\Sect\S
 \renewcommand{\S}{\mcal S}
@@ -117,6 +120,11 @@
 \newcommand{\Union}{\bigcup}
 \newcommand{\intersect}{\cap}
 \newcommand{\Intersect}{\bigcap}
+\newcommand{\powerset}{\mcal P}
+\newcommand{\singleton}{\{\star\}}
+
+\newcommand{\partition}{\vdash}
+\newcommand{\rectangle}{\multimap}
 
 \newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
 \newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
@@ -130,6 +138,8 @@
 \newcommand{\defeq}{\mathrel{:\jeq}}  % definitional equality
 \renewcommand{\equiv}{\simeq}         % homotopy equivalence
 \newcommand{\iso}{\cong}              % isomorphism in a category
+
+\newcommand{\quotient}[2]{#1 \mathbin{/} \mathord{#2}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Theorems etc.
@@ -190,8 +200,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% HoTT
 
-\newcommand{\ptrunc}[1]{\ensuremath{\left\||#1\right\||}}
-\newcommand{\id}{\cons{id}}
+\newcommand{\ptrunc}[1]{\ensuremath{\left\|#1\right\|}}
+\newcommand{\ptruncI}[1]{\ensuremath{\left|#1\right|}}
 
 \newcommand{\tygrpd}[1]{\ensuremath{\mathbf{G}(#1)}}
 
@@ -229,19 +239,36 @@
 \newcommand{\cat}[1]{\ensuremath{\mathbf{#1}}\xspace}
 
 \newcommand{\op}{\ensuremath{\mathrm{op}}}            % opposite category
-\newcommand{\disc}[1]{\ensuremath{\left||#1\right||}} % discrete category
+\newcommand{\disc}[1]{\ensuremath{\left|#1\right|}}   % discrete category
 \newcommand{\then}{\mathbin{;}}                       % flipped composition
 
-% morphisms
+% objects & morphisms
+\DeclareMathOperator{\Ob}{Ob}
 \newcommand{\mor}[2]{\ensuremath{#1 \longrightarrow #2}}
-\newcommand{\nat}[2]{\ensuremath{#1 \stackrel{\bullet}{\longrightarrow} #2}}
+\newcommand{\nt}[2]{\ensuremath{#1 \stackrel{\bullet}{\longrightarrow} #2}}
+\newcommand{\ntiso}[2]{\ensuremath{#1 \stackrel{\bullet}{\longleftrightarrow} #2}}
+
+\newcommand{\Hom}[3][]{#2 \to_{#1} #3}
+\newcommand{\id}{\ensuremath{\mathit{id}}}
+\newcommand{\Id}{\ensuremath{\mathit{Id}}}
 
 % some standard categories
-\newcommand{\Set}{\cat{Set}}
+\newcommand{\newcategory}[1]{%
+\expandafter\providecommand\csname #1\endcsname{}\expandafter\renewcommand\csname #1\endcsname{\cat{#1}}}
 
-\providecommand{\B}{\bbb{B}}
-\renewcommand{\P}{\bbb{P}}
-\providecommand{\FinSet}{\bbb{E}}
+\newcategory{Set}     % sets and total functions
+\newcategory{FinSet}  % finite sets
+\newcategory{Grp}     % groups
+\newcategory{Vect}    % vector spaces
+\newcategory{Cat}     % (small) categories
+\newcategory{Spe}     % species
+\newcategory{CSpe}    % constructive species
+\newcategory{Hask}    % Haskell types and functions
+\newcategory{B}
+\newcategory{P}
+
+\providecommand{\L}{}
+\renewcommand{\L}{\bbb{L}}     % category of linear orderings
 
 \newcommand{\BT}{\mcal{B}}
 \newcommand{\PT}{\mcal{P}}
@@ -251,6 +278,10 @@
 % monoidal lifting
 \newcommand{\lifted}[1]{\hat{#1}}
 \newcommand{\lotimes}{\mathbin{\lifted{\otimes}}}
+
+% ends and coends
+\newcommand{\eend}[1]{\all{#1}}
+\newcommand{\coend}[1]{\exist{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Species
@@ -262,7 +293,7 @@
 \newcommand{\E}{\Sp{E}}
 \newcommand{\F}{\Sp{F}}
 \newcommand{\G}{\Sp{G}}
-\renewcommand{\L}{\Sp{L}}
+\newcommand{\List}{\Sp{L}}
 \newcommand{\T}{\Sp{T}}
 \newcommand{\Par}{\Sp{Par}}
 \newcommand{\Bag}{\Sp{E}}
@@ -492,9 +523,1582 @@ concise definition of species is:
   will always be a bijection as well.
 \end{rem}
 
-Porting the theory of species to a constructive setting
-requires defining categories $\BT$ and $\ST$ so that a functor $\BT \to
-\ST$ is a ``constructive counterpart'' to $\B \to \Set$.
+\section{Species in homotopy type theory}
+\label{sec:species-HoTT}
+
+Our goal in this section is to derive a suitable analogue to the
+theory of species, but within a homotopy type theory instead of
+set theory.
+
+We begin by summarizing relevant ideas and notation from HoTT;
+interested readers should consult the HoTT book~\cite{hottbook} for
+more details.
+
+\subsection{A fragment of homotopy type theory}
+\label{sec:HoTT}
+
+\bay{Pasted this section from MFPS paper.  Need to go through and
+  incorporate improvements and additions from my dissertation.}
+
+We work with a type theory equipped with an empty type \TyZero, a unit
+type \TyOne (with inhabitant $\unit$), coproducts $A + B$ (with
+constructors $\inl$ and $\inr$), dependent pairs $(x:A) \times B(x)$,
+dependent functions $(x:A) \to B(x)$, a hierarchy of type universes
+$\Type_0$, $\Type_1$, $\Type_2$\dots (we usually omit the subscript
+from $\Type_0$), judgmental equality $A \equiv B$, and propositional
+equality $A = B$.  The theory also allows inductive definitions.  We
+use $\N : \Type_0$ to denote the type of natural numbers, and $\Fin :
+\N \to \Type_0$ the usual indexed type of canonical finite sets.
+
+Although we use Agda's notation~\cite{Agda} for dependent pairs and
+functions, we occasionally use the traditional $\sum_{x : A} B(x)$ and
+$\prod_{x:A} B(x)$ for emphasis, and the
+abbreviations $A \times B$ and $A \to B$ for non-dependent pair and
+function types.
+% Also,
+% to reduce clutter, we sometimes make use of implicit quantification:
+% free type variables in a type---like $A$ and $B$ in $A \times (B \to
+% \N)$---are implicitly universally quantified, like $(A : \Type) \to (B
+% : \Type) \to A \times (B \to \N)$.
+
+The type of \term{equivalences} between $A$ and $B$, written $A \iso B$, is
+definable in HoTT; intuitively, an equivalence is a pair of inverse
+functions $f : A \to B$ and $g : B \to A$.\footnote{The precise details are
+  more subtle \cite[chap.  4]{hottbook}, but unimportant for our purposes.}
+We overload the notations $\id$ and $\comp$ to denote the identity equivalence
+and equivalence composition respectively; we also allow equivalences of type
+$A \iso B$ to be implicitly used as functions $A \to B$ where it does not
+cause confusion.
+
+The structure of HoTT guarantees that functions are always functorial with
+respect to equality. That is, if $e : x = y$ is a witness of equality between
+$x$ and $y$ (informally, a ``path'' between $x$ and $y$), and $f$ is a
+function of an appropriate type, then $f(x) = f(y)$.  Given $e$ we also have
+$P(x) \to P(y)$ for any type family $P$, called the \term{transport} of $P(x)$
+along $e$ and denoted $\transport{P}{e}$, or simply $e_*$ when $P$ is clear
+from context.
+
+HoTT includes the \emph{univalence axiom} which states that an
+equivalence $A \iso B$ can be converted to the propositional equality
+$A = B$ (and vice versa).  This axiom formally encodes
+the mathematical practice of treating isomorphic things as
+identical.  In other words, $A = B$ does not mean that $A$ and $B$ are
+identical, but that they can be used interchangeably---and moreover,
+interchanging them may require some work, computationally speaking.
+Thus an equality $e : A = B$ can have nontrivial computational
+content.
+
+As of yet, univalence has no direct computational interpretation, so
+using it to give a computational interpretation of species may seem suspect. Note,
+however, that \mbox{$\transport{X \mapsto X}{\ua(f)} = f$}, where $\ua : (A
+\iso B) \to (A = B)$ denotes (one direction of) the univalence
+axiom. So univalence introduces no computational problems as long as
+applications of $\ua$ are only ultimately used via
+$\mathsf{transport}$. \scw{We should ensure that our applications have
+  this property.}  Univalence allows a
+convenient shorthand: packaging up an equivalence into a path
+and then transporting along that path results in ``automatically''
+inserting the equivalence and its inverse in all the necessary places
+throughout the term.
+
+\subsection{Category theory in HoTT}
+\label{sec:CT-HoTT}
+
+As hinted earlier, category theory works much more nicely when founded
+in HoTT instead of set theory.  Intuitively, the main reason is that
+in set theory the only notion of equality (extensional equality of
+sets) is too impoverished---one really wants to work up to
+\emph{isomorphism} rather than literal equality, and the mismatch
+between isomorphism and strict equality introduces all sorts of
+difficulties and extra work.  In contrast, via the univalence axiom,
+HoTT has a very rich notion of equality that is able to encompass
+isomorphism in categories.
+
+This section lays out a few relevant definitions along with some
+intuition and commentary.  A fuller treatment may be found in Chapter
+9 of the HoTT book~\citep{hottbook}.  Generally, ``\hott{widget}'' is
+used to refer to widgets as defined in HoTT, to distinguish from
+widgets as defined in set theory.
+
+We begin with the definition of a \term{precategory}.
+
+\begin{defn}
+  A \term{precategory} $\CT$ consists of
+  \begin{itemize}
+  \item A type $\CT_0 : \Type$ of objects (we often write simply
+    $c : \CT$ instead of $c : \CT_0$);
+  \item a function $- \homsymb - : \CT \to \CT \to \SetT$ associating
+    a \emph{set} ($0$-type) of morphisms to each pair of objects (we
+    often write $\hom[\CT] X Y$ to indicate the precategory being
+    referenced, especially when multiple precategories are under
+    consideration);
+  \item a function $\idT : (X : \CT) \to (\hom X X)$ associating
+    an identity morphism to each object;
+  \item a function $- \then - : (X,Y,Z : \CT) \to (\hom X Y) \to
+    (\hom Y Z) \to (\hom X Z)$; and
+  \item proofs of the identity and associativity laws.
+  \end{itemize}
+\end{defn}
+
+\begin{rem}
+  Note how well the idea of types fits the definition: in the usual
+  set-theoretic definition of a category, one must resort to awkward
+  constructions like saying that composition is a partial function,
+  with $f \then g$ being defined only when $\mathrm{tgt}(f) =
+  \mathrm{src}(g)$.  Here, the same idea is expressed simply as the
+  type of the composition operator.
+
+  The restriction that $\hom X Y$ is a \emph{set}, \ie a $0$-type
+  (rather than an arbitrary type) is important: otherwise one runs
+  into problems with coherence of the identity and associativity laws,
+  and extra laws become necessary.  Down this path lies $n$-categories
+  or even $(\infty,1)$-categories; but to model traditional
+  ($1$-)categories, it suffices for $\hom X Y$ to be a $0$-type.  In
+  particular, this means that the identity and associativity laws,
+  being equalities between elements of a $0$-type, are themselves
+  $(-1)$-types, \ie mere propositions.
+\end{rem}
+
+One might wonder why the term \term{precategory} is used for something
+that is evidently a straightforward port of the definition of a
+category from set theory into HoTT.  The problem is that this
+definition suffers from problems similar to the one in set theory:
+there is not necessarily a strong enough connection between
+isomorphism and equality.  This is remedied in the definition of an
+\hott{category}.
+
+\begin{defn}
+  An \term{isomorphism} in $\CT$ is a morphism $f : \hom X Y$
+  together with a morphism $g : \hom Y X$ such that $f \then g =
+  \idT_X$ and $g \then f = \idT_Y$.  We write $X \iso Y$ for the type
+  of isomorphisms between $X$ and $Y$.
+\end{defn}
+
+\begin{rem}
+  Note the distinction between $X \iso Y$, the type of isomorphisms
+  between $X$ and $Y$ as objects in the precategory $\CT$, and $X \equiv
+  Y$, the type of equivalences between the types $X$ and $Y$.  The
+  latter consists of a pair of inverse functions; the former of a pair
+  of inverse \emph{morphisms}.  Morphisms, of course, need not be
+  functions, and moreover, objects need not be types.
+\end{rem}
+
+It is immediate, by path induction and the fact that $\idT_X$ is an
+isomorphism, that equality implies isomorphism: we call this $\idtoiso
+: (X = Y) \to (X \iso Y)$.  However, the other direction is not
+automatic.  Note it does not follow from univalence, due to the
+distinction between $X \iso Y$ and $X \equiv Y$. However, it has a very
+similar flavor to univalence, and matches the intuition that one
+should always work up to isomorphism in a category.  It is therefore
+added as a requirement of an \hott{category}.
+
+\begin{defn}
+  An \term{\hott{category}} is a precategory $\CT$ together with the
+  additional univalence-like axiom that for all $X,Y : \CT$, \[ (X \iso
+  Y) \equiv (X = Y). \] We write $\isotoid : (X \iso Y) \to (X = Y)$
+  for the left-to-right direction of the equivalence.
+\end{defn}
+
+An \hott{groupoid} is an \hott{category} where every morphism is an
+isomorphism. The following example will play an important role later.
+
+\begin{defn}
+  Any $1$-type $T$ gives rise to an \hott{groupoid} $\tygrpd{T}$ where the
+  objects are values $a : T$, and $\hom a b \defeq a = b$, that
+  is, morphisms from $a$ to $b$ are paths $p : a = b$.
+\end{defn}
+
+\begin{proof}
+  Identity morphisms, composition, the identity laws, associativity,
+  and the fact that every morphism is an isomorphism all follow
+  directly from properties of propositional equality.  Since
+  isomorphisms are already paths, $\isotoid$ is just the identity.
+\end{proof}
+
+Another important example is ana analogue to the usual category \Set
+of sets and functions.
+
+\begin{defn}[\citep{hottbook}, Examples 9.1.5 and 9.1.7]
+  Let $\ST$ denote the \hott{category} of sets, that is, the category
+  whose objects are $0$-types, \ie sets, and whose morphisms are
+  functions $A \to B$.
+\end{defn}
+\begin{proof}
+  This category is defined in the HoTT book in examples 9.1.5 and
+  9.1.7, and explored extensively in Chapter 10.  However, the proof
+  given in Example 9.1.7 leaves out some details, and it is worth
+  spelling out the construction here.
+
+  Of course, identity morphisms are given by the identity function,
+  and morphism composition by function composition, so the identity
+  and associativity laws are satisfied. The definition also satisfies
+  the requirement that the type of morphisms is a set, since $A \to B$
+  is a set whenever $B$ is.
+
+  Finally, suppose $A \iso B$, that is, there are functions $f : A \to
+  B$ and $g : B \to A$ such that $f \comp g = \id_B$ and $g \comp f =
+  \id_A$.  It is not \latin{a priori} obvious that this is the same as
+  an equivalence $A \equiv B$---indeed, it turns out to be so only
+  because $A$ and $B$ are sets.  Technically, $(A \iso B)$ constitutes
+  a \term{quasi-inverse} between $A$ and $B$, that is, $(A \iso B)
+  \equiv (f : A \to B) \times \qinv(f)$, where $\qinv(f) \defeq (g : B
+  \to A) \times (f \comp g = \id_B) \times (g \comp f = \id_A)$. On
+  the other hand, $(A \equiv B) \equiv (f : A \to B) \times
+  \isequiv(f)$.  The precise definition of $\isequiv(f)$ can be found
+  in Chapter 4 of the HoTT book; for the present purpose, it suffices
+  to say that although $\qinv(f)$ and $\isequiv(f)$ are
+  \emph{logically} equivalent (that is, each implies the other),
+  $\isequiv(f)$ is always a mere proposition but in general $\qinv(f)$
+  may not be.  However, in the specific case that $A$ and $B$ are
+  sets, $\qinv(f)$ is indeed a mere proposition: by Lemma 4.1.4 in the
+  HoTT book, if $\qinv(f)$ is inhabited then it is equivalent to
+  $(x:A) \to (x = x)$, which is a mere proposition by function
+  extensionality and the fact that $A$ is a set.  Therefore $\qinv(f)
+  \equiv \isequiv(f)$, since logically equivalent mere propositions
+  are equivalent, and we have $(A \iso B) \equiv (A \equiv B) \equiv
+  (A = B)$ by univalence.
+\end{proof}
+
+The definitions of \hott{functors} and \hott{natural transformations}
+are straightforward ports of their usual definitions in set theory.
+
+\begin{defn}
+  An \hott{functor} $F$ between (pre)categories $\CT$
+  and $\DT$ is a pair of functions
+  \begin{itemize}
+  \item $F_0 : \CT_0 \to \DT_0$
+  \item $F_1 : (X,Y : \CT) \to (\hom[\CT] X Y) \to (\hom[\DT] {F_0(X)} {F_0(Y)})$
+  \end{itemize}
+  together with proofs of the functor laws,
+  \begin{itemize}
+  \item $(X : \CT) \to (F_1(\idT_X) = \idT_{F_0(X)})$, and
+  \item $(X,Y,Z : \CT) \to (f : \hom[\CT] X Y) \to (g : \hom[\CT] Y Z)
+    \to (F_1(f \then g) = F_1(f) \then F_1(g))$.
+  \end{itemize}
+\end{defn}
+
+As is standard, we often write $F\ X$ and $F\ f$ instead of $F_0(X)$
+and $F_1(f)$.
+
+\begin{defn}
+  An \hott{natural transformation} $\gamma$ between functors $F,G :
+  \CT \to \DT$ is a family of morphisms
+  \begin{itemize}
+  \item $\gamma_X : \hom[\DT] {F\ X} {G\ X}$
+  \end{itemize}
+  for each $X : \CT$, satisfying
+  \begin{itemize}
+  \item $(X,Y : \CT) \to (f : \hom[\CT] X Y) \to (\gamma_X \then G f
+    = F f \then \gamma_Y)$.
+  \end{itemize}
+\end{defn}
+
+\todo{Need to write something about coends in HoTT.}
+
+\subsection{Finiteness in HoTT}
+\label{sec:finiteness-HoTT}
+
+We now turn to developing counterparts to the groupoids $\P$ and $\B$
+in type theory.  First, a few necessary lemmas:
+\begin{lem} \label{lem:equiv-pres-set}
+  Equivalence preserves sets, that is, if $A$ and
+  $B$ are sets, then so is $A \equiv B$.
+\end{lem}
+\begin{proof}
+  $(A \equiv B) \equiv ((f : A \to B) \times \cons{isequiv}(f))$, where
+  $\cons{isequiv}(f)$ is a mere proposition expressing the fact that
+  $f$ is an equivalence (\ie has a suitable inverse).  This is a set
+  since $\cons{isequiv}(f)$ is a mere proposition (and hence a set),
+  $A \to B$ is a set whenever $B$ is, and $\times$ takes sets to sets
+  \citep[Lemma 3.3.4, Examples 3.1.5 and 3.1.6]{hottbook}.
+\end{proof}
+
+\begin{cor}
+  If $A$ and $B$ are sets, then so is $A = B$.
+\end{cor}
+\begin{proof}
+  Immediate from univalence and \pref{lem:equiv-pres-set}.
+\end{proof}
+
+\begin{lem} \label{lem:fin-iso-equal}
+  For all $n_1, n_2 : \N$, if $\Fin{n_1} \equiv \Fin{n_2}$ then $n_1 =
+  n_2$.
+\end{lem}
+\begin{proof}
+  The proof is by double induction on $n_1$ and $n_2$.
+  \begin{itemize}
+  \item If both $n_1$ and $n_2$ are zero, the result is immediate.
+  \item The case when one is zero and the other a successor is
+    impossible.  In particular, taking the
+    equivalence in the appropriate direction gives a function $\Fin
+    (\suc \dots) \to \Fin \zero$, which can be used to produce an
+    element of $\Fin \zero = \bot$, from which anything follows.
+  \item In the case when both are a successor, we have
+    $\Fin{(\suc{n_1'})} \equiv \Fin{(\suc{n_2'})}$, which is equivalent
+    to $\top + \Fin{n_1'} \equiv \top + \Fin{n_2'}$.  If we can conclude
+    that $\Fin{n_1'} \equiv \Fin{n_2'}$, the inductive hypothesis then
+    yields $n_1' = n_2'$, from which $\suc{n_1'} = \suc{n_2}'$ follows
+    immediately.  The implication $(\top + \Fin{n_1'} \equiv \top +
+    \Fin{n_2'}) \to (\Fin{n_1'} \equiv \Fin{n_2'})$ is true, but not
+    quite as straightforward to show as one might think! In
+    particular, an equivalence $(\top + \Fin{n_1'} \equiv \top +
+    \Fin{n_2'})$ may not match the $\top$ values with each other.  As
+    illustrated in \pref{fig:gcbp-Maybe}, given $e : (\top +
+    \Fin{n_1'} \equiv \top + \Fin{n_2'})$, it suffices to define
+    $e'(e^{-1}\ \unit) = e\ \unit$, with the rest of $e' : \Fin{n_1'}
+    \equiv \Fin{n_2'}$ defined as a restriction of $e$.  This
+    construction corresponds more generally to the \term{Gordon
+      complementary bijection principle}~\citep{gcbp}, to be discussed
+    in more detail in \pref{sec:gcbp}.
+  \end{itemize}
+\end{proof}
+
+\begin{figure}
+  \centering
+  \begin{diagram}[width=200]
+fin_ = zipWith named [1 :: Int ..] (replicate 5 (square 1))
+
+fin x = hcat (x |> fin_)
+
+t_ = named (0 :: Int) (square 1)
+
+tfin x =
+  hcat' (with & sep .~ 0.5)
+    [ (x |> t_)
+    , text "+" <> square 1 # lw none
+    , fin x
+    ]
+
+ht = 3
+
+dashSty = dashingG [0.1,0.1] 0 . lc red
+
+bij = [ ((0, 1), Just dashSty)
+      , ((1, 2), Nothing)
+      , ((2, 3), Nothing)
+      , ((3, 0), Just dashSty)
+      , ((4, 5), Nothing)
+      , ((5, 4), Nothing)
+      ]
+
+tfin_e =
+  vcat' (with & sep .~ ht)
+  [tfin 'A', tfin 'B']
+  # applyAll
+    [ conn sty ('A' .> (x :: Int)) ('B' .> (y :: Int)) | ((x,y), sty) <- bij ]
+
+fin_e =
+  vcat' (with & sep .~ ht)
+  [fin 'A', fin 'B']
+  # applyAll
+    [ conn sty ('A' .> (x :: Int)) ('B' .> (y :: Int))
+    | ((x,y), sty) <- filter (\((x,y), _) -> x /= 0 && y /= 0) bij ++ [((3,1), Just (lc red . lw thick))]
+    ]
+
+conn msty x y = connect' aOpts x y
+  where
+    aOpts
+      | Just sty <- msty = basicOpts & shaftStyle %~ sty
+      | otherwise        = basicOpts
+    basicOpts = with & arrowHead .~ noHead
+
+dia = hcat' (with & sep .~ 2)
+  [ tfin_e # centerY
+  , text "⇒" # fontSizeL 1.5 <> square 1 # lw none
+  , fin_e # centerY
+  ]
+  # frame 0.5
+  # lwO 0.7
+  \end{diagram}
+  \caption{Eliminating $\top$ from both sides of an equivalence}
+  \label{fig:gcbp-Maybe}
+\end{figure}
+
+Constructing a type-theoretic counterpart to $\P$ is
+now straightforward.
+\begin{defn}
+  $\PT$ is the \hott{groupoid} where
+  \begin{itemize}
+  \item the objects are values of type $\N$, and
+  \item the morphisms $\mor m n$ are equivalences of type $\Fin m \equiv
+    \Fin n$.
+  \end{itemize}
+\end{defn}
+It is easy to check that this satisfies the axioms for an
+\hott{category}, the salient points being that $\Fin m \equiv \Fin n$ is
+a set by \pref{lem:equiv-pres-set}, and $\isotoid$ follows from
+\pref{lem:fin-iso-equal}.
+
+Developing a counterpart to $\B$ is more subtle.  The first order of
+business is to decide how to port the concept of a ``finite set''.
+Generally, ``a set with property X'' ports to type theory as ``a type
+paired with constructive evidence of property X'' (or perhaps ``a
+$0$-type paired with evidence of X'', depending how seriously we want
+to take the word \emph{set}); so what is constructive evidence of
+finiteness? This is not \latin{a priori} clear, and indeed, there are
+several possible answers \citep{finite}. However, the discussion
+above, where bijections $S \bij \fin{\size S}$ played a prominent
+role, suggests that we adopt the simplest option,
+\term{cardinal-finiteness}.
+\begin{defn}
+  A set (type) $A$ is \term{cardinal-finite} iff there exists some $n
+  \in \N$ and a bijection $A \bij \fin n$; $n$ is called the size or
+  cardinality of $A$.
+\end{defn}
+Our first try at encoding this in type theory is
+\[ \FinType \defeq (A : \Type) \times (n : \N) \times (A \equiv \Fin n). \]
+
+We would like to build a groupoid having such finite types as objects,
+and equivalences between them as morphisms.  Recall that given some
+$1$-type $A$, the groupoid $\tygrpd{A}$ has values $(a : A)$ as its
+objects and paths $a = b$ as its morphisms.  For this to be
+applicable, we must check that $\FinType$ is a $1$-type. In fact, it
+turns out that it is a $0$-type, \ie a set---but this won't do,
+because the resulting groupoid is therefore \emph{discrete}, with at
+most one morphism between each pair of objects. $\B$, of course, has
+$n!$ distinct morphisms between any two sets of size $n$.
+Intuitively, the problem is that paths between objects in
+$\tygrpd{\FinType}$ involve not just the types in question but also
+the evidence of their finiteness, so that a path between two finite
+types requires them to be not just equivalent as types, but also
+``finite in the same way''.
+
+The situation can be pictured as shown in \pref{fig:fin-equiv}. The elements
+of types $A_1$ and $A_2$ are shown on the sides; the evidence of their
+finiteness is represented by bijections between their elements and the
+elements of $\Fin n$, shown along the bottom.  The catch is that the diagram
+necessarily contains only triangles: corresponding elements of $A_1$ and $A_2$
+must correspond to the same element of $\Fin n$ on the bottom row.  Therefore,
+there are only two degrees of freedom. Once the evidence of finiteness is
+determined, there is only one valid correspondence between $A_1$ and
+$A_2$---but there ought to be $n!$ such correspondences.
+\begin{figure}
+  \centering
+  \begin{diagram}[width=150]
+import           Data.Bits                      (xor)
+import           SpeciesDiagrams
+
+mkList n d f = hcat' (with & sep .~ 2 & catMethod .~ Distrib)
+  (zipWith named (map f [0::Int ..]) (replicate n d))
+
+n :: Int
+n = 8
+
+dia = decorateLocatedTrail (triangle (fromIntegral (n+2)) # rotateBy (1/2))
+      [ "l1"  |> (l1 # rotateBy (-1/3))
+      , "fin" |> fin
+      , "l2"  |> (l2 # rotateBy (1/3))
+      ]
+      # mkConnections
+      # centerXY # pad 1.2
+      # flip appends
+        [ (unit_Y                  , text' 4 "Fin n")
+        , (unit_Y # rotateBy (-1/3), text' 4 "A₁"   )
+        , (unit_Y # rotateBy (1/3) , text' 4 "A₂"   )
+        ]
+      # lwO 0.7
+  where
+    fin = mkList n dot (`xor` 1) # centerXY
+    l1  = mkList n dot id # centerXY
+    l2  = mkList n dot ((n-1) -) # centerXY
+    dot = circle 0.5 # fc grey
+    mkConnections = applyAll
+      [  withNames [a .> i, b .> i] $ \[p,q] -> atop (location p ~~ location q)
+      | (a,b) <- take 3 . (zip <*> tail) . cycle $ ["l1", "fin", "l2"]
+      ,  i <- [0 .. (n-1)]
+      ]
+  \end{diagram}
+  \caption{A path between inhabitants of $\FinType$ contains only
+    triangles}
+  \label{fig:fin-equiv}
+\end{figure}
+
+\begin{prop}
+  $\FinType$ is a set, that is, for any $X, Y : \FinType$,
+  if $p_1, p_2 : X = Y$ then $p_1 = p_2$.
+\end{prop}
+
+\begin{proof}[Proof (sketch)]
+  A path $(A_1, n_1, e_1) = (A_2, n_2, e_2)$ is equivalent to $(p :
+  A_1 = A_2) \times (q : n_1 = n_2) \times (q_*(p_*(e_1)) = e_2)$.
+  The transport of $e_1$ by $p$ is given by the composition $e_1 \comp
+  (\ua^{-1}(p))^{-1}$, but this essentially means that $p$ is uniquely
+  determined by $e_1$ and $e_2$.
+\end{proof}
+
+The underlying problem is that $\FinType$ does not actually do a very
+good job at encoding what classical mathematicians usually mean by
+``finite set''.  Saying that a set $A$ is finite with size $n$ does
+not typically imply there is some specific, chosen bijection $A \bij
+\fin n$, but merely that $A$ \emph{can be put} in bijection with $\fin
+n$, with no mention of a specific bijection.  This is justified by the
+fact that, up to isomorphism, any bijection $A \bij \fin n$ is just as
+good as any other.
+
+This suggests a better encoding of finiteness in type theory, \[
+\FinTypeT' \defeq (A : \Type) \times \ptrunc{(n : \N) \times (A \equiv
+  \Fin n)}, \] making use of propositional truncation to encode the
+fact that there \emph{merely exists} some size $n$ and an equivalence
+between $A$ and $\Fin n$, but without exposing a precise choice.  The
+finiteness evidence is now irrelevant to paths in $\FinTypeT'$, since
+there is always a path between any two elements of a truncated type.
+We also note the following:
+\begin{prop}
+  For any type $A$, \[ \ptrunc{(n : \N) \times (A \equiv \Fin n)} \equiv
+  (n : \N) \times \ptrunc{A \equiv \Fin n}. \]
+\end{prop}
+This says that the size $n$ of a finite type may be freely moved in
+and out of the propositional truncation.  Practically, this means we
+may freely refer to the size of a finite type without worrying about
+how it is being used (in contrast, the value of the equivalence $A
+\equiv \Fin n$ may only be used in constructing mere propositions).
+The proof hinges on the fact that $(n : \N) \times \ptrunc{A \equiv \Fin
+  n}$ is a mere proposition; intuitively, if a type is finite at all,
+there is only one possible size it can have, so putting $n$ inside the
+truncation does not really hide anything.
+\begin{proof}
+  We must exhibit a pair of inverse functions between the given types.
+  A function from right to left is given by \[ f(n, \ptruncI e) =
+  \ptruncI{(n,e)}, \] where pattern matching on $\ptruncI e :
+  \ptrunc{A \equiv \Fin n}$ is shorthand for an application of the
+  recursion principle for propositional truncation.  Recall that this
+  recursion principle only applies in the case that the result is a
+  mere proposition; in this case, the result is itself a propositional
+  truncation which is a mere proposition by construction.
+
+  In the other direction, define \[ g(\ptruncI{(n, e)}) = (n,\ptruncI
+  e), \] which is clearly inverse to $f$.  It remains only to show
+  that the implicit use of recursion for propositional truncation is
+  justified, \ie that $(n : \N) \times \ptrunc{A
+    \equiv \Fin n}$ is a mere proposition.
+
+  We must show that any two values $(n_1, e_1), (n_2, e_2) : (n : \N)
+  \times \ptrunc{A \equiv \Fin n}$ are propositionally equal.  Since
+  $e_1$ and $e_2$ are mere propositions, it suffices to show that $n_1
+  = n_2$.  This equality is itself a mere proposition (since $\N$ is a
+  set, which follows from its induction principle), so we may apply
+  the recursion principle for propositional truncation to $e_1$ and
+  $e_2$, giving us equivalences $A \equiv \Fin n_1$ and $A \equiv \Fin
+  n_2$ to work with.  By symmetry and transitivity, $\Fin n_1 \equiv
+  \Fin n_2$, and thus $n_1 = n_2$ by \pref{lem:fin-iso-equal}.
+\end{proof}
+
+There is still one remaining problem, which is that $\FinTypeT'$ is
+not a $1$-type, and hence $\tygrpd{-}$ does not apply. To solve this
+we may simply restrict to $0$-types $A$ (which is arguably a more
+faithful encoding of the situation in set theory anyway). This yields
+our final definition:
+
+\begin{defn}
+  The type of finite sets is given by \[ \FinTypeT \defeq (A : \Type)
+  \times \isSet(A) \times \isFinite(A), \] where \[ \isFinite(A)
+  \defeq \ptrunc{(n : \N) \times (A \equiv \Fin n)}. \]
+\end{defn}
+We will often abuse notation and write $A : \FinTypeT$ instead of
+$(A,s,f) : \FinTypeT$ where $s : \isSet(A)$ and $f : \isFinite(A)$.
+Since $\isSet(A)$ and $\isFinite(A)$ are mere propositions, paths
+between $\FinTypeT$ values are characterized by paths between their
+underlying types. Since those types must be sets, \ie $0$-types,
+$\FinTypeT$ is consequently a $1$-type.
+
+\begin{defn}
+  $\BT$ is defined by \[ \BT \defeq \tygrpd{\FinTypeT}, \] the
+  groupoid of cardinal-finite types and paths bewteen them.
+\end{defn}
+
+% It is worth pointing out that with this definition of $\BT$, we have
+% ended up with something akin to the category of specifications
+% $\Spec_{\size{}}$ used to define the anafunctor $\size : \B \to \P$ in
+% \pref{sec:finiteness-sets}, rather than something corresponding
+% directly and na\"ively to $\B$ itself. The main difference is that
+% $\BT$ uses a propositional truncation to ``hide'' the explicit choice
+% of finiteness evidence.
+
+We now turn to the equivalence of $\PT$ and $\BT$.
+
+\begin{defn}
+  We can easily define a functor $\fin - : \PT \to \BT$: on objects,
+  it sends $n$ to $\Fin n$, along with proofs that it is a set and
+  finite (using the identity equivalence for the latter).  On
+  morphisms, it sends $f : \Fin m \equiv \Fin n$ to $\ua\ f : \Fin m =
+  \Fin n$.
+\end{defn}
+
+However, it is not at all obvious how to directly define a functor
+$\size : \BT \to \PT$. Just as with $\B \to \P$, defining its action
+on morphisms requires a specific choice of equivalence $A \equiv \Fin
+n$. The objects of $\BT$ contain such equivalences, in the proofs of
+finiteness, but they are propositionally truncated; the type of
+functors $\BT \to \PT$ is decidedly not a mere proposition, so it
+seems the recursion principle for truncation does not apply.
+
+However, all is not lost!  We could try porting the concept of
+anafunctor into HoTT, but it turns out that there is a better way.
+Recall that in set theory, every fully faithful, essentially
+surjective functor is an equivalence \emph{if and only if} the axiom
+of choice holds.  In HoTT the situation turns out much better, thanks
+to the richer notion of equality and the extra axiom associated with a
+category.
+
+\begin{lem}
+  $\fin - : \PT \to \BT$ is full and faithful.
+\end{lem}
+\begin{proof}
+  For any $m, n : \PT$, we must exhibit an equivalence between
+  $(\hom[\PT] m n) \jeq (\Fin m \equiv \Fin n)$ and $\hom[\BT] {\fin
+    m} {\fin n} \jeq (\fin m = \fin n) \equiv (\Fin m = \Fin
+  n)$---such an equivalence is given by univalence.
+\end{proof}
+
+There are two relevant notions of essential surjectivity:
+
+\begin{defn}
+  A functor $F : \CT \to \DT$ between precategories $\CT$ and $\DT$ is
+  \term{split essentially surjective} if for each object $D : \DT$
+  there \emph{constructively} exists an object $C : \CT$ such that $F\
+  C \iso D$. That is, \[ \msf{splitEssSurj}(F) \defeq (D : \DT) \to (C :
+  \CT) \times (F\ C \iso D). \]
+\end{defn}
+
+\begin{defn}
+  A functor $F : \CT \to \DT$ between precategories $\CT$ and $\DT$ is
+  \term{essentially surjective} if for each object $D : \DT$ there
+  \emph{merely} exists an object $C : \CT$ such that $F\ C \iso D$. That
+  is, \[ \msf{essSurj}(F) \defeq (D : \DT) \to \ptrunc{ (C : \CT)
+    \times (F\ C \iso D) }. \]
+\end{defn}
+
+It turns out that being split essentially surjective is a rather
+strong notion.  In particular:
+
+\begin{prop}
+  For any precategories $\CT$ and $\DT$ and a functor $F : \CT \to
+  \DT$, $F$ is fully faithful and split essentially surjective if and
+  only if it is an equivalence.
+\end{prop}
+\begin{proof}
+  See the HoTT book~\citep[Lemma 9.4.5]{hottbook}.  Intuitively, the
+  \emph{split} essential surjectivity gives us exactly what we need to
+  unambiguously \emph{construct} an inverse functor $G : \DT \to \CT$:
+  the action of $G$ on $D : \DT$ is defined to be the $C$---which
+  exists constructively---such that $F\ C \iso D$.
+\end{proof}
+
+That is, a fully faithful, essentially surjective functor is an
+equivalence given AC; a fully faithful, \emph{split} essentially
+surjective functor is an equivalence \emph{without} AC.
+
+\begin{prop}
+  $\fin -$ is essentially surjective.
+\end{prop}
+\begin{proof}
+  Given $(S,s,f) : \BT$, we must show that there merely exists some $n
+  : \PT$ such that $\fin n \iso S$---but this is precisely the
+  content of the $\isFinite$ proof $f$.
+\end{proof}
+
+On the other hand, it would seem that $\fin -$ is not split
+essentially surjective, since that would require extracting finiteness
+proofs from the propositional truncation, which is not allowed in
+general.  However:
+
+\begin{prop}[\protect{\citep[Lemma 9.4.7]{hottbook}}]
+  If $F : \CT \to \DT$ is fully faithful and $\CT$ is a category, then
+  for any $D : \DT$ the type $(C : \CT) \times (F\ C \iso D)$ is a
+  mere proposition.
+\end{prop}
+
+\begin{proof}[Proof (sketch)]
+  From $F\ C \iso D$ and $F\ C' \iso D$ we derive $F\ C \iso F\
+  C'$, and thus $C \iso C'$ (since $F$ is fully faithful), and $C =
+  C'$ (since $\CT$ is a category).  The transport of the isomorphism
+  $(F\ C \iso D)$ along this derived path $C = C'$ is precisely the
+  isomorphism $(F\ C' \iso D)$.
+\end{proof}
+
+Intuitively, for a fully faithful functor $F : \CT \to \DT$ out of a
+category $\CT$, there is ``only one way'' for some object $D : \DT$ to
+be isomorphic to the image of an object of $\CT$.  That is, if it is
+isomorphic to the image of multiple objects of $\CT$, then those
+objects must in fact be equal.
+
+This brings us to the punchline:
+
+\begin{cor}
+  If $\CT$ is a category, a fully faithful functor $F : \CT \to \DT$
+  is essentially surjective if and only if it is split essentially surjective.
+\end{cor}
+
+Thus, since $\fin -$ is a fully faithful and essentially surjective
+functor out of a category, it is in fact \emph{split} essentially
+surjective and thus an equivalence.  In particular, it has an inverse
+(up to natural isomorphism) which we call $\size : \BT \to \PT$.
+
+The larger intuition here is about an answer to the question: when can
+one define a function $\ptrunc{A} \to B$, when $B$ is \emph{not} a
+mere proposition?  When $B$ is a mere proposition, it suffices to give
+a function $A \to B$.  On the other hand, if $B$ is not a mere
+proposition, it may seem that there is no useful way to construct a
+function $\ptrunc{A} \to B$.  However, this is not true: if one can
+\emph{uniquely characterize} a particular value of $B$---that is,
+create a mere proposition $(b : B) \times Q(b)$---one can then define
+a function $\ptrunc{A} \to (b : B) \times Q(b)$ from a function $A \to
+(b : B) \times Q(b)$, and finally project out the $B$ to obtain a
+function $\ptrunc A \to B$.  This ``trick'' is detailed in the HoTT
+book~\citep[\Sect 3.9]{hottbook}; Exercise 3.19 is an excellent
+exercise that also affords some good intuition for this phenomenon.
+
+Computationally speaking, $\size : \BT \to \PT$ does precisely what we
+thought was not allowed---its action on morphisms works by extracting
+concrete equivalences out of the finiteness proofs in the objects of
+$\BT$ and using them to construct the required permutation, just as in
+the construction of the anafunctor $\size : \B \to \P$ in
+\pref{sec:finiteness-sets}.  Indeed, we are not allowed to project
+finiteness evidence out from the propositional truncation when
+defining \emph{arbitrary} functors $\BT \to \PT$.  However, we are not
+interested in constructing \emph{any old} functor, but rather a very
+specific one, namely, an inverse to $\fin - : \PT \to \BT$---and the
+inverse is uniquely determined.  In essence, the construction of
+$\size$ proceeds by first constructing a functor paired with a proof
+that, together with $\fin -$, it forms an equivalence---altogether a
+mere proposition---and then projecting out the functor.
+
+When working with species as founded in HoTT, therefore, we are fully
+justified in working with them as functors from finite sets of labels,
+or from natural number sizes, as convenient---the equivalence $\BT
+\iso \PT$ is entirely constructive and allows species to be
+converted back and forth between the two views.
+
+\todo{Finiteness.}
+\todo{Definition of species in HoTT.}
+\todo{Examples. Note we can define various atomic species as HITs.}
+
+\section{Lifted monoids: sum and Cartesian product}
+\label{sec:lifted}
+
+Two of the simplest operations on species are the \emph{sum} and
+\emph{Cartesian product}.  As we will see, these operations are
+structurally analogous: the only difference is that species sum arises
+from coproducts in $\Set$ (disjoint union), whereas the Cartesian
+product of species arises from products in $\Set$.
+
+\subsection{Species sum}
+
+The \emph{sum} of two species is given by their disjoint
+union: an $(F + G)$-shape is either an $F$-shape \emph{or} a
+$G$-shape (together with a tag so we can tell which).
+
+\begin{defn}
+  Given $F, G : \B \to \Set$, $F + G$ is
+  defined on objects by \[ (F + G)\ L \defeq F\ L \uplus G\ L, \] where 
+  $\uplus$ denotes disjoint union (coproduct) of
+  sets, and the action on morphisms \[ (F + G)\
+  \sigma \defeq F\ \sigma \uplus G\ \sigma, \] where $\uplus$ is
+  considered as a bifunctor in the evident way. 
+  % $(f \uplus g)\ (\inl\ x)
+  % = \inl\ (f\ x)$ and $(f \uplus g)\ (\inr\ y) = \inr\ (g\ y)$.
+\end{defn}
+
+Thinking of species as functors in $[\P, \Set]$, we may
+say that an $(F+G)$-shape of size $n$ is either an $F$-shape of size
+$n$ or a $G$-shape of size $n$.
+
+%   \begin{figure}
+%     \centering
+%     \begin{diagram}[width=250]
+% import SpeciesDiagrams
+
+% theDia
+%   = hcat' (with & sep .~ 1)
+%     [ struct 5 "F+G"
+%     , text' 1 "="
+%     , vcat
+%       [ struct 5 "F"
+%       , text' 0.5 "OR"
+%       , struct 5 "G"
+%       ]
+%       # centerY
+%     ]
+
+% dia = theDia # centerXY # pad 1.1
+%     \end{diagram}
+%     \caption{Species sum}
+%     \label{fig:sum}
+%   \end{figure}
+
+\begin{defn}
+  The \term{zero} or \term{empty} species,
+  $\Zero$, is the unique species with no shapes whatsoever.  That is,
+  on objects,
+    $\Zero\ L \defeq \varnothing$,
+  and on morphisms $\Zero$ sends every $\sigma$ to the unique function
+  $\varnothing \to \varnothing$.
+\end{defn}
+
+% As a simple example, the species $\One + \X$ corresponds to the
+% familiar |Maybe| type from Haskell, with $\lab{\inl} \lab{\One}$
+% playing the role of |Nothing| and $\lab{\inr} \comp \lab{\cons{x}}$
+% playing the role of |Just|.  Note that $\LStr {\One + \X} L A$ is
+% only inhabited for certain $L$ (those of size $0$ or $1$), and moreover that
+% this size restriction determines the possible structure of an
+% inhabitant.
+%
+% Note, can't include the above if we haven't talked about 1 or X
+% yet.  And I now think a better way to organize things is by talking
+% about each fundamental monoidal construction along with its unit.
+% As for introduction forms, it's pretty trivial.
+
+One can check that $(+,\Zero)$ gives a symmetric monoidal structure
+to $[\B, \Set]$.
+Stepping back a bit, we can see that this monoidal structure on
+species arises straightforwardly from the corresponding monoidal
+structure on sets: the sum of two functors is defined as the pointwise
+sum of their outputs, and likewise \Zero, the identity for the sum of
+species, is defined as the functor which pointwise
+returns $\varnothing$, the identity for the coproduct of sets.  This general
+construction will be spelled out in \pref{sec:lifting-monoids}; but
+first, we turn to the formally similar operation of \emph{Cartesian
+  product}.
+
+\subsection{Cartesian/Hadamard product}
+\label{sec:cartesian}
+
+$\Set$ also has products, given by $S \times
+T = \{ (s,t) \mid s \in S, t \in T \}$, with any one-element set as
+the identity. (We may suppose there is some canonical
+choice of one-element set, $\{\star\}$; this is justified since all
+one-element sets are isomorphic in \Set.)
+\begin{defn}
+  The \term{Cartesian} or \term{Hadamard product} of species, is defined on
+  objects by $ (F \times G)\ L = F\ L \times G\ L. $
+\end{defn}
+An $(F \times G)$-shape is both an $F$-shape \emph{and} a $G$-shape,
+on \emph{the same set of labels}.  There are several ways to think
+about this situation, as illustrated in \pref{fig:Cartesian-product}.
+One can think of two distinct shapes, with labels duplicated between
+them; one can think of the labels as \emph{pointers} or \emph{labels}
+for locations in a shared memory;
+%% (to be explored more in \pref{sec:sharing})
+or one can think of the shapes themselves as being superimposed.
+
+\begin{figure}
+  \centering
+  \begin{diagram}[width=380]
+import           Data.Bits
+import           Data.List.Split
+import           Diagrams.TwoD.Layout.Tree
+import           Diagrams.TwoD.Path.Metafont
+
+import           SpeciesDiagrams
+
+mkLeaf :: IsName n => Diagram B R2 -> n -> Diagram B R2
+mkLeaf shp n = shp # fc white # named n
+
+tree2 nd
+  = maybe mempty (renderTree nd (~~))
+  . symmLayoutBin' (with & slVSep .~ 4 & slHSep .~ 6)
+  $ (BNode (1 :: Int) (BNode 2 (BNode 3 Empty (BNode 4 Empty Empty)) Empty) (BNode 5 (BNode 6 Empty Empty) (BNode 7 Empty Empty)))
+
+listL nd n = hcat . map nd $ [1 :: Int .. n]
+
+connectAll l1 l2 n perm =
+  withNames (map (l1 .>) [1 :: Int .. n]) $ \l1s ->
+  withNames (map (l2 .>) [1 :: Int .. n]) $ \l2s ->
+  applyAll (zipWith conn l1s (perm l2s))
+
+conn l1 l2 = beneath (lc grey . metafont $ location l1 .- leaving unit_Y <> arriving unit_Y -. endpt (location l2))
+
+-- (mkLeaf shp . (l .>))
+
+sharedMem = vcat' (with & sep .~ 3)
+  [ hcat' (with & sep .~ 1)
+    [ tree2 (mkLeaf (circle 1) . ("l1" .>)) # centerY
+    , listL (mkLeaf (circle 1) . ("l2" .>)) 7 # centerY
+    ] # centerXY
+  , listL (mkLeaf (square 2) . ("s" .>)) 7 # centerXY
+  ]
+  # connectAll "l1" "s" 7 perm1
+  # connectAll "l2" "s" 7 perm2
+  # centerXY # pad 1.1
+
+perm1 = id
+perm2 = concat . map reverse . chunksOf 2
+
+asFun :: ([Int] -> [Int]) -> Int -> Int
+asFun perm i = perm [1..7] !! (i - 1)
+
+numbering = vcat' (with & sep .~ 3)
+  [ tree2 numbered # centerX
+  , listL (numbered . asFun perm2) 7 # centerX
+  ]
+  where
+    numbered n = mkLeaf (text (show n) # fc black <> circle 1) ()
+
+super = tree2 (mkLeaf (circle 1))
+  # cCurve 2 1 (1/4 @@ turn)
+  # cStr   1 4
+  # cCurve 4 3 (1/2 @@ turn)
+  # cStr   3 6
+  # cCurve 6 5 (1/4 @@ turn)
+  # cCurve 5 7 (0 @@ turn)
+  where
+    cCurve :: Int -> Int -> Angle -> Diagram B R2 -> Diagram B R2
+    cCurve n1 n2 a =
+      connectPerim'
+        (aSty & arrowShaft .~ arc (0 @@ turn) (1/5 @@ turn) # reverseTrail)
+        n1 n2
+        a (a ^+^ (1/4 @@ turn))
+    cStr :: Int -> Int -> Diagram B R2 -> Diagram B R2
+    cStr   = connectOutside' aSty
+    aSty   = with & shaftStyle %~ dashing [0.3,0.3] 0 . lw 0.2
+                  & arrowHead .~ tri
+                  & headSize .~ 1
+
+dia
+  = frame 0.5 . centerXY . lw 0.1
+  . hcat' (with & sep .~ 2) . map centerXY
+  $
+  [ numbering
+  , sharedMem
+  , super
+  ]
+  \end{diagram}
+  %$
+  \caption{Three views on Cartesian product of species}
+  \label{fig:Cartesian-product}
+\end{figure}
+
+\begin{defn}
+  The species of \emph{sets}, $\E$, is defined as the constant functor
+  yielding $\{\star\}$, that is, $\E\ L = \{\star\}$.
+\end{defn}
+
+\begin{rem}
+  $\E$ is called the \term{species of sets} since there is
+  exactly one structure on any set of labels, which can be
+  thought of as the set of labels itself, with no additional
+  structure.  In fact, as all one-element sets are isomorphic, we
+  may define $\E\ L = \{L\}$.
+\end{rem}
+
+\begin{prop}
+  Up to isomorphism, $\E$ is the identity for Cartesian product.
+\end{prop}
+
+\subsection{Lifting monoidal structure}
+\label{sec:lifting-monoids}
+
+Both these constructions generalize readily.  
+\begin{prop}
+Any monoidal structure $(\otimes, I, \alpha, \lambda, \rho)$ on a category
+$\Str$ lifts pointwise to a monoidal structure $(\lotimes,
+\lifted I, \lifted \alpha, \lifted \lambda, \lifted \rho)$ on 
+$[\Lab, \Str]$.
+\end{prop}
+\noindent The basic idea is exactly the same as the standard Haskell type class
+instance \verb|Monoid a => Monoid (e -> a)|.
+% \begin{spec}
+% instance Monoid a => Monoid (e -> a) where
+%   mempty         = \ _ -> mempty
+%   f `mappend` g  = \a -> f a `mappend` g a
+% \end{spec}
+%but quite a bit more general.  We omit the precise details, partly in
+%the interest of space, and partly because the details are
+%straightforward.  
+% For the present purposes the intuition given by the
+% above Haskell code should suffice; to understand the basic intuition
+% behind the proof, the reader may enjoy proving that the above |Monoid|
+% instance for |e -> a| satisfies the monoid laws if the instance for
+% |a| does.
+
+% \begin{prop}
+%   The monoidal lifting defined above preserves the following properties:
+%   \begin{itemize}
+%   \item If $\otimes$ is symmetric, so is $\lotimes$.
+%   \item If $\otimes$ is a categorical product, so is $\lotimes$.
+%   \item If $\otimes$ is a categorical coproduct, so is $\lotimes$.
+%   \end{itemize}
+% \end{prop}
+
+\scw{Say something like, ``thus we define the generalized versions of species
+  sum and the empty species'' to make it explicit?} \bay{I am not sure
+  what you mean.}\scw{I mean to make the definition of the generalized
+  species sum more explicit. Here its defined informally and indirectly, so it
+  is easy to miss the definition altogether.}\jc{I agree.  Let's hope we will
+  have room to do this}
+
+\begin{ex}
+  We note that lifting coproducts in $\Set$ to $[\B,\Set]$ yields the $(+,
+  \Zero)$ structure on species, and likewise lifting products yields $(\times,
+  \E)$, Cartesian product.
+\end{ex}
+% Since $(\uplus,\varnothing)$ is a coproduct structure on $\Set$, it
+% follows that $(+, \Zero)$ is in fact a coproduct structure on the
+% category $[\B,\Set]$ of species, and likewise $(\times, \One)$ is a
+% categorical product.
+
+\begin{ex}
+  In $\Type$, the coproduct of two types $A$ and $B$ is given by their
+  sum, $A + B$, with the void type $\TyZero$ serving as the identity.
+  We may thus lift this coproduct structure to the functor category
+  $[\BT, \Type]$---or indeed to any $[\Lab, \Type]$, since no
+  requirements are imposed on the domain category.
+\end{ex}
+
+\begin{ex}
+  Similarly, categorical products in $\Type$ are given by product
+  types $A \times B$, with the unit type $\TyOne$ as the identity.
+  This then lifts to products on $[\BT,\Type]$ (or, again, any
+  $[\Lab,\Type]$) which serve as an analogue of Cartesian product of
+  species.
+\end{ex}
+
+\section{Day convolution: arithmetic and partitional product}
+\label{sec:Day-convolution}
+
+There is another notion of product for species, the \term{partitional}
+or \term{Cauchy} product.  It it is the partitional product, rather
+than Cartesian product, which corresponds to the product of generating
+functions and which gives rise to the usual notion of product on
+algebraic data types.  For these reasons, partitional product is often
+simply referred to as ``product'', without any modifier.
+
+There is also another less well-known product, \term{arithmetic
+  product} \citep{Maia2008arithmetic}, which can be thought of as a
+symmetric form of composition.  These two products arise in an
+analogous way, via a categorical construction known as \emph{Day
+  convolution}.
+
+\subsection{Partitional/Cauchy product}
+\label{sec:partitional-product}
+
+
+The partitional product $F \sprod G$ of two species $F$ and $G$
+consists of paired $F$- and $G$-shapes, as with the Cartesian product,
+but with the labels \emph{partitioned} between the two shapes instead
+of replicated (\pref{fig:product}).
+
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=250]
+import           Data.List.Split
+import           Diagrams.TwoD.Layout.Tree
+import           Diagrams.TwoD.Path.Metafont
+
+import           SpeciesDiagrams
+
+connectAll l1 l2 n =
+  withNames (map (l1 .>) [0 :: Int .. n-1]) $ \l1s ->
+  withNames (map (l2 .>) [0 :: Int .. n-1]) $ \l2s ->
+  applyAll (zipWith conn l1s l2s)
+
+conn l1 l2 = beneath (lc grey . metafont $ location l1 .- leaving unit_Y <> arriving unit_Y -. endpt (location l2))
+-- $
+
+sharedMem = vcat' (with & sep .~ 5)
+  [ hcat' (with & sep .~ 3)
+    [ wideTree (mkLeaf (circle 1) . ("l" .>) . (part1!!)) sampleBTree5 # centerY
+    , drawList (mkLeaf (circle 1) . ("l" .>) . (part2!!)) 3 # centerY
+    ] # centerXY
+  , drawList (mkLeaf (square 2) . ("s" .>)) 8 # centerXY
+  ]
+  # connectAll "l" "s" 8
+  # centerXY # pad 1.1
+
+perm1 = id
+perm2 = id
+
+part1, part2 :: [Int]
+part1 = [3,0,1,2,6]
+part2 = [5,4,7]
+
+numbering = hcat' (with & sep .~ 3) . map centerXY $  -- $
+  [ wideTree (numbered . (part1!!)) sampleBTree5 # centerX
+  , drawList (numbered . (part2!!)) 3 # centerX
+  ]
+  where
+    numbered n = mkLeaf (text (show n) # fc black <> circle 1) ()
+
+dia
+  = frame 0.5 . lwO 0.7 . centerXY
+  . vcat' (with & sep .~ 4) . map centerXY
+  $
+  [ numbering
+  , sharedMem
+  ]
+    \end{diagram}
+    %$
+
+%     \begin{diagram}[width=250]
+% import SpeciesDiagrams
+
+% theDia
+%   = hcat' (with & sep .~ 1)
+%     [ struct 5 "F•G"
+%     , text' 1 "="
+%     , vcat' (with & sep .~ 0.2)
+%       [ struct 2 "F"
+%       , struct 3 "G"
+%       ]
+%       # centerY
+%     ]
+
+% dia = theDia # centerXY # pad 1.1
+%     \end{diagram}
+    \caption{Partitional species product}
+    \label{fig:product}
+  \end{figure}
+
+\begin{defn}
+  The \term{partitional} or \term{Cauchy product} of two species $F$
+  and $G$ is the functor defined on objects by \[ (F \sprod G)\ L =
+  \biguplus_{L_F,L_G \partition L} F\ L_F \times G\ L_G \] where
+  $\biguplus$ denotes an indexed coproduct of sets, and $L_F,L_G
+  \partition L$ denotes that $L_F$ and $L_G$ constitute a partition of
+  $L$, (\ie $L_F \union L_G = L$ and $L_F \intersect L_G =
+  \varnothing$).
+
+  On morphisms, $(F \cdot G)\ \sigma$ is the function which sends \[
+  (L_F,L_G, x, y) \mapsto (\sigma\ L_F, \sigma\ L_G, F\ (\sigma
+  \vert_{L_F})\ x, G\ (\sigma \vert_{L_G})\ y), \] where $L_F,L_G
+  \partition L$, $x \in F\ L_F$, and $y \in G\ L_G$.
+\end{defn}
+
+The identity for partitional product should evidently be some species
+$\One$ such that \[ (\One \cdot G)\ L = \left(\biguplus_{L_F,L_G
+    \partition L} \One\ L_F \times G\ L_G \right) \equiv G\ L. \] The only
+way for this isomorphism to hold naturally in $L$ is if $\One\
+\varnothing = \singleton$ (yielding a summand of $G\ L$ when
+$\varnothing,L \partition L$) and $\One\ L_F = \varnothing$ for all other $L_F$
+(cancelling all the other summands).
+
+\begin{defn}
+  The \term{unit species}, $\One$, is defined by
+  \[ \One\ L =
+  \begin{cases}
+    \singleton & L = \varnothing \\
+    \varnothing & \text{otherwise}.
+  \end{cases}
+  \]
+\end{defn}
+
+\begin{rem}
+  The unit species denotes a sort of ``trivial'' or ``leaf'' structure
+  containing no labels.  Intuitively, it corresponds to a Haskell type
+  like |data Unit a = Unit|.
+\end{rem}
+
+\todo{Examples.  Pairs, lists, trees, $X \cdot E$.} \bay{But $\X$
+  hasn't been introduced yet\dots put examples later, after arithmetic
+  product section?  Have a separate section of examples?}
+
+\subsection{Arithmetic product}
+\label{sec:arithmetic-product}
+
+\newcommand{\aprod}{\boxtimes}
+
+There is another, more recently discovered monoidal structre on
+species known as \emph{arithmetic product} \citep{Maia2008arithmetic}.
+The arithmetic product of species $F$ and $G$, written $F \aprod G$,
+can intuitively be thought of as an ``$F$-assembly of cloned
+$G$-shapes'', that is, an $F$-shape containing multiple copies of a
+\emph{single} $G$-shape.  Unlike the usual notion of composition
+(\pref{sec:composition}), where the $F$-shape would be allowed to
+contain many different $G$-shapes, this notion is symmetric: an
+$F$-assembly of cloned $G$-shapes is isomorphic to a $G$-assembly of
+cloned $F$-shapes.  Another intuitive way to think of the arithmetic
+product, which points out the symmetry more clearly, is to think of a
+rectangular matrix of labels, together with an $F$-shape labelled by
+the rows of the grid, and a $G$-shape labelled by the
+columns. \pref{fig:arithmetic-product} illustrates these intuitions
+with the arithmetic product of a tree and a list.
+
+\begin{figure}
+  \centering
+  \begin{diagram}[width=250]
+import           Diagrams.TwoD.Layout.Tree
+import           SpeciesDiagrams
+
+grays  = map (\k -> blend k black white) [0, 0.2, 0.8, 1, 0.5]
+shapes = [circle 0.2, triangle 0.4, square 0.4]
+
+grid = vcat' (with & sep .~ 0.5)
+  [ tree3 (\n -> mkLeaf (circle 0.4 # fc (grays !! n)) n) # translateX 3.4
+  , hcat' (with & sep .~ 0.5)
+    [ list2 (\n -> (mkLeaf ((shapes !! n) # rotateBy (1/4) <> circle 0.4) n)) # rotateBy (3/4)
+    , theGrid
+    ]
+  ]
+  where
+    theGrid :: Diagram B R2
+    theGrid = vcat . map hcat $
+      [ [ (shapes !! i) # fc (grays !! j) <> square 1
+        | j <- [1,0,3,2,4]
+        ]
+      | i <- [0..2]
+      ]
+
+assembly1 =
+  tree3 (mkLeaf $ enrect (list2 (mkLeaf (circle 0.4)) # centerX # scale 0.5))
+
+assembly2 = hcat' (with & sep .~ 0.4)
+  (map (fc white . enrect . (mkLeaf (tree3 (mkLeaf (circle 0.4)) # centerXY # scale 0.5))) [0 .. 2 :: Int])
+  <>
+  hrule 7 # alignL
+
+enrect d = d <> roundedRect (width d + 0.2) (height d + 0.2) 0.2
+
+tree3 nd
+  = maybe mempty (renderTree nd (~~))
+  . uniqueXLayout 1 1
+  $ sampleBTree5
+
+list2 nd = hcat' (with & sep .~ 1 & catMethod .~ Distrib)
+  (map nd [0 :: Int .. 2])
+  <>
+  hrule 2 # alignL
+  where
+    aSty = with & arrowHead .~ noHead
+
+dia = frame 0.2 . lwO 0.7 . centerXY . vcat' (with & sep .~ 2) . map centerXY $
+  [ assembly1 # scale 1.3
+  , assembly2
+  , grid
+  ]
+  \end{diagram}
+  \caption{Three views on arithmetic product of species}
+  \label{fig:arithmetic-product}
+\end{figure}
+
+A more formal definition requires the notion of a \term{rectangle} on
+a set~\citep{Maia2008arithmetic, XXX}, which plays a role similar to
+that of set partition in the definition of partitional product. (So
+perhaps arithmetic product ought to be called \emph{rectangular
+  product}.)  In particular, whereas a binary partition of a set $L$
+gives a canonical decomposition of $L$ into a sum, a rectangle on $L$
+gives a canonical decomposition into a product.  The basic idea is to
+partition $L$ in two different ways, and require the partitions to act
+like the ``rows'' and ``columns'' of a rectangular matrix.
+
+\begin{defn}[\citet{Maia2008arithmetic}]
+  \label{defn:rectangle}
+  A \term{rectangle} on a set $L$ is a pair $(\pi, \tau)$ of families
+  of subsets of $L$, such that
+  \begin{itemize}
+  \item $\pi \partition L$ and $\tau \partition L$, and
+  \item $|X \intersect Y| = 1$, for all $X \in \pi$, $Y \in \tau$.
+  \end{itemize}
+  Here, $\pi \partition L$ denotes that $\pi$ is a partition of $L$
+  into any number of nonempty parts, that is, the elements of $\pi$
+  are nonempty, pairwise disjoint, and have $L$ as their union.  We
+  write $\pi,\tau \rectangle L$ to denote that $(\pi,\tau)$ constitute
+  a rectangle on $L$, and call $\pi$ and $\tau$ the \term{sides} of
+  the rectangle.
+\end{defn}
+
+We can now formally define arithmetic product as follows:
+
+\begin{defn}
+  The \term{arithmetic product} $F \aprod G$ of two species $F$ and
+  $G$ is the species defined on objects by \[ (F \aprod G)\ L =
+  \biguplus_{L_F, L_G \rectangle L} F\ L_F \times G\ L_G. \]
+
+  $(F \aprod G)$ lifts bijections $\sigma : L \bij L'$ to functions
+  $(F \aprod G)\ L \to (F \aprod G)\ L'$ as follows: \[ (F \aprod G)\
+  \sigma\ (L_F, L_G, f, g) = (\powerset(\sigma)\ L_F,
+  \powerset(\sigma)\ L_G, F\ \powerset(\sigma)\ L_F, G\
+  \powerset(\sigma)\ L_G), \] where $\powerset(\sigma) : \powerset(L)
+  \bij \powerset(L')$ denotes the functorial lifting of $\sigma$ to a
+  bijection between subsets of $L$ and $L'$.
+\end{defn}
+
+\begin{rem}
+  The similarity of this definition to the definition of partitional
+  product should be apparent: the only difference is that rectangles
+  ($L_F,L_G \rectangle L$) have been substituted for partitions
+  ($L_F,L_G \partition L$).
+\end{rem}
+
+An identity element for arithmetic product should be some species $\X$
+such that \[ (\X \aprod G)\ L = \left(\biguplus_{L_\X, L_G \rectangle L} \X\
+L_\X \times G\ L_G\right) \iso G\ L. \] Thus we want $\X\ L_\X = \singleton$
+when $L_\X, L \rectangle L$ and $\X\ L_\X = \varnothing$ otherwise.
+Consider $L_\X, L \rectangle L$.  Of course, $L$ does not have the
+right type to be one side of a rectangle on itself, but it is
+isomorphic to the set of all singleton subsets of itself, which does.
+The definition of a rectangle now requires every element of $L_\X$ to
+have a nontrivial intersection with every singleton subset of $L$
+(such intersections will automatically have size $1$).  Therefore
+$L_\X$ has only one element, namely, $L$ itself, and is isomorphic to
+$\singleton$.  Intuitively, $\singleton, L \rectangle L$ corresponds
+to the fact that we can always make a $1 \times n$ rectangle on any
+set of size $n$, that is, any number $n$ can be ``factored'' as $1
+\times n$.
+
+This leads to the following definition:
+\begin{defn}
+  The \term{singleton species}, $\X$, is defined by \[ \X\ L =
+  \begin{cases}
+    \singleton & |L| = 1 \\
+    \varnothing & \text{otherwise}.
+  \end{cases}
+  \]
+\end{defn}
+
+\todo{More intuitive ideas about $\X$.}
+
+\todo{Examples. $\List \aprod \List$.}
+
+\subsection{Day convolution}
+\label{sec:day-convolution}
+
+Just as sum and Cartesian product were seen to arise from the same
+construction applied to different monoids, both partitional and
+arithmetic product arise from \emph{Day convolution}, applied to
+different monoidal structures on $\B$.
+
+The essential idea, first described by Brian
+Day~\cite{day1970closed}, is to construct a monoidal structure on a
+functor category $[\Lab^\op, \Str]$ based primarily on a monoidal
+structure on the \emph{domain} category $\Lab$.  In particular, Day
+convolution requires
+\begin{itemize}
+\item a monoidal structure $\oplus$ on the domain $\Lab$;
+\item that $\Lab$ be \emph{enriched over} $\Str$, \ie\ for any two
+  objects $L_F,L_G \in \Lab$ there is a hom-object $\Lab(L_F,L_G) \in
+  \Str$ rather than a set, with approrpiate coherent notions of
+  composition and identity morphisms;
+\item a symmetric monoidal structure $\otimes$ on the codomain $\Str$;
+\item that $\Str$ be cocomplete, and in particular
+  have coends over $\Lab$.
+\end{itemize}
+
+\todo{Note that any small category can be seen as $V$-enriched, for
+  symmetric monoidal (closed?) $V$, by composing $hom$ with functor
+  $\Set \to V$ that sends $U$ to $U$-indexed product of $I$.  Does
+  this assume AC or anything?}
+
+Note that any monoidal structures will do; in particular there is no
+requirement that $\oplus$ be ``sum-like'' or $\otimes$
+``product-like'', though that is indeed the case for partitional
+product.
+
+\begin{defn}
+  Given the above conditions, the Day convolution product of $F, G \in
+  [\Lab^\op, \Str]$ is given by the coend \[ (F \oast G)\ L = \coend{L_F, L_G}
+  F\ L_F \otimes G\ L_G \otimes (\Hom[\Lab]{L}{L_F \oplus L_G}). \]
+\end{defn}
+
+\begin{rem}
+  Since groupoids are self-dual, we may ignore the $-^\op$ in the
+  common case that $\Lab$ is a groupoid.
+\end{rem}
+
+\begin{rem}
+  Note that there are only covariant occurrences of $L_F$ and $L_G$ in
+  the above definition, which simplifies the definition of the
+  coend. \todo{flesh out}
+\end{rem}
+
+This operation is associative, and has as a unit $j(I)$ where $I$ is
+the unit for $\oplus$ and $j : \Lab \to [\Lab^{\text{op}}, \Str]$ is the Yoneda
+embedding, that is, $j(L) = \Lab(-,L)$.
+
+\begin{ex}
+  Let's begin by looking at the traditional setting of $\Lab = \B$ and
+  $\Str = \Set$.  As noted in~\pref{sec:groupoids}, $\B$ has a
+  monoidal structure given by disjoint union of finite sets. $\B$ is
+  indeed enriched over $\Set$, which is also cocomplete and has a
+  symmetric monoidal structure given by Cartesian product.
+
+  Specializing the definition to this case, we obtain
+  \begin{align*}
+    (F \cdot G)(L) &= \coend{L_F, L_G} F\ L_F \times G\ L_G \times
+    (L \bij L_F \uplus L_G).
+  \end{align*}
+  Let $R \defeq \biguplus_{L_F, L_G} F\ L_F \times G\ L_G \times (L
+  \bij L_F \uplus L_G)$; elements of $R$ look like quintuples $(L_F, L_G,
+  f, g, i)$, where $f \in F\ L_F$, $g \in G\ L_G$, and $i : L \bij L_F
+  \uplus L_G$.  Then, as we have seen, the coend can be expressed as a
+  quotient $\quotient{R}{\sim}$, where every pair of bijections
+  $(\sigma_F : L_F \bij L_F', \sigma_G : L_G \bij L_G')$ induces an
+  equivalence of the form \[ (L_F, L_G, f, g, i) \sim (L_F',\; L_G',\;
+  F\ \sigma_F\ f,\; G\ \sigma_G\ g,\; i \then (\sigma_F \uplus
+  \sigma_G)). \] That is, $f \in F\ L_F$ is sent to $F\ \sigma_F\ f$
+  (the relabelling of $f$ by $\sigma_F$); $g \in G\ L_G$ is sent to
+  $G\ \sigma_G\ g$; and $i : L \bij L_F \uplus L_G$ is sent to $i ;
+  (\sigma_F \uplus \sigma_G) : L \bij L_F' \uplus L_G'$.
+
+  When are two elements of $R$ inequivalent, that is, when can we be
+  certain two elements of $R$ are not related by a pair of
+  relabellings?  Two elements $(L_{F1}, L_{G2}, f_1, g_1, i_1)$ and
+  $(L_{F2},L_{G2},f_2,g_2,i_2)$ of $R$ are unrelated if and only if
+  \begin{itemize}
+  \item $f_1$ and $f_2$ are unrelated by any relabelling, or
+  \item $g_1$ and $g_2$ are unrelated by any relabelling, or
+  \item $L_{F1}$ and $L_{G1}$ ``sit inside'' $L$ differently than $L_{F2}$ and
+    $L_{G2}$ in $L_2$, that is, $i_1^{-1}(L_{F1}) \neq i_2^{-1}(L_{F2})$.
+  \end{itemize}
+  The first two bullets are immediate; the third follows since a pair
+  of relabellings can permute the elements of $L_F$ and $L_G$
+  arbitrarily, or replace $L_F$ and $L_G$ with any other sets of the
+  same size, but relabelling alone can never change which elements of
+  $L$ correspond to $L_F$ and which to $L_G$, since that is preserved
+  by composition with a coproduct bijection $\sigma_F \uplus \sigma_G$.
+
+  Therefore, all the equivalence classes of $\quotient{R}{\sim}$ can
+  be represented canonically by a partition of $L$ into two disjoint
+  subsets, along with a choice of $F$ and $G$ structures, giving rise
+  to the earlier definition: \[ (F \sprod G)\ L =
+  \biguplus_{L_F,L_G \partition L} F\ L_F \times G\ L_G. \]
+
+  Also, in this case, the identity element is $j(I) = j(\varnothing) =
+  \B(-,\varnothing)$, that is, the species which takes as input a
+  label set $L$ and constructs the set of bijections between $L$ and
+  the empty set.  Clearly there is exactly one such bijection when $L
+  = \varnothing$, and none otherwise: as expected, this is the species
+  $\One$ defined in the previous section.
+\end{ex}
+
+\begin{ex}
+  Although $\B$ and $\P$ are equivalent, it is still instructive to
+  work out the general definition in the case of $\P$, particulary
+  because, as we have seen, proving $\B \iso \P$ requires the axiom
+  of choice.
+
+  We find that $\P$ has not just one but \emph{many} monoidal
+  structures corresponding to disjoint union.  The action of such a
+  monoid on objects of $\P$ is clear: the natural numbers $m$ and $n$
+  are sent to their sum $m + n$.  For the action on morphisms, we are
+  given $\sigma : \perm{(\Fin m)}$ and $\tau : \perm{(\Fin n)}$ and
+  have to produce some $\perm{(\Fin (m+n))}$.  However, there are many
+  ways to do this---in fact, one for every choice of \[ \varphi : \Fin
+  m \uplus \Fin n \bij \Fin (m + n), \] which specifies how to embed
+  $\{0, \dots, m-1\}$ and $\{0, \dots, n-1\}$ into $\{0, \dots,
+  m+n-1\}$.
+
+  Given such a $\varphi$, we may construct \[ \Fin (m+n)
+  \stackrel{\varphi^{-1}}{\bij} \Fin m \uplus \Fin n \stackrel{\sigma
+    \uplus \tau}{\bij} \Fin m \uplus \Fin n \stackrel{\varphi}{\bij}
+  \Fin (m+n), \] as illustrated in \pref{fig:sumiso}.
+
+  \begin{figure}
+    \centering
+    \begin{diagram}[width=200]
+{-# LANGUAGE DeriveDataTypeable         #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
+import           Data.Bits
+import           Data.List                      (find)
+import           Data.Maybe                     (fromJust)
+import           Data.Typeable
+import           Data.Universe.Instances.Base
+import           Diagrams.Prelude               hiding (tau)
+
+column
+  = vcat' (with & sep .~ 1)
+  . zipWith (|>) ['a' ..]
+  . map (\n -> vcat (zipWith named [0 :: Index ..] (replicate n (square 1))))
+
+newtype Index = Index Int
+  deriving (Eq, Ord, Show, Read, Real, Num, Integral, Bits, Enum, Typeable)
+
+instance IsName Index
+
+instance Universe Index where
+  universe = map Index [0..]
+
+phi :: Either Index Index -> Index
+phi (Left 0) = 1
+phi (Left 1) = 3
+phi (Left 2) = 4
+phi (Left 3) = 6
+phi (Right 0) = 0
+phi (Right 1) = 2
+phi (Right 2) = 5
+
+sigma :: Index -> Index
+sigma = (`xor` 1)
+
+tau :: Index -> Index
+tau = (`mod` 3) . succ
+
+either2Name :: Either Index Index -> Name
+either2Name (Left i) = 'a' .> i
+either2Name (Right i) = 'b' .> i
+
+inverse :: (Universe a, Eq b) => (a -> b) -> (b -> a)
+inverse f b = fromJust (find ((==b) . f) universe)
+
+dia =
+  (hcat' (with & sep .~ 2) . map centerY $ -- $
+     [ 'A' |> column [7]
+     , 'B' |> column [4,3]
+     , 'C' |> column [4,3]
+     , 'D' |> column [7]
+     ]
+   )
+   # applyAll [connect' aOpts ('A' .> 'a' .> i) ('B' .> n) | i <- [0..6], let n = either2Name (inverse phi i) ]
+   # applyAll [connect' aOpts ('B' .> 'a' .> i) ('C' .> 'a' .> sigma i) | i <- [0..3] ]
+   # applyAll [connect' aOpts ('B' .> 'b' .> i) ('C' .> 'b' .> tau i) | i <- [0..3] ]
+   # applyAll [connect' aOpts ('C' .> n) ('D' .> 'a' .> i) | i <- [0..6], let n = either2Name (inverse phi i) ]
+   # frame 0.5
+
+aOpts = with & gaps .~ (Local 0.2) & headLength .~ (Local 0.25)
+    \end{diagram}
+    \caption{$\Fin (m+n) \bij \Fin m \uplus \Fin n \bij \Fin m \uplus
+      \Fin n \bij \Fin (m+n)$}
+    \label{fig:sumiso}
+  \end{figure}
+
+  Conversely, given some functorial $q : \perm{(\Fin
+    m)} \to \perm{(\Fin n)} \to \perm{(\Fin (m+n))}$, we can recover
+  $\varphi$ by passing some transitive bijection (say, $\lam{i}{(i +
+    1) \bmod m}$) as the first argument to $q$, and $\id$ as the
+  second---the resulting permutation will modify those indices
+  which are matched with $\Fin m$, and fix those matched with $\Fin
+  n$. \todo{picture?}
+
+  The choice of $\varphi$ does not matter up to isomorphism---hence
+  this is where the axiom of choice can be invoked, in order to define
+  a single, canonical monoid structure on $\P$.  However, it is
+  preferable to simply retain a plethora of monoidal structures, each
+  indexed by a bijection $\varphi : \Fin m \uplus \Fin n \bij \Fin
+  (m+n)$ and denoted $+_\varphi$.
+
+  We may now instantiate the definition of Day convolution,
+  obtaining \[ (F \sprod G)_n = \coend{n_F, n_G} F_{n_F} \times G_{n_G}
+  \times (\Fin n \bij \Fin (n_F + n_G)). \] Again, letting $R \defeq
+  \biguplus_{n_F, n_G} F_{n_F} \times G_{n_G} \times (\Fin n \bij \Fin
+  (n_F + n_G))$, the coend is equivalent to $\quotient{R}{\sim}$,
+  where \[ (n_F, n_G, f, g, i) \sim (n_F, n_G,\;F\ \sigma_F\ f,\;G\
+  \sigma_G\ g,\;i \then (\sigma_F +_\varphi \sigma_G)) \] for any
+  $\sigma_F : \perm{(\Fin n_F)}$ and $\sigma_G : \perm{(\Fin
+    n_G)}$. \todo{Finish}
+\end{ex}
+
+\begin{ex}
+  There is another monoidal structure on $\B$ corresponding to the
+  Cartesian product of sets. If we instantiate the framework of Day
+  convolution with this product-like monoidal structure---but
+  keep everything else the same, in particular continuing to use
+  products on $\Set$---we obtain the arithmetic product.
+
+  \todo{Flesh out.  Derive $\X$ categorically.}
+\end{ex}
+
+\section{Composition}
+\label{sec:composition}
+
+\section{Analytic functors and labelled structures}
+\label{sec:analytic-labelled}
+
+\section{Related work}
+\label{sec:related-work}
+
+\section{Conclusion and future work}
+\label{sec:conclusion}
+
 
 \acks
 
