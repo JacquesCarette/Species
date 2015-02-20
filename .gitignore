@@ -27,3 +27,6 @@ dist/
 dist*
 *.errors
 papers/TempDiagram.*
+
+.cabal-sandbox
+cabal.sandbox.config
