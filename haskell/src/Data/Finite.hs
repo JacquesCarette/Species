@@ -19,18 +19,18 @@ module Data.Finite
     )
     where
 
-import           Data.Iso
-import           Control.Arrow ((***), (+++))
+import           Control.Arrow      ((***), (+++))
 import           Control.Lens
-import qualified Data.Void     as DV
-import           Data.Type.Equality
 import           Data.Fin
 import           Data.Fin.Isos
+import           Data.Iso
+import           Data.Proxy
+import           Data.Type.Equality
 import           Data.Type.Isos
 import           Data.Type.Nat
-import           Data.Proxy
+import qualified Data.Void          as DV
 
-import           Unsafe.Coerce (unsafeCoerce)
+import           Unsafe.Coerce      (unsafeCoerce)
 
 ------------------------------------------------------------
 --  Constructively finite types
@@ -171,7 +171,7 @@ the way the pairs are distributed.
 --   (unfortunately it is not actually possible to prove this within
 --   Haskell).
 isoPresSize :: forall l1 l2. (HasSize l1, HasSize l2) =>
-               (l1 <-> l2) -> (Size l1 :=: Size l2)
+               (l1 <-> l2) -> (Size l1 :~: Size l2)
 isoPresSize _
   | snatEq s1 s2 = unsafeCoerce Refl
   | otherwise = error $ "isoPresSize: " ++ show s1 ++ " /= " ++ show s2

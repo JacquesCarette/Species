@@ -11,7 +11,7 @@ import           Data.Type.Nat.Minus
 -- Division algorithm
 
 data Div x n where
-  Div :: SNat i -> SNat j -> (j < n) -> (x :=: Plus j (Times i n)) -> Div x n
+  Div :: SNat i -> SNat j -> (j < n) -> (x :~: Plus j (Times i n)) -> Div x n
 
 divisionAlg :: SNat x -> SNat n -> Div x n
 divisionAlg x n = case decLT n x of

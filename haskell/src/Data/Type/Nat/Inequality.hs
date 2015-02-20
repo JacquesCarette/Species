@@ -5,10 +5,10 @@
 
 module Data.Type.Nat.Inequality where
 
-import Data.Type.Equality
-import Data.Type.Nat
+import           Data.Type.Equality
+import           Data.Type.Nat
 
-import Unsafe.Coerce
+import           Unsafe.Coerce
 
 --------------------------------------------------
 -- Less-than-or-equal, less-than, and properties thereof
@@ -49,7 +49,7 @@ lt__lte SZ _ _ = LTEZ
 lt__lte (SS _) SZ lt = absurdLT lt
 lt__lte (SS x) (SS y) (LTES lt) = LTES (lt__lte x y lt)
 
-lteDecomp :: SNat x -> SNat y -> x <= y -> Either (x :=: y) (x < y)
+lteDecomp :: SNat x -> SNat y -> x <= y -> Either (x :~: y) (x < y)
 lteDecomp SZ SZ _ = Left Refl
 lteDecomp SZ (SS _) _ = Right (LTES LTEZ)
 lteDecomp (SS _) SZ lt = absurdLT lt

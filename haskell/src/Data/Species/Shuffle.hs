@@ -7,21 +7,21 @@ module Data.Species.Shuffle where
 
 import           Control.Lens
 import           Control.Monad.Writer
--- from 'representable-functors' package
-import           Data.Functor.Representable
+-- from 'adjunctions' package
+import           Data.Functor.Rep
 -- from 'keys' package
-import           Data.Key                   (Key, TraversableWithKey)
-import qualified Data.Key                   as K
-import           Data.Maybe                 (fromJust)
-import           Data.Tuple                 (swap)
+import           Data.Key             (Key, TraversableWithKey)
+import qualified Data.Key             as K
+import           Data.Maybe           (fromJust)
+import           Data.Tuple           (swap)
 
 import           Data.BFunctor
+import           Data.Finite          (Size (..), finConv)
 import           Data.Iso
-import           Data.Finite                (Size(..),finConv)
-import           Data.Storage
+import qualified Data.Set.Abstract    as S
 import           Data.Species.Shape
 import           Data.Species.Types
-import qualified Data.Set.Abstract          as S
+import           Data.Storage
 
 
 canonicalize :: forall f s l a. (TraversableWithKey f, Size (Key f) ~ Size l, Eq l, Eq (Key f), HasSize (Key f), Storage s)

@@ -11,7 +11,7 @@ import           Data.Type.Nat.Inequality
 -- Type-level subtraction and decidable ordering
 
 data Minus x n where
-  Minus :: SNat j -> (x :=: Plus j n) -> Minus x n
+  Minus :: SNat j -> (x :~: Plus j n) -> Minus x n
 
 decLT :: SNat n -> SNat x -> Either (x < n) (x `Minus` n)
 decLT SZ x = case plusZeroR x of Refl -> Right (Minus x Refl)

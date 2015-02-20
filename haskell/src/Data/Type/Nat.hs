@@ -10,7 +10,7 @@
 
 module Data.Type.Nat where
 
-import Data.Type.Equality
+import           Data.Type.Equality
 
 ------------------------------------------------------------
 -- Natural numbers
@@ -71,23 +71,23 @@ natty (SS n) r = natty n r
 --------------------------------------------------
 -- Properties of addition and multiplication
 
-plusZeroR :: SNat n -> Plus n Z :=: n
+plusZeroR :: SNat n -> Plus n Z :~: n
 plusZeroR SZ     = Refl
 plusZeroR (SS n) = case plusZeroR n of Refl -> Refl
 
-plusSuccR :: SNat m -> SNat n -> Plus m (S n) :=: S (Plus m n)
+plusSuccR :: SNat m -> SNat n -> Plus m (S n) :~: S (Plus m n)
 plusSuccR SZ _     = Refl
 plusSuccR (SS m) n = case plusSuccR m n of Refl -> Refl
 
-plusAssoc :: SNat a -> SNat b -> SNat c -> (Plus (Plus a b) c) :=: Plus a (Plus b c)
+plusAssoc :: SNat a -> SNat b -> SNat c -> (Plus (Plus a b) c) :~: Plus a (Plus b c)
 plusAssoc SZ _ _ = Refl
 plusAssoc (SS a) b c = case plusAssoc a b c of Refl -> Refl
 
-plusComm :: SNat a -> SNat b -> Plus a b :=: Plus b a
+plusComm :: SNat a -> SNat b -> Plus a b :~: Plus b a
 plusComm SZ b = case plusZeroR b of Refl -> Refl
 plusComm (SS a) b = case (plusSuccR b a, plusComm a b) of (Refl, Refl) -> Refl
 
-mulZeroR :: SNat x -> Times x Z :=: Z
+mulZeroR :: SNat x -> Times x Z :~: Z
 mulZeroR SZ = Refl
 mulZeroR (SS x) = mulZeroR x
 

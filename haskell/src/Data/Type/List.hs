@@ -45,7 +45,7 @@ lpRep :: SNat n -> Proxy l -> LProxy n (Replicate n l)
 lpRep SZ _ = LNil
 lpRep (SS n) p = LCons p (lpRep n p)
 
-mapRep :: SNat n -> Proxy g -> Proxy l -> Map g (Replicate n l) :=: Replicate n (g l)
+mapRep :: SNat n -> Proxy g -> Proxy l -> Map g (Replicate n l) :~: Replicate n (g l)
 mapRep SZ     _ _ = Refl
 mapRep (SS n) pg pl = case mapRep n pg pl of Refl -> Refl
 
