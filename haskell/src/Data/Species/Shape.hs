@@ -94,7 +94,7 @@ import           Unsafe.Coerce
 
 -- | Shapes with an existentially quantified label type.
 data Shape' :: (* -> *) -> * where
-  Shape' :: (Eq l, Finite l) => f l -> Shape' f
+  Shape' :: (Eq l) => Finite l -> f l -> Shape' f
 
 ------------------------------------------------------------
 --  Shape functors, along with introduction forms
