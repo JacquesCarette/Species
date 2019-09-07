@@ -4,6 +4,8 @@
 *.log
 *.cut
 *.log
+*.fls
+*.fdb_latexmk
 TAGS
 *.hi
 *.o
