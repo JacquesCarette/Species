@@ -1,4 +1,4 @@
-*~
+*
 /papers/*.pdf
 *.aux
 *.log
@@ -11,6 +11,7 @@ TAGS
 *.ibc
 *.tex
 !POPL15.tex
+!mem.tex
 *.bbl
 *.blg
 *.ptb
