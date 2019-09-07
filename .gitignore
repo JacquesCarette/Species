@@ -1,5 +1,5 @@
-*
 /papers/*.pdf
+/papers/MemoryModels/*.pdf
 *.aux
 *.log
 *.cut
@@ -11,7 +11,7 @@ TAGS
 *.ibc
 *.tex
 !POPL15.tex
-!mem.tex
+!papers/MemoryModels/mem.tex
 *.bbl
 *.blg
 *.ptb
@@ -24,6 +24,8 @@ papers/diagrams/*.pdf
 papers/diagrams/*.eps
 papers/diagrams/*.hs
 dist/
+latex/
+JFP LaTeX files/
 .hsenv*
 dist*
 *.errors
