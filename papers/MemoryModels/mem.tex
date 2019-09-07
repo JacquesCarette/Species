@@ -1,0 +1,20 @@
+\documentclass{jfp1}
+
+\usepackage[T1]{fontenc}
+\usepackage[override]{cmtt}
+\usepackage{hyperref}
+
+\usepackage{latex/agda}
+% for grabbing pieces of Agda from a different file, so that latex and
+% Agda don't have to mix too much.
+\usepackage{catchfilebetweentags}
+
+\begin{document}
+\title{TBD}
+\author{Jacques Carette and Brent Yorgey}
+
+\maketitle
+
+Example of use
+\ExecuteMetaData[latex/models.tex]{ex1}
+\end{document}
