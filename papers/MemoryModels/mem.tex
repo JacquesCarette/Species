@@ -1,6 +1,11 @@
 \documentclass{jfp1}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
 \usepackage[override]{cmtt}
 \usepackage{hyperref}
 
@@ -8,6 +13,29 @@
 % for grabbing pieces of Agda from a different file, so that latex and
 % Agda don't have to mix too much.
 \usepackage{catchfilebetweentags}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Unicode
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% See https://agda.readthedocs.io/en/v2.6.0.1/tools/generating-latex.html
+
+\usepackage{newunicodechar}
+\newunicodechar{∀}{\ensuremath{\mathnormal\forall}}
+\newunicodechar{ℓ}{\ensuremath{\mathnormal\ell}}
+\newunicodechar{→}{\ensuremath{\mathnormal\to}}
+\newunicodechar{λ}{\ensuremath{\mathnormal\lambda}}
+\newunicodechar{ℕ}{\ensuremath{\mathnormal\mathbb{N}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Typesetting
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\term}[1]{\emph{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Front matter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{TBD}
 \author[J. Carette and B. A. Yorgey]{JACQUES CARETTE\\
@@ -17,10 +45,28 @@
   Hendrix College, Arkansas, USA\\
   \email{yorgey@hendrix.edu}}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{document}
 
 \maketitle
 
-Example of use
-\ExecuteMetaData[latex/models.tex]{ex1}
+What is a \term{memory}?  There are many possible ways to answer this
+question, depending on how concrete you wish to be and what features
+you wish to model.  We will start by taking the abstract position that
+\emph{a memory is a store of values}, that is, a place where values
+can be stored and later retrieved.
+
+What sort of structure does a memory need to have to make this
+possible?  In order to be able to retrieve values after storing them,
+there must be some way to refer to them by their location, so we
+suppose that each location has a \emph{label}.  For now, we suppose
+only that the labels form a \term{setoid}, that is, a set together
+with an equivalence relation, so that one can at least talk about
+whether two labels are equal.
+
+\ExecuteMetaData[latex/models.tex]{labels}
+
+Some kind of picture?  Talk about coat hooks or cubby holes?
+
 \end{document}
