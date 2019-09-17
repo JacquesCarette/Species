@@ -1,6 +1,19 @@
 \documentclass{jfp1}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Global switches
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Turn on to include todos and comments.  These are intended for stuff
+% we need to do or discussions that may influence the text of the
+% paper itself.
+\newif\ifcomments\commentstrue
+
+% Turn on to include commentary. This is intended for stuff we want to
+% remember/write down but do not intend to include in the paper.
+\newif\ifcommentary\commentarytrue
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Packages
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -8,11 +21,15 @@
 \usepackage[utf8]{inputenc}
 \usepackage[override]{cmtt}
 \usepackage{hyperref}
+\usepackage{mdframed}
+\usepackage{comment}
 
 \usepackage{latex/agda}
 % for grabbing pieces of Agda from a different file, so that latex and
 % Agda don't have to mix too much.
 \usepackage{catchfilebetweentags}
+
+\usepackage[backend=pgf, outputdir=diagrams]{diagrams-latex}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Unicode
@@ -34,10 +51,34 @@
 \newcommand{\term}[1]{\emph{#1}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Comments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ifcomments
+\newcommand{\authornote}[3]{\textcolor{#1}{[#3 ---#2]}}
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\else
+\newcommand{\authornote}[3]{}
+\newcommand{\todo}[1]{}
+\fi
+
+\newcommand{\bay}[1]{\authornote{blue}{BAY}{#1}}
+\newcommand{\jc}[1]{\authornote{green}{JC}{#1}}  % pick whatever
+                                                 % color/initials you want
+
+\ifcommentary
+  \newmdenv[skipabove=1em, skipbelow=1em, innermargin=1.5em, outermargin=1.5em, backgroundcolor=black!8, linecolor=black!10]{commentary}
+\else
+  \excludecomment{commentary}
+\fi
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Front matter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title{TBD}
+\title{Memory Models via Species: The Paper}
+\subtitle{Or: You Could Have Invented Species, If You Happened To Think
+  About It In This Very Specific Way}
 \author[J. Carette and B. A. Yorgey]{JACQUES CARETTE\\
   McMaster University, Ontario, Canada \\
   \email{carette@mcmaster.ca}
