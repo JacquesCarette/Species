@@ -25,6 +25,10 @@ Shake
 papers/diagrams/*.pdf
 papers/diagrams/*.eps
 papers/diagrams/*.hs
+papers/MemoryModels/diagrams/*.pdf
+papers/MemoryModels/diagrams/*.eps
+papers/MemoryModels/diagrams/*.pgf
+papers/MemoryModels/diagrams/*.hs
 dist/
 latex/
 JFP LaTeX files/
@@ -35,3 +39,6 @@ papers/TempDiagram.*
 
 .cabal-sandbox
 cabal.sandbox.config
+
+.stack-work
+stack.yaml.lock
