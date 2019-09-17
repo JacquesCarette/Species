@@ -4,12 +4,11 @@ module models where
 \end{code}
 }
 
-%<*labels>
+%<*memory>
 \begin{code}
-open import Relation.Binary using (Setoid)
+postulate Label : Set
 
--- This shouldn't really be ∀ c ℓ, not sure what the best
--- approach is with levels here
-postulate Labels : ∀ {c ℓ} → Setoid c ℓ
+Memory : Set → Set
+Memory V = Label → V
 \end{code}
-%</labels>
+%</memory>
