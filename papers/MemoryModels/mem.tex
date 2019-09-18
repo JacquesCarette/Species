@@ -108,11 +108,23 @@ is just a mapping from labels to values.
 
 \ExecuteMetaData[latex/models.tex]{memory}
 
+\bay{Actually I don't think we want to postulate a specific, fixed
+  label type, but rather we want to make the label type a parameter of
+  Memory too.  Some operations (e.g. disjoint union of memories) will
+  change the label type.}
+
 For now, we don't assume that labels have any additional structure.
 It may be helpful to imagine a memory as a ``soup'' of locations.
+
+\todo{Diagram the soup.}
 
 \begin{commentary}
   This is some commentary.  Blah blah.
 \end{commentary}
+
+Note that a $\AgdaFunction{Memory}$ must be a \emph{total} function,
+that is, every label corresponds to some value.  If we wish to model
+memories where some labels do not correspond to a stored value, we can
+simply use a type $V$ of values with a distinguished ``empty'' value.
 
 \end{document}
