@@ -97,12 +97,12 @@ What is a \term{memory}?
 \todo{Picture here of something! Cubby holes, keys, \dots}
 
 We will start by taking the abstract position that \emph{a memory is a
-  store of values}, that is, a place where values can be \emph{stored} and
-later \emph{retrieved}.
+ labelled store of values}, that is, a collection of locations where values 
+can be \emph{stored} and later \emph{retrieved}.
 
 What sort of structure does a memory need to have to make this
 possible?  In order to be able to retrieve values after storing them,
-there must be some way to refer to values by their location, so we
+there must be some way to refer to the location, so we
 suppose that each location has a \emph{label}.  Then a \term{memory}
 is just a mapping from labels to values.
 
@@ -113,7 +113,7 @@ is just a mapping from labels to values.
   Memory too.  Some operations (e.g. disjoint union of memories) will
   change the label type.}
 
-For now, we don't assume that labels have any additional structure.
+For now, we don't assume any further structure on labels or values.
 It may be helpful to imagine a memory as a ``soup'' of locations.
 
 \todo{Diagram the soup.}
