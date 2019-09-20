@@ -124,17 +124,44 @@ imagine a memory as a ``soup'' of locations.
 
 \todo{Diagram the soup.}
 
+\todo{Go deeper into the soup: We're going to use Agda as our
+  metalogic, but no commitments to the metalogic.  E.g. no assumptions
+  about whether label/value types can be represented/constructed,
+  i.e. whether they actually exist at runtime. Don't assume we can do
+  sums, products, etc. on types}
+
 \begin{commentary}
-  This is some commentary.  Blah blah.
+  Labels could be real numbers.  But we won't be able to do much with
+  that.  We quickly want decidable equality for labels.
+
+  Models with and without functoriality for values!  Might have to do
+  something like co-Yoneda trick to make it functorial.
 \end{commentary}
+
+\todo{motivate relabel: one model is to actually change the labels.
+  Another is to just store a function off to the side.  e.g. array
+  libraries, virtual memory}
+
+\ExecuteMetaData[latex/models.tex]{relabel}
+
+\todo{draw a picture of relabelling.}
 
 Note that a $\AgdaFunction{Memory}$ must be a \emph{total} function,
 that is, every label corresponds to some value.  If we wish to model
 memories where some labels do not correspond to a stored value, we can
 simply use a type $V$ of values with a distinguished ``empty'' value.
+\todo{Actually there are other choices too!  e.g. get rid of labels
+  entirely.  This is why we're going to wait.}
 
 Alternatively,
 
-\ExecuteMetaData[latex/models.tex]{relabel}
+\begin{commentary}
+  relabel is still useful if $L' = L$.  e.g. Copying garbage collection.
+\end{commentary}
+
+\todo{eventual motivation: represent data structures!  So we need some
+structure on labels (?)  Next up: disjoint union.  Related to malloc:
+what to do if someone hands you some new labels.  Look at haskell/src/Data/Storage.hs}
+
 
 \end{document}

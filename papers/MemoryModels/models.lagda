@@ -8,8 +8,6 @@ open import Function using (_∘_)
 
 %<*memory>
 \begin{code}
-postulate Label : Set
-
 Memory : Set → Set → Set
 Memory L V = L → V
 \end{code}
