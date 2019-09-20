@@ -24,6 +24,9 @@
 \usepackage{mdframed}
 \usepackage{comment}
 
+\usepackage{graphicx}
+\graphicspath{{images/}}
+
 \usepackage{latex/agda}
 % for grabbing pieces of Agda from a different file, so that latex and
 % Agda don't have to mix too much.
@@ -38,11 +41,12 @@
 % See https://agda.readthedocs.io/en/v2.6.0.1/tools/generating-latex.html
 
 \usepackage{newunicodechar}
-\newunicodechar{∀}{\ensuremath{\mathnormal\forall}}
-\newunicodechar{ℓ}{\ensuremath{\mathnormal\ell}}
-\newunicodechar{→}{\ensuremath{\mathnormal\to}}
-\newunicodechar{λ}{\ensuremath{\mathnormal\lambda}}
-\newunicodechar{ℕ}{\ensuremath{\mathnormal\mathbb{N}}}
+\newunicodechar{∀}{\ensuremath{\forall}}
+\newunicodechar{ℓ}{\ensuremath{\ell}}
+\newunicodechar{→}{\ensuremath{\to}}
+\newunicodechar{λ}{\ensuremath{\lambda}}
+\newunicodechar{ℕ}{\ensuremath{\mathbb{N}}}
+\newunicodechar{∘}{\ensuremath{\circ}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Typesetting
@@ -92,13 +96,17 @@
 
 \maketitle
 
-What is a \term{memory}?
+What is a \term{memory}?  We will start by taking the abstract
+position that \emph{a memory is a store of values}, that is, 
+a collection of locations where values can be stored and later retrieved.
 
-\todo{Picture here of something! Cubby holes, keys, \dots}
-
-We will start by taking the abstract position that \emph{a memory is a
- labelled store of values}, that is, a collection of locations where values 
-can be \emph{stored} and later \emph{retrieved}.
+\begin{figure}[htp]
+  \centering
+  \includegraphics[width=0.5\textwidth]{mailboxes.jpg}
+  \caption{A memory with labelled locations. Photo by JLS Photography.\protect\footnotemark}
+  \label{fig:mailboxes}
+\end{figure}
+\footnotetext{\url{https://www.flickr.com/photos/akgypsy37/8690531067/}, CC BY-NC-ND 2.0.}
 
 What sort of structure does a memory need to have to make this
 possible?  In order to be able to retrieve values after storing them,
@@ -108,23 +116,52 @@ is just a mapping from labels to values.
 
 \ExecuteMetaData[latex/models.tex]{memory}
 
-\bay{Actually I don't think we want to postulate a specific, fixed
-  label type, but rather we want to make the label type a parameter of
-  Memory too.  Some operations (e.g. disjoint union of memories) will
-  change the label type.}
-
-For now, we don't assume any further structure on labels or values.
-It may be helpful to imagine a memory as a ``soup'' of locations.
+For now, we don't assume that labels have any additional structure,
+though some particular sets of labels might.  For example, the
+locations in Figure~\ref{fig:mailboxes} are evidently arranged in a 2D
+grid, but this is special.  In the abstract, it may be helpful to
+imagine a memory as a ``soup'' of locations.
 
 \todo{Diagram the soup.}
 
+\todo{Go deeper into the soup: We're going to use Agda as our
+  metalogic, but no commitments to the metalogic.  E.g. no assumptions
+  about whether label/value types can be represented/constructed,
+  i.e. whether they actually exist at runtime. Don't assume we can do
+  sums, products, etc. on types}
+
 \begin{commentary}
-  This is some commentary.  Blah blah.
+  Labels could be real numbers.  But we won't be able to do much with
+  that.  We quickly want decidable equality for labels.
+
+  Models with and without functoriality for values!  Might have to do
+  something like co-Yoneda trick to make it functorial.
 \end{commentary}
+
+\todo{motivate relabel: one model is to actually change the labels.
+  Another is to just store a function off to the side.  e.g. array
+  libraries, virtual memory}
+
+\ExecuteMetaData[latex/models.tex]{relabel}
+
+\todo{draw a picture of relabelling.}
 
 Note that a $\AgdaFunction{Memory}$ must be a \emph{total} function,
 that is, every label corresponds to some value.  If we wish to model
 memories where some labels do not correspond to a stored value, we can
 simply use a type $V$ of values with a distinguished ``empty'' value.
+\todo{Actually there are other choices too!  e.g. get rid of labels
+  entirely.  This is why we're going to wait.}
+
+Alternatively,
+
+\begin{commentary}
+  relabel is still useful if $L' = L$.  e.g. Copying garbage collection.
+\end{commentary}
+
+\todo{eventual motivation: represent data structures!  So we need some
+structure on labels (?)  Next up: disjoint union.  Related to malloc:
+what to do if someone hands you some new labels.  Look at haskell/src/Data/Storage.hs}
+
 
 \end{document}
