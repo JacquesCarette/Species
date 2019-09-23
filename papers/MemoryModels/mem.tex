@@ -130,10 +130,10 @@ names, as illustrated in Figure~\ref{fig:soup}.
   drawLocation :: Diagram B -> Diagram B
   drawLocation lab = vsep 0.2 [roundedRect 1 1 0.1, lab]
 
-  locs = map drawLocation
+  locs cow = map drawLocation
     [ circle 0.2 # fc blue # lw none
     , text "$\\alpha$" # fontSizeL 0.5 <> phantom (square 0.5 :: D V2 Double)
-    , triangle 0.4 # fc green # lw none  -- replace me!
+    , image cow # sized (dims (1 ^& 1))
     ]
 
   cs =
@@ -142,19 +142,32 @@ names, as illustrated in Figure~\ref{fig:soup}.
     , 4 ^& 1
     ]
 
-  dia = mconcat (zipWith moveTo cs locs)
+  dia :: IO (Diagram B)
+  dia = do
+    Right cow <- loadImageEmb ("images/cow.png")
+    return $ mconcat (zipWith moveTo cs (locs cow))
   \end{diagram}
   \caption{Memory as a soup of locations}
   \label{fig:soup}
 \end{figure}
-
-
 
 \todo{Go deeper into the soup: We're going to use Agda as our
   metalogic, but no commitments to the metalogic.  E.g. no assumptions
   about whether label/value types can be represented/constructed,
   i.e. whether they actually exist at runtime. Don't assume we can do
   sums, products, etc. on types}
+
+Along these lines, although we are using Agda as a concrete metalogic
+in which to express our ideas, we make no particular commitments to
+the specific metalogic used and what features it may or may not have
+available.  For example, Agda has lots of built-in type formers (sums,
+products, \emph{etc.}), but we will not take them for granted.
+
+\begin{commentary}
+  In fact what we are committing to up front is simply a category
+  where objects are types, with some notion of morphisms between
+  types.
+\end{commentary}
 
 \begin{commentary}
   Labels could be real numbers.  But we won't be able to do much with
