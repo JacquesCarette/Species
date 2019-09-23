@@ -33,6 +33,7 @@
 \usepackage{catchfilebetweentags}
 
 \usepackage[backend=pgf, outputdir=diagrams]{diagrams-latex}
+\usepackage{pgf}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Unicode
@@ -120,9 +121,34 @@ For now, we don't assume that labels have any additional structure,
 though some particular sets of labels might.  For example, the
 locations in Figure~\ref{fig:mailboxes} are evidently arranged in a 2D
 grid, but this is special.  In the abstract, it may be helpful to
-imagine a memory as a ``soup'' of locations.
+imagine a memory as a ``soup'' of locations, labelled by arbitrary
+names, as illustrated in Figure~\ref{fig:soup}.
 
-\todo{Diagram the soup.}
+\begin{figure}
+  \centering
+  \begin{diagram}[width=150]
+  drawLocation :: Diagram B -> Diagram B
+  drawLocation lab = vsep 0.2 [roundedRect 1 1 0.1, lab]
+
+  locs = map drawLocation
+    [ circle 0.2 # fc blue # lw none
+    , text "$\\alpha$" # fontSizeL 0.5 <> phantom (square 0.5 :: D V2 Double)
+    , triangle 0.4 # fc green # lw none  -- replace me!
+    ]
+
+  cs =
+    [ origin
+    , 3 ^& (-2)
+    , 4 ^& 1
+    ]
+
+  dia = mconcat (zipWith moveTo cs locs)
+  \end{diagram}
+  \caption{Memory as a soup of locations}
+  \label{fig:soup}
+\end{figure}
+
+
 
 \todo{Go deeper into the soup: We're going to use Agda as our
   metalogic, but no commitments to the metalogic.  E.g. no assumptions
@@ -152,8 +178,6 @@ memories where some labels do not correspond to a stored value, we can
 simply use a type $V$ of values with a distinguished ``empty'' value.
 \todo{Actually there are other choices too!  e.g. get rid of labels
   entirely.  This is why we're going to wait.}
-
-Alternatively,
 
 \begin{commentary}
   relabel is still useful if $L' = L$.  e.g. Copying garbage collection.
