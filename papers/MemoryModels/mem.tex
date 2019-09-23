@@ -113,28 +113,66 @@ What sort of structure does a memory need to have to make this
 possible?  In order to be able to retrieve values after storing them,
 there must be some way to refer to the location, so we
 suppose that each location has a \emph{label}.  Then a \term{memory}
-is just a mapping from labels to values.
+is just a way to associate values to labels.
 
-\ExecuteMetaData[latex/models.tex]{memory}
+\begin{commentary}
+  There is a subtle issue with the next paragraph: in the picture it
+  is actually the \emph{locations} which are in a 2D grid; the
+  \emph{labels} themselves (presumably) do not reflect this structure.
+  Ultimately, the concept of ``locations'' is there as a conceptual
+  aid, but is not directly reflected in our framework.  In the
+  physical world, one could take the physical coordinates of locations
+  (relative to some reference) as a set of labels, and then going from
+  (what we would usually think of as) a ``label'' to physical
+  coordinates is accomplished by a final relabelling operation, where
+  the ``relabelling'' isomorphism is actually (in one direction) an
+  algorithm for doing some sort of physical search.  For example, if
+  you know the call number (one set of labels) of a book in a library,
+  the facts that (1) the call numbers have a total ordering and (2)
+  the books are arranged in physical space in a particular way
+  according to the ordering---i.e. there is an \emph{order-preserving
+    isomorphism} between call numbers and physical locations---means
+  that you can perform something like a binary search in physical
+  space to find the physical location (another set of labels) of the
+  book you want.  (To compute the other direction of the isomorphism,
+  of course, you just look at the call number printed on the spine of
+  a book---though it's interesting/notable that in the case of a
+  library it's actually the \emph{values} (i.e. books) that are
+  labelled with call numbers rather than the locations themselves.
+  Declining to label the locations with call numbers is an
+  optimization that allows for easier compaction/garbage
+  collection\dots) It's interesting that to carry out one direction of
+  the isomorphism (call number -> physical location) requires
+  repeatedly running it in the opposite direction (pick a physical
+  location, find the call number of the book there, and compare to
+  your chosen call number to decide which direction to go next).
+\end{commentary}
 
-For now, we don't assume that labels have any additional structure,
-though some particular sets of labels might.  For example, the
+For now, we don't assume that labels have any special structure
+(though some particular sets of labels might).  For example, the
 locations in Figure~\ref{fig:mailboxes} are evidently arranged in a 2D
-grid, but this is special.  In the abstract, it may be helpful to
-imagine a memory as a ``soup'' of locations, labelled by arbitrary
-names, as illustrated in Figure~\ref{fig:soup}.
+grid, but this is a special case.  In the abstract, it may be
+helpful to imagine a memory as a ``soup'' of locations, labelled by
+arbitrary names.  As an illustration, Figure~\ref{fig:soup} shows a
+memory with only three locations. The locations are not arranged in
+any particular relation to one another; moreover, the labels have been
+chosen to emphasize that the set of labels can be entirely arbitrary,
+without any sort of inherent structure.  The labels may or may not
+have decidable equality, may or may not be concretely representable as
+sequences of bits, and so on.
 
 \begin{figure}
   \centering
   \begin{diagram}[width=150]
-  drawLocation :: Diagram B -> Diagram B
-  drawLocation lab = vsep 0.2 [roundedRect 1 1 0.1, lab]
+  drawLocation :: Diagram B -> Diagram B -> Diagram B
+  drawLocation lab val = vsep 0.2 [val <> roundedRect 1 1 0.1, lab]
 
-  locs cow = map drawLocation
+  locs cow = zipWith drawLocation
     [ circle 0.2 # fc blue # lw none
     , text "$\\alpha$" # fontSizeL 0.5 <> phantom (square 0.5 :: D V2 Double)
     , image cow # sized (dims (1 ^& 1))
     ]
+    (map (fontSizeL 0.8 . text . show) [2, 7, 5])
 
   cs =
     [ origin
@@ -145,23 +183,21 @@ names, as illustrated in Figure~\ref{fig:soup}.
   dia :: IO (Diagram B)
   dia = do
     Right cow <- loadImageEmb ("images/cow.png")
-    return $ mconcat (zipWith moveTo cs (locs cow))
+    return $ mconcat (zipWith moveTo cs (locs cow))  -- $
   \end{diagram}
-  \caption{Memory as a soup of locations}
+  \caption{A ``soup'' of labelled locations storing integer values}
   \label{fig:soup}
 \end{figure}
 
-\todo{Go deeper into the soup: We're going to use Agda as our
-  metalogic, but no commitments to the metalogic.  E.g. no assumptions
-  about whether label/value types can be represented/constructed,
-  i.e. whether they actually exist at runtime. Don't assume we can do
-  sums, products, etc. on types}
-
-Along these lines, although we are using Agda as a concrete metalogic
-in which to express our ideas, we make no particular commitments to
-the specific metalogic used and what features it may or may not have
-available.  For example, Agda has lots of built-in type formers (sums,
-products, \emph{etc.}), but we will not take them for granted.
+Along the same lines, although we will use Agda \todo{cite} as a
+concrete metalogic in which to express our ideas, we make no
+particular commitments to the specific metalogic used and what
+features it may or may not have available.  For example, Agda has many
+built-in type formers (sums, products, \emph{etc.}) which allow one to
+construct new types out of existing ones, but we will not take such
+type formers for granted.  In general, the name of the game is to add
+structure in a gradual, carefully controlled manner, so as to discover
+the minimum amount of structure necessary to model various phenomena.
 
 \begin{commentary}
   In fact what we are committing to up front is simply a category
