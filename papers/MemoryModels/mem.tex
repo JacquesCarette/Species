@@ -98,7 +98,7 @@
 \maketitle
 
 What is a \term{memory}?  We will start by taking the abstract
-position that \emph{a memory is a store of values}, that is, 
+position that \emph{a memory is a store of values}, that is,
 a collection of locations where values can be stored and later retrieved.
 
 \begin{figure}[htp]
@@ -114,6 +114,16 @@ possible?  In order to be able to retrieve values after storing them,
 there must be some way to refer to the location, so we
 suppose that each location has a \emph{label}.  Then a \term{memory}
 is just a way to associate values to labels.
+
+\bay{Right here we used to have some Agda code which defines Memory L
+  V as a function from L to V.  However I now think this is
+  inappropriate: concrete functions come with way too much baggage.
+  Instead I would rather postulate some sort of type class (a la
+  Storage) and say what operations we require models of memory to
+  provide.  Of course one of the first requirements will be a lookup,
+  which basically allows you to project out an L to V function from a
+  memory, and of course functions themselves will be one simple
+  model.  However, I am unsure of the best way to encode this in Agda.}
 
 \begin{commentary}
   There is a subtle issue with the next paragraph: in the picture it
@@ -214,27 +224,6 @@ the minimum amount of structure necessary to model various phenomena.
   types.
 \end{commentary}
 
-\subsection{Label equality}
-\label{sec:label-equality}
-
-As an example, take $L = \mathbb{R}$ to be the set of real numbers.
-A ``memory'' with this set of labels is thus an assignment of a value
-to every point on the real line.
-
-Although this is well-defined, it is hard to imagine how one could
-actually do anything with such a memory.  The problem is that
-\bay{how to say exactly what the problem is?  Is this actually a good
-  example?  It seems like it may actually be combining several
-  problems (uncountable number of elements; uncomputable elements; no
-  decidable equality\dots)}
-
-We will thus usually want to limit ourselves to label sets $L$ which
-come with a decidable equivalence relation, and require that the
-mapping from labels to values respects this equivalence (that is,
-equivalent labels are never mapped to different values).
-
-\bay{What Agda code should go along with this?}
-
 \subsection{Relabelling}
 \label{sec:relabelling}
 
@@ -265,6 +254,31 @@ what to do if someone hands you some new labels.  Look at haskell/src/Data/Stora
   Models with and without functoriality for values!  Might have to do
   something like co-Yoneda trick to make it functorial.
 \end{commentary}
+
+\bay{At some point in the future we will want to talk about label
+  equality, but not yet.}
+
+\subsection{Label equality}
+\label{sec:label-equality}
+
+As an example, take $L = \mathbb{R}$ to be the set of real numbers.
+A ``memory'' with this set of labels is thus an assignment of a value
+to every point on the real line.
+
+Although this is well-defined, it is hard to imagine how one could
+actually do anything with such a memory.  The problem is that
+\bay{how to say exactly what the problem is?  Is this actually a good
+  example?  It seems like it may actually be combining several
+  problems (uncountable number of elements; uncomputable elements; no
+  decidable equality\dots)}
+
+We will thus usually want to limit ourselves to label sets $L$ which
+come with a decidable equivalence relation, and require that the
+mapping from labels to values respects this equivalence (that is,
+equivalent labels are never mapped to different values).
+
+\bay{What Agda code should go along with this?}
+
 
 
 \end{document}
