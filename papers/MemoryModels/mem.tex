@@ -115,6 +115,8 @@ there must be some way to refer to the location, so we
 suppose that each location has a \emph{label}.  Then a \term{memory}
 is just a way to associate values to labels.
 
+\todo{Remove the term ``location''! No double indirection!}
+
 \bay{Right here we used to have some Agda code which defines Memory L
   V as a function from L to V.  However I now think this is
   inappropriate: concrete functions come with way too much baggage.
@@ -247,6 +249,11 @@ bijection.
 \item Likewise, the relabelling function might not be injective, that
   is, multiple new labels may map to the same old label.  This allows
   us to model aliasing.
+
+  ``bags for free''.
+
+  ``aliasing'' is a loaded term!  Implies mutability, i.e. assign
+  operation.  Leave that until later.
 \end{itemize}
 
 \todo{motivate relabel: one model is to actually change the labels.
@@ -303,5 +310,19 @@ equivalent labels are never mapped to different values).
 \bay{What Agda code should go along with this?}
 
 
+\begin{commentary}
+  Simplest data structure: singleton-indexed.  Next: two-element-set
+  indexed, i.e. a pair.  Note it is not necessarily an ORDERED pair!
+  Talk about relabelling, functoriality, groupoids...
+
+  Distinction between single structures and *collections* of
+  structures (aka species aka data types).
+
+  'assign' operation requires decidable equality?
+
+  Laws for lookup/assign?  Interacts with what kind of relabelling is
+  allowed.
+
+\end{commentary}
 
 \end{document}
