@@ -227,11 +227,31 @@ the minimum amount of structure necessary to model various phenomena.
 \subsection{Relabelling}
 \label{sec:relabelling}
 
+The first nontrivial operation we require memories to have is
+\emph{relabelling}: it should be possible to change the labels on a
+memory by specifying a new set of labels along with a specification of
+how the new labels map onto the old.
+
+\ExecuteMetaData[latex/models.tex]{relabel}
+
+The first thing to notice is that $\AgdaFunction{Memory}$ is
+\emph{contravariant} in $\AgdaBound{L}$. \todo{explain}.
+
+Notice also that the provided relabelling function need not be a
+bijection.
+
+\begin{itemize}
+\item The relabelling function might not be surjective, that is, some
+  of the old labels might be left out. This allows us to model
+  deleting or ``freeing'' memory that is no longer needed.
+\item Likewise, the relabelling function might not be injective, that
+  is, multiple new labels may map to the same old label.  This allows
+  us to model aliasing.
+\end{itemize}
+
 \todo{motivate relabel: one model is to actually change the labels.
   Another is to just store a function off to the side.  e.g. array
   libraries, virtual memory}
-
-\ExecuteMetaData[latex/models.tex]{relabel}
 
 \todo{draw a picture of relabelling.}
 
