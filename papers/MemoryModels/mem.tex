@@ -256,7 +256,10 @@ what to do if someone hands you some new labels.  Look at haskell/src/Data/Stora
 \end{commentary}
 
 \bay{At some point in the future we will want to talk about label
-  equality, but not yet.}
+  equality, but not yet.  Don't you need decidable equality at the
+  point where you want a ``set'' operation (i.e. an operation that
+  takes a memory, a label, and a (new) value, and sets the value at
+  the given location, returning a new updated memory)?}
 
 \subsection{Label equality}
 \label{sec:label-equality}
