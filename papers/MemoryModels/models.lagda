@@ -2,20 +2,35 @@
 \begin{code}
 module models where
 
-open import Function using (_∘_)
+open import Level using (Level; _⊔_) renaming (suc to lsuc)
+open import Function using (_∘_; _$_)
 \end{code}
 }
 
-%<*memory>
+%<*naivememory>
 \begin{code}
-Memory : Set → Set → Set
-Memory L V = L → V
+Memory0 : {ℓ v : Level} → Set ℓ → Set v → Set (ℓ ⊔ v)
+Memory0 L V = L → V
 \end{code}
-%</memory>
+%</naivememory>
 
 %<*relabel>
 \begin{code}
-relabel : ∀ {L L' V} → (L' → L) → Memory L V → Memory L' V
+relabel : {ℓ ℓ′ v : Level} {L : Set ℓ} {L' : Set ℓ′} {V : Set v} → (L' → L) → Memory0 L V → Memory0 L' V
 relabel f m = m ∘ f
 \end{code}
 %</relabel>
+
+But we want to allow wider kinds of models, so we start
+defining an interface.
+\begin{code}
+record Memory {ℓ v s : Level} (L : Set ℓ) (V : Set v) : Set (ℓ ⊔ v ⊔ lsuc s) where
+  field
+    Mem : Set s
+    lookup : Mem → L → V
+\end{code}
+We shoud check that functions are a model:
+\begin{code}
+FnAsMemory : {ℓ v s : Level} (L : Set ℓ) (V : Set v) → Memory L V
+FnAsMemory L V = record { Mem = L → V ; lookup = _$_ }
+\end{code}

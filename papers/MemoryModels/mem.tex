@@ -95,11 +95,21 @@
 
 \begin{document}
 
+\commentary{I (JC) don't think we should put Species, the word,
+in the title at all. I have no problems with using the current
+title as the working title, but we'll see how things develop.}
+
 \maketitle
 
 What is a \term{memory}?  We will start by taking the abstract
 position that \emph{a memory is a store of values}, that is,
-a collection of locations where values can be stored and later retrieved.
+an abstract container where values can be stored and later retrieved.
+
+\commentary{This used to say ``a collection of locations where
+values can be stored and later retrieved'', but that is, in some
+ways, double indirection -- at least it will be as soon as labels
+are introduced.  I'm not so sure about the word ``container'', but
+that can be figured out later.}
 
 \begin{figure}[htp]
   \centering
@@ -109,23 +119,27 @@ a collection of locations where values can be stored and later retrieved.
 \end{figure}
 \footnotetext{\url{https://www.flickr.com/photos/akgypsy37/8690531067/}, CC BY-NC-ND 2.0.}
 
+\commentary{The intent of the picture is to show a very physical
+notion of ``labelled memory'', where the labels are quite
+visible, and there are physical things ``stored'' at the address
+indicated by the label.}
+
 What sort of structure does a memory need to have to make this
-possible?  In order to be able to retrieve values after storing them,
-there must be some way to refer to the location, so we
-suppose that each location has a \emph{label}.  Then a \term{memory}
+possible?  If there are to be many values stored in memory, and
+we want to somehow retrieve a particular one, how can we do that?
+In order to retrieve values, there must be a way to refer to where
+they are stored, so we suppose that we possess a \emph{label}
+for that purpose. Then a \term{memory}
 is just a way to associate values to labels.
+
+\jc{The above is now a bit woolly. It's still better than
+using location, but it can surely be made crisper}
 
 \todo{Remove the term ``location''! No double indirection!}
 
-\bay{Right here we used to have some Agda code which defines Memory L
-  V as a function from L to V.  However I now think this is
-  inappropriate: concrete functions come with way too much baggage.
-  Instead I would rather postulate some sort of type class (a la
-  Storage) and say what operations we require models of memory to
-  provide.  Of course one of the first requirements will be a lookup,
-  which basically allows you to project out an L to V function from a
-  memory, and of course functions themselves will be one simple
-  model.  However, I am unsure of the best way to encode this in Agda.}
+Here is one model: a function from labels to values.  Lookup is just evaluation. 
+However, there are many other models, and so we don't want to commit
+to just one model so early.
 
 \begin{commentary}
   There is a subtle issue with the next paragraph: in the picture it
