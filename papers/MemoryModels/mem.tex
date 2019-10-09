@@ -105,11 +105,13 @@ What is a \term{memory}?  We will start by taking the abstract
 position that \emph{a memory is a store of values}, that is,
 an abstract container where values can be stored and later retrieved.
 
-\commentary{This used to say ``a collection of locations where
+\begin{commentary}
+  This used to say ``a collection of locations where
 values can be stored and later retrieved'', but that is, in some
 ways, double indirection -- at least it will be as soon as labels
 are introduced.  I'm not so sure about the word ``container'', but
-that can be figured out later.}
+that can be figured out later.
+\end{commentary}
 
 \begin{figure}[htp]
   \centering
@@ -119,10 +121,12 @@ that can be figured out later.}
 \end{figure}
 \footnotetext{\url{https://www.flickr.com/photos/akgypsy37/8690531067/}, CC BY-NC-ND 2.0.}
 
-\commentary{The intent of the picture is to show a very physical
+\begin{commentary}
+  The intent of the picture is to show a very physical
 notion of ``labelled memory'', where the labels are quite
 visible, and there are physical things ``stored'' at the address
-indicated by the label.}
+indicated by the label.
+\end{commentary}
 
 What sort of structure does a memory need to have to make this
 possible?  If there are to be many values stored in memory, and
