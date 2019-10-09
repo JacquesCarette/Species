@@ -103,10 +103,11 @@
 \jc{I don't think we should put Species, the word,
   in the title at all. I have no problems with using the current
   title as the working title, but we'll see how things develop.}
+\bay{Agreed!}
 
-What is a \term{memory}?  We will start by taking the abstract
-position that \emph{a memory is a store of values}, that is,
-an abstract container where values can be stored and later retrieved.
+What is a \term{memory}?  For our purposes, a memory is \emph{a store
+  of values}, that is, an abstract container where values can be
+stored and later retrieved.
 
 \begin{commentary}
   This used to say ``a collection of locations where
@@ -115,6 +116,18 @@ ways, double indirection -- at least it will be as soon as labels
 are introduced.  I'm not so sure about the word ``container'', but
 that can be figured out later.
 \end{commentary}
+
+What sort of structure does a memory need to have to make this
+possible?  If there are to be many values stored in a memory, and we
+want to somehow retrieve a particular value, how can we do that?
+There must be some way to refer to individual values in the memory, so
+we suppose that we have some collection of \emph{labels} which can be
+used for that purpose. Then a memory is just a way to associate
+values to labels.
+
+\jc{The above is now a bit woolly. It's still better than
+  using location, but it can surely be made crisper}
+\bay{How's that?}
 
 \begin{figure}[htp]
   \centering
@@ -131,22 +144,12 @@ visible, and there are physical things ``stored'' at the address
 indicated by the label.
 \end{commentary}
 
-What sort of structure does a memory need to have to make this
-possible?  If there are to be many values stored in memory, and
-we want to somehow retrieve a particular one, how can we do that?
-In order to retrieve values, there must be a way to refer to where
-they are stored, so we suppose that we possess a \emph{label}
-for that purpose. Then a \term{memory}
-is just a way to associate values to labels.
+One simple model of a memory is therefore a \emph{function} from the
+set of possible labels to the set of possible values. To retrieve a
+value with a particular label is to simply evaluate the function at a
+particular input label.
 
-\jc{The above is now a bit woolly. It's still better than
-using location, but it can surely be made crisper}
-
-\todo{Remove the term ``location''! No double indirection!}
-
-Here is one model: a function from labels to values.  Lookup is just evaluation. 
-However, there are many other models, and so we don't want to commit
-to just one model so early.
+\ExecuteMetaData[latex/models.tex]{naivememory}
 
 \begin{commentary}
   There is a subtle issue with the next paragraph: in the picture it
@@ -192,16 +195,16 @@ to just one model so early.
 
 For now, we don't assume that labels have any special structure
 (though some particular sets of labels might).  For example, the
-locations in Figure~\ref{fig:mailboxes} are evidently arranged in a 2D
-grid, but this is a special case.  In the abstract, it may be
-helpful to imagine a memory as a ``soup'' of locations, labelled by
-arbitrary names.  As an illustration, Figure~\ref{fig:soup} shows a
-memory with only three locations. The locations are not arranged in
-any particular relation to one another; moreover, the labels have been
-chosen to emphasize that the set of labels can be entirely arbitrary,
-without any sort of inherent structure.  The labels may or may not
-have decidable equality, may or may not be concretely representable as
-sequences of bits, and so on.
+labels in Figure~\ref{fig:mailboxes} are evidently arranged in a 2D
+grid, but this is a special case.  In the abstract, it may be helpful
+to imagine a memory as a ``soup'' of labelled values, where the labels
+are completely arbitrary.  As an illustration, Figure~\ref{fig:soup}
+shows a memory with three labelled values. The values are not
+arranged in any particular relation to one another; moreover, the
+labels have been chosen to emphasize that the set of labels can be
+entirely arbitrary, without any sort of inherent structure.  The
+labels may or may not have decidable equality, may or may not be
+concretely representable as sequences of bits, and so on.
 
 \begin{figure}
   \centering
@@ -227,7 +230,7 @@ sequences of bits, and so on.
     Right cow <- loadImageEmb ("images/cow.png")
     return $ mconcat (zipWith moveTo cs (locs cow))  -- $
   \end{diagram}
-  \caption{A ``soup'' of labelled locations storing integer values}
+  \caption{A ``soup'' of labelled integer values}
   \label{fig:soup}
 \end{figure}
 
@@ -246,6 +249,9 @@ the minimum amount of structure necessary to model various phenomena.
   where objects are types, with some notion of morphisms between
   types.
 \end{commentary}
+
+\todo{Functions are certainly not the only possible model, and we
+  don't want to commit to any particular model up front etc.}
 
 \subsection{Relabelling}
 \label{sec:relabelling}
