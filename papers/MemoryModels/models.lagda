@@ -9,14 +9,17 @@ open import Function using (_∘_; _$_)
 
 %<*naivememory>
 \begin{code}
-Memory0 : {ℓ v : Level} → Set ℓ → Set v → Set (ℓ ⊔ v)
+Memory0 : ∀ {ℓ v : Level} → Set ℓ → Set v → Set (ℓ ⊔ v)
 Memory0 L V = L → V
+
+lookup0 : ∀ {ℓ v} {L : Set ℓ} {V : Set v} → Memory0 L V → L → V
+lookup0 m l = m l
 \end{code}
 %</naivememory>
 
 %<*relabel>
 \begin{code}
-relabel : {ℓ ℓ′ v : Level} {L : Set ℓ} {L' : Set ℓ′} {V : Set v} → (L' → L) → Memory0 L V → Memory0 L' V
+relabel : {ℓ ℓ′ v : Level} {L : Set ℓ} {L′ : Set ℓ′} {V : Set v} → (L′ → L) → Memory0 L V → Memory0 L′ V
 relabel f m = m ∘ f
 \end{code}
 %</relabel>
