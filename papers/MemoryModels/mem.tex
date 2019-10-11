@@ -297,8 +297,15 @@ simply use a type $V$ of values with a distinguished ``empty'' value.
 \end{commentary}
 
 \todo{eventual motivation: represent data structures!  So we need some
-structure on labels (?)  Next up: disjoint union.  Related to malloc:
-what to do if someone hands you some new labels.  Look at haskell/src/Data/Storage.hs}
+  structure on labels (?)  Next up: disjoint union.  Related to
+  malloc: what to do if someone hands you some new labels.  Look at
+  haskell/src/Data/Storage.hs If you have two memories and want to put
+  them together, you definitely need disjoint union of label sets:
+  otherwise when handed a label there's no way to know which memory to
+  do lookup on.  Is there a compatibility law with disjoint union and
+  relabel?  Note we can always put two relabelling maps together into
+  one on a disjoint union, but can we go in the other direction?
+  Requires bijections?}
 
 \begin{commentary}
   Models with and without functoriality for values!  Might have to do
@@ -345,7 +352,6 @@ equivalent labels are never mapped to different values).
 
   Laws for lookup/assign?  Interacts with what kind of relabelling is
   allowed.
-
 \end{commentary}
 
 \end{document}
