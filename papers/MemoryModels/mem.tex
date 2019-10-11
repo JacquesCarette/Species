@@ -11,7 +11,7 @@
 
 % Turn on to include commentary. This is intended for stuff we want to
 % remember/write down but do not intend to include in the paper.
-\newif\ifcommentary\commentarytrue
+\newif\ifcommentary\commentaryfalse
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Packages
@@ -32,6 +32,10 @@
 % for grabbing pieces of Agda from a different file, so that latex and
 % Agda don't have to mix too much.
 \usepackage{catchfilebetweentags}
+
+% Typeset Agda comments in normal roman text, offset by a qquad of
+% space, instead of using texttt
+\renewcommand{\AgdaCommentFontStyle}[1]{\qquad #1}
 
 \usepackage[backend=pgf, outputdir=diagrams]{diagrams-latex}
 \usepackage{pgf}
@@ -143,9 +147,8 @@ indicated by the label.
 One simple model of a memory is therefore a \emph{function} from the
 set of possible labels to the set of possible values. To retrieve a
 value with a particular label is to simply evaluate the function at a
-particular input label.
-
-\ExecuteMetaData[latex/models.tex]{naivememory}
+particular input label.  However, this is certainly not the only
+possible model.
 
 \begin{commentary}
   There is a subtle issue with the next paragraph: in the picture it
@@ -230,24 +233,54 @@ concretely representable as sequences of bits, and so on.
   \label{fig:soup}
 \end{figure}
 
-Along the same lines, although we will use Agda \todo{cite} as a
-concrete metalogic in which to express our ideas, we make no
-particular commitments to the specific metalogic used and what
-features it may or may not have available.  For example, Agda has many
-built-in type formers (sums, products, \emph{etc.}) which allow one to
-construct new types out of existing ones, but we will not take such
-type formers for granted.  In general, the name of the game is to add
-structure in a gradual, carefully controlled manner, so as to discover
-the minimum amount of structure necessary to model various phenomena.
+We will use Agda \todo{cite} as a concrete metalogic in which to
+express our ideas.  For example, we can encode the simple function
+model of memory, discussed above, as follows:
+
+\ExecuteMetaData[latex/models.tex]{naivememory}
+
+Throughout the rest of the paper, we will use Agda's
+\AgdaKeyword{variable} feature to declare that certain common
+variables should be implicitly generalized whenever they occur free in
+a type.  This lets us avoid having to tediously specify them as
+implicit parameters at the beginning of every single type signature.
+\ExecuteMetaData[latex/models.tex]{variable}
+%
+For example, using these implicitly generalized variables, we can
+rewrite \AgdaFunction{Memory$_0$} and \AgdaFunction{lookup$_0$} as
+follows:
+%
+\ExecuteMetaData[latex/models.tex]{naivememory2}
+
+It is important to bear in mind that although we do use Agda as a
+concrete metalogic, we make no particular commitments to the specific
+metalogic used and what features it may or may not have available.
+For example, Agda has many built-in type formers (sums, products,
+\emph{etc.}) which allow one to construct new types out of existing
+ones, but we will not take such type formers for granted.  In general,
+the name of the game is to add structure in a gradual, carefully
+controlled manner, so as to discover the minimum amount of structure
+necessary to model various phenomena.
 
 \begin{commentary}
   In fact what we are committing to up front is simply a category
   where objects are types, with some notion of morphisms between
-  types.
+  types, but we will get to this much later.
 \end{commentary}
 
-\todo{Functions are certainly not the only possible model, and we
-  don't want to commit to any particular model up front etc.}
+By the same token, we don't want to commit up front to any particular
+model of a memory.  Instead of defining \AgdaFunction{Memory} as one
+particular model or another, we can define it as an Agda record which
+specifies the abstract interface that any model of memory should
+provide.  We will add more fields to this record as we discover more
+structure we wish to impose on our notion of memory.
+%
+\ExecuteMetaData[latex/models.tex]{memrecord}
+%
+For example, we can verify that functions are a valid model of memory
+so far:
+%
+\ExecuteMetaData[latex/models.tex]{fnasmemory}
 
 \subsection{Relabelling}
 \label{sec:relabelling}
