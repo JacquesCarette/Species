@@ -32,7 +32,7 @@ record Memory {ℓ v s : Level} (L : Set ℓ) (V : Set v) : Set (ℓ ⊔ v ⊔ l
     Mem : Set s
     lookup : Mem → L → V
 \end{code}
-We shoud check that functions are a model:
+We shoud check that functions are a model, with application as |lookup|:
 \begin{code}
 FnAsMemory : {ℓ v s : Level} (L : Set ℓ) (V : Set v) → Memory L V
 FnAsMemory L V = record { Mem = L → V ; lookup = _$_ }
