@@ -50,8 +50,8 @@ defining an interface.
 \begin{code}
 record Memory {s : Level} (L : Set ℓ) (V : Set v) : Set (ℓ ⊔ v ⊔ lsuc s) where
   field
-    Mem : Set s
-    lookup : Mem → L → V
+    Mem     : Set s
+    lookup  : Mem → L → V
 \end{code}
 %</memrecord>
 We shoud check that functions are a model, with application as |lookup|:
