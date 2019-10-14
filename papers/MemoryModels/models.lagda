@@ -9,38 +9,38 @@ open import Function using (_∘_; _$_)
 
 %<*naivememory>
 \begin{code}
-Memory0 : {ℓ v : Level} → Set ℓ → Set v → Set (ℓ ⊔ v)
-Memory0 L V = L → V
+MemoryF : {ℓ v : Level} → Set ℓ → Set v → Set (ℓ ⊔ v)
+MemoryF L V = L → V
 
-lookup0 : {ℓ v : Level} {L : Set ℓ} {V : Set v} → Memory0 L V → L → V
-lookup0 m l = m l
+lookupF : {ℓ v : Level} {L : Set ℓ} {V : Set v} → MemoryF L V → L → V
+lookupF m l = m l
 \end{code}
 %</naivememory>
 
 %<*variable>
 \begin{code}
 variable
-  ℓ ℓ′ v  : Level
-  L       : Set ℓ   --- an arbitrary set of labels
-  L′      : Set ℓ′  --- a different arbitrary set of labels
-  V       : Set v   --- a set of values
+  ℓ ℓ′ v s : Level
+  L        : Set ℓ   --- an arbitrary set of labels
+  L′       : Set ℓ′  --- a different arbitrary set of labels
+  V        : Set v   --- a set of values
 \end{code}
 %</variable>
 
 %<*naivememory2>
 \begin{code}
-Memory1 : Set ℓ → Set v → Set (ℓ ⊔ v)
-Memory1 L V = L → V
+MemoryF′ : Set ℓ → Set v → Set (ℓ ⊔ v)
+MemoryF′ L V = L → V
 
-lookup1 : Memory1 L V → L → V
-lookup1 m l = m l
+lookupF′ : MemoryF′ L V → L → V
+lookupF′ m l = m l
 \end{code}
 %</naivememory2>
 
 %<*relabel>
 \begin{code}
-relabel : (L′ → L) → Memory0 L V → Memory0 L′ V
-relabel f m = m ∘ f
+-- relabel : (L′ → L) → MemoryF L V → MemoryF L′ V
+-- relabel f m = m ∘ f
 \end{code}
 %</relabel>
 
@@ -48,16 +48,34 @@ But we want to allow wider kinds of models, so we start
 defining an interface.
 %<*memrecord>
 \begin{code}
-record Memory {s : Level} (L : Set ℓ) (V : Set v) : Set (ℓ ⊔ v ⊔ lsuc s) where
+record Memory0 : Set (lsuc ℓ ⊔ lsuc v ⊔ lsuc s) where
   field
-    Mem     : Set s
-    lookup  : Mem → L → V
+    Mem     : (L : Set ℓ) → (V : Set v) → Set s
+    lookup  : Mem L V → L → V
 \end{code}
 %</memrecord>
 We shoud check that functions are a model, with application as |lookup|:
 %<*fnasmemory>
 \begin{code}
-FnAsMemory : (L : Set ℓ) → (V : Set v) → Memory L V
-FnAsMemory L V = record { Mem = L → V ; lookup = _$_ }
+MemoryF0 : {ℓ v : Level} → Memory0 {ℓ} {v}
+MemoryF0 = record { Mem = λ L V → (L → V) ; lookup = _$_ }
 \end{code}
 %</fnasmemory>
+
+The next iteration of the interface, with relabelling:
+%<*memrecord-relabel>
+\begin{code}
+record Memory1 : Set (lsuc ℓ ⊔ lsuc v ⊔ lsuc s) where
+  field
+    Mem     : (L : Set ℓ) → (V : Set v) → Set s
+    lookup  : Mem L V → L → V
+    relabel : (L′ → L) → Mem L V → Mem L′ V
+\end{code}
+%</memrecord-relabel>
+
+%<*fnasmemory-relabel>
+\begin{code}
+MemoryF1 : {ℓ v : Level} → Memory1 {ℓ} {v}
+MemoryF1 = record { Mem = λ L V → (L → V) ; lookup = _$_ ; relabel = λ f m → m ∘ f }
+\end{code}
+%</fnasmemory-relabel>

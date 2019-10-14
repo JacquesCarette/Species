@@ -252,15 +252,15 @@ follows:
 %
 \ExecuteMetaData[latex/models.tex]{naivememory2}
 
-It is important to bear in mind that although we do use Agda as a
-concrete metalogic, we make no particular commitments to the specific
-metalogic used and what features it may or may not have available.
-For example, Agda has many built-in type formers (sums, products,
-\emph{etc.}) which allow one to construct new types out of existing
-ones, but we will not take such type formers for granted.  In general,
-the name of the game is to add structure in a gradual, carefully
-controlled manner, so as to discover the minimum amount of structure
-necessary to model various phenomena.
+It is important to bear in mind that although we use Agda as a way to
+conveniently express our ideas, we make no particular commitments to
+the specific metalogic used and what features it may or may not have
+available.  For example, Agda has many built-in type formers (sums,
+products, \emph{etc.}) which allow one to construct new types out of
+existing ones, but we will not take such type formers for granted.  In
+general, the name of the game is to add structure in a gradual,
+carefully controlled manner, so as to discover the minimum amount of
+structure necessary to model various phenomena.
 
 \begin{commentary}
   In fact what we are committing to up front is simply a category
@@ -272,8 +272,11 @@ By the same token, we don't want to commit up front to any particular
 model of a memory.  Instead of defining \AgdaFunction{Memory} as one
 particular model or another, we can define it as an Agda record which
 specifies the abstract interface that any model of memory should
-provide.  We will add more fields to this record as we discover more
-structure we wish to impose on our notion of memory.
+provide.  So far, we require only two things of a model: a type
+\AgdaField{Mem} representing the model itself, and a function
+\AgdaField{lookup} allowing us to retrieve the value associated to a
+particular label.  We will add more fields to this record as we
+discover more structure we wish to impose on our notion of memory.
 %
 \ExecuteMetaData[latex/models.tex]{memrecord}
 %
@@ -285,12 +288,17 @@ so far:
 \subsection{Relabelling}
 \label{sec:relabelling}
 
-The first nontrivial operation we require memories to have is
-\emph{relabelling}: it should be possible to change the labels on a
-memory by specifying a new set of labels along with a specification of
-how the new labels map onto the old.
+The next operation we require is \emph{relabelling}: it should be
+possible to change out the set of labels for a new set.  Conceptually,
+the reason to require such an operation is that the specific labels
+used ``shouldn't matter'': the labels are only there to give us a way
+to retrieve specific values.  Thus, two memories with the same values
+but different labels should in some sense be ``interchangeable''
+(though of course they are not identical).
 
-\ExecuteMetaData[latex/models.tex]{relabel}
+\todo{discuss bijection vs not.}
+
+\ExecuteMetaData[latex/models.tex]{memrecord-relabel}
 
 The first thing to notice is that $\AgdaFunction{Memory}$ is
 \emph{contravariant} in $\AgdaBound{L}$. \todo{explain}.

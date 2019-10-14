@@ -1,7 +1,7 @@
-# Transform anything that looks like \AgdaFunction{xyz34}, i.e. an
+# Transform anything that looks like \AgdaZZZ{xyz34}, i.e. an
 # Agda identifier with trailing digits, into something like
-# \AgdaFunction{xyz$_{34}$}, where the digits are typeset as
+# \AgdaZZZ{xyz$_{34}$}, where the digits are typeset as
 # subscripts.
 
-s/\\AgdaFunction{\([a-zA-Z]\+\)\([0-9]\+\)}/\\AgdaFunction{\1$_{\2}$}/g
+s/\\Agda\([a-zA-Z]\+\){\([a-zA-Z]\+\)\([0-9]\+\)}/\\Agda\1{\2$_{\3}$}/g
 
