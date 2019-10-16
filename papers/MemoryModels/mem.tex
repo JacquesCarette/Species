@@ -387,13 +387,29 @@ $(i,j) \mapsto (j,i)$, and many matrix libraries simply store this
 mapping (or even a single bit indicating the presence of this mapping)
 to the side rather than physically shuffling values in memory.
 
+It is interesting to think about what expressive power we gain by not
+requiring the relabelling function to be a bijection.  In particular,
+the relabelling function could fail to be a bijection in one of two
+ways:
+
 \begin{itemize}
 \item The relabelling function might not be surjective, that is, some
-  of the old labels might be left out. This allows us to model
-  deleting or ``freeing'' memory that is no longer needed.
-\item Likewise, the relabelling function might not be injective, that
-  is, multiple new labels may map to the same old label.  This allows
-  us to model aliasing.
+  of the old labels might be left out.   \todo{picture}
+
+  After applying a non-surjective relabelling, the omitted labels are
+  no longer accessible, so this allows us to model deleting or
+  ``freeing'' values in memory that are no longer needed.
+\item On the other hand, the relabelling function might not be
+  injective, that is, multiple new labels may map to the same old
+  label.  \todo{picture}
+
+  Having multiple distinct labels mapping to the same value in memory
+  is usually known as ``aliasing'', and tends to be viewed negatively.
+  However, aliasing only has negative consequences in a context where
+  mutable assignment is allowed!  When memory is read-only, it is
+  impossible to observe whether two labels are aliased to a single
+  value, or simply happen to map to two identical copies of the value.
+  Hence in a read-only context, aliasing is simply an optimization.
 
   ``bags for free''.
 
