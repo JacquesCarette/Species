@@ -304,20 +304,21 @@ exactly this way.  However, a more general version of relabelling
 allows us to model some interesting phenomena; we will return to
 discuss the distinction in more detail later.  For now, we introduce a
 new \AgdaField{relabel} operation as follows:
-\ExecuteMetaData[latex/models.tex]{memrecord-relabel}
-Essentially this amounts to saying that \AgdaField{Mem} must be a
-(contravariant) functor in its first argument $L$.  The contravariance
-may be surprising on one level (when we think about replacing one set
-of labels by another we intuitively imagine a mapping \emph{from} the
-old set of labels \emph{to} the new ones), but obviously required if
-we want to retain the simple function model of memory:
+\ExecuteMetaData[latex/models.tex]{memrecord-relabel} Note that the
+relabelling function is ``backwards'' (\emph{i.e.} contravariant),
+that is, it maps new labels to old.  This may be surprising on one
+level, since when we think about replacing one set of labels by
+another we intuitively imagine a mapping \emph{from} the old set of
+labels \emph{to} the new ones. However, it becomes clear that
+contravariance is required if we want to retain the simple model of
+memory as a function:
 
 \ExecuteMetaData[latex/models.tex]{fnasmemory-relabel}
 
-If memory is a function mapping labels to values, then in order to
-relabel we need a way to translate new labels to old, which we
-precompose with the memory mapping itself.  That is, when given a new
-label to look up, we first run it through the given function to
+If memory is a function mapping labels to values, then in
+order to relabel we need a way to translate new labels to old, which
+we precompose with the memory mapping itself.  That is, when given a
+new label to look up, we first run it through the given function to
 translate it into a corresponding old label, then look up the old
 label in memory.
 
