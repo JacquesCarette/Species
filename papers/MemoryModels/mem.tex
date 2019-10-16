@@ -11,7 +11,7 @@
 
 % Turn on to include commentary. This is intended for stuff we want to
 % remember/write down but do not intend to include in the paper.
-\newif\ifcommentary\commentaryfalse
+\newif\ifcommentary\commentarytrue
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Packages
@@ -289,22 +289,72 @@ so far:
 \label{sec:relabelling}
 
 The next operation we require is \emph{relabelling}: it should be
-possible to change out the set of labels for a new set.  Conceptually,
+possible to exchange the set of labels for a new set.  Conceptually,
 the reason to require such an operation is that the specific labels
 used ``shouldn't matter'': the labels are only there to give us a way
 to retrieve specific values.  Thus, two memories with the same values
-but different labels should in some sense be ``interchangeable''
-(though of course they are not identical).
+but different labels should in some sense be interchangeable (though
+of course they are not identical).
 
-\todo{discuss bijection vs not.}
-
+Talk of ``exchanging'' label sets might suggest that we should be
+required to relabel with a new label set \emph{of the same size} as
+the old, with a specified one-to-one mapping between them.  And
+indeed, in some situations we might want to restrict relabelling in
+exactly this way.  However, a more general version of relabelling
+allows us to model some interesting phenomena; we will return to
+discuss the distinction in more detail later.  For now, we introduce a
+new \AgdaField{relabel} operation as follows:
 \ExecuteMetaData[latex/models.tex]{memrecord-relabel}
+Essentially this amounts to saying that \AgdaField{Mem} must be a
+(contravariant) functor in its first argument $L$.  The contravariance
+may be surprising on one level (when we think about replacing one set
+of labels by another we intuitively imagine a mapping \emph{from} the
+old set of labels \emph{to} the new ones), but obviously required if
+we want to retain the simple function model of memory:
 
-The first thing to notice is that $\AgdaFunction{Memory}$ is
-\emph{contravariant} in $\AgdaBound{L}$. \todo{explain}.
+\ExecuteMetaData[latex/models.tex]{fnasmemory-relabel}
 
-Notice also that the provided relabelling function need not be a
-bijection.
+If memory is a function mapping labels to values, then in order to
+relabel we need a way to translate new labels to old, which we
+precompose with the memory mapping itself.  That is, when given a new
+label to look up, we first run it through the given function to
+translate it into a corresponding old label, then look up the old
+label in memory.
+
+Looking at the picture in Figure~\ref{fig:mailboxes}, we might intuitively
+visualize relabelling in terms of phyiscally replacing the old labels
+with new ones. However, the foregoing discussion suggests there is
+another way to think of it: instead of \emph{replacing} the labels we
+can simply store a function off to the side.  In terms of the picture,
+we might imagine having a little book sitting next to the mailboxes in
+which you can look up a name and see which actual name it corresponds
+to on the mailboxes.
+
+\todo{picture of relabelling}
+
+In fact, there are real-world memory systems that work this way.  For
+example, virtual memory works by maintaining a mapping from virtual
+addresses to physical addresses; when a process requests the value at
+a particular address, the address is first run through the mapping to
+translate it to a physical address, and then looked up in the physical
+memory.
+\begin{commentary}
+  Paging memory to and from disk complicates this story somewhat.  I
+  have not thought about it too carefully yet but I think it
+  corresponds to applying a relabelling operation to the physical
+  memory directly.  That is, suppose we have a physical memory
+  $M : Mem\; PA\; Bits$ (comprising both RAM and disk), where $PA$ is
+  the type of physical addresses.  Then a virtual memory system
+  results from applying a relabelling of type $VA \to PA$ that
+  translates virtual addresses to physical addresses.  But to
+  represent/implement swapping you have to intensionally know that
+  this virtual memory system is represented as a pair $(PT, M)$ where
+  $PT : VA \to PA$ is the page table.  Then swapping corresponds to
+  applying a permutation relabelling directly to $M$, of type
+  $PA \to PA$.  Of course it is implemented by physically copying
+  stuff around rather than storing a function off to the side.
+\end{commentary}
+Another example is \todo{array libraries}
 
 \begin{itemize}
 \item The relabelling function might not be surjective, that is, some
@@ -320,21 +370,17 @@ bijection.
   operation.  Leave that until later.
 \end{itemize}
 
-\todo{motivate relabel: one model is to actually change the labels.
-  Another is to just store a function off to the side.  e.g. array
-  libraries, virtual memory}
+\begin{commentary}
+  relabel is still useful if $L' = L$.  e.g. Copying garbage collection.
+\end{commentary}
 
-\todo{draw a picture of relabelling.}
-
+\begin{commentary}
 Note that a $\AgdaFunction{Memory}$ must be a \emph{total} function,
 that is, every label corresponds to some value.  If we wish to model
 memories where some labels do not correspond to a stored value, we can
 simply use a type $V$ of values with a distinguished ``empty'' value.
 \todo{Actually there are other choices too!  e.g. get rid of labels
   entirely.  This is why we're going to wait.}
-
-\begin{commentary}
-  relabel is still useful if $L' = L$.  e.g. Copying garbage collection.
 \end{commentary}
 
 \todo{eventual motivation: represent data structures!  So we need some

@@ -50,7 +50,7 @@ defining an interface.
 \begin{code}
 record Memory0 : Set (lsuc ℓ ⊔ lsuc v ⊔ lsuc s) where
   field
-    Mem     : (L : Set ℓ) → (V : Set v) → Set s
+    Mem     : Set ℓ → Set v → Set s
     lookup  : Mem L V → L → V
 \end{code}
 %</memrecord>
@@ -67,7 +67,7 @@ The next iteration of the interface, with relabelling:
 \begin{code}
 record Memory1 : Set (lsuc ℓ ⊔ lsuc v ⊔ lsuc s) where
   field
-    Mem     : (L : Set ℓ) → (V : Set v) → Set s
+    Mem     : Set ℓ → Set v → Set s
     lookup  : Mem L V → L → V
     relabel : (L′ → L) → Mem L V → Mem L′ V
 \end{code}
@@ -76,6 +76,10 @@ record Memory1 : Set (lsuc ℓ ⊔ lsuc v ⊔ lsuc s) where
 %<*fnasmemory-relabel>
 \begin{code}
 MemoryF1 : {ℓ v : Level} → Memory1 {ℓ} {v}
-MemoryF1 = record { Mem = λ L V → (L → V) ; lookup = _$_ ; relabel = λ f m → m ∘ f }
+MemoryF1 = record
+  {  Mem      = λ L V → (L → V)
+  ;  lookup   = _$_
+  ;  relabel  = λ f m → m ∘ f
+  }
 \end{code}
 %</fnasmemory-relabel>
