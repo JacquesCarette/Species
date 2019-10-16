@@ -50,7 +50,7 @@ defining an interface.
 \begin{code}
 record Memory0 : Set (lsuc ℓ ⊔ lsuc v ⊔ lsuc s) where
   field
-    Mem     : Set ℓ → Set v → Set s
+    Mem     : (L : Set ℓ) → (V : Set v) → Set s
     lookup  : Mem L V → L → V
 \end{code}
 %</memrecord>
@@ -67,7 +67,7 @@ The next iteration of the interface, with relabelling:
 \begin{code}
 record Memory1 : Set (lsuc ℓ ⊔ lsuc v ⊔ lsuc s) where
   field
-    Mem     : Set ℓ → Set v → Set s
+    Mem     : (L : Set ℓ) → (V : Set v) → Set s
     lookup  : Mem L V → L → V
     relabel : (L′ → L) → Mem L V → Mem L′ V
 \end{code}
