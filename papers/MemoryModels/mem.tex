@@ -347,10 +347,10 @@ to on the mailboxes.
 
 In fact, there are real-world memory systems that work this way.  For
 example, virtual memory works by maintaining a mapping from virtual
-addresses to physical addresses; when a process requests the value at
-a particular address, the address is first run through the mapping to
-translate it to a physical address, and then looked up in the physical
-memory.
+addresses to physical addresses (a \term{page table}); when a process
+requests the value at a particular address, the address is first
+translated to a physical address using the mapping, and then
+the resulting physical address is looked up in memory.
 \begin{commentary}
   Paging memory to and from disk complicates this story somewhat.  I
   have not thought about it too carefully yet but I think it
@@ -363,9 +363,11 @@ memory.
   represent/implement swapping you have to intensionally know that
   this virtual memory system is represented as a pair $(PT, M)$ where
   $PT : VA \to PA$ is the page table.  Then swapping corresponds to
-  applying a permutation relabelling directly to $M$, of type
-  $PA \to PA$.  Of course it is implemented by physically copying
-  stuff around rather than storing a function off to the side.
+  applying a permutation relabelling $\varphi : PA \to PA$ directly to
+  $M$, resulting in the new virtual memory
+  $(PT, \mathit{relabel}\; \varphi\; M)$.  Of course, application of
+  $\varphi$ is implemented by physically copying stuff around rather
+  than storing a function off to the side.
 \end{commentary}
 Another example is \todo{array libraries}
 
