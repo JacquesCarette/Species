@@ -315,12 +315,12 @@ memory as a function:
 
 \ExecuteMetaData[latex/models.tex]{fnasmemory-relabel}
 
-If memory is a function mapping labels to values, then in
-order to relabel we need a way to translate new labels to old, which
-we precompose with the memory mapping itself.  That is, when given a
-new label to look up, we first run it through the given function to
-translate it into a corresponding old label, then look up the old
-label in memory.
+If memory is a function mapping labels to values, then in order to
+relabel we need a way to translate new labels to old, which we
+precompose with the memory mapping itself.  When given a new label to
+look up, we first run it through the given function to translate it
+into a corresponding old label, then look up the old label in the
+underlying memory.
 
 \begin{commentary}
   This used to say that relabelling essentially amounts to saying that
