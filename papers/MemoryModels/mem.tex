@@ -377,7 +377,15 @@ the resulting physical address is looked up in memory.
   $\varphi$ is implemented by physically copying stuff around rather
   than storing a function off to the side.
 \end{commentary}
-Another example is \todo{array libraries}
+Another example is high-performance matrix libraries, which typically
+allow the user to do various high-level operations such as
+transposition and slicing, but in order to avoid unnecessary copying,
+actually implement these operations via some sort of function mapping
+between ``logical'' and ``physical'' indices.  For example, applying a
+transposition operator corresponds to relabelling via the mapping
+$(i,j) \mapsto (j,i)$, and many matrix libraries simply store this
+mapping (or even a single bit indicating the presence of this mapping)
+to the side rather than physically shuffling values in memory.
 
 \begin{itemize}
 \item The relabelling function might not be surjective, that is, some
