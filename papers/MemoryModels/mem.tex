@@ -322,6 +322,18 @@ new label to look up, we first run it through the given function to
 translate it into a corresponding old label, then look up the old
 label in memory.
 
+\begin{commentary}
+  This used to say that relabelling essentially amounts to saying that
+  Mem is a contravariant functor in the label argument, but as Jacques
+  correctly points out it is not quite there yet: there are some extra
+  properties we would need too.
+
+  ``\dots after relabelling, all you need is to consider functions on
+  $V$ as being interesting (and in programming, you often want to
+  apply functions to values, regardless of 'memory'). That is enough
+  to pack everything together into Categories + Functors.''
+\end{commentary}
+
 Looking at the picture in Figure~\ref{fig:mailboxes}, we might intuitively
 visualize relabelling in terms of phyiscally replacing the old labels
 with new ones. However, the foregoing discussion suggests there is
