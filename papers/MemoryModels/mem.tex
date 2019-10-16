@@ -295,13 +295,14 @@ operation later.
 \subsection{Relabelling}
 \label{sec:relabelling}
 
-The next operation we require is \emph{relabelling}: it should be
-possible to exchange the set of labels for a new set.  Conceptually,
-the reason to require such an operation is that the specific labels
-used ``shouldn't matter'': the labels are only there to give us a way
-to retrieve specific values.  Thus, two memories with the same values
-but different labels should in some sense be interchangeable (though
-of course they are not identical).
+Besides \AgdaField{lookup}, the next most fundamental operation we
+require is \emph{relabelling}: it should be possible to exchange the
+set of labels for a new set.  Conceptually, the reason to require such
+an operation is that the specific labels used ``shouldn't matter'':
+the labels are only there to give us a way to retrieve specific
+values.  Thus, two memories with the same values but different labels
+should in some sense be interchangeable (though of course they are not
+identical).
 
 Talk of ``exchanging'' label sets might suggest that we should be
 required to relabel with a new label set \emph{of the same size} as
