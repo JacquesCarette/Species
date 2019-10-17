@@ -292,6 +292,22 @@ to take assignment as foundational; read-only memories are perfectly
 useful on their own!  We will return to analyze an assignment
 operation later.
 
+\begin{commentary}
+  Note that a $\AgdaFunction{Memory}$ must have a \emph{total}
+  \AgdaField{lookup} function, that is, every label must correspond to
+  some value.  If we wish to model memories where some labels do not
+  correspond to a stored value, we have a few choices:
+  \begin{itemize}
+  \item We could use a type $V$ of values with a distinguished
+    ``empty'' value.
+  \item On the other hand, we could also simply maintain that every
+    label \emph{must} correspond to a value, and if you want some that
+    don't, you should just get rid of those labels (\emph{e.g.} via a
+    non-surjective relabelling).
+  \end{itemize}
+  This should probably be discussed somewhere but not sure where yet.
+\end{commentary}
+
 \subsection{Relabelling}
 \label{sec:relabelling}
 
@@ -404,31 +420,24 @@ ways:
   label.  \todo{picture}
 
   Having multiple distinct labels mapping to the same value in memory
-  is usually known as ``aliasing'', and tends to be viewed negatively.
-  However, aliasing only has negative consequences in a context where
-  mutable assignment is allowed!  When memory is read-only, it is
-  impossible to observe whether two labels are aliased to a single
-  value, or simply happen to map to two identical copies of the value.
-  Hence in a read-only context, aliasing is simply an optimization.
+  is usually known as \term{aliasing}, and tends to be viewed
+  negatively.  However, aliasing only has negative consequences in a
+  context where mutable assignment is allowed!  When memory is
+  read-only, it is impossible to observe whether two labels are
+  aliased to a single value, or simply happen to map to two identical
+  copies of the value.  Hence in a read-only context, aliasing is
+  simply an optimization, and we prefer to call it \term{sharing}.
 
+  \begin{commentary}
   ``bags for free''.
-
-  ``aliasing'' is a loaded term!  Implies mutability, i.e. assign
-  operation.  Leave that until later.
+  \end{commentary}
 \end{itemize}
 
-\begin{commentary}
-  relabel is still useful if $L' = L$.  e.g. Copying garbage collection.
-\end{commentary}
-
-\begin{commentary}
-Note that a $\AgdaFunction{Memory}$ must be a \emph{total} function,
-that is, every label corresponds to some value.  If we wish to model
-memories where some labels do not correspond to a stored value, we can
-simply use a type $V$ of values with a distinguished ``empty'' value.
-\todo{Actually there are other choices too!  e.g. get rid of labels
-  entirely.  This is why we're going to wait.}
-\end{commentary}
+As a final comment on relabelling, note that it is still useful even
+when $L' = L$, that is, when the same set is used for both the old and
+new labels.  In particular, relabelling with a function of type
+$L \to L$ allows us to permute or ``shuffle'' the values among the
+labels.  For example, copying garbage collection takes this form.
 
 \todo{eventual motivation: represent data structures!  So we need some
   structure on labels (?)  Next up: disjoint union.  Related to
