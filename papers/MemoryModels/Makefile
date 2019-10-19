@@ -1,6 +1,6 @@
 all: mem.pdf
 
-mem.pdf : latex/models.tex mem.tex
+mem.pdf : latex/models.tex mem.tex MemDiagrams.hs
 	stack exec -- latexmk -e '$$pdflatex=q/pdflatex %O -shell-escape %S/' -pdf mem.tex
 
 latex/models.tex : models.lagda format.sed
