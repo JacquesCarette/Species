@@ -83,3 +83,50 @@ MemoryF1 = record
   }
 \end{code}
 %</fnasmemory-relabel>
+
+|Memory0| and |Memory1| are very general models of memory,
+and work for any types. We would like to narrow things down a little
+bit, and look at what might constitute a type.  We still want
+to be polymorphic over values, but would rather have the type
+of labels be a \emph{parameter}.
+
+\begin{code}
+record Memory2 {ℓ v s : Level} (L : Set ℓ) : Set (ℓ ⊔ lsuc v ⊔ lsuc s) where
+  field
+    Mem : Set v → Set s
+    lookup : Mem V → L → V
+\end{code}
+We drop 'relabel' as it involves a different label set, which
+will come in later.
+
+What about the case of a label set with a single label?
+\begin{code}
+data Single : Set₀ where
+  𝟙 : Single
+\end{code}
+
+We can then give several very similar-looking implementations:
+\begin{code}
+MemoryF2-1 : Memory2 {v = v} Single
+MemoryF2-1 = record
+  { Mem = λ V → (Single → V)
+  ; lookup = _$_
+  }
+MemoryF2-2 : Memory2 {v = v} Single
+MemoryF2-2 = record
+  { Mem = λ V → (Single → V)
+  ; lookup = λ f _ → f 𝟙
+  }
+MemoryF2-3 : Memory2 {v = v} Single
+MemoryF2-3 = record
+  { Mem = λ V → (Single → V)
+  ; lookup = λ f 𝟙 → f 𝟙
+  }
+\end{code}
+
+It is easy to think that these are all the same and rather trivial: they
+all contain a single value of |V|
+\begin{code}
+data SingleToo : Set₀ where
+  𝟚 : SingleToo
+\end{code}

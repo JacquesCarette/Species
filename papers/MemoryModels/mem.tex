@@ -121,6 +121,13 @@ are introduced.  I'm not so sure about the word ``container'', but
 that can be figured out later.
 \end{commentary}
 
+\begin{commentary}
+Meta-commentary: perhaps we should turn some commentary into
+endnotes (with package of same name) so that they do indeed appear
+in a long version, while other commentary should be more like
+TODOs.
+\end{commentary}
+
 What sort of structure does a memory need to have to make this
 possible?  If there are to be many values stored in a memory, and we
 want to somehow retrieve a particular value, how can we do that?
@@ -356,7 +363,7 @@ to on the mailboxes.
     dia = relabelledSoup
   \end{diagram}
   \caption{Relabelling the soup}
-  \label{fig:soup}
+  \label{fig:relabel-soup}
 \end{figure}
 
 In fact, there are real-world memory systems that work this way.  For
@@ -428,6 +435,31 @@ when $L' = L$, that is, when the same set is used for both the old and
 new labels.  In particular, relabelling with a function of type
 $L \to L$ allows us to permute or ``shuffle'' the values among the
 labels.  For example, copying garbage collection takes this form.
+
+\subsection{Simple Labels}
+
+What about the simplest label set, namely the one with a single label?
+\jc{there is some code in the accompanying file, but it's a mess.}
+
+The idea would be to explore ``a memory'' \jc{is that even the right
+name? Or are we getting into type constructors instead?} as given by
+fixing the label set.
+
+There are subtleties that arise (see the bad code): because the label
+set has a unique constructore, we can be lazy about matching on it;
+this means that the caller could give us a non-terminating computation
+(of that trivial label) as input, and still \AgdaFunction{lookup}
+returns a value. Or, if we're strict, then we actually demand that
+a label be given explicitly (i.e. up to a finite amount of computation).
+
+\subsection{Sameness}
+
+What does it mean to have two memory models be the same?  First, we
+should define Homomorphisms of models; then the usual idea is to
+have Homomorphisms in both directions that compose (which also needs
+to be defined) to the identity Homomorphism (ditto).
+
+\subsection{TBD}
 
 \todo{eventual motivation: represent data structures!  So we need some
   structure on labels (?)  Next up: disjoint union.  Related to
