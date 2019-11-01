@@ -452,12 +452,27 @@ this means that the caller could give us a non-terminating computation
 returns a value. Or, if we're strict, then we actually demand that
 a label be given explicitly (i.e. up to a finite amount of computation).
 
+\begin{commentary}
+While writing this, I became quite confused about the difference between
+a generic memory model, a specific instantion of a memory, a (model of)
+a type (constructor), and so on.  Having any/all of |L|, |V| and 
+|Mem| as parameters or fields, while generally isomorphic, does change
+perspective, and has an effect.
+\end{commentary}
+
+The next question that comes up is, given two label sets that each
+are singletons, what can we say about the instantiation of our models
+at those label sets?  We would like to say that they are equivalent.
+
 \subsection{Sameness}
 
 What does it mean to have two memory models be the same?  First, we
 should define Homomorphisms of models; then the usual idea is to
 have Homomorphisms in both directions that compose (which also needs
 to be defined) to the identity Homomorphism (ditto).
+
+But these are not so easy to define! \jc{ok, the confusion has reached
+so high a level, I have to stop writing.}
 
 \subsection{TBD}
 
