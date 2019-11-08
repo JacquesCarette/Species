@@ -130,3 +130,51 @@ all contain a single value of |V|
 data SingleToo : Set₀ where
   𝟚 : SingleToo
 \end{code}
+
+%%%%%%%%%%%%%
+
+When talking about labels and memory, it is sometimes easy to get
+confused and have the ``wrong'' picture in mind --- such as the
+typical C view of linked lists.  So consider the following
+types:
+\begin{code}
+module _ {V : Set v} where
+
+  record XYZ : Set (lsuc v) where
+    field
+      x : V
+      y : V
+      z : V
+
+  record ABC : Set (lsuc v) where
+    field
+      a : V
+      b : V
+      c : V
+
+  data Foo : Set (lsuc v) where
+    mkFoo : V → V → V → Foo
+\end{code}
+First and foremost, all $3$ types are obviously equivalent.
+Second, and perhaps less obvious, is that the field labels
+x,y,z, and a,b,c, are ``virtual'', in the sense that if we
+compile a program that uses those records, the labels will
+be nowhere to be found in the executable. So the proper
+picture of both those types is indeed like Figure ???.
+Third is that |Foo| does have labels too, but these are
+positional labels in the language syntax; in the internal
+representation, these exist as the natural numbers
+$0$, $1$ and $2$. They are just even more hidden.
+
+This is stark contrast with
+\begin{code}
+  data Lbl : Set where
+    A B C : Lbl
+
+  Bar : Set v
+  Bar = Lbl → V
+\end{code}
+where the labels now are quite explicitly in the
+language itself\footnote{though they will still not
+appear in the executable in that form, as they will be
+encoded, likely using integers.}.
