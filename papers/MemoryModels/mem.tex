@@ -534,4 +534,18 @@ equivalent labels are never mapped to different values).
   allowed.
 \end{commentary}
 
+\begin{commentary}
+  Start with a ``functor'' $T : Set \to Set$.
+
+  We have a ``concretization'' natural transformation:
+
+  $C[T](A) = \exists L. T(L) \times (Memory L A)$
+
+  Note $C[T]$ is actually isomorphic to $T$.
+
+  Then a data structure is an element of $C[T](A)$.
+
+  Could also make a version of $C$ that exposes $L$ as a parameter.
+\end{commentary}
+
 \end{document}
