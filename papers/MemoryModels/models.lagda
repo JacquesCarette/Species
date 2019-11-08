@@ -178,3 +178,15 @@ where the labels now are quite explicitly in the
 language itself\footnote{though they will still not
 appear in the executable in that form, as they will be
 encoded, likely using integers.}.
+
+Lastly, it would be incorrect to assume that, in practice, the
+compiler will choose to put the data for each of the above in
+the ``obvious layout'', i.e. sequentially in memory, in the same
+order as they have been defined.  There is, in fact, no necessary
+commitment to do so.  Yes, we are used to low-level languages like
+C make layout commitments, which clouds our vision.  But there is no
+actual reason the compiler must be so constrained; a sufficiently
+smart compiler might notice usage patterns that could be better
+handled with a different ordering and, unless the semantics of the
+language is explicit about layout, should feel free to choose
+an order that seems best.
