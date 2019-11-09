@@ -44,3 +44,4 @@ cabal.sandbox.config
 
 .stack-work
 stack.yaml.lock
+.DS_Store
