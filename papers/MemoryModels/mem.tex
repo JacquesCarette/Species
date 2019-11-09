@@ -548,4 +548,32 @@ equivalent labels are never mapped to different values).
   Could also make a version of $C$ that exposes $L$ as a parameter.
 \end{commentary}
 
+\begin{commentary}
+As phrased, the above can't work -- we don't know enough about $T$.
+
+However, given a language-of-functors that has an interpretation
+as $ Set \to Set $, we would want all of those to have such a
+concretization.
+
+We should also be careful as we always mean ``univariate type
+constructor'' when we say ``data type''.
+
+It is also good to remind ourselves that the occurence of
+natural transformations is a short-hand for parametric
+polymorphism [insert links to papers here that show that
+parametric polymorphism is strictly more general].
+
+\end{commentary}
+
+\begin{commentary}
+Which reminds me of something else about Species that I think
+is true: it has a linguistic aspect to it.  What I mean is that
+``analytic functor'', which can also be characterized in a number of
+ways, is a semantic condition.  However, I think it induces a \emph{syntactic}
+condition, in the sense that it is possible to write down all the
+analytic functors via a finite specification.
+
+It's like computable numbers --- underneath them all, even if they
+are written down infinitarily, there is a finite program.
+\end{commentary}
 \end{document}
