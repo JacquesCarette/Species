@@ -131,6 +131,14 @@ data SingleToo : Set₀ where
   𝟚 : SingleToo
 \end{code}
 
+BAY: Just to play devil's advocate, why does the difference matter?
+We've already said that we require lookup to be a *total* function.
+So what difference does it make if it is strict?  Non-strictness seems
+like just an optimization.  Remember we are just using Agda as a
+metalogic.  Functions are well-defined mathematical entities; their
+specific computational behavior when actually implemented isn't really
+important, is it?
+
 %%%%%%%%%%%%%
 
 When talking about labels and memory, it is sometimes easy to get
