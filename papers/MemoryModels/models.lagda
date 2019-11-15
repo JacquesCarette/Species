@@ -139,6 +139,9 @@ metalogic.  Functions are well-defined mathematical entities; their
 specific computational behavior when actually implemented isn't really
 important, is it?
 
+JC: valid point. So I guess that the -1 and -3 versions above
+are essentially the same from that point of view.
+
 %%%%%%%%%%%%%
 
 When talking about labels and memory, it is sometimes easy to get
@@ -147,6 +150,13 @@ typical C view of linked lists.  So consider the following
 types:
 
 [BAY: What is meant by the "typical C view of linked lists"?]
+
+[JC: 'memory' is a thing that stores everything as
+strings-of-bits of a particular size, and labels are
+first class & thus also strings-of-bits. Labels for the
+'next' element in a linked-list are stored in the previous
+element's value.]
+
 \begin{code}
 module _ {V : Set v} where
 
