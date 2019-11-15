@@ -142,6 +142,8 @@ important, is it?
 JC: valid point. So I guess that the -1 and -3 versions above
 are essentially the same from that point of view.
 
+BAY: I am actually suggesting they are *all* the same from that point of view.
+
 %%%%%%%%%%%%%
 
 When talking about labels and memory, it is sometimes easy to get
