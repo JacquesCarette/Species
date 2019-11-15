@@ -145,6 +145,8 @@ When talking about labels and memory, it is sometimes easy to get
 confused and have the ``wrong'' picture in mind --- such as the
 typical C view of linked lists.  So consider the following
 types:
+
+[BAY: What is meant by the "typical C view of linked lists"?]
 \begin{code}
 module _ {V : Set v} where
 
