@@ -520,6 +520,11 @@ equivalent labels are never mapped to different values).
 \bay{What Agda code should go along with this?}
 
 
+\section{Notes and Comments}
+
+Hodge podge of things, many which may get removed, but nevertheless
+useful to record.
+
 \begin{commentary}
   Simplest data structure: singleton-indexed.  Next: two-element-set
   indexed, i.e. a pair.  Note it is not necessarily an ORDERED pair!
@@ -583,4 +588,46 @@ are written down infinitarily, there is a finite program.
   even lenses etc.).  Java: semi-exposed, as an abstract type.  C:
   Completely exposed as ints.
 \end{commentary}
+
+\subsection{Top-down}
+
+Thinking about things starting from species, and trying to move
+towards memory models. In fact, trying to see how to take each
+construction from species and seeing in what setting it can be
+properly defined.
+
+The $0$ species is easily generalizable: any category $D$ with an
+initial object $\bot$, we can define a functor $0 : C \rightarrow D$
+(for any category $C$ whatsoever) as $\mathtt{const} \bot$, the
+constant functor.
+
+The $1$ species is considerably harder to define!  It is instructive to
+start from the usual definition to see why:
+\[
+1\left(A\right) = 
+\begin{cases}
+\{A\} & \text{if\ } A = \empty \\
+\empty & \text{otherwise}
+\end{cases}
+\]
+This \emph{piecewise} definition is quite problematic, as it assumes that
+we have decidable equality on our inputs.  Also, it cheats somewhat, by
+using set-theoretic language, i.e. by being a non-categorical definition
+as the level of objects.  The $\empty$ in the $\text{otherwise}$ clause
+is okay -- it can be taken to be the initial object of the target category.
+$\{A\}$ is problematic too: how do we ``insert'' $A$ into the target
+category?  What is really being done here is overloading: as the target
+is Set, we know that singleton sets a terminal, so we can take any terminal
+set.  So it should be possible to generalize this part.
+
+But how to generalize that ``if''?  The answer comes from the Day
+convolution, and the fact that $1$ should end up being the unit for
+the product.  Key here is to consider
+\[ Hom\left(A, \empty\right) \]
+This is going to be a singleton set (containing the identity) for
+$A=\empty$ and empty otherwise.  Bingo!  So if our target is the
+category Set, then the definition above works for any category $C$
+seen as a Set-enriched category.
+
+
 \end{document}
